@@ -1102,10 +1102,11 @@ void GMenu2X::main() {
 		// 		}
 		// 	}
 
-
+#if defined(TARGET_GP2X)
 			if (f200) {
 				btnContextMenu->paint();
 			}
+#endif
 			if ((tickNow-tickBattery) >= 3000) {
 				tickBattery = tickNow;
 				battlevel = getBatteryLevel();
@@ -1118,6 +1119,7 @@ void GMenu2X::main() {
 					batteryIcon = "imgs/battery/"+batteryIcon+".png";
 				}
 			}
+
 			sc.skinRes(batteryIcon)->blit( s, 22, skinConfInt["sectionBarHeight"]+2 );
 
 			ss.clear();
@@ -1183,6 +1185,8 @@ void GMenu2X::main() {
 					preMMCStatus = curMMCStatus;
 				}
 			}
+
+
 
 			if (preMMCStatus == MMC_INSERT) {
 				// backlightOffset = resX-((19 * 4) + battMsgWidth);
@@ -1253,6 +1257,7 @@ void GMenu2X::main() {
 
 			s->flip();
 
+#if defined(TARGET_GP2X)
 		//touchscreen
 			if (f200) {
 				ts.poll();
@@ -1280,6 +1285,7 @@ void GMenu2X::main() {
 					i++;
 				}
 			}
+#endif
 
 			inputAction = input.update(0);
 
@@ -1854,6 +1860,7 @@ void GMenu2X::main() {
 				s->write( font, voices[i].text, box.x+12, box.y+h2+3+h*i, HAlignLeft, VAlignMiddle );
 			s->flip();
 
+#if defined(TARGET_GP2X)
 		//touchscreen
 			if (f200) {
 				ts.poll();
@@ -1882,7 +1889,7 @@ void GMenu2X::main() {
 				}
 			}
 		}
-
+#endif
 		input.update();
 		if ( input[MENU]    ) close = true;
 		if ( input[UP]      ) sel = max(0, sel-1);
