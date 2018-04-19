@@ -50,7 +50,7 @@ MenuSettingRGBA::MenuSettingRGBA(GMenu2X *gmenu2x, const string &name, const str
 	btn->setAction(MakeDelegate(this, &MenuSettingRGBA::leftComponent));
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change color component"]);
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Component"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingRGBA::rightComponent));
 	buttonBox.add(btn);
 }
@@ -58,12 +58,12 @@ MenuSettingRGBA::MenuSettingRGBA(GMenu2X *gmenu2x, const string &name, const str
 void MenuSettingRGBA::draw(int y) {
 	this->y = y;
 	MenuSetting::draw(y);
-	gmenu2x->s->rectangle( 153, y+3, 11, 11, 0,0,0,255 );
-	gmenu2x->s->box( 154, y+4, 9, 9, value() );
-	gmenu2x->s->write( gmenu2x->font, "R: "+strR, 169, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
-	gmenu2x->s->write( gmenu2x->font, "G: "+strG, 205, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
-	gmenu2x->s->write( gmenu2x->font, "B: "+strB, 241, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
-	gmenu2x->s->write( gmenu2x->font, "A: "+strA, 277, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
+	gmenu2x->s->box(153, y + 2 + (gmenu2x->font->getHeight()/2) - 6, 12, 12, value() );
+	gmenu2x->s->rectangle(153, y + 2 + (gmenu2x->font->getHeight()/2) - 6, 12, 12, 0, 0, 0, 255);
+	gmenu2x->s->write( gmenu2x->font, /*"R: "+*/strR, 169, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
+	gmenu2x->s->write( gmenu2x->font, /*"G: "+*/strG, 205, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
+	gmenu2x->s->write( gmenu2x->font, /*"B: "+*/strB, 241, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
+	gmenu2x->s->write( gmenu2x->font, /*"A: "+*/strA, 277, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
 }
 
 void MenuSettingRGBA::handleTS() {
@@ -175,8 +175,8 @@ void MenuSettingRGBA::adjustInput() {
 void MenuSettingRGBA::drawSelected(int y)
 {
 	int x = 166+selPart*36;
-	gmenu2x->s->box( x, y+3, 36, 14, gmenu2x->skinConfColors[COLOR_SELECTION_BG] );
-
+	gmenu2x->s->box( x, y+2, 36, gmenu2x->font->getHeight(), gmenu2x->skinConfColors[COLOR_SELECTION_BG] );
+	gmenu2x->s->rectangle( x, y+2, 36, gmenu2x->font->getHeight(), 0,0,0,255 );
 	MenuSetting::drawSelected(y);
 }
 
