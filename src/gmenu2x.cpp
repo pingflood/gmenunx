@@ -723,8 +723,7 @@ void GMenu2X::writeConfigOpen2x() {
 }
 
 void GMenu2X::writeSkinConfig() {
-// dc: prevent skin write during development
-	return;
+	// return;
 	ledOn();
 	string conffile = path+"skins/"+confStr["skin"]+"/skin.conf";
 	ofstream inf(conffile.c_str());
@@ -744,8 +743,6 @@ void GMenu2X::writeSkinConfig() {
 			<< hex << setw(2) << setfill('0') << right << (unsigned short)skinConfColors[i].b
 			<< hex << setw(2) << setfill('0') << right << (unsigned short)skinConfColors[i].a << endl;
 		}
-
-
 		inf.close();
 		sync();
 	}
