@@ -37,7 +37,7 @@ Base class that represents a link on screen.
 */
 class Link : public Button {
 private:
-	uint iconX, padding;
+	uint padding;
 
 protected:
 	GMenu2X *gmenu2x;
@@ -45,8 +45,6 @@ protected:
 	string title, description, icon, iconPath;
 
 	Surface *iconSurface;
-
-	void recalcCoordinates();
 
 public:
 	Link(GMenu2X *gmenu2x);

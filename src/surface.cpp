@@ -169,7 +169,12 @@ void Surface::flip() {
 		this->blit(dblbuffer,0,0);
 		SDL_Flip(dblbuffer);
 	} else {
+#if defined(TARGET_RETROGAME)
+    SDL_SoftStretch(raw, NULL, ScreenSurface, NULL);
+		SDL_Flip(ScreenSurface);
+#else
 		SDL_Flip(raw);
+#endif
 	}
 }
 

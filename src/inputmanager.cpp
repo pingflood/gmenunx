@@ -63,7 +63,7 @@ void InputManager::initJoysticks() {
 
 
 bool InputManager::readConfFile(const string &conffile) {
-	setActionsCount(18);
+	setActionsCount(20); // plus 2 for BACKLIGHT and POWER
 
 	if (!fileExists(conffile)) {
 		ERROR("File not found: %s", conffile.c_str());
@@ -105,6 +105,9 @@ bool InputManager::readConfFile(const string &conffile) {
 		else if (name=="menu")         action = MENU;
 		else if (name=="volup")        action = VOLUP;
 		else if (name=="voldown")      action = VOLDOWN;
+		else if (name=="backlight")    action = BACKLIGHT;
+		else if (name=="power")        action = POWER;
+		else if (name=="speaker") {}
 		else {
 			ERROR("%s:%d Unknown action '%s'.", conffile.c_str(), linenum, name.c_str());
 			return false;
@@ -182,6 +185,7 @@ bool InputManager::update(bool wait) {
 		bool prevstate = actions[x].active;
 		bool state = isActive(x);
 		actions[x].active = false;
+
 		if (state != prevstate) {
 			if (state) {
 				if (now-actions[x].last >= actions[x].interval) {
@@ -284,6 +288,9 @@ void InputManager::setWakeUpInterval(int ms) {
 	if (wakeUpTimer != NULL)
 		SDL_RemoveTimer(wakeUpTimer);
 
+#if defined(TARGET_RETROGAME)
+  ms = 0;
+#endif
 	if (ms > 0)
 		wakeUpTimer = SDL_AddTimer(ms, wakeUp, NULL);
 }

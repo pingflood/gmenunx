@@ -82,7 +82,7 @@ private:
 	Action getAction();
 	void handleInput();
 
-	void paint();
+	// void paint();
 
 	void directoryUp();
 	void directoryEnter();

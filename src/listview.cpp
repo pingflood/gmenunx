@@ -65,7 +65,7 @@ void ListView::paint() {
 		iY += items[i]->getHeight();
 	}
 
-	gmenu2x->drawScrollBar(itemsPerPage, items.size(), firstDisplayItem, 42,175);
+	gmenu2x->drawScrollBar(itemsPerPage, items.size(), firstDisplayItem, rect.y, rect.h);
 
 	gmenu2x->s->clearClipRect();
 }

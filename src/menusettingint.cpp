@@ -46,17 +46,17 @@ MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &name, const strin
 	btn->setAction(actionDec);
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/y.png", gmenu2x->tr["Increase value"]);
+	//btn = new IconButton(gmenu2x, "skin:imgs/buttons/y.png", gmenu2x->tr["Increase value"]);
+	//btn->setAction(actionInc);
+	//buttonBox.add(btn);
+
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change value"]);
 	btn->setAction(actionInc);
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png");
-	btn->setAction(actionInc);
-	buttonBox.add(btn);
-
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/x.png", gmenu2x->tr["Decrease value"]);
-	btn->setAction(actionDec);
-	buttonBox.add(btn);
+	//btn = new IconButton(gmenu2x, "skin:imgs/buttons/x.png", gmenu2x->tr["Decrease value"]);
+	//btn->setAction(actionDec);
+	//buttonBox.add(btn);
 }
 
 void MenuSettingInt::draw(int y) {

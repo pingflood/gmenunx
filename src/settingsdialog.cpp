@@ -46,50 +46,57 @@ SettingsDialog::~SettingsDialog() {
 
 bool SettingsDialog::exec() {
 	//Surface bg (gmenu2x->confStr["wallpaper"],false);
-	Surface bg(gmenu2x->bg);
+	// Surface bg(gmenu2x->bg);
+
+
+	gmenu2x->initBG();
+
 
 	bool close = false, ts_pressed = false;
 	uint i, sel = 0, iY, firstElement = 0, action;
 	voices[sel]->adjustInput();
 
-	SDL_Rect clipRect = {0, gmenu2x->skinConfInt["topBarHeight"]+1, gmenu2x->resX-9, gmenu2x->resY-gmenu2x->skinConfInt["topBarHeight"]-25};
-	SDL_Rect touchRect = {2, gmenu2x->skinConfInt["topBarHeight"]+4, gmenu2x->resX-12, clipRect.h};
+	SDL_Rect rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
+	SDL_Rect touchRect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, rect.h};
 	uint rowHeight = gmenu2x->font->getHeight();
-	uint numRows = (gmenu2x->resY-gmenu2x->skinConfInt["topBarHeight"]-20)/rowHeight;
+	uint numRows = rect.h/rowHeight;
+
+	gmenu2x->bg->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	
+	gmenu2x->drawTopBar(gmenu2x->bg);
+	gmenu2x->drawBottomBar(gmenu2x->bg);
 
 	while (!close) {
 		action = SD_NO_ACTION;
 		if (gmenu2x->f200) ts.poll();
 
-		bg.blit(gmenu2x->s,0,0);
+		gmenu2x->bg->blit(gmenu2x->s,0,0);
 
-		gmenu2x->drawTopBar(gmenu2x->s);
+
 		//link icon
 		drawTitleIcon(icon);
 		writeTitle(text);
-
-		gmenu2x->drawBottomBar(gmenu2x->s);
 
 		if (sel>firstElement+numRows-1) firstElement=sel-numRows+1;
 		if (sel<firstElement) firstElement=sel;
 
 		//selection
 		iY = sel-firstElement;
-		iY = gmenu2x->skinConfInt["topBarHeight"]+2+(iY*rowHeight);
-		gmenu2x->s->setClipRect(clipRect);
+		iY = rect.y + (iY*rowHeight);
+		gmenu2x->s->setClipRect(rect);
 		if (sel<voices.size())
-			gmenu2x->s->box(1, iY, 148, rowHeight-1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+			gmenu2x->s->box(rect.x, iY+2, rect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 		gmenu2x->s->clearClipRect();
 
 		//selected option
 		voices[sel]->drawSelected(iY);
 
-		gmenu2x->s->setClipRect(clipRect);
+		gmenu2x->s->setClipRect(rect);
 		if (ts_pressed && !ts.pressed()) ts_pressed = false;
 		if (gmenu2x->f200 && ts.pressed() && !ts.inRect(touchRect)) ts_pressed = false;
 		for (i=firstElement; i<voices.size() && i<firstElement+numRows; i++) {
 			iY = i-firstElement;
-			voices[i]->draw(iY*rowHeight+gmenu2x->skinConfInt["topBarHeight"]);
+			voices[i]->draw(iY*rowHeight+rect.y);
 			if (gmenu2x->f200 && ts.pressed() && ts.inRect(touchRect.x, touchRect.y+(iY*rowHeight), touchRect.w, rowHeight)) {
 				ts_pressed = true;
 				sel = i;
@@ -97,7 +104,7 @@ bool SettingsDialog::exec() {
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(numRows,voices.size(),firstElement,clipRect.y+1,clipRect.h);
+		gmenu2x->drawScrollBar(numRows,voices.size(),firstElement,rect.y,rect.h);
 
 		//description
 		writeSubTitle(voices[sel]->getDescription());
@@ -131,6 +138,7 @@ bool SettingsDialog::exec() {
 	}
 
 	gmenu2x->setInputSpeed();
+
 	return true;
 }
 

@@ -92,6 +92,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
 			setSelectorDir( value );
 		} else if (name == "selectorbrowser" && value=="true") {
 			selectorbrowser = true;
+		} else if (name == "selectorbrowser" && value=="false") {
+			selectorbrowser = false;
 		} else if (name == "useramtimings" && value=="true") {
 			useRamTimings = true;
 		} else if (name == "useginge" && value=="true") {
@@ -139,7 +141,9 @@ int LinkApp::clock() {
 }
 
 const string &LinkApp::clockStr(int maxClock) {
-	if (iclock>maxClock) setClock(maxClock);
+	if (iclock > maxClock){
+    setClock(maxClock);
+  }
 	return sclock;
 }
 
@@ -148,6 +152,8 @@ void LinkApp::setClock(int mhz) {
 	iclock = constrain(mhz,50,325);
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	iclock = constrain(mhz,50,900);
+#elif defined(TARGET_RETROGAME)
+	iclock = constrain(mhz,528,750);
 #endif
 	stringstream ss;
 	sclock = "";
@@ -267,10 +273,12 @@ void LinkApp::drawRun() {
 }
 
 void LinkApp::run() {
-	if (selectordir!="")
+	if (selectordir!="") {
 		selector();
-	else
+  }
+	else {
 		launch();
+  }
 }
 
 void LinkApp::showManual() {
@@ -356,7 +364,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	//delay for testing
 	SDL_Delay(1000);
 #endif
-
+  
 	//Set correct working directory
 	string wd = getRealWorkdir();
 	if (!wd.empty())
@@ -389,10 +397,10 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		}
 	}
 
-	if (useRamTimings)
-		gmenu2x->applyRamTimings();
-	if (volume()>=0)
-		gmenu2x->setVolume(volume());
+	//if (useRamTimings)
+		//gmenu2x->applyRamTimings();
+	//if (volume()>=0)
+		//gmenu2x->setVolume(volume());
 
 	INFO("Executing '%s' (%s %s)", title.c_str(), exec.c_str(), params.c_str());
 
@@ -429,8 +437,10 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		if (selectedFile=="")
 			gmenu2x->writeTmp();
 		gmenu2x->quit();
-		if (clock()!=gmenu2x->confInt["menuClock"])
+
+		if (clock()!=gmenu2x->confInt["menuClock"]){
 			gmenu2x->setClock(clock());
+    }
 		if (gamma()!=0 && gamma()!=gmenu2x->confInt["gamma"])
 			gmenu2x->setGamma(gamma());
 		execlp("/bin/sh","/bin/sh","-c",command.c_str(),NULL);

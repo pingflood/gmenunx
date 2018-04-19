@@ -20,19 +20,19 @@ void Dialog::drawTitleIcon(const std::string &icon, bool skinRes, Surface *s) {
 	if (i==NULL)
 		i = gmenu2x->sc.skinRes("icons/generic.png");
 
-	i->blit(s,4,(gmenu2x->skinConfInt["topBarHeight"]-32)/2, 32, 32);
+	// i->blit(s,4,(gmenu2x->skinConfInt["topBarHeight"]-32)/2, 32, 32);
+	i->blit(s,4, 4, 32, 32);
 }
+
 
 void Dialog::writeTitle(const std::string &title, Surface *s) {
 	if (s==NULL)
 		s = gmenu2x->s;
-	s->write(gmenu2x->font, title, 40, gmenu2x->skinConfInt["topBarHeight"]/2 -1, HAlignLeft, VAlignBottom);
+	s->write(gmenu2x->titlefont, title, 40, 4 + gmenu2x->titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
 }
 
 void Dialog::writeSubTitle(const std::string &subtitle, Surface *s) {
 	if (s==NULL)
 		s = gmenu2x->s;
-	s->write(gmenu2x->font, subtitle, 40, gmenu2x->skinConfInt["topBarHeight"]/2, HAlignLeft, VAlignTop);
+	s->write(gmenu2x->font, subtitle, 40, 38, HAlignLeft, VAlignBottom);
 }
-
-

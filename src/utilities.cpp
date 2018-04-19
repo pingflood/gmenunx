@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 //for browsing the filesystem
+#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -27,7 +28,6 @@
 #include <stdio.h>
 #include <strings.h>
 #include <math.h>
-#include <unistd.h>
 
 #include <SDL.h>
 
@@ -105,7 +105,7 @@ int max (int a, int b) {
 int min (int a, int b) {
 	return a<b ? a : b;
 }
-int constrain (int x, int imin, int imax) {
+int constrain(int x, int imin, int imax) {
 	return min( imax, max(imin,x) );
 }
 
@@ -196,7 +196,7 @@ int intTransition(int from, int to, long tickStart, long duration, long tickNow)
 	if (tickNow<0) tickNow = SDL_GetTicks();
 	float elapsed = (float)(tickNow-tickStart)/duration;
 	//                    elapsed                 increments
-	return constrain(round(elapsed*(to-from)),from,to);
+	return min((int)round(elapsed*(to-from)), (int)max(from, to));
 }
 
 string exec(const char* cmd) {

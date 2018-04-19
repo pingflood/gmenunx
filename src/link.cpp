@@ -33,25 +33,29 @@ Link::Link(GMenu2X *gmenu2x_)
 	action = MakeDelegate(this, &Link::run);
 	edited = false;
 	iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
-	iconX = 0;
-	padding = 0;
+	// iconX = 0;
+	padding = 4;
 
 	updateSurfaces();
 }
 
 void Link::run() {}
 
+
+#include "fonthelper.h"
+
 void Link::paint() {
-	iconSurface->blit(gmenu2x->s, iconX, rect.y+padding, 32,32);
-	gmenu2x->s->write( gmenu2x->font, getTitle(), iconX+16, rect.y+gmenu2x->skinConfInt["linkHeight"]-padding, HAlignCenter, VAlignBottom );
+	iconSurface->blit(gmenu2x->s, rect.x + padding, rect.y + padding, 32,32);
+	gmenu2x->s->write(gmenu2x->titlefont, gmenu2x->tr.translate(getTitle()), rect.x + padding + 36, rect.y + gmenu2x->titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
+	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate(getDescription()), rect.x + padding + 36, rect.y + rect.h - padding/2, HAlignLeft, VAlignBottom);
 }
 
 bool Link::paintHover() {
-	if (gmenu2x->useSelectionPng)
-		gmenu2x->sc["imgs/selection.png"]->blit(gmenu2x->s,rect,HAlignCenter,VAlignMiddle);
-	else
+	// if (gmenu2x->useSelectionPng)
+	// 	gmenu2x->sc["imgs/selection.png"]->blit(gmenu2x->s,rect,HAlignCenter,VAlignMiddle);
+	// else
 		gmenu2x->s->box(rect.x, rect.y, rect.w, rect.h, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-	return true;
+	// return true;
 }
 
 void Link::updateSurfaces() {
@@ -124,15 +128,8 @@ void Link::setIconPath(const string &icon) {
 
 void Link::setSize(int w, int h) {
 	Button::setSize(w,h);
-	recalcCoordinates();
 }
 
 void Link::setPosition(int x, int y) {
 	Button::setPosition(x,y);
-	recalcCoordinates();
-}
-
-void Link::recalcCoordinates() {
-	iconX = rect.x+(rect.w-32)/2;
-	padding = max(gmenu2x->skinConfInt["linkHeight"] - 32 - gmenu2x->font->getHeight(), 0) / 3;
 }

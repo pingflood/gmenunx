@@ -47,7 +47,7 @@ bool rmtree(string path);
 
 int max (int a, int b);
 int min (int a, int b);
-int constrain (int x, int imin, int imax);
+int constrain(int x, int imin, int imax);
 
 int evalIntConf (int val, int def, int imin, int imax);
 int evalIntConf (int *val, int def, int imin, int imax);

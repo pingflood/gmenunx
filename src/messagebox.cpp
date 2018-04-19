@@ -17,8 +17,9 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
 #include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <SDL.h>
 #include <SDL_gfxPrimitives.h>
 
@@ -49,8 +50,13 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	buttonLabels[LEFT] = "left";
 	buttonLabels[RIGHT] = "right";
 	buttonLabels[MODIFIER] = "a";
+#if defined(TARGET_RETROGAME)
+	buttonLabels[CONFIRM] = "a";
+	buttonLabels[CANCEL] = "b";
+#else
 	buttonLabels[CONFIRM] = "b";
 	buttonLabels[CANCEL] = "x";
+#endif
 	buttonLabels[MANUAL] = "y";
 	buttonLabels[DEC] = "x";
 	buttonLabels[INC] = "y";
@@ -70,6 +76,7 @@ void MessageBox::setButton(int action, const string &btn) {
 
 int MessageBox::exec() {
 	int result = -1;
+  int inputAction = 0;
 
 	Surface bg(gmenu2x->s);
 	//Darken background
@@ -119,11 +126,16 @@ int MessageBox::exec() {
 			}
 		}
 
-		gmenu2x->input.update();
-		for (uint i=0; i<buttons.size(); i++)
-			if (buttons[i]!="" && gmenu2x->input[i]) result = i;
+		inputAction = gmenu2x->input.update(0);
+    if (inputAction) {
+		  for (uint i=0; i<buttons.size(); i++) {
+			  if (buttons[i]!="" && gmenu2x->input[i]) result = i;
+      }
+    }
 
-		usleep(LOOP_DELAY);
+		//usleep(LOOP_DELAY);
+	  gmenu2x->s->flip();
+    usleep(50000);
 	}
 
 	return result;

@@ -22,6 +22,8 @@
 
 using namespace std;
 
+static SDL_Rect rect;
+
 TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, vector<string> *text)
 	: Dialog(gmenu2x)
 {
@@ -75,7 +77,7 @@ void TextDialog::preProcess() {
 }
 
 void TextDialog::drawText(vector<string> *text, uint firstRow, uint rowsPerPage) {
-	gmenu2x->s->setClipRect(0,41,gmenu2x->resX-10,gmenu2x->resY-60);
+	gmenu2x->s->setClipRect(rect);
 
 	for (uint i=firstRow; i<firstRow+rowsPerPage && i<text->size(); i++) {
 		int rowY;
@@ -90,32 +92,39 @@ void TextDialog::drawText(vector<string> *text, uint firstRow, uint rowsPerPage)
 	}
 
 	gmenu2x->s->clearClipRect();
-	gmenu2x->drawScrollBar(rowsPerPage,text->size(),firstRow,42,gmenu2x->resY-65);
+	gmenu2x->drawScrollBar(rowsPerPage, text->size(), firstRow, rect.y, rect.h);
 }
 
 void TextDialog::exec() {
+	gmenu2x->initBG();
+
 	bool close = false;
 
-	Surface bg(gmenu2x->bg);
+	gmenu2x->drawTopBar(gmenu2x->bg);
+	gmenu2x->drawBottomBar(gmenu2x->bg);
+
+	rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
 
 	//link icon
-	if (!fileExists(icon))
-		drawTitleIcon("icons/ebook.png",true,&bg);
+	if (gmenu2x->sc.skinRes(icon)==NULL)
+		drawTitleIcon("icons/ebook.png",true,gmenu2x->bg);
 	else
-		drawTitleIcon(icon,false,&bg);
-	writeTitle(title,&bg);
-	writeSubTitle(description,&bg);
+		drawTitleIcon(icon,false,gmenu2x->bg);
 
-	gmenu2x->drawButton(&bg, "x", gmenu2x->tr["Exit"],
-	gmenu2x->drawButton(&bg, "down", gmenu2x->tr["Scroll"],
-	gmenu2x->drawButton(&bg, "up", "", 5)-10));
+	writeTitle(title,gmenu2x->bg);
+	writeSubTitle(description,gmenu2x->bg);
 
-	uint firstRow = 0, rowsPerPage = (gmenu2x->resY-60)/gmenu2x->font->getHeight();
+	gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Exit"],
+	gmenu2x->drawButton(gmenu2x->bg, "down", gmenu2x->tr["Scroll"],
+	gmenu2x->drawButton(gmenu2x->bg, "up", "", 5)-10));
+
+	gmenu2x->bg->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+
+	uint firstRow = 0, rowsPerPage = rect.h/gmenu2x->font->getHeight();
 	while (!close) {
-		bg.blit(gmenu2x->s,0,0);
+		gmenu2x->bg->blit(gmenu2x->s,0,0);
 		drawText(text, firstRow, rowsPerPage);
 		gmenu2x->s->flip();
-
 
 		gmenu2x->input.update();
 		if ( gmenu2x->input[UP  ] && firstRow>0 ) firstRow--;

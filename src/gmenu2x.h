@@ -51,7 +51,7 @@ const int LOOP_DELAY=30000;
 #if defined(TARGET_GP2X)
 	#define DEFAULT_CPU_CLK 200
 #else
-	#define DEFAULT_CPU_CLK 533
+	#define DEFAULT_CPU_CLK 528
 #endif
 
 extern const char *CARD_ROOT;
@@ -60,6 +60,7 @@ extern const int CARD_ROOT_LEN;
 // Note: Keep this in sync with colorNames!
 enum color {
 	COLOR_TOP_BAR_BG,
+	COLOR_LIST_BG,
 	COLOR_BOTTOM_BAR_BG,
 	COLOR_SELECTION_BG,
 	COLOR_MESSAGE_BOX_BG,
@@ -93,15 +94,19 @@ class Menu;
 
 class GMenu2X {
 private:
+  int getBacklight();
+	void setSuspend(int enter, int show_msg);
+	int backlightLevel;
+
 	string path; //!< Contains the working directory of GMenu2X
 	/*!
 	Retrieves the free disk space on the sd
 	@return String containing a human readable representation of the free disk space
 	*/
 	string getDiskFree();
-	unsigned short cpuX; //!< Offset for displaying cpu clock information
+	// unsigned short cpuX; //!< Offset for displaying cpu clock information
 	unsigned short volumeX; //!< Offset for displaying volume level
-	unsigned short manualX; //!< Offset for displaying the manual indicator in the taskbar
+	// unsigned short manualX; //!< Offset for displaying the manual indicator in the taskbar
 	/*!
 	Reads the current battery state and returns a number representing it's level of charge
 	@return A number representing battery charge. 0 means fully discharged. 5 means fully charged. 6 represents a gp2x using AC power.
@@ -143,7 +148,12 @@ private:
 	IconButton *btnContextMenu;
 
 	unsigned int memdev;
+#ifdef TARGET_RETROGAME
+  volatile unsigned long *memregs;
+#else
 	volatile unsigned short *memregs;
+#endif
+
 #ifdef TARGET_GP2X
 	volatile unsigned short *MEM_REG;
 	int cx25874; //tv-out
@@ -202,12 +212,17 @@ public:
 	SurfaceCollection sc;
 	Translator tr;
 	Surface *s, *bg;
-	FontHelper *font;
+	FontHelper *font, *titlefont, *bottombarfont;
 
 	//Status functions
 	void main();
 	void options();
 	void settingsOpen2x();
+	void poweroff();
+	void toggleSpeaker();
+	void umountSd();
+	void formatSd();
+	void reboot();
 	void skinMenu();
 	void activateSdUsb();
 	void activateNandUsb();
@@ -252,8 +267,10 @@ public:
 	int drawButtonRight(Surface *s, const string &btn, const string &text, int x=5, int y=-10);
 	void drawScrollBar(uint pagesize, uint totalsize, uint pagepos, uint top, uint height);
 
+	// void drawSectionBar(Surface *s=NULL);
 	void drawTopBar(Surface *s=NULL);
 	void drawBottomBar(Surface *s=NULL);
+	void redrawBottomBar();
 
 	Menu* menu;
 };

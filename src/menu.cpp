@@ -17,7 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
+#include <unistd.h>
 #include <sstream>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -25,7 +25,6 @@
 #include <algorithm>
 #include <math.h>
 #include <fstream>
-#include <unistd.h>
 
 #include "gmenu2x.h"
 #include "linkapp.h"
@@ -168,7 +167,7 @@ bool Menu::addActionLink(uint section, const string &title, LinkRunAction action
 	if (section>=sections.size()) return false;
 
 	LinkAction *linkact = new LinkAction(gmenu2x,action);
-	linkact->setSize(gmenu2x->skinConfInt["linkWidth"],gmenu2x->skinConfInt["linkHeight"]);
+	linkact->setSize(gmenu2x->resX - gmenu2x->skinConfInt["sectionBarWidth"], gmenu2x->skinConfInt["linkItemHeight"]);
 	linkact->setTitle(title);
 	linkact->setDescription(description);
 	if (gmenu2x->sc.exists(icon) || (icon.substr(0,5)=="skin:" && !gmenu2x->sc.getSkinFilePath(icon.substr(5,icon.length())).empty()) || fileExists(icon))
@@ -250,8 +249,8 @@ bool Menu::addLink(string path, string file, string section) {
 	if (fileExists(exename+".png")) icon = exename+".png";
 
 	//Reduce title length to fit the link width
-	if ((int)gmenu2x->font->getTextWidth(shorttitle)>gmenu2x->skinConfInt["linkWidth"]) {
-		while ((int)gmenu2x->font->getTextWidth(shorttitle+"..")>gmenu2x->skinConfInt["linkWidth"])
+	if ((int)gmenu2x->font->getTextWidth(shorttitle) > (gmenu2x->resX - gmenu2x->skinConfInt["sectionBarWidth"])) {
+		while ((int)gmenu2x->font->getTextWidth(shorttitle+"..") > (gmenu2x->resX - gmenu2x->skinConfInt["sectionBarWidth"]))
 			shorttitle = shorttitle.substr(0,shorttitle.length()-1);
 		shorttitle += "..";
 	}
@@ -270,7 +269,7 @@ bool Menu::addLink(string path, string file, string section) {
 			INFO("Section: '%s(%i)'", sections[isection].c_str(), isection);
 
 			LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkpath.c_str());
-			link->setSize(gmenu2x->skinConfInt["linkWidth"],gmenu2x->skinConfInt["linkHeight"]);
+			link->setSize(gmenu2x->resX - gmenu2x->skinConfInt["sectionBarWidth"], gmenu2x->skinConfInt["linkItemHeight"]);
 			if (link->targetExists())
 				links[isection].push_back( link );
 			else
@@ -328,17 +327,30 @@ bool Menu::linkChangeSection(uint linkIndex, uint oldSectionIndex, uint newSecti
 }
 
 void Menu::linkLeft() {
-	if (iLink%gmenu2x->linkColumns == 0)
-		setLinkIndex( sectionLinks()->size()>iLink+gmenu2x->linkColumns-1 ? iLink+gmenu2x->linkColumns-1 : sectionLinks()->size()-1 );
-	else
-		setLinkIndex(iLink-1);
+	// PAGEUP with left
+	if ((int)(iLink - gmenu2x->linkRows - 1) < 0) {
+		setLinkIndex(0);
+	} else {
+		setLinkIndex(iLink - gmenu2x->linkRows + 1);
+	}
+
+	// if (iLink%gmenu2x->linkColumns == 0)
+	// 	setLinkIndex( sectionLinks()->size()>iLink+gmenu2x->linkColumns-1 ? iLink+gmenu2x->linkColumns-1 : sectionLinks()->size()-1 );
+	// else
+	// 	setLinkIndex(iLink-1);
 }
 
 void Menu::linkRight() {
-	if (iLink%gmenu2x->linkColumns == (gmenu2x->linkColumns-1) || iLink == (int)sectionLinks()->size()-1)
-		setLinkIndex(iLink-iLink%gmenu2x->linkColumns);
-	else
-		setLinkIndex(iLink+1);
+	// PAGEDOWN with right
+	if (iLink + gmenu2x->linkRows > sectionLinks()->size()) {
+		setLinkIndex(sectionLinks()->size()-1);
+	} else {
+		setLinkIndex(iLink + gmenu2x->linkRows - 1);
+	}
+	// if (iLink%gmenu2x->linkColumns == (gmenu2x->linkColumns-1) || iLink == (int)sectionLinks()->size()-1)
+	// 	setLinkIndex(iLink-iLink%gmenu2x->linkColumns);
+	// else
+	// 	setLinkIndex(iLink+1);
 }
 
 void Menu::linkUp() {
@@ -422,7 +434,7 @@ void Menu::readLinks() {
 		sort(linkfiles.begin(), linkfiles.end(),case_less());
 		for (uint x=0; x<linkfiles.size(); x++) {
 			LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkfiles[x].c_str());
-			link->setSize(gmenu2x->skinConfInt["linkWidth"],gmenu2x->skinConfInt["linkHeight"]);
+			link->setSize(gmenu2x->resX - gmenu2x->skinConfInt["sectionBarWidth"], gmenu2x->skinConfInt["linkItemHeight"]);
 			if (link->targetExists())
 				links[i].push_back( link );
 			else

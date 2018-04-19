@@ -14,11 +14,11 @@ BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &
 	: Dialog(gmenu2x), title(title), subtitle(subtitle), ts_pressed(false), buttonBox(gmenu2x) {
 	IconButton *btn;
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/x.png", gmenu2x->tr["Up one folder"]);
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/b.png", gmenu2x->tr["Up one folder"]);
 	btn->setAction(MakeDelegate(this, &BrowseDialog::directoryUp));
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/b.png", gmenu2x->tr["Enter folder"]);
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Enter folder"]);
 	btn->setAction(MakeDelegate(this, &BrowseDialog::directoryEnter));
 	buttonBox.add(btn);
 
@@ -34,6 +34,14 @@ BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &
 BrowseDialog::~BrowseDialog() {}
 
 bool BrowseDialog::exec() {
+	gmenu2x->initBG();
+
+	// moved out of the loop to fix weird scroll behavior
+	unsigned int i, iY;
+	unsigned int firstElement=0; //, lastElement;
+	unsigned int offsetY;
+	// Surface *icon;
+
 	if (!fl)
 		return false;
 
@@ -43,21 +51,70 @@ bool BrowseDialog::exec() {
 
 	fl->browse();
 
-	rowHeight = gmenu2x->font->getHeight()+2;
-	clipRect = (SDL_Rect){0, gmenu2x->skinConfInt["topBarHeight"]+2, gmenu2x->resX-9, gmenu2x->resY - gmenu2x->skinConfInt["topBarHeight"] - 25};
-	touchRect = (SDL_Rect){2, gmenu2x->skinConfInt["topBarHeight"]+4, gmenu2x->resX-12, clipRect.h};
-	numRows = (clipRect.h + 2) / rowHeight;
+	clipRect = (SDL_Rect){0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
+	touchRect = clipRect; //(SDL_Rect){2, gmenu2x->skinConfInt["topBarHeight"]+4, gmenu2x->resX-12, clipRect.h};
+
+	rowHeight = gmenu2x->font->getHeight()+1;
+	numRows = clipRect.h/rowHeight - 1;
 
 	selected = 0;
 	close = false;
+
+	gmenu2x->drawTopBar(gmenu2x->bg);
+	gmenu2x->drawBottomBar(gmenu2x->bg);
+	gmenu2x->bg->box(clipRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+
 	while (!close) {
 		if (gmenu2x->f200) gmenu2x->ts.poll();
 
-		paint();
+		gmenu2x->bg->blit(gmenu2x->s, 0, 0);
+		drawTitleIcon("icons/explorer.png", true);
+		writeTitle(title);
+		writeSubTitle(subtitle);
+
+		buttonBox.paint(5);
+
+		if (selected>firstElement+numRows) firstElement=selected-numRows;
+		if (selected<firstElement) firstElement=selected;
+
+		//paint();
+		offsetY = clipRect.y;
+
+		//Selection
+		iY = selected-firstElement;
+		iY = offsetY + iY*rowHeight;
+		gmenu2x->s->box(clipRect.x, iY, clipRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+
+		beforeFileList();
+
+		//Files & Directories
+		gmenu2x->s->setClipRect(clipRect);
+		for (i = firstElement; i < fl->size() && i <= firstElement+numRows; i++) {
+
+			if (fl->isDirectory(i)) {
+				if ((*fl)[i] == "..")
+						iconGoUp->blitCenter(gmenu2x->s, clipRect.x + 10, offsetY + rowHeight/2);
+					else
+						iconFolder->blitCenter(gmenu2x->s, clipRect.x + 10, offsetY + rowHeight/2);
+				} else{
+					iconFile->blitCenter(gmenu2x->s, clipRect.x + 10, offsetY + rowHeight/2);
+				}
+				gmenu2x->s->write(gmenu2x->font, (*fl)[i], clipRect.x + 21, offsetY+4, HAlignLeft, VAlignMiddle);
+
+			if (gmenu2x->f200 && gmenu2x->ts.pressed() && gmenu2x->ts.inRect(touchRect.x, offsetY + 3, touchRect.w, rowHeight)) {
+				ts_pressed = true;
+				selected = i;
+			}
+
+			offsetY += rowHeight;
+		}
+		gmenu2x->s->clearClipRect();
+
+		gmenu2x->drawScrollBar(numRows, fl->size(), firstElement, clipRect.y, clipRect.h);
+		gmenu2x->s->flip();
 
 		handleInput();
 	}
-
 	return result;
 }
 
@@ -80,7 +137,6 @@ BrowseDialog::Action BrowseDialog::getAction() {
 		action = BrowseDialog::ACT_SELECT;
 	else if (gmenu2x->input[SETTINGS])
 		action = BrowseDialog::ACT_CONFIRM;
-
 	return action;
 }
 
@@ -175,62 +231,4 @@ void BrowseDialog::directoryEnter() {
 void BrowseDialog::confirm() {
 	result = true;
 	close = true;
-}
-
-void BrowseDialog::paint() {
-	unsigned int i, iY;
-	unsigned int firstElement=0, lastElement;
-	unsigned int offsetY;
-	Surface *icon;
-
-	gmenu2x->bg->blit(gmenu2x->s, 0, 0);
-	drawTitleIcon("icons/explorer.png", true);
-	writeTitle(title);
-	writeSubTitle(subtitle);
-
-	buttonBox.paint(5);
-
-	if (selected>firstElement+numRows-1)
-		firstElement = selected-numRows+1;
-	else if (selected < firstElement)
-		firstElement = selected;
-
-	offsetY = gmenu2x->skinConfInt["topBarHeight"] + 2;
-
-	//Selection
-	iY = selected-firstElement;
-	iY = offsetY + iY*rowHeight;
-	gmenu2x->s->box(2, iY, gmenu2x->resX-12, rowHeight-2, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-
-	lastElement = firstElement + numRows;
-	if (lastElement > fl->size())
-		lastElement = fl->size();
-
-	beforeFileList();
-
-	//Files & Directories
-	gmenu2x->s->setClipRect(clipRect);
-	for (i = firstElement; i < lastElement; i++) {
-		if (fl->isDirectory(i)) {
-			if ((*fl)[i]=="..")
-				icon = iconGoUp;
-			else
-				icon = iconFolder;
-		} else {
-			icon = iconFile;
-		}
-		icon->blit(gmenu2x->s, 5, offsetY);
-		gmenu2x->s->write(gmenu2x->font, (*fl)[i], 24, offsetY + 6, HAlignLeft, VAlignMiddle);
-
-		if (gmenu2x->f200 && gmenu2x->ts.pressed() && gmenu2x->ts.inRect(touchRect.x, offsetY + 3, touchRect.w, rowHeight)) {
-			ts_pressed = true;
-			selected = i;
-		}
-
-		offsetY += rowHeight;
-	}
-	gmenu2x->s->clearClipRect();
-
-	gmenu2x->drawScrollBar(numRows, fl->size(), firstElement, clipRect.y, clipRect.h);
-	gmenu2x->s->flip();
 }

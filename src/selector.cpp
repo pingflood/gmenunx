@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <SDL.h>
-#include <SDL_gfxPrimitives.h>
+ #include <SDL.h>
+ #include <SDL_gfxPrimitives.h>
 
 //for browsing the filesystem
 #include <sys/stat.h>
@@ -35,8 +35,11 @@
 
 using namespace std;
 
+string screendir;
+
+
 Selector::Selector(GMenu2X *gmenu2x, LinkApp *link, const string &selectorDir) :
-	Dialog(gmenu2x)
+Dialog(gmenu2x)
 {
 	this->link = link;
 	loadAliases();
@@ -49,92 +52,130 @@ Selector::Selector(GMenu2X *gmenu2x, LinkApp *link, const string &selectorDir) :
 }
 
 int Selector::exec(int startSelection) {
+	gmenu2x->initBG();
+
 	bool close = false, result = true;
 	vector<string> screens, titles;
+
+	Uint32 selTick = SDL_GetTicks(), curTick;
+	uint i, firstElement = 0, iY;
 
 	FileLister fl(dir, link->getSelectorBrowser());
 	fl.setFilter(link->getSelectorFilter());
 	fl.browse();
 
-	Surface bg(gmenu2x->bg);
-	drawTitleIcon(link->getIconPath(), true, &bg);
-	writeTitle(link->getTitle(), &bg);
-	writeSubTitle(link->getDescription(), &bg);
+	// Surface bg(gmenu2x->bg);
+	screendir = link->getSelectorScreens();
 
-	if (link->getSelectorBrowser()) {
-		gmenu2x->drawButton(&bg, "start", gmenu2x->tr["Exit"],
-		gmenu2x->drawButton(&bg, "b", gmenu2x->tr["Select a file"],
-		gmenu2x->drawButton(&bg, "x", gmenu2x->tr["Up one folder"], 5)));
+	SDL_Rect rect;
+
+	if (screendir == "") {
+		gmenu2x->drawTopBar(gmenu2x->bg);
+		rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
 	} else {
-		gmenu2x->drawButton(&bg, "x", gmenu2x->tr["Exit"],
-		gmenu2x->drawButton(&bg, "b", gmenu2x->tr["Select a file"], 5));
+		gmenu2x->bg->box(0, 0, gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+		gmenu2x->bg->setClipRect(0, 0, gmenu2x->skinConfInt["selectorX"]-4, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]);
+		rect = {gmenu2x->skinConfInt["selectorX"], 0, gmenu2x->resX - gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]};
 	}
 
-	Uint32 selTick = SDL_GetTicks(), curTick;
-	uint i, firstElement = 0, iY;
+	// dc: adjust rowHeight with font
+	uint rowHeight = gmenu2x->font->getHeight()+1; // gp2x=15+1 / pandora=19+1
+	uint numRows = rect.h/rowHeight - 1;
+
+	drawTitleIcon(link->getIconPath(), true, gmenu2x->bg);
+	writeTitle(link->getTitle(), gmenu2x->bg);
+	writeSubTitle(link->getDescription(), gmenu2x->bg);
+
+	gmenu2x->bg->clearClipRect();
+
+	gmenu2x->bg->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	gmenu2x->drawBottomBar(gmenu2x->bg);
+
+	if (link->getSelectorBrowser()) {
+		gmenu2x->drawButton(gmenu2x->bg, "start", gmenu2x->tr["Exit"],
+			gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Select a file"],
+				gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Up one folder"], 5)));
+	} else {
+		gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Exit"],
+			gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Select a file"], 5));
+	}
+
 
 	prepare(&fl,&screens,&titles);
 	uint selected = constrain(startSelection,0,fl.size()-1);
 
-	//Add the folder icon manually to be sure to load it with alpha support since we are going to disable it for screenshots
-	if (gmenu2x->sc.skinRes("imgs/folder.png")==NULL)
-		gmenu2x->sc.addSkinRes("imgs/folder.png");
+	// moved surfaces out to prevent reloading on loop
+	Surface *iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
+	Surface *iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
+	Surface *iconFile = gmenu2x->sc.skinRes("imgs/file.png");
+	Surface *iconPreview = gmenu2x->sc.skinRes("imgs/preview.png");
+
 	gmenu2x->sc.defaultAlpha = false;
 	gmenu2x->input.setWakeUpInterval(40); //25FPS
 	while (!close) {
-		bg.blit(gmenu2x->s,0,0);
+		gmenu2x->bg->blit(gmenu2x->s,0,0);
 
-		if (selected>=firstElement+SELECTOR_ELEMENTS) firstElement=selected-SELECTOR_ELEMENTS+1;
+		if (selected>firstElement+numRows) firstElement=selected-numRows;
 		if (selected<firstElement) firstElement=selected;
 
-		//Selection
 		iY = selected-firstElement;
-		iY = 42+(iY*16);
-		if (selected<fl.size())
-			gmenu2x->s->box(1, iY, 309, 14, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		iY = rect.y + (iY * rowHeight);
+
+		if(selected<fl.size()){
+			gmenu2x->s->box(rect.x, iY, rect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		}
 
 		//Screenshot
-		if (selected-fl.dirCount()<screens.size() && screens[selected-fl.dirCount()]!="") {
-			curTick = SDL_GetTicks();
-			if (curTick-selTick>200)
-				gmenu2x->sc[screens[selected-fl.dirCount()]]->blitRight(gmenu2x->s, 311, 42, 160, 160, min((curTick-selTick-200)/3,255));
+		if (screendir != "") {
+			if (selected-fl.dirCount()<screens.size() && screens[selected-fl.dirCount()]!="") {
+				gmenu2x->sc[screens[selected-fl.dirCount()]]->blitCenter(gmenu2x->s, gmenu2x->skinConfInt["selectorPreviewX"]+gmenu2x->skinConfInt["selectorPreviewWidth"]/2, gmenu2x->skinConfInt["selectorPreviewY"]+gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
+			} else {
+				if (gmenu2x->sc.skinRes("imgs/preview.png")!=NULL)
+					iconPreview->blitCenter(gmenu2x->s, gmenu2x->skinConfInt["selectorPreviewX"]+gmenu2x->skinConfInt["selectorPreviewWidth"]/2, gmenu2x->skinConfInt["selectorPreviewY"]+gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
+			}
 		}
 
 		//Files & Dirs
-		gmenu2x->s->setClipRect(0,41,311,179);
-		for (i=firstElement; i<fl.size() && i<firstElement+SELECTOR_ELEMENTS; i++) {
-			iY = i-firstElement;
-			if (fl.isDirectory(i)) {
-				gmenu2x->sc["imgs/folder.png"]->blit(gmenu2x->s, 4, 42+(iY*16));
-				gmenu2x->s->write(gmenu2x->font, fl[i], 21, 49+(iY*16), HAlignLeft, VAlignMiddle);
-			} else
-				gmenu2x->s->write(gmenu2x->font, titles[i-fl.dirCount()], 4, 49+(iY*16), HAlignLeft, VAlignMiddle);
-		}
-		gmenu2x->s->clearClipRect();
+		iY = rect.y + 1;
 
-		gmenu2x->drawScrollBar(SELECTOR_ELEMENTS,fl.size(),firstElement,42,175);
+		for (i=firstElement; i<fl.size() && i<=firstElement+numRows; i++) {
+			if(fl.isDirectory(i)){
+				if (fl[i] == "..")
+					iconGoUp->blitCenter(gmenu2x->s, rect.x + 10, iY + rowHeight/2);
+				else
+					iconFolder->blitCenter(gmenu2x->s, rect.x + 10, iY + rowHeight/2);
+			} else{
+				iconFile->blitCenter(gmenu2x->s, rect.x + 10, iY + rowHeight/2);
+			}
+			gmenu2x->s->write(gmenu2x->font, fl[i], rect.x + 21, iY+4, HAlignLeft, VAlignMiddle);
+
+			iY += rowHeight;
+		}
+
+		gmenu2x->s->clearClipRect();
+		gmenu2x->drawScrollBar(numRows,fl.size(),firstElement, rect.y, rect.h);
 		gmenu2x->s->flip();
 
-
 		gmenu2x->input.update();
+		
 		if ( gmenu2x->input[SETTINGS] ) { close = true; result = false; }
-		if ( gmenu2x->input[UP] ) {
+		else if ( gmenu2x->input[UP] ) {
 			if (selected==0) {
 				selected = fl.size()-1;
 			} else {
 				selected -= 1;
 			}
 			selTick = SDL_GetTicks();
-		}
+		} else
 		if ( gmenu2x->input[PAGEUP] ) {
-			if ((int)(selected-SELECTOR_ELEMENTS+1)<0) {
+			if ((int)(selected-numRows+1)<0) {
 				selected = 0;
 			} else {
-				selected -= SELECTOR_ELEMENTS-1;
+				selected -= numRows-1;
 			}
 			selTick = SDL_GetTicks();
 		}
-		if ( gmenu2x->input[DOWN] ) {
+		else if ( gmenu2x->input[DOWN] ) {
 			if (selected+1>=fl.size()) {
 				selected = 0;
 			} else {
@@ -142,15 +183,15 @@ int Selector::exec(int startSelection) {
 			}
 			selTick = SDL_GetTicks();
 		}
-		if ( gmenu2x->input[PAGEDOWN] ) {
-			if (selected+SELECTOR_ELEMENTS-1>=fl.size()) {
+		else if ( gmenu2x->input[PAGEDOWN] ) {
+			if (selected+numRows-1>=fl.size()) {
 				selected = fl.size()-1;
 			} else {
-				selected += SELECTOR_ELEMENTS-1;
+				selected += numRows-1;
 			}
 			selTick = SDL_GetTicks();
 		}
-		if ( gmenu2x->input[CANCEL] ) {
+		else if ( gmenu2x->input[CANCEL] ) {
 			if (link->getSelectorBrowser()) {
 				string::size_type p = dir.rfind("/", dir.size()-2);
 				if (p==string::npos || dir.compare(0,CARD_ROOT_LEN,CARD_ROOT)!=0 || p<4) {
@@ -168,7 +209,7 @@ int Selector::exec(int startSelection) {
 				result = false;
 			}
 		}
-		if ( gmenu2x->input[CONFIRM] ) {
+		else if ( gmenu2x->input[CONFIRM] ) {
 			if (fl.isFile(selected)) {
 				file = fl[selected];
 				close = true;
@@ -180,6 +221,7 @@ int Selector::exec(int startSelection) {
 			}
 		}
 	}
+
 	gmenu2x->sc.defaultAlpha = true;
 	freeScreenshots(&screens);
 	gmenu2x->input.setWakeUpInterval(0);
@@ -193,10 +235,7 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 	screens->resize(fl->getFiles().size());
 	titles->resize(fl->getFiles().size());
 
-	string screendir = link->getSelectorScreens();
-	if (screendir != "" && screendir[screendir.length()-1]!='/') screendir += "/";
-
-	string noext;
+	string noext, outdir;
 	string::size_type pos;
 	for (uint i=0; i<fl->getFiles().size(); i++) {
 		noext = fl->getFiles()[i];
@@ -204,17 +243,20 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 		if (pos!=string::npos && pos>0)
 			noext = noext.substr(0, pos);
 		titles->at(i) = getAlias(noext);
-		if (titles->at(i)=="")
-			titles->at(i) = noext;
 
-		DEBUG("Searching for screen '%s%s.png'", screendir.c_str(), noext.c_str());
+		if (screendir != "") {
+			if (screendir[screendir.length()-1]!='/') outdir = screendir + "/";
+			if (screendir[0]=='.') outdir = fl->getPath() + "/" + screendir + "/"; // allow "." as "current directory", therefore, relative paths
 
-		if (fileExists(screendir+noext+".png"))
-			screens->at(i) = screendir+noext+".png";
-		else if (fileExists(screendir+noext+".jpg"))
-			screens->at(i) = screendir+noext+".jpg";
-		else
-			screens->at(i) = "";
+			// INFO("Searching for screen '%s%s.png'", outdir.c_str(), noext.c_str());
+
+			if (fileExists(outdir+noext+".jpg"))
+				screens->at(i) = outdir+noext+".jpg";
+			else if (fileExists(outdir+noext+".png"))
+				screens->at(i) = outdir+noext+".png";
+			else
+				screens->at(i) = "";
+		}
 	}
 }
 
@@ -243,7 +285,7 @@ void Selector::loadAliases() {
 string Selector::getAlias(const string &key) {
 	unordered_map<string, string>::iterator i = aliases.find(key);
 	if (i == aliases.end())
-		return "";
+		return key;
 	else
 		return i->second;
 }

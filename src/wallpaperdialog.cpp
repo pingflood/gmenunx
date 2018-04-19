@@ -31,7 +31,15 @@ WallpaperDialog::WallpaperDialog(GMenu2X *gmenu2x)
 
 bool WallpaperDialog::exec()
 {
+	gmenu2x->initBG();
+
 	bool close = false, result = true;
+
+	SDL_Rect rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
+
+	// dc: adjust rowheight with font
+	uint rowHeight = gmenu2x->font->getHeight()+1; // gp2x=15+1 / pandora=19+1
+	uint numRows = rect.h/rowHeight - 1;
 
 	FileLister fl("skins/"+gmenu2x->confStr["skin"]+"/wallpapers");
 	fl.setFilter(".png,.jpg,.jpeg,.bmp");
@@ -49,8 +57,10 @@ bool WallpaperDialog::exec()
 	DEBUG("Wallpapers: %i", wallpapers.size());
 
 	uint i, selected = 0, firstElement = 0, iY;
+
+
 	while (!close) {
-		if (selected>firstElement+9) firstElement=selected-9;
+		if (selected>firstElement+numRows) firstElement=selected-numRows;
 		if (selected<firstElement) firstElement=selected;
 
 		//Wallpaper
@@ -63,27 +73,33 @@ bool WallpaperDialog::exec()
 		gmenu2x->drawBottomBar(gmenu2x->s);
 
 		drawTitleIcon("icons/wallpaper.png",true);
-		writeTitle("Wallpaper selection");
-		writeSubTitle("Select an image from the list, to use as a wallpaper");
+		writeTitle(gmenu2x->tr["Wallpaper selection"]);
+		writeSubTitle(gmenu2x->tr["Select an image from the list, to use as a wallpaper"]);
+
+		gmenu2x->s->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 		gmenu2x->drawButton(gmenu2x->s, "b", gmenu2x->tr["Select wallpaper"],5);
 
 		//Selection
 		iY = selected-firstElement;
-		iY = 44+(iY*17);
-		gmenu2x->s->box(2, iY, 308, 16,	gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		iY = rect.y+(iY*rowHeight);
+
+		gmenu2x->s->box(0, iY + 3, gmenu2x->resX, rowHeight-1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//Files & Directories
-		gmenu2x->s->setClipRect(0,41,311,179);
-		for (i=firstElement; i<wallpapers.size() && i<firstElement+10; i++) {
+		gmenu2x->s->setClipRect(rect);
+
+		for (i=firstElement; i<wallpapers.size() && i<=firstElement+numRows; i++) {
 			iY = i-firstElement;
-			gmenu2x->s->write(gmenu2x->font, wallpapers[i], 5, 52+(iY*17), HAlignLeft, VAlignMiddle);
+			iY = iY*rowHeight + 3 + rect.y + rowHeight/3;
+
+			gmenu2x->s->write(gmenu2x->font, wallpapers[i], 5, iY, HAlignLeft, VAlignMiddle);
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(10,wallpapers.size(),firstElement,44,170);
-		gmenu2x->s->flip();
+		gmenu2x->drawScrollBar(numRows, wallpapers.size(), firstElement, rect.y, rect.h);
 
+		gmenu2x->s->flip();
 
 		gmenu2x->input.update();
 		if ( gmenu2x->input[SETTINGS] ) { close = true; result = false; }
