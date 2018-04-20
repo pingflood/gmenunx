@@ -37,7 +37,6 @@ using namespace std;
 
 string screendir;
 
-
 Selector::Selector(GMenu2X *gmenu2x, LinkApp *link, const string &selectorDir) :
 Dialog(gmenu2x)
 {
@@ -100,7 +99,6 @@ int Selector::exec(int startSelection) {
 			gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Select a file"], 5));
 	}
 
-
 	prepare(&fl,&screens,&titles);
 	uint selected = constrain(startSelection,0,fl.size()-1);
 
@@ -158,40 +156,33 @@ int Selector::exec(int startSelection) {
 
 		gmenu2x->input.update();
 		
-		if ( gmenu2x->input[SETTINGS] ) { close = true; result = false; }
-		else if ( gmenu2x->input[UP] ) {
-			if (selected==0) {
+		if ( gmenu2x->input[SETTINGS] ) {
+			close = true; result = false;
+		} else if ( gmenu2x->input[UP] ) {
+			if (selected==0)
 				selected = fl.size()-1;
-			} else {
+			else
 				selected -= 1;
-			}
 			selTick = SDL_GetTicks();
-		} else
-		if ( gmenu2x->input[PAGEUP] ) {
-			if ((int)(selected-numRows+1)<0) {
+		} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
+			if ((int)(selected-numRows+1)<0)
 				selected = 0;
-			} else {
+			else
 				selected -= numRows-1;
-			}
 			selTick = SDL_GetTicks();
-		}
-		else if ( gmenu2x->input[DOWN] ) {
-			if (selected+1>=fl.size()) {
+		} else if ( gmenu2x->input[DOWN] ) {
+			if (selected+1>=fl.size())
 				selected = 0;
-			} else {
+			else
 				selected += 1;
-			}
 			selTick = SDL_GetTicks();
-		}
-		else if ( gmenu2x->input[PAGEDOWN] ) {
-			if (selected+numRows-1>=fl.size()) {
+		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
+			if (selected+numRows-1>=fl.size())
 				selected = fl.size()-1;
-			} else {
+			else
 				selected += numRows-1;
-			}
 			selTick = SDL_GetTicks();
-		}
-		else if ( gmenu2x->input[CANCEL] ) {
+		} else if ( gmenu2x->input[CANCEL] ) {
 			if (link->getSelectorBrowser()) {
 				string::size_type p = dir.rfind("/", dir.size()-2);
 				if (p==string::npos || dir.compare(0,CARD_ROOT_LEN,CARD_ROOT)!=0 || p<4) {
@@ -208,8 +199,7 @@ int Selector::exec(int startSelection) {
 				close = true;
 				result = false;
 			}
-		}
-		else if ( gmenu2x->input[CONFIRM] ) {
+		} else if ( gmenu2x->input[CONFIRM] ) {
 			if (fl.isFile(selected)) {
 				file = fl[selected];
 				close = true;
