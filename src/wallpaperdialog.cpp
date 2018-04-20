@@ -77,7 +77,6 @@ bool WallpaperDialog::exec()
 		writeSubTitle(gmenu2x->tr["Select an image from the list, to use as a wallpaper"]);
 
 		gmenu2x->s->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-
 		gmenu2x->drawButton(gmenu2x->s, "b", gmenu2x->tr["Select wallpaper"],5);
 
 		//Selection
@@ -102,38 +101,32 @@ bool WallpaperDialog::exec()
 		gmenu2x->s->flip();
 
 		gmenu2x->input.update();
-		if ( gmenu2x->input[SETTINGS] ) { close = true; result = false; }
-		if ( gmenu2x->input[UP] ) {
+		if ( gmenu2x->input[SETTINGS] ) {
+			close = true; result = false;
+		} else if ( gmenu2x->input[UP] ) {
 			if (selected==0)
 				selected = wallpapers.size()-1;
 			else
 				selected -= 1;
-		}
-		if ( gmenu2x->input[PAGEUP] ) {
-			if ((int)(selected-9)<0) {
-				selected = 0;
-			} else {
-				selected -= 9;
-			}
-		}
-		if ( gmenu2x->input[DOWN] ) {
+		} else if ( gmenu2x->input[DOWN] ) {
 			if (selected+1>=wallpapers.size())
 				selected = 0;
 			else
 				selected += 1;
-		}
-		if ( gmenu2x->input[PAGEDOWN] ) {
-			if (selected+9>=wallpapers.size()) {
+		} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
+			if ((int)(selected-9)<0)
+				selected = 0;
+			else
+				selected -= 9;
+		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
+			if (selected+9>=wallpapers.size())
 				selected = wallpapers.size()-1;
-			} else {
+			else
 				selected += 9;
-			}
-		}
-		if ( gmenu2x->input[CANCEL] ) {
+		} else if ( gmenu2x->input[CANCEL] ) {
 			close = true;
 			result = false;
-		}
-		if ( gmenu2x->input[CONFIRM] ) {
+		} else if ( gmenu2x->input[CONFIRM] ) {
 			close = true;
 			if (wallpapers.size()>0) {
 				if (selected<wallpapers.size()-fl.getFiles().size())
