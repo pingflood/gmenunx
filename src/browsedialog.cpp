@@ -125,13 +125,13 @@ BrowseDialog::Action BrowseDialog::getAction() {
 		action = BrowseDialog::ACT_CLOSE;
 	else if (gmenu2x->input[UP])
 		action = BrowseDialog::ACT_UP;
-	else if (gmenu2x->input[PAGEUP])
+	else if (gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT])
 		action = BrowseDialog::ACT_SCROLLUP;
 	else if (gmenu2x->input[DOWN])
 		action = BrowseDialog::ACT_DOWN;
-	else if (gmenu2x->input[PAGEDOWN])
+	else if (gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT])
 		action = BrowseDialog::ACT_SCROLLDOWN;
-	else if (gmenu2x->input[CANCEL] || gmenu2x->input[LEFT])
+	else if (gmenu2x->input[CANCEL])
 		action = BrowseDialog::ACT_GOUP;
 	else if (gmenu2x->input[CONFIRM])
 		action = BrowseDialog::ACT_SELECT;
