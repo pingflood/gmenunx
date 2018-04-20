@@ -1236,7 +1236,6 @@ void GMenu2X::main() {
 		// if (input[MODIFIER]) {
 		// 	s->box(10,50,300,162, skinConfColors[COLOR_MESSAGE_BOX_BG]);
 		// 	s->rectangle( 12,52,296,158, skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
-
 		// 	int line = 60; s->write( font, tr["CONTROLS"], 20, line);
 		// 	line += font->getHeight() + 5; s->write( font, tr["A: Confirm action"], 20, line);
 		// 	line += font->getHeight() + 5; s->write( font, tr["B: Cancel action"], 20, line);
@@ -1244,8 +1243,7 @@ void GMenu2X::main() {
 		// 	line += font->getHeight() + 5; s->write( font, tr["L, R: Change section"], 20, line);
 		// 	line += font->getHeight() + 5; s->write( font, tr["Select: Modifier"], 20, line);
 		// 	line += font->getHeight() + 5; s->write( font, tr["Start: Contextual menu"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Select: Show contextual menu"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Start: Show options menu"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Select+Start: Options menu"], 20, line);
 		// 	line += font->getHeight() + 5; s->write( font, tr["Backlight: Adjust backlight level"], 20, line);
 		// 	line += font->getHeight() + 5; s->write( font, tr["Power: Toggle speaker on/off"], 20, line);
 		// 	s->flip();
