@@ -104,22 +104,22 @@ bool WallpaperDialog::exec()
 		if ( gmenu2x->input[SETTINGS] ) {
 			close = true; result = false;
 		} else if ( gmenu2x->input[UP] ) {
-			if (selected==0)
+			if (selected == 0)
 				selected = wallpapers.size()-1;
 			else
 				selected -= 1;
 		} else if ( gmenu2x->input[DOWN] ) {
-			if (selected+1>=wallpapers.size())
+			if (selected + 1 >= wallpapers.size())
 				selected = 0;
 			else
 				selected += 1;
 		} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
-			if ((int)(selected-numRows)<0)
+			if (selected < numRows)
 				selected = 0;
 			else
 				selected -= numRows;
 		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
-			if (selected+numRows>=wallpapers.size())
+			if (selected + numRows >= wallpapers.size())
 				selected = wallpapers.size()-1;
 			else
 				selected += numRows;

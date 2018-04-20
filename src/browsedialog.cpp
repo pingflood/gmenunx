@@ -168,10 +168,10 @@ void BrowseDialog::handleInput() {
 			selected -= 1;
 		break;
 	case BrowseDialog::ACT_SCROLLUP:
-		if (selected <= numRows - 2)
+		if (selected < numRows)
 			selected = 0;
 		else
-			selected -= numRows - 2;
+			selected -= numRows;
 		break;
 	case BrowseDialog::ACT_DOWN:
 		if (fl->size() - 1 <= selected)
@@ -180,10 +180,10 @@ void BrowseDialog::handleInput() {
 			selected += 1;
 		break;
 	case BrowseDialog::ACT_SCROLLDOWN:
-		if (selected+(numRows-2)>=fl->size())
+		if (selected + numRows >= fl->size())
 			selected = fl->size()-1;
 		else
-			selected += numRows-2;
+			selected += numRows;
 		break;
 	case BrowseDialog::ACT_GOUP:
 		directoryUp();

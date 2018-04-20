@@ -127,17 +127,17 @@ void TextDialog::exec() {
 		gmenu2x->s->flip();
 
 		gmenu2x->input.update();
-		if ( gmenu2x->input[UP  ] && firstRow>0 ) firstRow--;
-		if ( gmenu2x->input[DOWN] && firstRow+rowsPerPage<text->size() ) firstRow++;
+		if ( gmenu2x->input[UP  ] && firstRow > 0 ) firstRow--;
+		if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < text->size() ) firstRow++;
 		if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT]) {
-			if (firstRow>=rowsPerPage-1)
-				firstRow-= rowsPerPage-1;
+			if (firstRow >= rowsPerPage - 1)
+				firstRow -= rowsPerPage - 1;
 			else
 				firstRow = 0;
 		}
 		if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT]) {
-			if (firstRow+rowsPerPage*2-1<text->size())
-				firstRow+= rowsPerPage-1;
+			if (firstRow + rowsPerPage * 2 - 1 < text->size())
+				firstRow += rowsPerPage - 1;
 			else
 				firstRow = max(0,text->size()-rowsPerPage);
 		}
