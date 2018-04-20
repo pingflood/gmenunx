@@ -506,7 +506,6 @@ void GMenu2X::initMenu() {
 
 	menu->setSectionIndex(confInt["section"]);
 	menu->setLinkIndex(confInt["link"]);
-
 	menu->loadIcons();
 }
 
@@ -1183,13 +1182,11 @@ void GMenu2X::main() {
 				}
 			}
 
-
-
 			if (preMMCStatus == MMC_INSERT) {
 				// backlightOffset = resX-((19 * 4) + battMsgWidth);
 				sc.skinRes("imgs/sd1.png")->blit(s, 22, skinConfInt["sectionBarHeight"]+22);
 			}
-      // s->box(22, skinConfInt["sectionBarHeight"]+22,16,16, 255,0,0);
+			// s->box(22, skinConfInt["sectionBarHeight"]+22,16,16, 255,0,0);
 
 
 			// else{
@@ -1235,22 +1232,29 @@ void GMenu2X::main() {
 				}
 			}
 
-		//On Screen Help
-    /*
-		if (input[MODIFIER]) {
-      s->box(10,50,300,162, skinConfColors[COLOR_MESSAGE_BOX_BG]);
-			s->rectangle( 12,52,296,158, skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
-			s->write( font, tr["CONTROLS"], 20, 60 );
-			s->write( font, tr["A, Confirm action"], 20, 80 );
-			s->write( font, tr["B, Cancel action"], 20, 95 );
-			s->write( font, tr["X: Show manual"], 20, 110 );
-			s->write( font, tr["L, R: Change section"], 20, 125 );
-			s->write( font, tr["Select: Show contextual menu"], 20, 140 );
-			s->write( font, tr["Start: Show options menu"], 20, 155 );
-			s->write( font, tr["Backlight: Adjust backlight level"], 20, 170 );
-			s->write( font, tr["Power: Toggle speaker on/off"], 20, 185 );
-		}
-    */
+		// On Screen Help
+		// if (input[MODIFIER]) {
+		// 	s->box(10,50,300,162, skinConfColors[COLOR_MESSAGE_BOX_BG]);
+		// 	s->rectangle( 12,52,296,158, skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
+
+		// 	int line = 60; s->write( font, tr["CONTROLS"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["A: Confirm action"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["B: Cancel action"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["X: Show manual"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["L, R: Change section"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Select: Modifier"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Start: Contextual menu"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Select: Show contextual menu"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Start: Show options menu"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Backlight: Adjust backlight level"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Power: Toggle speaker on/off"], 20, line);
+		// 	s->flip();
+		// 	bool close = false;
+		// 	while (!close) {
+		// 		input.update();
+		// 		if (input[MODIFIER] || input[CONFIRM] || input[CANCEL]) close = true;
+		// 	}
+		// }
 
 			s->flip();
 
