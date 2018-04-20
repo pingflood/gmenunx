@@ -32,6 +32,7 @@
 #include "selector.h"
 #include "filelister.h"
 #include "debug.h"
+#include <stdlib.h>
 
 using namespace std;
 
@@ -224,6 +225,7 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 	freeScreenshots(screens);
 	screens->resize(fl->getFiles().size());
 	titles->resize(fl->getFiles().size());
+	char rpath[PATH_MAX];
 
 	string noext, outdir;
 	string::size_type pos;
@@ -237,9 +239,9 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 		if (screendir != "") {
 			if (screendir[screendir.length()-1]!='/') outdir = screendir + "/";
 			if (screendir[0]=='.') outdir = fl->getPath() + "/" + screendir + "/"; // allow "." as "current directory", therefore, relative paths
-
-			// INFO("Searching for screen '%s%s.png'", outdir.c_str(), noext.c_str());
-
+			realpath(outdir.c_str(), rpath);
+			outdir = (string)rpath+"/";
+			// INFO("Searching for screen '%s%s.png'**", outdir.c_str(), noext.c_str());
 			if (fileExists(outdir+noext+".jpg"))
 				screens->at(i) = outdir+noext+".jpg";
 			else if (fileExists(outdir+noext+".png"))
