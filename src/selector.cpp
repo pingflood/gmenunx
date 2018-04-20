@@ -165,10 +165,10 @@ int Selector::exec(int startSelection) {
 				selected -= 1;
 			selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
-			if ((int)(selected-numRows+1)<0)
+			if ((int)(selected-numRows)<0)
 				selected = 0;
 			else
-				selected -= numRows-1;
+				selected -= numRows;
 			selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[DOWN] ) {
 			if (selected+1>=fl.size())
@@ -177,10 +177,10 @@ int Selector::exec(int startSelection) {
 				selected += 1;
 			selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
-			if (selected+numRows-1>=fl.size())
+			if (selected+numRows>=fl.size())
 				selected = fl.size()-1;
 			else
-				selected += numRows-1;
+				selected += numRows;
 			selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[CANCEL] ) {
 			if (link->getSelectorBrowser()) {

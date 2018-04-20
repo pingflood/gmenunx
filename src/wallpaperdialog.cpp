@@ -114,15 +114,15 @@ bool WallpaperDialog::exec()
 			else
 				selected += 1;
 		} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
-			if ((int)(selected-9)<0)
+			if ((int)(selected-numRows)<0)
 				selected = 0;
 			else
-				selected -= 9;
+				selected -= numRows;
 		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
-			if (selected+9>=wallpapers.size())
+			if (selected+numRows>=wallpapers.size())
 				selected = wallpapers.size()-1;
 			else
-				selected += 9;
+				selected += numRows;
 		} else if ( gmenu2x->input[CANCEL] ) {
 			close = true;
 			result = false;
