@@ -43,9 +43,7 @@ const string &FileLister::getPath() {
 	return path;
 }
 void FileLister::setPath(const string &path, bool doBrowse) {
-	this->path = path;
-	if (this->path[path.length()-1]!='/')
-		this->path += "/";
+	this->path = this->realPath(path);
 	if (doBrowse)
 		browse();
 }
@@ -77,7 +75,7 @@ void FileLister::browse() {
 
 		while ((dptr = readdir(dirp))) {
 			file = dptr->d_name;
-			if (file[0]=='.' && file!="..") continue;
+			if ((file[0]=='.' && file!="..") || (path=="/" && file=="..")) continue;
 			filepath = path+file;
 			int statRet = stat(filepath.c_str(), &st);
 			if (statRet == -1) {
@@ -148,4 +146,14 @@ void FileLister::insertFile(const string &file) {
 
 void FileLister::addExclude(const string &exclude) {
 	excludes.push_back(exclude);
+}
+
+string FileLister::realPath(const string &path) {
+	char real_path[PATH_MAX];
+	string outpath;
+	realpath(path.c_str(), real_path);
+	outpath = (string)real_path;
+	if (outpath[outpath.length()-1]!='/')
+		outpath += "/";
+	return outpath;
 }

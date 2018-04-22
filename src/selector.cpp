@@ -32,7 +32,6 @@
 #include "selector.h"
 #include "filelister.h"
 #include "debug.h"
-#include <stdlib.h>
 
 using namespace std;
 
@@ -205,7 +204,7 @@ int Selector::exec(int startSelection) {
 				file = fl[selected];
 				close = true;
 			} else {
-				dir = dir+fl[selected]+"/";
+				dir = fl.realPath(dir+fl[selected]);//+"/";
 				selected = 0;
 				firstElement = 0;
 				prepare(&fl,&screens,&titles);
@@ -225,9 +224,8 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 	freeScreenshots(screens);
 	screens->resize(fl->getFiles().size());
 	titles->resize(fl->getFiles().size());
-	char rpath[PATH_MAX];
 
-	string noext, outdir;
+	string noext, realdir;
 	string::size_type pos;
 	for (uint i=0; i<fl->getFiles().size(); i++) {
 		noext = fl->getFiles()[i];
@@ -237,15 +235,13 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 		titles->at(i) = getAlias(noext);
 
 		if (screendir != "") {
-			if (screendir[screendir.length()-1]!='/') outdir = screendir + "/";
-			if (screendir[0]=='.') outdir = fl->getPath() + "/" + screendir + "/"; // allow "." as "current directory", therefore, relative paths
-			realpath(outdir.c_str(), rpath);
-			outdir = (string)rpath+"/";
-			// INFO("Searching for screen '%s%s.png'**", outdir.c_str(), noext.c_str());
-			if (fileExists(outdir+noext+".jpg"))
-				screens->at(i) = outdir+noext+".jpg";
-			else if (fileExists(outdir+noext+".png"))
-				screens->at(i) = outdir+noext+".png";
+			if (screendir[0]=='.') realdir = fl->realPath(fl->getPath() + "/" + screendir); // + "/"; // allow "." as "current directory", therefore, relative paths
+			else realdir = fl->realPath(screendir);
+			// INFO("Searching for screen '%s%s.png'", realdir.c_str(), noext.c_str());
+			if (fileExists(realdir+noext+".jpg"))
+				screens->at(i) = realdir+noext+".jpg";
+			else if (fileExists(realdir+noext+".png"))
+				screens->at(i) = realdir+noext+".png";
 			else
 				screens->at(i) = "";
 		}

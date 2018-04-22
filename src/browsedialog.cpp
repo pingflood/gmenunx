@@ -1,8 +1,6 @@
 #include <string>
 #include <iostream>
-
 #include "browsedialog.h"
-
 #include "FastDelegate.h"
 #include "filelister.h"
 #include "gmenu2x.h"
@@ -222,8 +220,6 @@ void BrowseDialog::directoryUp() {
 
 void BrowseDialog::directoryEnter() {
 	string path = fl->getPath();
-	if (path[path.size()-1] != '/')
-			path += "/";
 	setPath(path + fl->at(selected));
 	selected = 0;
 }

@@ -54,6 +54,7 @@ public:
 	const vector<string> &getFiles() { return files; }
 	void insertFile(const string &file);
 	void addExclude(const string &exclude);
+	string realPath(const string &path);
 };
 
 #endif /*FILELISTER_H_*/
