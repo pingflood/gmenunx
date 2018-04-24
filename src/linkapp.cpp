@@ -321,8 +321,8 @@ void LinkApp::showManual() {
 
 			inputMgr.update();
 			if ( inputMgr[MANUAL] || inputMgr[CANCEL] || inputMgr[SETTINGS] ) close = true;
-			if ( inputMgr[LEFT] && page>0 ) { page--; repaint=true; }
-			if ( inputMgr[RIGHT] && page<pagecount-1 ) { page++; repaint=true; }
+			else if ( inputMgr[LEFT] && page>0 ) { page--; repaint=true; }
+			else if ( inputMgr[RIGHT] && page<pagecount-1 ) { page++; repaint=true; }
 		}
 		return;
 	}
