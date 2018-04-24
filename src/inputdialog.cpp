@@ -175,32 +175,32 @@ bool InputDialog::exec() {
 
 		inputMgr.update();
 // COMMON ACTIONS
-			if ( inputMgr.isActive(MODIFIER) ) {
-				if (inputMgr.isActive(SECTION_NEXT)) {
-					if (!gmenu2x->saveScreenshot()) { continue; }
-					MessageBox mb(gmenu2x, gmenu2x->tr["Screenshot Saved"]);
-					mb.setAutoHide(1000);
-					mb.exec();
-					continue;
-				} else if (inputMgr.isActive(SECTION_PREV)) {
-					int vol = gmenu2x->getVolume();
-					if (vol) {
-						vol = 0;
-						gmenu2x->volumeMode = VOLUME_MODE_MUTE;
-					} else {
-						vol = 100;
-						gmenu2x->volumeMode = VOLUME_MODE_NORMAL;
-					}
-					gmenu2x->confInt["globalVolume"] = vol;
-					gmenu2x->setVolume(vol);
-					gmenu2x->writeConfig();
-					continue;
+		if ( inputMgr.isActive(MODIFIER) ) {
+			if (inputMgr.isActive(SECTION_NEXT)) {
+				if (!gmenu2x->saveScreenshot()) { continue; }
+				MessageBox mb(gmenu2x, gmenu2x->tr["Screenshot Saved"]);
+				mb.setAutoHide(1000);
+				mb.exec();
+				continue;
+			} else if (inputMgr.isActive(SECTION_PREV)) {
+				int vol = gmenu2x->getVolume();
+				if (vol) {
+					vol = 0;
+					gmenu2x->volumeMode = VOLUME_MODE_MUTE;
+				} else {
+					vol = 100;
+					gmenu2x->volumeMode = VOLUME_MODE_NORMAL;
 				}
+				gmenu2x->confInt["globalVolume"] = vol;
+				gmenu2x->setVolume(vol);
+				gmenu2x->writeConfig();
+				continue;
 			}
-			// BACKLIGHT
-			else if ( inputMgr[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
+		}
+		// BACKLIGHT
+		else if ( inputMgr[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
 // END OF COMMON ACTIONS
-		if      ( inputMgr[SETTINGS]     ) action = ID_ACTION_CLOSE;
+		else if ( inputMgr[SETTINGS]     ) action = ID_ACTION_CLOSE;
 		else if ( inputMgr[UP]           ) action = ID_ACTION_UP;
 		else if ( inputMgr[DOWN]         ) action = ID_ACTION_DOWN;
 		else if ( inputMgr[LEFT]         ) action = ID_ACTION_LEFT;
