@@ -635,8 +635,8 @@ void GMenu2X::batteryLogger() {
 	bool close = false;
 
 	drawTopBar(bg);
-	bg->write(titlefont, "Battery Logger", 40, 4 + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
-	bg->write(font, "Log battery power to battery.csv", 40, 38, HAlignLeft, VAlignBottom);
+	bg->write(titlefont, tr["Battery Logger"], 40, 4 + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
+	bg->write(font, tr["Log battery power to battery.csv"], 40, 38, HAlignLeft, VAlignBottom);
 	sc.skinRes("icons/ebook.png")->blit(bg, 4, 4, 32, 32);
 
 	drawBottomBar(bg);
@@ -688,21 +688,46 @@ void GMenu2X::batteryLogger() {
 		s->flip();
 
 		input.update(0);
-		if ( input[UP  ] && firstRow > 0 ) firstRow--;
-		if ( input[DOWN] && firstRow + rowsPerPage < log.size() ) firstRow++;
-		if ( input[PAGEUP] || input[LEFT]) {
+
+// COMMON ACTIONS
+		if ( input.isActive(MODIFIER) ) {
+			if (input.isActive(SECTION_NEXT)) {
+				if (!saveScreenshot()) { ERROR("Can't save screenshot"); continue; }
+				MessageBox mb(this, tr["Screenshot Saved"]);
+				mb.setAutoHide(1000);
+				mb.exec();
+			} else if (input.isActive(SECTION_PREV)) {
+				int vol = getVolume();
+				if (vol) {
+					vol = 0;
+					volumeMode = VOLUME_MODE_MUTE;
+				} else {
+					vol = 100;
+					volumeMode = VOLUME_MODE_NORMAL;
+				}
+				confInt["globalVolume"] = vol;
+				setVolume(vol);
+				writeConfig();
+			}
+		}
+		// BACKLIGHT
+		else if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
+// END OF COMMON ACTIONS
+		else if ( input[UP  ] && firstRow > 0 ) firstRow--;
+		else if ( input[DOWN] && firstRow + rowsPerPage < log.size() ) firstRow++;
+		else if ( input[PAGEUP] || input[LEFT]) {
 			if (firstRow >= rowsPerPage - 1)
 				firstRow -= rowsPerPage - 1;
 			else
 				firstRow = 0;
 		}
-		if ( input[PAGEDOWN] || input[RIGHT]) {
+		else if ( input[PAGEDOWN] || input[RIGHT]) {
 			if (firstRow + rowsPerPage * 2 - 1 < log.size())
 				firstRow += rowsPerPage - 1;
 			else
 				firstRow = max(0,log.size()-rowsPerPage);
 		}
-		if ( input[SETTINGS] || input[CANCEL] ) close = true;
+		else if ( input[SETTINGS] || input[CANCEL] ) close = true;
 	}
 
 	setBacklight(confInt["backlight"]);
@@ -1076,7 +1101,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 				if (input[LEFT]) {
 					val = setBacklight(max(1, val - backlightStep));
 					break;
-				} else if (input[RIGHT] || input[BACKLIGHT]) {
+				} else if (input[RIGHT]) {
 					val = setBacklight(min(100, val + backlightStep));
 					break;
 				} else if (input[BACKLIGHT]) {
@@ -1386,7 +1411,7 @@ void GMenu2X::main() {
 					}
 				} else if (tickPowerOff >= 2 || tickNow - tickSuspend >= confInt["suspend"] * 1000) {
 						if(!suspendActive) {
-							MessageBox mb(this, tr["Suspend..."]);
+							MessageBox mb(this, tr["Suspend"]);
 							mb.setAutoHide(1000);
 							mb.exec();
 
@@ -1404,9 +1429,11 @@ void GMenu2X::main() {
 				setVolume(confInt["globalVolume"]);
 				menu->selLink()->run();
 			}
+
+// COMMON ACTIONS
 			else if ( input.isActive(MODIFIER) ) {
 				if (input.isActive(SECTION_NEXT)) {
-					saveScreenshot();
+					if (!saveScreenshot()) { ERROR("Can't save screenshot"); continue; }
 					MessageBox mb(this, tr["Screenshot Saved"]);
 					mb.setAutoHide(1000);
 					mb.exec();
@@ -1424,6 +1451,10 @@ void GMenu2X::main() {
 					writeConfig();
 				}
 			}
+			// BACKLIGHT
+			else if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
+// END OF COMMON ACTIONS
+
 			else if ( input[SETTINGS] ) options();
 			else if ( input[MENU]     ) contextMenu();
 			// LINK NAVIGATION
@@ -1434,8 +1465,6 @@ void GMenu2X::main() {
 			// SECTION
 			else if ( input[SECTION_PREV] ) menu->decSectionIndex();
 			else if ( input[SECTION_NEXT] ) menu->incSectionIndex();
-			// BACKLIGHT
-			else if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
 			// POWER || SUSPEND
 			else if ( input[POWER] ) { tickPowerOff++; }
 
@@ -1688,20 +1717,27 @@ void GMenu2X::main() {
 		int response = mb.exec();
 		// del(mb);
 		if (response == CONFIRM) {
-			MessageBox mb(this, tr["Poweroff..."]);
+			MessageBox mb(this, tr["Poweroff"]);
 			mb.setAutoHide(1000);
 			mb.exec();
 			setSuspend(true);
 			SDL_Delay(1000);
+
+#if !defined(TARGET_PC)
 			system("poweroff");
+#endif
 		}
 		else if (response == SECTION_NEXT) {
-			MessageBox mb(this, tr["Rebooting..."]);
+			MessageBox mb(this, tr["Rebooting"]);
 			mb.setAutoHide(1000);
 			mb.exec();
 			setSuspend(true);
 			SDL_Delay(1000);
+
+#if !defined(TARGET_PC)
 			system("reboot");
+#endif
+
 		}
 	}
 
@@ -1889,7 +1925,7 @@ void GMenu2X::main() {
 			MenuOption opt = {tr["Delete section"], MakeDelegate(this, &GMenu2X::deleteSection)};
 			voices.push_back(opt);
 		}{
-			MenuOption opt = {tr["Scan for applications and games"], MakeDelegate(this, &GMenu2X::scanner)};
+			MenuOption opt = {tr["Link scanner"], MakeDelegate(this, &GMenu2X::scanner)};
 			voices.push_back(opt);
 		}
 
@@ -1966,12 +2002,35 @@ void GMenu2X::main() {
 		}
 #endif
 		input.update();
-		if ( input[MENU]    ) close = true;
-		if ( input[UP]      ) sel = max(0, sel-1);
-		if ( input[DOWN]    ) sel = min((int)voices.size()-1, sel+1);
-		if ( input[CONFIRM] ) { voices[sel].action(); close = true; }
+// COMMON ACTIONS
+		if ( input.isActive(MODIFIER) ) {
+			if (input.isActive(SECTION_NEXT)) {
+				if (!saveScreenshot()) { ERROR("Can't save screenshot"); continue; }
+				MessageBox mb(this, tr["Screenshot Saved"]);
+				mb.setAutoHide(1000);
+				mb.exec();
+			} else if (input.isActive(SECTION_PREV)) {
+				int vol = getVolume();
+				if (vol) {
+					vol = 0;
+					volumeMode = VOLUME_MODE_MUTE;
+				} else {
+					vol = 100;
+					volumeMode = VOLUME_MODE_NORMAL;
+				}
+				confInt["globalVolume"] = vol;
+				setVolume(vol);
+				writeConfig();
+			}
+		}
+		// BACKLIGHT
+		else if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
+// END OF COMMON ACTIONS
+		else if ( input[MENU]    ) close = true;
+		else if ( input[UP]      ) sel = max(0, sel-1);
+		else if ( input[DOWN]    ) sel = min((int)voices.size()-1, sel+1);
+		else if ( input[CONFIRM] ) { voices[sel].action(); close = true; }
 	}
-
 	input.setWakeUpInterval(0);
 }
 
@@ -1984,22 +2043,26 @@ void GMenu2X::changeWallpaper() {
 	}
 }
 
-void GMenu2X::saveScreenshot() {
+bool GMenu2X::saveScreenshot() {
 	ledOn();
 	uint x = 0;
 	stringstream ss;
 	string fname;
+	
+	mkdir("screenshots/",0777);
+
 	do {
 		x++;
 		fname = "";
 		ss.clear();
 		ss << x;
 		ss >> fname;
-		fname = "screen"+fname+".bmp";
+		fname = "screenshots/screen"+fname+".bmp";
 	} while (fileExists(fname));
-	SDL_SaveBMP(s->raw,fname.c_str());
+	x = SDL_SaveBMP(s->raw,fname.c_str());
 	sync();
 	ledOff();
+	return x == 0;
 }
 
 void GMenu2X::addLink() {
@@ -2208,10 +2271,21 @@ void GMenu2X::deleteSection() {
 }
 
 void GMenu2X::scanner() {
-	Surface scanbg(bg);
-	drawButton(&scanbg, "b", tr["Exit"],
-		drawButton(&scanbg, "a", "", 5)-10);
-	scanbg.write(font,tr["Link Scanner"],halfX,7,HAlignCenter,VAlignMiddle);
+	initBG();
+
+	drawTopBar(bg);
+	bg->write(titlefont, tr["Link scanner"], 40, 4 + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
+	bg->write(font, tr["Scan for applications and games"], 40, 38, HAlignLeft, VAlignBottom);
+	sc.skinRes("icons/configure.png")->blit(bg, 4, 4, 32, 32);
+
+	drawBottomBar(bg);
+	drawButton(bg, "b", tr["Exit"],
+	drawButton(bg, "a", "", 5)-10);
+
+
+
+	// Surface bg(bg);
+	// bg.write(font,tr["Link Scanner"],halfX,7,HAlignCenter,VAlignMiddle);
 
 #if defined(TARGET_RETROGAME)
 	uint lineY = 80;
@@ -2225,14 +2299,14 @@ void GMenu2X::scanner() {
 		stringstream ss;
 		ss << DEFAULT_CPU_CLK;
 		ss >> strClock;
-		scanbg.write(font,tr.translate("Raising cpu clock to $1Mhz", strClock.c_str(), NULL),5,lineY);
-		scanbg.blit(s,0,0);
+		bg->write(font,tr.translate("Raising cpu clock to $1Mhz", strClock.c_str(), NULL),5,lineY);
+		bg->blit(s,0,0);
 		s->flip();
 		lineY += 26;
 	}
 
-	scanbg.write(font,tr["Scanning SD filesystem..."],5,lineY);
-	scanbg.blit(s,0,0);
+	bg->write(font,tr["Scanning SD filesystem..."],5,lineY);
+	bg->blit(s,0,0);
 	s->flip();
 	lineY += 26;
 
@@ -2241,8 +2315,8 @@ void GMenu2X::scanner() {
 
 	//Onyl gph firmware has nand
 	if (fwType=="gph" && !f200) {
-		scanbg.write(font,tr["Scanning NAND filesystem..."],5,lineY);
-		scanbg.blit(s,0,0);
+		bg->write(font,tr["Scanning NAND filesystem..."],5,lineY);
+		bg->blit(s,0,0);
 		s->flip();
 		lineY += 26;
 		scanPath("/mnt/nand",&files);
@@ -2252,10 +2326,10 @@ void GMenu2X::scanner() {
 	ss << files.size();
 	string str = "";
 	ss >> str;
-	scanbg.write(font,tr.translate("$1 files found.",str.c_str(),NULL),5,lineY);
+	bg->write(font,tr.translate("$1 files found.",str.c_str(),NULL),5,lineY);
 	lineY += 26;
-	scanbg.write(font,tr["Creating links..."],5,lineY);
-	scanbg.blit(s,0,0);
+	bg->write(font,tr["Creating links..."],5,lineY);
+	bg->blit(s,0,0);
 	s->flip();
 	lineY += 26;
 
@@ -2277,15 +2351,15 @@ void GMenu2X::scanner() {
 	ss.clear();
 	ss << linkCount;
 	ss >> str;
-	scanbg.write(font,tr.translate("$1 links created.",str.c_str(),NULL),5,lineY);
-	scanbg.blit(s,0,0);
+	bg->write(font,tr.translate("$1 links created.",str.c_str(),NULL),5,lineY);
+	bg->blit(s,0,0);
 	s->flip();
 	lineY += 26;
 
 	if (confInt["menuClock"]<DEFAULT_CPU_CLK) {
 		setClock(confInt["menuClock"]);
-		scanbg.write(font,tr["Decreasing cpu clock"],5,lineY);
-		scanbg.blit(s,0,0);
+		bg->write(font,tr["Decreasing cpu clock"],5,lineY);
+		bg->blit(s,0,0);
 		s->flip();
 		lineY += 26;
 	}
@@ -2296,7 +2370,32 @@ void GMenu2X::scanner() {
 	bool close = false;
 	while (!close) {
 		input.update();
-		if (input[SETTINGS] || input[CONFIRM] || input[CANCEL]) close = true;
+
+// COMMON ACTIONS
+		if ( input.isActive(MODIFIER) ) {
+			if (input.isActive(SECTION_NEXT)) {
+				if (!saveScreenshot()) { ERROR("Can't save screenshot"); continue; }
+				MessageBox mb(this, tr["Screenshot Saved"]);
+				mb.setAutoHide(1000);
+				mb.exec();
+			} else if (input.isActive(SECTION_PREV)) {
+				int vol = getVolume();
+				if (vol) {
+					vol = 0;
+					volumeMode = VOLUME_MODE_MUTE;
+				} else {
+					vol = 100;
+					volumeMode = VOLUME_MODE_NORMAL;
+				}
+				confInt["globalVolume"] = vol;
+				setVolume(vol);
+				writeConfig();
+			}
+		}
+		// BACKLIGHT
+		else if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
+// END OF COMMON ACTIONS
+		else if (input[SETTINGS] || input[CONFIRM] || input[CANCEL]) close = true;
 	}
 }
 

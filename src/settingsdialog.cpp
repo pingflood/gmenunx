@@ -22,14 +22,15 @@
 #include <SDL_gfxPrimitives.h>
 
 #include "settingsdialog.h"
+#include "messagebox.h"
 
 using namespace std;
 
 SettingsDialog::SettingsDialog(
-		GMenu2X *gmenu2x_, InputManager &inputMgr_, Touchscreen &ts_,
+		GMenu2X *gmenu2x_, InputManager &input_, Touchscreen &ts_,
 		const string &text_, const string &icon)
 	: Dialog(gmenu2x_)
-	, inputMgr(inputMgr_)
+	, input(input_)
 	, ts(ts_)
 	, text(text_)
 {
@@ -112,10 +113,36 @@ bool SettingsDialog::exec() {
 		gmenu2x->s->flip();
 		voices[sel]->handleTS();
 
-		inputMgr.update();
-		if      ( inputMgr[SETTINGS] ) action = SD_ACTION_CLOSE;
-		else if ( inputMgr[UP      ] ) action = SD_ACTION_UP;
-		else if ( inputMgr[DOWN    ] ) action = SD_ACTION_DOWN;
+		input.update();
+// COMMON ACTIONS
+		if ( input.isActive(MODIFIER) ) {
+			if (input.isActive(SECTION_NEXT)) {
+				if (!gmenu2x->saveScreenshot()) { continue; }
+				MessageBox mb(gmenu2x, gmenu2x->tr["Screenshot Saved"]);
+				mb.setAutoHide(1000);
+				mb.exec();
+				continue;
+			} else if (input.isActive(SECTION_PREV)) {
+				int vol = gmenu2x->getVolume();
+				if (vol) {
+					vol = 0;
+					gmenu2x->volumeMode = VOLUME_MODE_MUTE;
+				} else {
+					vol = 100;
+					gmenu2x->volumeMode = VOLUME_MODE_NORMAL;
+				}
+				gmenu2x->confInt["globalVolume"] = vol;
+				gmenu2x->setVolume(vol);
+				gmenu2x->writeConfig();
+				continue;
+			}
+		}
+		// BACKLIGHT
+		else if ( input[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
+// END OF COMMON ACTIONS
+		else if ( input[SETTINGS] ) action = SD_ACTION_CLOSE;
+		else if ( input[UP      ] ) action = SD_ACTION_UP;
+		else if ( input[DOWN    ] ) action = SD_ACTION_DOWN;
 		voices[sel]->manageInput();
 
 		switch (action) {

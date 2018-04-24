@@ -4,6 +4,7 @@
 #include "FastDelegate.h"
 #include "filelister.h"
 #include "gmenu2x.h"
+#include "messagebox.h"
 
 using namespace fastdelegate;
 using namespace std;
@@ -119,7 +120,32 @@ bool BrowseDialog::exec() {
 BrowseDialog::Action BrowseDialog::getAction() {
 	BrowseDialog::Action action = BrowseDialog::ACT_NONE;
 
-	if (gmenu2x->input[MENU])
+// COMMON ACTIONS
+	if ( gmenu2x->input.isActive(MODIFIER) ) {
+		if (gmenu2x->input.isActive(SECTION_NEXT)) {
+			if (gmenu2x->saveScreenshot()) {
+				MessageBox mb(gmenu2x, gmenu2x->tr["Screenshot Saved"]);
+				mb.setAutoHide(1000);
+				mb.exec();
+			}
+		} else if (gmenu2x->input.isActive(SECTION_PREV)) {
+			int vol = gmenu2x->getVolume();
+			if (vol) {
+				vol = 0;
+				gmenu2x->volumeMode = VOLUME_MODE_MUTE;
+			} else {
+				vol = 100;
+				gmenu2x->volumeMode = VOLUME_MODE_NORMAL;
+			}
+			gmenu2x->confInt["globalVolume"] = vol;
+			gmenu2x->setVolume(vol);
+			gmenu2x->writeConfig();
+		}
+	}
+	// BACKLIGHT
+	else if ( gmenu2x->input[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
+// END OF COMMON ACTIONS
+	else if (gmenu2x->input[MENU])
 		action = BrowseDialog::ACT_CLOSE;
 	else if (gmenu2x->input[UP])
 		action = BrowseDialog::ACT_UP;

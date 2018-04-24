@@ -95,7 +95,6 @@ class Menu;
 class GMenu2X {
 private:
 	int getBacklight();
-	int setBacklight(int val, bool popup = false);
 
 	int backlightStep;
 	bool setSuspend(bool suspend);
@@ -237,7 +236,7 @@ public:
 	void batteryLogger();
 	void contextMenu();
 	void changeWallpaper();
-	void saveScreenshot();
+	bool saveScreenshot();
 
 	void applyRamTimings();
 	void applyDefaultTimings();
@@ -251,6 +250,7 @@ public:
 	int getVolumeScaler();
 
 	void setInputSpeed();
+	int setBacklight(int val, bool popup = false);
 
 	void writeConfig();
 	void writeConfigOpen2x();
