@@ -130,7 +130,7 @@ bool WallpaperDialog::exec()
 		else if ( gmenu2x->input[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
 // END OF COMMON ACTIONS
 
-		if ( gmenu2x->input[SETTINGS] ) {
+		else if ( gmenu2x->input[SETTINGS] ) {
 			close = true;
 			result = false;
 		} else if ( gmenu2x->input[UP] ) {

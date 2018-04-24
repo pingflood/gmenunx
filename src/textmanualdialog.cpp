@@ -129,21 +129,19 @@ void TextManualDialog::exec() {
 // END OF COMMON ACTIONS
 
 		else if ( gmenu2x->input[UP] && firstRow>0 ) firstRow--;
-		if ( gmenu2x->input[DOWN] && firstRow+rowsPerPage<pages[page].text.size() ) firstRow++;
-		if ( gmenu2x->input[LEFT ] && page>0 ) { page--; firstRow=0; }
-		if ( gmenu2x->input[RIGHT] && page<pages.size()-1 ) { page++; firstRow=0; }
-		if ( gmenu2x->input[PAGEUP] ) {
+		else if ( gmenu2x->input[DOWN] && firstRow+rowsPerPage<pages[page].text.size() ) firstRow++;
+		else if ( gmenu2x->input[LEFT ] && page>0 ) { page--; firstRow=0; }
+		else if ( gmenu2x->input[RIGHT] && page<pages.size()-1 ) { page++; firstRow=0; }
+		else if ( gmenu2x->input[PAGEUP] ) {
 			if (firstRow>=rowsPerPage-1)
 				firstRow-= rowsPerPage-1;
 			else
 				firstRow = 0;
-		}
-		if ( gmenu2x->input[PAGEDOWN] ) {
+		} else if ( gmenu2x->input[PAGEDOWN] ) {
 			if (firstRow+rowsPerPage*2-1<pages[page].text.size())
 				firstRow+= rowsPerPage-1;
 			else
 				firstRow = max(0,pages[page].text.size()-rowsPerPage);
-		}
-		if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
+		} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
 	}
 }
