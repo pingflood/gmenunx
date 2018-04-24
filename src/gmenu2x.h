@@ -94,9 +94,11 @@ class Menu;
 
 class GMenu2X {
 private:
-  int getBacklight();
-	void setSuspend(int enter, int show_msg);
-	int backlightLevel;
+	int getBacklight();
+	int setBacklight(int val, bool popup = false);
+
+	int backlightStep;
+	bool setSuspend(bool suspend);
 
 	string path; //!< Contains the working directory of GMenu2X
 	/*!
@@ -112,6 +114,9 @@ private:
 	@return A number representing battery charge. 0 means fully discharged. 5 means fully charged. 6 represents a gp2x using AC power.
 	*/
 	unsigned short getBatteryLevel();
+	long getBatteryStatus();
+
+
 	int batteryHandle;
 	void browsePath(const string &path, vector<string>* directories, vector<string>* files);
 	/*!
@@ -139,7 +144,7 @@ private:
 	void readConfigOpen2x();
 	void readTmp();
 	void readCommonIni();
-	void writeCommonIni();
+	// void writeCommonIni();
 
 	void initServices();
 	void initFont();
@@ -219,16 +224,17 @@ public:
 	void options();
 	void settingsOpen2x();
 	void poweroff();
-	void toggleSpeaker();
+	// void toggleSpeaker();
 	void umountSd();
 	void formatSd();
-	void reboot();
+	// void reboot();
 	void skinMenu();
 	void activateSdUsb();
 	void activateNandUsb();
 	void activateRootUsb();
 	void about();
 	void viewLog();
+	void batteryLogger();
 	void contextMenu();
 	void changeWallpaper();
 	void saveScreenshot();
