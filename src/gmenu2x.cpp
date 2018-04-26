@@ -498,7 +498,7 @@ void GMenu2X::initMenu() {
 			if (fileExists(path+"log.txt"))
 				menu->addActionLink(i,tr["Log Viewer"],MakeDelegate(this,&GMenu2X::viewLog),tr["Displays last launched program's output"],"skin:icons/ebook.png");
 			menu->addActionLink(i,tr["Battery Logger"],MakeDelegate(this,&GMenu2X::batteryLogger),tr["Log battery power to battery.csv"],"skin:icons/ebook.png");
-			menu->addActionLink(i,tr["About"],MakeDelegate(this,&GMenu2X::about),tr["Info about GMenu2X"],"skin:icons/about.png");
+			menu->addActionLink(i,tr["About"],MakeDelegate(this,&GMenu2X::about),tr["Info about system"],"skin:icons/about.png");
 			// menu->addActionLink(i,"Reboot",MakeDelegate(this,&GMenu2X::reboot),tr["Reboot device"],"skin:icons/reboot.png");
 			menu->addActionLink(i,tr["Power"],MakeDelegate(this,&GMenu2X::poweroff),tr["Power options"],"skin:icons/exit.png");
 		}
@@ -512,9 +512,13 @@ void GMenu2X::initMenu() {
 void GMenu2X::about() {
 	vector<string> text;
 	string temp;
-	temp = "GMenu2X is developed by Massimiliano \"Ryo\" Torromeo, and is released under the GPL-v2 license.\n\
-Website: http://mtorromeo.github.com/gmenu2x\n\
-E-Mail & PayPal account: massimiliano.torromeo@gmail.com\n";
+
+	temp = "";
+	temp += "\nGMenuNext " + tr.translate("Version $1 (Build date: $2)", "0.12", __DATE__, NULL);
+	temp += "\nStorage: " + getDiskFree();
+
+	temp += "\n----\n";
+
 #if defined(TARGET_CAANOO)
 	string versionFile = "";
 	if (fileExists("/usr/gp2x/version"))
@@ -531,54 +535,17 @@ E-Mail & PayPal account: massimiliano.torromeo@gmail.com\n";
 		}
 	}
 #endif
-	temp += "\n\
-Thanks goes to...\n\
-\n\
-Contributors\n\
-----\n\
-NoidZ for his gp2x' buttons graphics\n\
-Pickle for the initial Wiz and Caanoo ports\n\
-Steward for the initial RetroGame ports\n\
-\n\
-Beta testers\n\
-----\n\
-Goemon4, PokeParadox, PSyMastR and Tripmonkey_uk (GP2X)\n\
-Yann Vaillant (WIZ)\n\
-\n\
-Translators\n\
-----\n\
-English & Italian by me\n\
-French by Yodaz\n\
-Danish by claus\n\
-Dutch by superfly\n\
-Spanish by pedator\n\
-Portuguese (Portugal) by NightShadow\n\
-Slovak by Jozef\n\
-Swedish by Esslan and Micket\n\
-German by fusion_power, johnnysnet and Waldteufel\n\
-Finnish by Jontte and Atte\n\
-Norwegian by cowai\n\
-Russian by XaMMaX90\n\
-Chinese (CN) by KungfuPanda\n\
-Chinese (TW) by TonyJih\n\
-\n\
-Donors\n\
-----\n\
-EvilDragon (www.gp2x.de)\n\
-Tecnologie Creative (www.tecnologiecreative.it)\n\
-TelcoLou\n\
-gaterooze\n\
-deepmenace\n\
-superfly\n\
-halo9\n\
-sbock\n\
-b._.o._.b\n\
-Jacopastorius\n\
-lorystorm90\n\
-and all the anonymous donors...\n\
-(If I missed to list you or if you want to be removed, contact me.)";
+
+	ifstream f("about.txt", ios_base::in);
+	if (f.is_open()) {
+		string line;
+		while (getline(f, line, '\n'))
+			temp += line + "\n"; // + exec("uname -srm");
+		f.close();
+	}
+
 	split(text, temp, "\n");
-	TextDialog td(this, "GMenu2X", tr.translate("Version $1 (Build date: $2)", "0.12", __DATE__, NULL), "icons/about.png", &text);
+	TextDialog td(this, "GMenuNext", tr["Info about system"], "icons/about.png", &text);
 	td.exec();
 }
 
@@ -710,8 +677,6 @@ void GMenu2X::batteryLogger() {
 				writeConfig();
 			}
 		}
-		// BACKLIGHT
-		else if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
 // END OF COMMON ACTIONS
 		else if ( input[UP  ] && firstRow > 0 ) firstRow--;
 		else if ( input[DOWN] && firstRow + rowsPerPage < log.size() ) firstRow++;
@@ -2430,9 +2395,17 @@ void GMenu2X::scanPath(string path, vector<string> *files) {
 unsigned short GMenu2X::getBatteryLevel() {
 	//if (batteryHandle<=0) return 6; //AC Power
 	long val = getBatteryStatus();
-	if ((val > 10000) || (val < 0)) {
-		return 6;
-	}
+
+#if defined(TARGET_RETROGAME)
+	if ((val > 10000) || (val < 0)) return 6;
+	else if (val > 3900) return 5;
+	else if (val > 3850) return 4;
+	else if (val > 3800) return 3;
+	else if (val > 3730) return 2;
+	else if (val > 3600) return 1;
+	return 0;
+	// return 5 - 5*(100-val)/(100);
+#endif
 
 	// int level = 0;
 	bool needWriteConfig = false;
