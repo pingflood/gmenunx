@@ -134,7 +134,7 @@ int main(int /*argc*/, char * /*argv*/[]) {
 }
 
 void GMenu2X::gp2x_init() {
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || (TARGET_RETROGAME)
+#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || (TARGET_RS97)
 	memdev = open("/dev/mem", O_RDWR);
 	if (memdev < 0){
 		WARNING("Could not open /dev/mem");
@@ -147,7 +147,7 @@ void GMenu2X::gp2x_init() {
 		MEM_REG=&memregs[0];
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 		memregs = (unsigned short*)mmap(0, 0x20000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
-#elif defined(TARGET_RETROGAME)
+#elif defined(TARGET_RS97)
 		memregs = (unsigned long*)mmap(0, 1024, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
 #endif
 		if (memregs == MAP_FAILED) {
@@ -224,8 +224,8 @@ GMenu2X::GMenu2X() {
 	}
 #ifdef TARGET_GP2X
 	f200 = fileExists("/dev/touchscreen/wm97xx");
-#elif defined(TARGET_RETROGAME)
-	fwType = "retrogame";
+#elif defined(TARGET_RS97)
+	fwType = "rs97";
 #else
 	f200 = true;
 #endif
@@ -278,7 +278,7 @@ backlightStep = 10;
 #endif
 	batteryHandle = 0;
 	memdev = 0;
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RETROGAME)
+#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
 	gp2x_init();
 #endif
 
@@ -311,7 +311,7 @@ backlightStep = 10;
 		s->enableVirtualDoubleBuffer(dbl);
 		SDL_ShowCursor(0);
 	}
-#elif defined(TARGET_RETROGAME)
+#elif defined(TARGET_RS97)
 	SDL_ShowCursor(0);
 	s->ScreenSurface = SDL_SetVideoMode(320, 480, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
 	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, 16, 0, 0, 0, 0);
@@ -487,7 +487,7 @@ void GMenu2X::initMenu() {
 			//menu->addActionLink(i,"USB Root",MakeDelegate(this,&GMenu2X::activateRootUsb),tr["Activate Usb on the root of the Gp2x Filesystem"],"skin:icons/usb.png");
 #endif
 
-#if defined(TARGET_RETROGAME)
+#if defined(TARGET_RS97)
 			//menu->addActionLink(i,"Speaker",MakeDelegate(this,&GMenu2X::toggleSpeaker),tr["Activate/deactivate Speaker"],"skin:icons/speaker.png");
 			menu->addActionLink(i,tr["TV"],MakeDelegate(this,&GMenu2X::toggleTvOut),tr["Activate/deactivate tv-out"],"skin:icons/tv.png");
 			//menu->addActionLink(i,"USB",MakeDelegate(this,&GMenu2X::activateSdUsb),tr["Activate Usb on SD"],"skin:icons/usb.png");
@@ -732,7 +732,7 @@ void GMenu2X::readConfig() {
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	evalIntConf( &confInt["maxClock"], 900, 200, 900 );
 	evalIntConf( &confInt["menuClock"], DEFAULT_CPU_CLK, 250, 300 );
-#elif defined(TARGET_RETROGAME)
+#elif defined(TARGET_RS97)
 	evalIntConf( &confInt["maxClock"], 750, 750, 750 );
 	evalIntConf( &confInt["menuClock"], DEFAULT_CPU_CLK, 528, 528 );
 #endif
@@ -1339,7 +1339,7 @@ void GMenu2X::main() {
 
 		s->flip();
 
-// #if defined(TARGET_RETROGAME)
+// #if defined(TARGET_RS97)
 // 		switch(volumeMode) {
 // 			// case VOLUME_MODE_MUTE:   sc.skinRes("imgs/mute.png")->blit(s,resX-((19*2)+battMsgWidth),bottomBarIconY); break;
 // 			// default: sc.skinRes("imgs/volume.png")->blit(s,resX-((19*2) + battMsgWidth),bottomBarIconY); break;
@@ -1639,7 +1639,7 @@ void GMenu2X::main() {
 	}
 
 	void GMenu2X::umountSd() {
-#ifdef TARGET_RETROGAME
+#ifdef TARGET_RS97
 		MessageBox mb(this, tr["Do you want to umount external sdcard ?"], "icons/eject.png");
 		mb.setButton(CONFIRM, tr["Yes"]);
 		mb.setButton(CANCEL,  tr["No"]);
@@ -1652,7 +1652,7 @@ void GMenu2X::main() {
 	}
 
 	void GMenu2X::formatSd() {
-#ifdef TARGET_RETROGAME
+#ifdef TARGET_RS97
 		MessageBox mb(this, tr["Do you want to format internal sdcard ?"], "icons/format.png");
 		mb.setButton(CONFIRM, tr["Yes"]);
 		mb.setButton(CANCEL,  tr["No"]);
@@ -2252,7 +2252,7 @@ void GMenu2X::scanner() {
 	// Surface bg(bg);
 	// bg.write(font,tr["Link Scanner"],halfX,7,HAlignCenter,VAlignMiddle);
 
-#if defined(TARGET_RETROGAME)
+#if defined(TARGET_RS97)
 	uint lineY = 80;
 #else
 	uint lineY = 42;
@@ -2396,7 +2396,7 @@ unsigned short GMenu2X::getBatteryLevel() {
 	//if (batteryHandle<=0) return 6; //AC Power
 	long val = getBatteryStatus();
 
-#if defined(TARGET_RETROGAME)
+#if defined(TARGET_RS97)
 	if ((val > 10000) || (val < 0)) return 6;
 	else if (val > 3900) return 5;
 	else if (val > 3850) return 4;
@@ -2561,7 +2561,7 @@ void GMenu2X::setClock(unsigned mhz) {
 		PWRMODE |= 0x8000;
 		for (int i = 0; (PWRMODE & 0x8000) && i < 0x100000; i++);
 #endif
-#if defined(TARGET_RETROGAME)
+#if defined(TARGET_RS97)
 		#define CPPCR     (0x10 >> 2)
 			unsigned long m = mhz / 6;
 		memregs[CPPCR] = (m << 24) | 0x090520;
@@ -2591,7 +2591,7 @@ int GMenu2X::getVolume() {
 	unsigned long soundDev = open("/dev/mixer", O_RDONLY);
 
 	if (soundDev) {
-#if defined(TARGET_RETROGAME)
+#if defined(TARGET_RS97)
 		ioctl(soundDev, SOUND_MIXER_READ_VOLUME, &vol);
 #else
 		ioctl(soundDev, SOUND_MIXER_READ_PCM, &vol);
@@ -2612,7 +2612,7 @@ void GMenu2X::setVolume(int vol) {
 	vol = vol ? 100 : 0;
 	if (soundDev) {
 		vol = (vol << 8) | vol;
-#if defined(TARGET_RETROGAME)
+#if defined(TARGET_RS97)
 		ioctl(soundDev, SOUND_MIXER_WRITE_VOLUME, &vol);
 #else
 		ioctl(soundDev, SOUND_MIXER_WRITE_PCM, &vol);

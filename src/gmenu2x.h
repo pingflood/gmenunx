@@ -152,7 +152,7 @@ private:
 	IconButton *btnContextMenu;
 
 	unsigned int memdev;
-#ifdef TARGET_RETROGAME
+#ifdef TARGET_RS97
   volatile unsigned long *memregs;
 #else
 	volatile unsigned short *memregs;
