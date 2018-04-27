@@ -513,11 +513,13 @@ void GMenu2X::about() {
 	vector<string> text;
 	string temp;
 
-	temp = "";
-	temp += "\nGMenuNext " + tr.translate("Version $1 (Build date: $2)", "0.12", __DATE__, NULL);
-	temp += "\nStorage: " + getDiskFree();
-
-	temp += "\n----\n";
+	temp = tr["Build date: "] + __DATE__ + "\n\n";
+	temp += tr["Storage"] + "\n";
+	temp += "----\n";
+	temp += tr["Root: "] + getDiskFree("/") + "\n";
+	temp += tr["Internal: "] + getDiskFree("/mnt/int_sd") + "\n";
+	temp += tr["External: "] + getDiskFree("/mnt/ext_sd") + "\n";
+	temp += "\n";
 
 #if defined(TARGET_CAANOO)
 	string versionFile = "";
@@ -724,7 +726,7 @@ void GMenu2X::readConfig() {
 	if (confStr["skin"].empty() || !fileExists("skins/"+confStr["skin"])) confStr["skin"] = "Default";
 
 	// evalIntConf( &confInt["batteryLog"], 0, 0, 1 );
-	evalIntConf( &confInt["suspend"], 30, 10, 300);
+	evalIntConf( &confInt["backlightTimeout"], 30, 10, 300);
 	evalIntConf( &confInt["outputLogs"], 0, 0, 1 );
 #ifdef TARGET_GP2X
 	evalIntConf( &confInt["maxClock"], 300, 200, 300 );
@@ -1374,9 +1376,9 @@ void GMenu2X::main() {
 						poweroff();
 						tickPowerOff = 0;
 					}
-				} else if (tickPowerOff >= 2 || tickNow - tickSuspend >= confInt["suspend"] * 1000) {
+				} else if (tickPowerOff >= 2 || tickNow - tickSuspend >= confInt["backlightTimeout"] * 1000) {
 						if(!suspendActive) {
-							MessageBox mb(this, tr["Suspend"]);
+							MessageBox mb(this, tr["backlightTimeout"]);
 							mb.setAutoHide(1000);
 							mb.exec();
 
@@ -1544,7 +1546,7 @@ void GMenu2X::main() {
 
 		SettingsDialog sd(this, input, ts, tr["Settings"], "skin:icons/configure.png");
 		sd.addSetting(new MenuSettingMultiString(this,tr["Language"],tr["Set the language used by GMenu2X"],&lang,&fl_tr.getFiles()));
-		sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"],tr["Set the screen timeout and suspend delay"],&confInt["suspend"],10,300));
+		sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"],tr["Set the screen timeout and suspend delay"],&confInt["backlightTimeout"],10,300));
 		sd.addSetting(new MenuSettingBool(this,tr["Save last selection"],tr["Save the last selected link and section on exit"],&confInt["saveSelection"]));
 #ifdef TARGET_GP2X
 		sd.addSetting(new MenuSettingInt(this,tr["Clock for GMenu2X"],tr["Set the cpu working frequency when running GMenu2X"],&confInt["menuClock"],50,325));
@@ -2398,49 +2400,14 @@ unsigned short GMenu2X::getBatteryLevel() {
 
 #if defined(TARGET_RS97)
 	if ((val > 10000) || (val < 0)) return 6;
-	else if (val > 3900) return 5;
-	else if (val > 3850) return 4;
-	else if (val > 3800) return 3;
-	else if (val > 3730) return 2;
-	else if (val > 3600) return 1;
-	return 0;
-	// return 5 - 5*(100-val)/(100);
-#endif
+	else if (val > 4000) return 5; // 100%
+	else if (val > 3900) return 4; // 80%
+	else if (val > 3800) return 3; // 60%
+	else if (val > 3730) return 2; // 40%
+	else if (val > 3600) return 1; // 20%
+	return 0; // 0% :(
 
-	// int level = 0;
-	bool needWriteConfig = false;
-	long max = confInt["maxBattery"];
-	long min = confInt["minBattery"];
-
-	if (val > max) {
-		needWriteConfig = true;
-		max = confInt["maxBattery"] = val;
-	}
-	if (val < min) {
-		needWriteConfig = true;
-		min = confInt["minBattery"] = val;
-	}
-
-	if (needWriteConfig) {
-		writeConfig();
-	}
-
-	if (max == min) {
-		return 0;
-	}
-
-	// long diff = val - min;
-	// if (diff < 0){
-	// 	diff = 0;
-	// }
-	// level = diff / ((max - min) / 5);
-	// if (level > 5) {
-	// 	level = 5;
-	// }
-	return -5*(max-val)/(max-min)+5;
-	// return level;
-
-#if defined(TARGET_GP2X)
+#elif defined(TARGET_GP2X)
 	if (f200) {
 		MMSP2ADC val;
 		read(batteryHandle, &val, sizeof(MMSP2ADC));
@@ -2472,6 +2439,7 @@ unsigned short GMenu2X::getBatteryLevel() {
 		if (battval>690) return 2;
 		if (battval>680) return 1;
 	}
+
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	unsigned short cbv;
 	if ( read(batteryHandle, &cbv, 2) == 2) {
@@ -2484,7 +2452,31 @@ unsigned short GMenu2X::getBatteryLevel() {
 			default: return 6;
 		}
 	}
+#else
+
+	bool needWriteConfig = false;
+	long max = confInt["maxBattery"];
+	long min = confInt["minBattery"];
+
+	if (val > max) {
+		needWriteConfig = true;
+		max = confInt["maxBattery"] = val;
+	}
+	if (val < min) {
+		needWriteConfig = true;
+		min = confInt["minBattery"] = val;
+	}
+
+	if (needWriteConfig)
+		writeConfig();
+
+	if (max == min)
+		return 0;
+
+	// return 5 - 5*(100-val)/(100);
+	return -5*(max-val)/(max-min)+5;
 #endif
+
 }
 
 void GMenu2X::setInputSpeed() {
@@ -2533,7 +2525,14 @@ void GMenu2X::setClock(unsigned mhz) {
 	mhz = constrain(mhz,250,confInt["maxClock"]);
 	if (memdev > 0) {
 		DEBUG("Setting clock to %d", mhz);
-#ifdef TARGET_GP2X
+
+#if defined(TARGET_RS97)
+		#define CPPCR     (0x10 >> 2)
+		unsigned long m = mhz / 6;
+		memregs[CPPCR] = (m << 24) | 0x090520;
+		printf("set cpu clock: %d\n", mhz);
+
+#elif defined(TARGET_GP2X)
 		unsigned v;
 		unsigned mdiv, pdiv=3, scale=0;
 
@@ -2545,6 +2544,7 @@ void GMenu2X::setClock(unsigned mhz) {
 		scale &= 3;
 		v = mdiv | pdiv | scale;
 		MEM_REG[0x910>>1] = v;
+
 #elif defined(TARGET_CAANOO) || defined(TARGET_WIZ)
 		volatile unsigned int *memregl = static_cast<volatile unsigned int*>((volatile void*)memregs);
 		int mdiv, pdiv = 9, sdiv = 0;
@@ -2560,12 +2560,6 @@ void GMenu2X::setClock(unsigned mhz) {
 		PLLSETREG0 = v;
 		PWRMODE |= 0x8000;
 		for (int i = 0; (PWRMODE & 0x8000) && i < 0x100000; i++);
-#endif
-#if defined(TARGET_RS97)
-		#define CPPCR     (0x10 >> 2)
-			unsigned long m = mhz / 6;
-		memregs[CPPCR] = (m << 24) | 0x090520;
-		printf("set cpu clock: %d\n", mhz);
 #endif
 	}
 }
@@ -2674,42 +2668,64 @@ int GMenu2X::getBacklight() {
 	return -1;
 }
 
-string GMenu2X::getDiskFree() {
-	stringstream ss;
-	string df = "";
-	int r1, r2;
-	struct statvfs b1;
-	struct statvfs b2;
-	unsigned long long f1, f2;
-	unsigned long long t1, t2;
+string GMenu2X::getDiskFree(const char *path) {
+	string df = "N/A";
+	struct statvfs b;
 
-	r1 = statvfs("/mnt/int_sd", &b1);
-	if (r1 == 0) {
-		f1 = (unsigned long long)(((unsigned long long)b1.f_bfree * b1.f_bsize) >> 30);
-		t1 = (unsigned long long)(((unsigned long long)b1.f_blocks * b1.f_frsize) >> 30);
-	} 
-	else {
-		WARNING("statvfs failed with error '%s'.", strerror(errno));
-	}
-	
-	r2 = statvfs("/mnt/ext_sd", &b2);
-	if (r2 == 0) {
-		f2 = (unsigned long long)(((unsigned long long)b2.f_bfree * b2.f_bsize) >> 30);
-		t2 = (unsigned long long)(((unsigned long long)b2.f_blocks * b2.f_frsize) >> 30);
-	} 
-	else {
-		WARNING("statvfs failed with error '%s'.", strerror(errno));
-	}
-
-	if (r2 == 0) {
-		ss << f1 << "/" << t1 << "GB," << f2 << "/" << t2 << "GB";
-	}
-	else {
-		ss << f1 << "/" << t1 << "GB";
-	}
-	ss >> df;
+	int ret = statvfs(path, &b);
+	if (ret == 0) {
+		// Make sure that the multiplication happens in 64 bits.
+		unsigned long freeMiB =
+				((unsigned long long)b.f_bfree * b.f_bsize) / (1024 * 1024);
+		unsigned long totalMiB =
+				((unsigned long long)b.f_blocks * b.f_frsize) / (1024 * 1024);
+		stringstream ss;
+		if (totalMiB >= 10000) {
+			ss << (freeMiB / 1024) << "." << ((freeMiB % 1024) * 10) / 1024 << "/"
+			   << (totalMiB / 1024) << "." << ((totalMiB % 1024) * 10) / 1024 << "GiB";
+		} else {
+			ss << freeMiB << "/" << totalMiB << "MiB";
+		}
+		ss >> df;
+	} else WARNING("statvfs failed with error '%s'.\n", strerror(errno));
 	return df;
 }
+// string GMenu2X::getDiskFree() {
+// 	stringstream ss;
+// 	string df = "";
+// 	int r1, r2;
+// 	struct statvfs b1;
+// 	struct statvfs b2;
+// 	unsigned long long f1, f2;
+// 	unsigned long long t1, t2;
+
+// 	r1 = statvfs("/mnt/int_sd", &b1);
+// 	if (r1 == 0) {
+// 		f1 = (unsigned long long)(((unsigned long long)b1.f_bfree * b1.f_bsize) >> 30);
+// 		t1 = (unsigned long long)(((unsigned long long)b1.f_blocks * b1.f_frsize) >> 30);
+// 	} 
+// 	else {
+// 		WARNING("statvfs failed with error '%s'.", strerror(errno));
+// 	}
+	
+// 	r2 = statvfs("/mnt/ext_sd", &b2);
+// 	if (r2 == 0) {
+// 		f2 = (unsigned long long)(((unsigned long long)b2.f_bfree * b2.f_bsize) >> 30);
+// 		t2 = (unsigned long long)(((unsigned long long)b2.f_blocks * b2.f_frsize) >> 30);
+// 	} 
+// 	else {
+// 		WARNING("statvfs failed with error '%s'.", strerror(errno));
+// 	}
+
+// 	if (r2 == 0) {
+// 		ss << f1 << "/" << t1 << "GB," << f2 << "/" << t2 << "GB";
+// 	}
+// 	else {
+// 		ss << f1 << "/" << t1 << "GB";
+// 	}
+// 	ss >> df;
+// 	return df;
+// }
 
 int GMenu2X::drawButton(Button *btn, int x, int y) {
 	if (y<0) y = resY+y;

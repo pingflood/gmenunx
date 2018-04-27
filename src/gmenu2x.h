@@ -104,7 +104,7 @@ private:
 	Retrieves the free disk space on the sd
 	@return String containing a human readable representation of the free disk space
 	*/
-	string getDiskFree();
+	string getDiskFree(const char *path);
 	// unsigned short cpuX; //!< Offset for displaying cpu clock information
 	unsigned short volumeX; //!< Offset for displaying volume level
 	// unsigned short manualX; //!< Offset for displaying the manual indicator in the taskbar
