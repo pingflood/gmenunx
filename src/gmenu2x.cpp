@@ -1605,12 +1605,12 @@ void GMenu2X::main() {
 		sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], 50, 900, 10));
 		sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], 50, 900, 10));
 #endif
-		sd.addSetting(new MenuSettingInt(this, tr["Global Volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 0, 1));
+		sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 0, 1));
 		sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the output of the links. Use the Log Viewer to read them."], &confInt["outputLogs"]));
 		// sd.addSetting(new MenuSettingBool(this, tr["Battery log"], tr["Logs the battery power to battery.csv."],  &confInt["batteryLog"]));
 	//G
 	//sd.addSetting(new MenuSettingInt(this, tr["Gamma"], tr["Set gp2x gamma value (default: 10)"], &confInt["gamma"], 1, 100));
-		sd.addSetting(new MenuSettingMultiString(this, tr["Tv-Out encoding"], tr["Encoding of the tv-out signal"], &confStr["tvoutEncoding"], &encodings));
+		sd.addSetting(new MenuSettingMultiString(this, tr["TV-out encoding"], tr["Encoding of the TV-out signal"], &confStr["tvoutEncoding"], &encodings));
 	//sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
 
 		if (sd.exec() && sd.edited()) {
