@@ -766,6 +766,7 @@ void GMenu2X::readConfig() {
 	if (!confStr["lang"].empty()) tr.setLang(confStr["lang"]);
 	if (!confStr["wallpaper"].empty() && !fileExists(confStr["wallpaper"])) confStr["wallpaper"] = "";
 	if (confStr["skin"].empty() || !fileExists("skins/"+confStr["skin"])) confStr["skin"] = "Default";
+	if (confStr["batteryType"].empty()) confStr["batteryType"] = "BL-5B";
 
 	// evalIntConf( &confInt["batteryLog"], 0, 0, 1 );
 	evalIntConf( &confInt["backlightTimeout"], 30, 10, 300);
@@ -1586,24 +1587,30 @@ void GMenu2X::main() {
 		encodings.push_back("NTSC");
 		encodings.push_back("PAL");
 
+		vector<string> batteryType;
+		batteryType.push_back("BL-5B");
+		batteryType.push_back("Linear");
+
 		SettingsDialog sd(this, input, ts, tr["Settings"], "skin:icons/configure.png");
-		sd.addSetting(new MenuSettingMultiString(this,tr["Language"],tr["Set the language used by GMenu2X"],&lang,&fl_tr.getFiles()));
-		sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"],tr["Set the screen timeout and suspend delay"],&confInt["backlightTimeout"],10,300));
-		sd.addSetting(new MenuSettingBool(this,tr["Save last selection"],tr["Save the last selected link and section on exit"],&confInt["saveSelection"]));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
+		sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Set the screen timeout and suspend delay"], &confInt["backlightTimeout"], 10, 300));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
+
+		sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
 #ifdef TARGET_GP2X
-		sd.addSetting(new MenuSettingInt(this,tr["Clock for GMenu2X"],tr["Set the cpu working frequency when running GMenu2X"],&confInt["menuClock"],50,325));
-		sd.addSetting(new MenuSettingInt(this,tr["Maximum overclock"],tr["Set the maximum overclock for launching links"],&confInt["maxClock"],50,325));
+		sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], 50, 325));
+		sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], 50, 325));
 #endif
 #if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-		sd.addSetting(new MenuSettingInt(this,tr["Clock for GMenu2X"],tr["Set the cpu working frequency when running GMenu2X"],&confInt["menuClock"],50,900,10));
-		sd.addSetting(new MenuSettingInt(this,tr["Maximum overclock"],tr["Set the maximum overclock for launching links"],&confInt["maxClock"],50,900,10));
+		sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], 50, 900, 10));
+		sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], 50, 900, 10));
 #endif
-		sd.addSetting(new MenuSettingInt(this,tr["Global Volume"],tr["Set the default volume for the soundcard"],&confInt["globalVolume"],0,1));
-		sd.addSetting(new MenuSettingBool(this,tr["Output logs"],tr["Logs the output of the links. Use the Log Viewer to read them."],&confInt["outputLogs"]));
-		// sd.addSetting(new MenuSettingBool(this,tr["Battery log"],tr["Logs the battery power to battery.csv."], &confInt["batteryLog"]));
+		sd.addSetting(new MenuSettingInt(this, tr["Global Volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 0, 1));
+		sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the output of the links. Use the Log Viewer to read them."], &confInt["outputLogs"]));
+		// sd.addSetting(new MenuSettingBool(this, tr["Battery log"], tr["Logs the battery power to battery.csv."],  &confInt["batteryLog"]));
 	//G
-	//sd.addSetting(new MenuSettingInt(this,tr["Gamma"],tr["Set gp2x gamma value (default: 10)"],&confInt["gamma"],1,100));
-		sd.addSetting(new MenuSettingMultiString(this,tr["Tv-Out encoding"],tr["Encoding of the tv-out signal"],&confStr["tvoutEncoding"],&encodings));
+	//sd.addSetting(new MenuSettingInt(this, tr["Gamma"], tr["Set gp2x gamma value (default: 10)"], &confInt["gamma"], 1, 100));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Tv-Out encoding"], tr["Encoding of the tv-out signal"], &confStr["tvoutEncoding"], &encodings));
 	//sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
 
 		if (sd.exec() && sd.edited()) {
@@ -2440,7 +2447,7 @@ unsigned short GMenu2X::getBatteryLevel() {
 	//if (batteryHandle<=0) return 6; //AC Power
 	long val = getBatteryStatus();
 
-#if defined(TARGET_RS97)
+if (confStr["batteryType"] == "RS-97") {
 	if ((val > 10000) || (val < 0)) return 6;
 	else if (val > 4000) return 5; // 100%
 	else if (val > 3900) return 4; // 80%
@@ -2448,8 +2455,9 @@ unsigned short GMenu2X::getBatteryLevel() {
 	else if (val > 3730) return 2; // 40%
 	else if (val > 3600) return 1; // 20%
 	return 0; // 0% :(
+}
 
-#elif defined(TARGET_GP2X)
+#if defined(TARGET_GP2X)
 	if (f200) {
 		MMSP2ADC val;
 		read(batteryHandle, &val, sizeof(MMSP2ADC));
