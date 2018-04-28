@@ -511,7 +511,7 @@ void GMenu2X::initMenu() {
 	menu->loadIcons();
 }
 
-char *ms2hms(long t, bool mm = true, bool ss = true) {
+char *ms2hms(unsigned long t, bool mm = true, bool ss = true) {
 	static char buf[10];
 
 	t = t / 1000;
@@ -533,7 +533,7 @@ void GMenu2X::about() {
 	string temp, batt;
 
 	char *hms = ms2hms(SDL_GetTicks());
-	int battlevel = getBatteryStatus();
+	long battlevel = getBatteryStatus();
 
 	stringstream ss; ss << battlevel; ss >> batt;
 
@@ -1088,7 +1088,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 			sc.skinRes("imgs/brightness.png")
 		};
 		while (!close) {
-			long tickStart = SDL_GetTicks();
+			unsigned long tickStart = SDL_GetTicks();
 	
 			s->box(window, 255,255,255,255);
 			s->box(window, skinConfColors[COLOR_MESSAGE_BOX_BG]);
@@ -1162,7 +1162,7 @@ void GMenu2X::main() {
 	bool quit = false;
 	int x,y, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
 	uint i;
-	long tickSuspend = 0, tickPowerOff = 0, tickBattery = -4800, tickNow, tickMMC = 0, tickUSB = 0;
+	unsigned long tickSuspend = 0, tickPowerOff = 0, tickBattery = -4800, tickNow, tickMMC = 0, tickUSB = 0;
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
 	// char backlightMsg[16]={0};
 	stringstream ss;
@@ -1962,7 +1962,7 @@ void GMenu2X::main() {
 		box.y = halfY - box.h/2;
 
 		SDL_Rect selbox = {box.x+4, 0, box.w-8, h};
-		long tickNow, tickStart = SDL_GetTicks();
+		unsigned long tickNow, tickStart = SDL_GetTicks();
 
 		Surface bg(s);
 		input.setWakeUpInterval(40); //25FPS

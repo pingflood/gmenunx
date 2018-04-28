@@ -90,7 +90,7 @@ struct MenuOption {
 	MenuAction action;
 };
 
-char *ms2hms(long t, bool mm, bool ss);
+char *ms2hms(unsigned long t, bool mm, bool ss);
 
 class Menu;
 
