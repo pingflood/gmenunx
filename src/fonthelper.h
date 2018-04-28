@@ -47,6 +47,7 @@ public:
 
 	uint getLineWidth(const string& text);
 	uint getTextWidth(const string& text);
+	int getTextHeight(const string& text);
 	uint getTextWidth(vector<string> *text);
 	
 	uint getHeight() { return height; };

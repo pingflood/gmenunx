@@ -90,6 +90,8 @@ struct MenuOption {
 	MenuAction action;
 };
 
+char *ms2hms(long t, bool mm, bool ss);
+
 class Menu;
 
 class GMenu2X {

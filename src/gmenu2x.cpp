@@ -459,6 +459,7 @@ void GMenu2X::initFont() {
 
 	font = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
 	titlefont = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["titleFontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
+
 	// bottombarfont = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSize"], skinConfColors[COLOR_FONT_OUTLINE], skinConfColors[COLOR_FONT]);
 	bottombarfont = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
 }
@@ -485,9 +486,7 @@ void GMenu2X::initMenu() {
 			if (fwType=="gph" && !f200)
 				menu->addActionLink(i,"USB Nand",MakeDelegate(this,&GMenu2X::activateNandUsb),tr["Activate Usb on Nand"],"skin:icons/usb.png");
 			//menu->addActionLink(i,"USB Root",MakeDelegate(this,&GMenu2X::activateRootUsb),tr["Activate Usb on the root of the Gp2x Filesystem"],"skin:icons/usb.png");
-#endif
-
-#if defined(TARGET_RS97)
+#elif defined(TARGET_RS97)
 			//menu->addActionLink(i,"Speaker",MakeDelegate(this,&GMenu2X::toggleSpeaker),tr["Activate/deactivate Speaker"],"skin:icons/speaker.png");
 			menu->addActionLink(i,tr["TV"],MakeDelegate(this,&GMenu2X::toggleTvOut),tr["Activate/deactivate tv-out"],"skin:icons/tv.png");
 			//menu->addActionLink(i,"USB",MakeDelegate(this,&GMenu2X::activateSdUsb),tr["Activate Usb on SD"],"skin:icons/usb.png");
@@ -497,7 +496,10 @@ void GMenu2X::initMenu() {
 
 			if (fileExists(path+"log.txt"))
 				menu->addActionLink(i,tr["Log Viewer"],MakeDelegate(this,&GMenu2X::viewLog),tr["Displays last launched program's output"],"skin:icons/ebook.png");
-			menu->addActionLink(i,tr["Battery Logger"],MakeDelegate(this,&GMenu2X::batteryLogger),tr["Log battery power to battery.csv"],"skin:icons/ebook.png");
+
+			// if (getBatteryStatus() > 5) // show only if charging
+				menu->addActionLink(i,tr["Battery Logger"],MakeDelegate(this,&GMenu2X::batteryLogger),tr["Log battery power to battery.csv"],"skin:icons/ebook.png");
+
 			menu->addActionLink(i,tr["About"],MakeDelegate(this,&GMenu2X::about),tr["Info about system"],"skin:icons/about.png");
 			// menu->addActionLink(i,"Reboot",MakeDelegate(this,&GMenu2X::reboot),tr["Reboot device"],"skin:icons/reboot.png");
 			menu->addActionLink(i,tr["Power"],MakeDelegate(this,&GMenu2X::poweroff),tr["Power options"],"skin:icons/exit.png");
@@ -509,17 +511,40 @@ void GMenu2X::initMenu() {
 	menu->loadIcons();
 }
 
+char *ms2hms(long t, bool mm = true, bool ss = true) {
+	static char buf[10];
+
+	t = t / 1000;
+	int s = (t % 60);
+	int m = (t % 3600) / 60;
+	int h = (t % 86400) / 3600;
+	int d = (t % (86400 * 30)) / 86400;
+
+	if (!ss) sprintf(buf, "%02d:%02d", h, m);
+	else if (!mm) sprintf(buf, "%02d", h);
+	else sprintf(buf, "%02d:%02d:%02d", h, m, s);
+	return buf;
+};
+
+
+
 void GMenu2X::about() {
 	vector<string> text;
-	string temp;
+	string temp, batt;
 
-	temp = tr["Build date: "] + __DATE__ + "\n\n";
-	temp += tr["Storage"] + "\n";
-	temp += "----\n";
-	temp += tr["Root: "] + getDiskFree("/") + "\n";
-	temp += tr["Internal: "] + getDiskFree("/mnt/int_sd") + "\n";
-	temp += tr["External: "] + getDiskFree("/mnt/ext_sd") + "\n";
-	temp += "\n";
+	char *hms = ms2hms(SDL_GetTicks());
+	int battlevel = getBatteryStatus();
+
+	stringstream ss; ss << battlevel; ss >> batt;
+
+	temp = tr["Build date: "] + __DATE__ + "\n";
+	temp += tr["Uptime: "] + hms + "\n";
+	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : batt) + "\n";
+	temp += tr["Storage:"];
+	temp += "\n    " + tr["Root: "] + getDiskFree("/");
+	temp += "\n    " + tr["Internal: "] + getDiskFree("/mnt/int_sd");
+	temp += "\n    " + tr["External: "] + getDiskFree("/mnt/ext_sd");
+	temp += "\n----\n";
 
 #if defined(TARGET_CAANOO)
 	string versionFile = "";
@@ -579,11 +604,11 @@ void GMenu2X::viewLog() {
 }
 
 void GMenu2X::batteryLogger() {
-	long tickNow = SDL_GetTicks(), tickBatteryLogger = -1000000;
+	long tickNow = 0, tickStart = SDL_GetTicks(), tickBatteryLogger = -1000000;
 	string logfile = path+"battery.csv";
 
 	char buf[100];
-	sprintf(buf, "echo '%d,*** NEW LOG ***' >> %s/battery.csv; sync", tickNow, cmdclean(getExePath()).c_str());
+	sprintf(buf, "echo '----' >> %s/battery.csv; sync", cmdclean(getExePath()).c_str());
 	system(buf);
 
 	if (!fileExists(logfile)) return;
@@ -610,20 +635,28 @@ void GMenu2X::batteryLogger() {
 
 	drawBottomBar(bg);
 	drawButton(bg, "b", tr["Exit"],
+	drawButton(bg, "select", tr["Del battery.csv"],
 	drawButton(bg, "down", tr["Scroll"],
-	drawButton(bg, "up", "", 5)-10));
+	drawButton(bg, "up", "", 5)-10)));
 
 	SDL_Rect rect = {0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
 	bg->box(rect, skinConfColors[COLOR_LIST_BG]);
 
+	bg->blit(s,0,0);
+	bg->flip();
+
+	MessageBox mb(this, tr["Welcome to the Battery Logger.\nMake sure the battery is fully charged.\nAfter pressing OK, leave the device ON until\nthe battery has fully discharged.\nThe log will be saved in 'battery.csv'."]);
+	mb.exec();
+
 	uint firstRow = 0, rowsPerPage = rect.h/font->getHeight();
+
 	while (!close) {
 		tickNow = SDL_GetTicks();
 		if ((tickNow - tickBatteryLogger) >= 60000) {
 			tickBatteryLogger = tickNow;
 
 			char buf[100];
-			sprintf(buf, "echo '%d,%d,%d' >> %s/battery.csv; sync", tickNow, getBatteryStatus(), getBatteryLevel(), cmdclean(getExePath()).c_str());
+			sprintf(buf, "echo '%s,%d,%d' >> %s/battery.csv; sync", ms2hms(tickNow - tickStart, true, false), getBatteryStatus(), getBatteryLevel(), cmdclean(getExePath()).c_str());
 			system(buf);
 
 			ifstream inf(logfile.c_str(), ios_base::in);
@@ -695,6 +728,15 @@ void GMenu2X::batteryLogger() {
 				firstRow = max(0,log.size()-rowsPerPage);
 		}
 		else if ( input[SETTINGS] || input[CANCEL] ) close = true;
+		else if (input[MENU]) {
+			MessageBox mb(this, tr.translate("Deleting $1","battery.csv",NULL)+"\n"+tr["Are you sure?"]);
+			mb.setButton(CONFIRM, tr["Yes"]);
+			mb.setButton(CANCEL,  tr["No"]);
+			if (mb.exec() == CONFIRM) {
+				system("rm battery.csv");
+				log.clear();
+			}
+		}
 	}
 
 	setBacklight(confInt["backlight"]);
@@ -836,6 +878,8 @@ void GMenu2X::writeSkinConfig() {
 			<< hex << setw(2) << setfill('0') << right << (unsigned short)skinConfColors[i].b
 			<< hex << setw(2) << setfill('0') << right << (unsigned short)skinConfColors[i].a << endl;
 		}
+
+
 		inf.close();
 		sync();
 	}
@@ -945,8 +989,6 @@ enum mmc_status{
 	MMC_REMOVE, MMC_INSERT, MMC_ERROR
 };
 
-
-// long getBatteryStatus(void) {
 long GMenu2X::getBatteryStatus() {
 	char buf[32]={0};
 
@@ -1378,7 +1420,7 @@ void GMenu2X::main() {
 					}
 				} else if (tickPowerOff >= 2 || tickNow - tickSuspend >= confInt["backlightTimeout"] * 1000) {
 						if(!suspendActive) {
-							MessageBox mb(this, tr["backlightTimeout"]);
+							MessageBox mb(this, tr["Suspend"]);
 							mb.setAutoHide(1000);
 							mb.exec();
 

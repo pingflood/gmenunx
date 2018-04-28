@@ -88,7 +88,7 @@ int MessageBox::exec() {
 	gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0,200);
 
 	SDL_Rect box;
-	box.h = gmenu2x->font->getHeight()*2.5;
+	box.h = gmenu2x->font->getTextHeight(text)*gmenu2x->font->getHeight()+gmenu2x->font->getHeight();
 	box.w = gmenu2x->font->getTextWidth(text) + 24 + (gmenu2x->sc[icon] != NULL ? 37 : 0);
 	box.x = gmenu2x->halfX - box.w/2 -2;
 	box.y = gmenu2x->halfY - box.h/2 -2;
@@ -101,7 +101,7 @@ int MessageBox::exec() {
 	//icon+text
 	if (gmenu2x->sc[icon] != NULL)
 		gmenu2x->sc[icon]->blitCenter( gmenu2x->s, box.x+25, box.y+gmenu2x->font->getHeight()+7 );
-	gmenu2x->s->write( gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 10), gmenu2x->halfY, HAlignLeft, VAlignMiddle );
+	gmenu2x->s->write( gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 10), gmenu2x->halfY-gmenu2x->font->getHalfHeight()/3, HAlignLeft, VAlignMiddle );
 
 	if (this->autohide) {
 		gmenu2x->s->flip();

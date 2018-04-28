@@ -155,3 +155,8 @@ uint FontHelper::getTextWidth(vector<string> *text) {
 		w = max( getLineWidth(text->at(i)), w );
 	return w;
 }
+int FontHelper::getTextHeight(const string& text) {
+	vector<string> textArr;
+	split(textArr,text,"\n");
+	return textArr.size();
+}
