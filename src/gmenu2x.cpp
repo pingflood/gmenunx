@@ -645,7 +645,7 @@ void GMenu2X::batteryLogger() {
 	bg->blit(s,0,0);
 	bg->flip();
 
-	MessageBox mb(this, tr["Welcome to the Battery Logger.\nMake sure the battery is fully charged.\nAfter pressing OK, leave the device ON until\nthe battery has fully discharged.\nThe log will be saved in 'battery.csv'."]);
+	MessageBox mb(this, tr["Welcome to the Battery Logger.\nMake sure the battery is fully charged.\nAfter pressing OK, leave the device ON until\nthe battery has been fully discharged.\nThe log will be saved in 'battery.csv'."]);
 	mb.exec();
 
 	uint firstRow = 0, rowsPerPage = rect.h/font->getHeight();
