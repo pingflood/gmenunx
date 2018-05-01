@@ -63,5 +63,6 @@ bool split (vector<string> &vec, const string &str, const string &delim, bool de
 int intTransition(int from, int to, long int tickStart, long duration=500, long tickNow=-1);
 
 string exec(const char* cmd);
+string real_path(const string &path);
 
 #endif

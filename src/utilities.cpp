@@ -211,3 +211,13 @@ string exec(const char* cmd) {
 	pclose(pipe);
 	return result;
 }
+
+string real_path(const string &path) {
+	char real_path[PATH_MAX];
+	string outpath;
+	realpath(path.c_str(), real_path);
+	outpath = (string)real_path;
+	if (outpath[outpath.length()-1]!='/')
+		outpath += "/";
+	return outpath;
+}

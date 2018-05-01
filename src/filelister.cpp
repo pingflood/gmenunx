@@ -43,7 +43,7 @@ const string &FileLister::getPath() {
 	return path;
 }
 void FileLister::setPath(const string &path, bool doBrowse) {
-	this->path = this->realPath(path);
+	this->path = real_path(path);
 	if (doBrowse)
 		browse();
 }
@@ -146,14 +146,4 @@ void FileLister::insertFile(const string &file) {
 
 void FileLister::addExclude(const string &exclude) {
 	excludes.push_back(exclude);
-}
-
-string FileLister::realPath(const string &path) {
-	char real_path[PATH_MAX];
-	string outpath;
-	realpath(path.c_str(), real_path);
-	outpath = (string)real_path;
-	if (outpath[outpath.length()-1]!='/')
-		outpath += "/";
-	return outpath;
 }

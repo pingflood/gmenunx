@@ -45,5 +45,5 @@ void MenuSettingFile::edit() {
 		_value = startPath+"/";
 	FileDialog fd(gmenu2x, description, filter, _value);
 	if (fd.exec())
-		setValue(fd.getPath() + "/" + fd.getFile());
+		setValue(real_path(fd.getPath() + "/" + fd.getFile()));
 }
