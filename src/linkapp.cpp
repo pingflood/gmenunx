@@ -398,14 +398,14 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		else
 			dir = selectedDir;
 		if (params=="") {
-			params = cmdclean(dir+selectedFile);
+			params = cmdclean(dir+"/"+selectedFile);
 		} else {
 			string origParams = params;
-			params = strreplace(params,"[selFullPath]",cmdclean(dir+selectedFile));
+			params = strreplace(params,"[selFullPath]",cmdclean(dir+"/"+selectedFile));
 			params = strreplace(params,"[selPath]",cmdclean(dir));
 			params = strreplace(params,"[selFile]",cmdclean(selectedFileName));
 			params = strreplace(params,"[selExt]",cmdclean(selectedFileExtension));
-			if (params == origParams) params += " " + cmdclean(dir+selectedFile);
+			if (params == origParams) params += " " + cmdclean(dir+"/"+selectedFile);
 		}
 	}
 
@@ -522,7 +522,8 @@ const string &LinkApp::getSelectorDir() {
 
 void LinkApp::setSelectorDir(const string &selectordir) {
 	this->selectordir = selectordir;
-	if (this->selectordir!="" && this->selectordir[this->selectordir.length()-1]!='/') this->selectordir += "/";
+	// if (this->selectordir!="" && this->selectordir[this->selectordir.length()-1]!='/') this->selectordir += "/";
+	if (this->selectordir!="") this->selectordir = real_path(this->selectordir);
 	edited = true;
 }
 

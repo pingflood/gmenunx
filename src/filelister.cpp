@@ -43,7 +43,11 @@ const string &FileLister::getPath() {
 	return path;
 }
 void FileLister::setPath(const string &path, bool doBrowse) {
+WARNING("PATH RECV: %s", path.c_str());
+
 	this->path = real_path(path);
+WARNING("PATH SET: %s", this->path.c_str());
+
 	if (doBrowse)
 		browse();
 }
@@ -76,7 +80,7 @@ void FileLister::browse() {
 		while ((dptr = readdir(dirp))) {
 			file = dptr->d_name;
 			if ((file[0]=='.' && file!="..") || (path=="/" && file=="..")) continue;
-			filepath = path+file;
+			filepath = path+"/"+file;
 			int statRet = stat(filepath.c_str(), &st);
 			if (statRet == -1) {
 				ERROR("Stat failed on '%s' with error '%s'", filepath.c_str(), strerror(errno));

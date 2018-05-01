@@ -179,9 +179,8 @@ void BrowseDialog::handleInput() {
 	}
 
 	if (gmenu2x->f200 && gmenu2x->ts.pressed() && !gmenu2x->ts.inRect(gmenu2x->listRect)) ts_pressed = false;
-
-	if (action == BrowseDialog::ACT_SELECT && (*fl)[selected] == "..")
-		action = BrowseDialog::ACT_GOUP;
+	// if (action == BrowseDialog::ACT_SELECT && (*fl)[selected] == "..")
+		// action = BrowseDialog::ACT_GOUP;
 	switch (action) {
 	case BrowseDialog::ACT_CLOSE:
 		close = true;
@@ -240,15 +239,17 @@ void BrowseDialog::directoryUp() {
 	if (p == string::npos || p < 4 || path.compare(0, CARD_ROOT_LEN, CARD_ROOT) != 0) {
 		close = true;
 		result = false;
+
 	} else {
 		selected = 0;
-		setPath(path.substr(0, p));
+		setPath("/"+path.substr(0, p));
+
 	}
 }
 
 void BrowseDialog::directoryEnter() {
 	string path = fl->getPath();
-	setPath(path + fl->at(selected));
+	setPath(path + "/" + fl->at(selected));
 	selected = 0;
 }
 

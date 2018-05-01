@@ -32,7 +32,7 @@
 #include "linkapp.h"
 #include "selector.h"
 #include "filelister.h"
-#include "debug.h"
+// #include "debug.h"
 
 using namespace std;
 
@@ -219,7 +219,7 @@ int Selector::exec(int startSelection) {
 					result = false;
 				} else {
 					dir = dir.substr(0,p+1);
-					INFO("%s", dir.c_str());
+					// INFO("%s", dir.c_str());
 					selected = 0;
 					firstElement = 0;
 					prepare(&fl,&screens,&titles);
@@ -233,7 +233,7 @@ int Selector::exec(int startSelection) {
 				file = fl[selected];
 				close = true;
 			} else {
-				dir = real_path(dir+fl[selected]);//+"/";
+				dir = real_path(dir+"/"+fl[selected]);//+"/";
 				selected = 0;
 				firstElement = 0;
 				prepare(&fl,&screens,&titles);
@@ -264,8 +264,8 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 		titles->at(i) = getAlias(noext);
 
 		if (screendir != "") {
-			if (screendir[0]=='.') realdir = real_path(fl->getPath() + "/" + screendir); // + "/"; // allow "." as "current directory", therefore, relative paths
-			else realdir = real_path(screendir);
+			if (screendir[0]=='.') realdir = real_path(fl->getPath() + "/" + screendir) + "/"; // allow "." as "current directory", therefore, relative paths
+			else realdir = real_path(screendir) + "/";
 			// INFO("Searching for screen '%s%s.png'", realdir.c_str(), noext.c_str());
 			if (fileExists(realdir+noext+".jpg"))
 				screens->at(i) = realdir+noext+".jpg";
