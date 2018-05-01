@@ -67,6 +67,9 @@ bool BrowseDialog::exec() {
 		if (gmenu2x->f200) gmenu2x->ts.poll();
 
 		gmenu2x->bg->blit(gmenu2x->s, 0, 0);
+
+		beforeFileList();
+
 		drawTitleIcon("icons/explorer.png", true);
 		writeTitle(title);
 		writeSubTitle(subtitle);
@@ -84,7 +87,6 @@ bool BrowseDialog::exec() {
 		iY = offsetY + iY*rowHeight;
 		gmenu2x->s->box(clipRect.x, iY, clipRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
-		beforeFileList();
 
 		//Files & Directories
 		gmenu2x->s->setClipRect(clipRect);

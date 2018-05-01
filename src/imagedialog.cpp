@@ -49,8 +49,9 @@ ImageDialog::~ImageDialog() {
 }
 
 void ImageDialog::beforeFileList() {
-	if (fl->isFile(selected) && fileExists(getPath()+"/"+(*fl)[selected]))
-		previews[getPath()+"/"+(*fl)[selected]]->blitRight(gmenu2x->s, 310, 43);
+	if (fl->isFile(selected) && fileExists(getPath()+"/"+(*fl)[selected])) {
+		previews[getPath()+"/"+(*fl)[selected]]->blitCenter(gmenu2x->s, gmenu2x->halfX, gmenu2x->halfY);
+	}
 }
 
 void ImageDialog::onChangeDir() {
