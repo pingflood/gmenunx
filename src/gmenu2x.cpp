@@ -2073,9 +2073,8 @@ void GMenu2X::main() {
 		else if ( input[UP]      ) sel = (sel-1 < 0) ? (int)voices.size()-1 : sel -1 ;
 		else if ( input[DOWN]    ) sel = (sel+1 > (int)voices.size()-1) ? 0 : sel + 1;
 		else if ( input[CONFIRM] ) { voices[sel].action(); close = true; }
-		else if ( input[LEFT]  || input[PAGEUP]    ) sel = 0;
-		else if ( input[RIGHT] || input[PAGEDOWN]  ) sel = (int)voices.size()-1;
-
+		else if ( input[LEFT]  || input[PAGEUP]   ) sel = 0;
+		else if ( input[RIGHT] || input[PAGEDOWN] ) sel = (int)voices.size()-1;
 	}
 	input.setWakeUpInterval(0);
 }
@@ -2105,7 +2104,7 @@ bool GMenu2X::saveScreenshot() {
 		ss >> fname;
 		fname = "screenshots/screen"+fname+".bmp";
 	} while (fileExists(fname));
-	x = SDL_SaveBMP(s->raw,fname.c_str());
+	x = SDL_SaveBMP(s->raw, fname.c_str());
 	sync();
 	ledOff();
 	return x == 0;

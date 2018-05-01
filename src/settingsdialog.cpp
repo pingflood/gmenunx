@@ -49,9 +49,7 @@ bool SettingsDialog::exec() {
 	//Surface bg (gmenu2x->confStr["wallpaper"],false);
 	// Surface bg(gmenu2x->bg);
 
-
 	gmenu2x->initBG();
-
 
 	bool close = false, ts_pressed = false;
 	uint i, sel = 0, iY, firstElement = 0, action;

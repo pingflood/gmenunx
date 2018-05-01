@@ -173,7 +173,7 @@ bool InputDialog::exec() {
 		action = drawVirtualKeyboard();
 		gmenu2x->s->flip();
 
-		inputMgr.update();
+		inputMgr.update(0);
 // COMMON ACTIONS
 		if ( inputMgr.isActive(MODIFIER) ) {
 			if (inputMgr.isActive(SECTION_NEXT)) {
