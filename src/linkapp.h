@@ -38,10 +38,11 @@ Parses links files.
 class LinkApp : public Link {
 private:
 	InputManager &inputMgr;
-	string sclock, svolume;
+	// string svolume;
+	// string sclock, svolume;
 	int iclock, ivolume;
 	//G
-	string sgamma;
+	// string sgamma;
 	//G
 	int igamma;
 	string exec, params, workdir, manual, selectordir, selectorfilter, selectorscreens;
@@ -83,16 +84,16 @@ public:
 	void setAliasFile(const string &aliasfile);
 
 	int clock();
-	const string &clockStr(int maxClock);
+	// const string &clockStr(int maxClock);
 	void setClock(int mhz);
 
 	int volume();
-	const string &volumeStr();
+	// const string &volumeStr();
 	void setVolume(int vol);
 
 //G
 	int gamma();
-	const string &gammaStr();
+	// const string &gammaStr();
 	void setGamma(int gamma);
 // /G
 

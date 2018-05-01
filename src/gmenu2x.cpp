@@ -2109,6 +2109,7 @@ void GMenu2X::editLink() {
 	if (menu->selLinkApp()==NULL) return;
 
 	vector<string> pathV;
+	// ERROR("FILE: %s", menu->selLinkApp()->getFile().c_str());
 	split(pathV,menu->selLinkApp()->getFile(),"/");
 	string oldSection = "";
 	if (pathV.size()>1)

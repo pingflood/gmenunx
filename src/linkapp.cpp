@@ -140,12 +140,12 @@ int LinkApp::clock() {
 	return iclock;
 }
 
-const string &LinkApp::clockStr(int maxClock) {
-	if (iclock > maxClock){
-    setClock(maxClock);
-  }
-	return sclock;
-}
+// const string &LinkApp::clockStr(int maxClock) {
+// 	if (iclock > maxClock){
+//     setClock(maxClock);
+//   }
+// 	return sclock;
+// }
 
 void LinkApp::setClock(int mhz) {
 #ifdef TARGET_GP2X
@@ -155,10 +155,10 @@ void LinkApp::setClock(int mhz) {
 #elif defined(TARGET_RS97)
 	iclock = constrain(mhz,528,750);
 #endif
-	stringstream ss;
-	sclock = "";
-	ss << iclock << "Mhz";
-	ss >> sclock;
+	// stringstream ss;
+	// sclock = "";
+	// ss << iclock << "Mhz";
+	// ss >> sclock;
 
 	edited = true;
 }
@@ -167,19 +167,19 @@ int LinkApp::volume() {
 	return ivolume;
 }
 
-const string &LinkApp::volumeStr() {
-	return svolume;
-}
+// const string &LinkApp::volumeStr() {
+// 	return svolume;
+// }
 
 void LinkApp::setVolume(int vol) {
 	ivolume = constrain(vol,-1,100);
-	stringstream ss;
-	svolume = "";
-	if (ivolume<0)
-		ss << gmenu2x->confInt["globalVolume"];
-	else
-		ss << ivolume;
-	ss >> svolume;
+	// stringstream ss;
+	// svolume = "";
+	// if (ivolume<0)
+	// 	ss << gmenu2x->confInt["globalVolume"];
+	// else
+	// 	ss << ivolume;
+	// ss >> svolume;
 
 	edited = true;
 }
@@ -189,16 +189,16 @@ int LinkApp::gamma() {
 	return igamma;
 }
 
-const string &LinkApp::gammaStr() {
-	return sgamma;
-}
+// const string &LinkApp::gammaStr() {
+// 	return sgamma;
+// }
 
 void LinkApp::setGamma(int gamma) {
 	igamma = constrain(gamma,0,100);
-	stringstream ss;
-	sgamma = "";
-	ss << igamma;
-	ss >> sgamma;
+	// stringstream ss;
+	// sgamma = "";
+	// ss << igamma;
+	// ss >> sgamma;
 
 	edited = true;
 }
