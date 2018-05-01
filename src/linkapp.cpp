@@ -52,6 +52,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
 	useRamTimings = false;
 	useGinge = false;
 	workdir = "";
+	backdrop = "";
 
 	string line;
 	ifstream infile (linkfile, ios_base::in);
@@ -104,6 +105,9 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
 			setSelectorScreens( value );
 		} else if (name == "selectoraliases") {
 			setAliasFile( value );
+		} else if (name == "backdrop") {
+			backdrop = value;
+			WARNING("BACKDROP: '%s'", backdrop.c_str());
 		} else {
 			WARNING("Unrecognized option: '%s'", name.c_str());
 			break;
@@ -204,6 +208,13 @@ void LinkApp::setGamma(int gamma) {
 }
 // /G
 
+void LinkApp::setBackdrop(const string selectedFile) {
+	backdrop = selectedFile;
+	edited = true;
+}
+
+
+
 bool LinkApp::targetExists() {
 #if !defined(TARGET_GP2X) && !defined(TARGET_WIZ) && !defined(TARGET_CAANOO)
 	return true; //For displaying elements during testing on pc
@@ -239,6 +250,7 @@ bool LinkApp::save() {
 		if (selectorfilter!="" ) f << "selectorfilter="  << selectorfilter  << endl;
 		if (selectorscreens!="") f << "selectorscreens=" << selectorscreens << endl;
 		if (aliasfile!=""      ) f << "selectoraliases=" << aliasfile       << endl;
+		if (backdrop!=""       ) f << "backdrop="        << backdrop        << endl;
 		if (wrapper            ) f << "wrapper=true"                        << endl;
 		if (dontleave          ) f << "dontleave=true"                      << endl;
 		f.close();

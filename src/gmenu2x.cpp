@@ -1178,6 +1178,7 @@ void GMenu2X::main() {
 	uint i;
 	unsigned long tickSuspend = 0, tickPowerOff = 0, tickBattery = -4800, tickNow, tickMMC = 0, tickUSB = 0;
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
+	string prevBackdrop = "bgmain", currBackdrop = "bgmain";
 	// char backlightMsg[16]={0};
 	stringstream ss;
 	uint sectionsCoordX = 24;
@@ -1216,7 +1217,12 @@ void GMenu2X::main() {
 
 
 		//Background
-		sc["bgmain"]->blit(s,0,0);
+		if (prevBackdrop != currBackdrop) {
+			WARNING("CHANGE BACKDROP: %s", currBackdrop.c_str());
+			sc.del(prevBackdrop);
+			prevBackdrop = currBackdrop;
+		}
+		sc[currBackdrop]->blit(s,0,0);
 
 		// s->setClipRect(skinConfInt["sectionBarX"],skinConfInt["sectionBarY"],skinConfInt["sectionBarWidth"],skinConfInt["sectionBarHeight"]); //32*2+10
 		s->box(0, 0, skinConfInt["sectionBarWidth"], resY, skinConfColors[COLOR_TOP_BAR_BG]);
@@ -1228,7 +1234,6 @@ void GMenu2X::main() {
 
 		// if (menu->firstDispSection()>0) sc.skinRes("imgs/l_enabled.png")->blit(s,0,0);
 		// else sc.skinRes("imgs/l_disabled.png")->blit(s,0,0);
-	
 		// if (menu->firstDispSection()+linkColumns<menu->getSections().size()) sc.skinRes("imgs/r_enabled.png")->blit(s,resX-10,0);
 		// else sc.skinRes("imgs/r_disabled.png")->blit(s,resX-10,0);
 
@@ -1269,16 +1274,12 @@ void GMenu2X::main() {
 
 		drawScrollBar(linkRows,menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1),menu->firstDispRow(), rect.y, rect.h);
 
-		// s->box(22, skinConfInt["sectionBarHeight"]+22,16,16, 255,0,0);
-
-
 		// TRAY 0,0
 		switch(volumeMode) {
 			case VOLUME_MODE_PHONES: sc.skinRes("imgs/phones.png")->blit(s,2,skinConfInt["sectionBarHeight"]+2); break;
 			case VOLUME_MODE_MUTE:   sc.skinRes("imgs/mute.png")->blit(s,2,skinConfInt["sectionBarHeight"]+2); break;
 			default: sc.skinRes("imgs/volume.png")->blit(s,2,skinConfInt["sectionBarHeight"]+2); break;
 		}
-
 
 		// TRAY 1,0
 		if (tickNow - tickBattery >= 5000) {
@@ -1294,7 +1295,6 @@ void GMenu2X::main() {
 			}
 		}
 		sc.skinRes(batteryIcon)->blit(s, 22, skinConfInt["sectionBarHeight"] + 2);
-
 
 		if(tickNow - tickMMC >= 1000) {
 			tickMMC = tickNow;
@@ -1322,13 +1322,17 @@ void GMenu2X::main() {
 			iconTrayShift++;
 		}
 
+		currBackdrop = confStr["wallpaper"];
 		if (menu->selLink()!=NULL) {
 			if (menu->selLinkApp()!=NULL) {
+				if (!menu->selLinkApp()->getBackdrop().empty() && fileExists(menu->selLinkApp()->getBackdrop())) {
+					currBackdrop = menu->selLinkApp()->getBackdrop();
+				} 
+
 				if (!menu->selLinkApp()->getManual().empty() && iconTrayShift < 2) {
 					// Manual indicator
 					sc.skinRes("imgs/manual.png")->blit(s, iconTrayShift * 20 + 2, skinConfInt["sectionBarHeight"]+22);
 					iconTrayShift++;
-
 				}
 
 				if (iconTrayShift < 2) {
@@ -2129,6 +2133,7 @@ void GMenu2X::editLink() {
 	string linkSelAliases = menu->selLinkApp()->getAliasFile();
 	int linkClock = menu->selLinkApp()->clock();
 	int linkVolume = menu->selLinkApp()->volume();
+	string linkBackdrop = menu->selLinkApp()->getBackdrop();
 	//G
 	int linkGamma = menu->selLinkApp()->gamma();
 
@@ -2159,6 +2164,7 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingString(      this, tr["Selector Filter"],      tr["Filter for the selector (Separate values with a comma)"], &linkSelFilter, diagTitle, diagIcon ));
 	sd.addSetting(new MenuSettingDir(         this, tr["Selector Screenshots"], tr["Directory of the screenshots for the selector"], &linkSelScreens, wd ));
 	sd.addSetting(new MenuSettingFile(        this, tr["Selector Aliases"],     tr["File containing a list of aliases for the selector"], &linkSelAliases, wd ));
+	sd.addSetting(new MenuSettingImage(       this, tr["Backdrop"],             tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", wd ));
 
 #	if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	bool linkUseGinge = menu->selLinkApp()->getUseGinge();
@@ -2186,6 +2192,7 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setUseRamTimings(linkUseRamTimings);
 		menu->selLinkApp()->setSelectorScreens(linkSelScreens);
 		menu->selLinkApp()->setAliasFile(linkSelAliases);
+		menu->selLinkApp()->setBackdrop(linkBackdrop);
 
 		menu->selLinkApp()->setClock(linkClock);
 		menu->selLinkApp()->setVolume(linkVolume);
