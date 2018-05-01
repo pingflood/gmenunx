@@ -1972,7 +1972,8 @@ void GMenu2X::main() {
 		}
 
 		bool close = false;
-		uint i, sel=0, fadeAlpha=0;
+		uint i, fadeAlpha=0;
+		int sel=0;
 
 		int h = font->getHeight();
 		int h2 = font->getHalfHeight();
@@ -2069,9 +2070,12 @@ void GMenu2X::main() {
 		else if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
 // END OF COMMON ACTIONS
 		else if ( input[MENU]    ) close = true;
-		else if ( input[UP]      ) sel = max(0, sel-1);
-		else if ( input[DOWN]    ) sel = min((int)voices.size()-1, sel+1);
+		else if ( input[UP]      ) sel = (sel-1 < 0) ? (int)voices.size()-1 : sel -1 ;
+		else if ( input[DOWN]    ) sel = (sel+1 > (int)voices.size()-1) ? 0 : sel + 1;
 		else if ( input[CONFIRM] ) { voices[sel].action(); close = true; }
+		else if ( input[LEFT]  || input[PAGEUP]    ) sel = 0;
+		else if ( input[RIGHT] || input[PAGEDOWN]  ) sel = (int)voices.size()-1;
+
 	}
 	input.setWakeUpInterval(0);
 }
