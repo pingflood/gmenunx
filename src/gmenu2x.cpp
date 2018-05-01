@@ -1275,6 +1275,11 @@ void GMenu2X::main() {
 			if (i==(uint)menu->selLinkIndex())
 				menu->sectionLinks()->at(i)->paintHover();
 
+
+				WARNING("i: %d", i);
+				WARNING("menu->firstDispRow()*linkColumns: %d", menu->firstDispRow()*linkColumns);
+				WARNING("menu->sectionLinks()->size(): %d", menu->sectionLinks()->size());
+
 			menu->sectionLinks()->at(i)->paint();
 		}
 
