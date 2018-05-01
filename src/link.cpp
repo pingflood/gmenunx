@@ -22,7 +22,6 @@
 #include "link.h"
 #include "menu.h"
 #include "selector.h"
-#include "debug.h"
 
 using namespace std;
 using namespace fastdelegate;
