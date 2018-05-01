@@ -2328,6 +2328,7 @@ void GMenu2X::scanner() {
 	drawButton(bg, "b", tr["Exit"],
 	drawButton(bg, "a", "", 5)-10);
 
+	bg->box(listRect, skinConfColors[COLOR_LIST_BG]);
 
 
 	// Surface bg(bg);
