@@ -143,6 +143,8 @@ bool SettingsDialog::exec() {
 		else if ( inputMgr[SETTINGS] ) action = SD_ACTION_CLOSE;
 		else if ( inputMgr[UP      ] ) action = SD_ACTION_UP;
 		else if ( inputMgr[DOWN    ] ) action = SD_ACTION_DOWN;
+		else if ( inputMgr[PAGEUP  ] ) sel = (sel < numRows) ? sel = 0 : sel - numRows + 1;
+		else if ( inputMgr[PAGEDOWN] ) sel = (sel + numRows >= voices.size()) ? voices.size() - 1 : sel + numRows - 1;
 		voices[sel]->manageInput();
 
 		switch (action) {
