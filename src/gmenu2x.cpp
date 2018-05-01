@@ -356,8 +356,11 @@ GMenu2X::GMenu2X() {
 	if (lastSelectorElement>-1 && menu->selLinkApp()!=NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
 		menu->selLinkApp()->selector(lastSelectorElement,lastSelectorDir);
 
-	bottomBarTextY = resY - (skinConfInt["bottomBarHeight"]/2) - 2; //10;
-	bottomBarIconY = bottomBarTextY - 6; //10;
+	// bottomBarTextY = resY - (skinConfInt["bottomBarHeight"]/2) - 2; //10;
+	// bottomBarIconY = bottomBarTextY - 6; //10;
+
+	listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
+
 }
 
 GMenu2X::~GMenu2X() {
@@ -509,6 +512,9 @@ void GMenu2X::initMenu() {
 		}
 	}
 
+	DEBUG("menu->setLinkIndex( %d", confInt["link"]);
+
+
 	menu->setSectionIndex(confInt["section"]);
 	menu->setLinkIndex(confInt["link"]);
 	menu->loadIcons();
@@ -643,8 +649,7 @@ void GMenu2X::batteryLogger() {
 	drawButton(bg, "down", tr["Scroll"],
 	drawButton(bg, "up", "", 5)-10)));
 
-	SDL_Rect rect = {0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
-	bg->box(rect, skinConfColors[COLOR_LIST_BG]);
+	bg->box(listRect, skinConfColors[COLOR_LIST_BG]);
 
 	bg->blit(s,0,0);
 
@@ -661,7 +666,7 @@ void GMenu2X::batteryLogger() {
 	MessageBox mb(this, tr["Welcome to the Battery Logger.\nMake sure the battery is fully charged.\nAfter pressing OK, leave the device ON until\nthe battery has been fully discharged.\nThe log will be saved in 'battery.csv'."]);
 	mb.exec();
 
-	uint firstRow = 0, rowsPerPage = rect.h/font->getHeight();
+	uint firstRow = 0, rowsPerPage = listRect.h/font->getHeight();
 		// s->setClipRect(rect);
 	while (!close) {
 		tickNow = SDL_GetTicks();
@@ -695,7 +700,7 @@ void GMenu2X::batteryLogger() {
 			}
 		}
 
-		drawScrollBar(rowsPerPage, log.size(), firstRow, rect.y, rect.h);
+		drawScrollBar(rowsPerPage, log.size(), firstRow, listRect.y, listRect.h);
 
 		s->flip();
 
@@ -1158,8 +1163,8 @@ bool GMenu2X::setSuspend(bool suspend) {
 void GMenu2X::main() {
 	int ret;
 	bool suspendActive = false;
-	unsigned short battlevel = getBatteryLevel();
-	int battMsgWidth = (19*2);
+	unsigned short battlevel = 0; //getBatteryLevel();
+	// int battMsgWidth = (19*2);
 	pthread_t thread_id;
 	uint linksPerPage = linkColumns*linkRows;
 	// int linkSpacingX = (resX-10 - linkColumns*(resX - skinConfInt["sectionBarX"]))/linkColumns;
@@ -1174,16 +1179,16 @@ void GMenu2X::main() {
 	// int backlightOffset;
 	bool inputAction;
 	bool quit = false;
-	int x,y, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
+	int x,y; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
 	uint i;
 	unsigned long tickSuspend = 0, tickPowerOff = 0, tickBattery = -4800, tickNow, tickMMC = 0, tickUSB = 0;
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
 	string prevBackdrop = "bgmain", currBackdrop = "bgmain";
 	// char backlightMsg[16]={0};
 	stringstream ss;
-	uint sectionsCoordX = 24;
-	uint sectionsCoordY = 24;
-	SDL_Rect re = {0,0,0,0};
+	// uint sectionsCoordX = 24;
+	uint sectionsCoordY = 0;//24;
+	// SDL_Rect re = {0,0,0,0};
 
 	// backlightLevel = confInt["backlight"];
 	setBacklight(confInt["backlight"]);
@@ -1198,7 +1203,7 @@ void GMenu2X::main() {
 	setClock(528);
 
 	// LINKS rect
-	SDL_Rect rect = {skinConfInt["sectionBarWidth"], 0, resX - skinConfInt["sectionBarWidth"], resY};
+	SDL_Rect linksRect = {skinConfInt["sectionBarWidth"], 0, resX - skinConfInt["sectionBarWidth"], resY};
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();
@@ -1229,8 +1234,8 @@ void GMenu2X::main() {
 		s->setClipRect(0,0,skinConfInt["sectionBarWidth"],skinConfInt["sectionBarHeight"]); //32*2+10
 
 		// SECTIONS
-		sectionsCoordX = halfX - (constrain((uint)menu->getSections().size(), 0 , linkColumns) * (resX - skinConfInt["sectionBarWidth"])) / 2;
-		sectionsCoordY = 0;//(constrain((uint)menu->getSections().size(), 0 , linkColumns) * skinConfInt["sectionBarHeight"]);// / 2;
+		// sectionsCoordX = halfX - (constrain((uint)menu->getSections().size(), 0 , linkColumns) * (resX - skinConfInt["sectionBarWidth"])) / 2;
+		// sectionsCoordY = 0;//(constrain((uint)menu->getSections().size(), 0 , linkColumns) * skinConfInt["sectionBarHeight"]);// / 2;
 
 		// if (menu->firstDispSection()>0) sc.skinRes("imgs/l_enabled.png")->blit(s,0,0);
 		// else sc.skinRes("imgs/l_disabled.png")->blit(s,0,0);
@@ -1254,8 +1259,8 @@ void GMenu2X::main() {
 		}
 
 		// LINKS
-		s->setClipRect(rect);
-		s->box(rect, skinConfColors[COLOR_LIST_BG]);
+		s->setClipRect(linksRect);
+		s->box(linksRect, skinConfColors[COLOR_LIST_BG]);
 
 		for (i=menu->firstDispRow()*linkColumns; i<(menu->firstDispRow()*linkColumns)+linksPerPage && i<menu->sectionLinks()->size(); i++) {
 			int ir = i-menu->firstDispRow()*linkColumns;
@@ -1272,7 +1277,7 @@ void GMenu2X::main() {
 
 		s->clearClipRect();
 
-		drawScrollBar(linkRows,menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1),menu->firstDispRow(), rect.y, rect.h);
+		drawScrollBar(linkRows,menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1),menu->firstDispRow(), linksRect.y, linksRect.h);
 
 		// TRAY 0,0
 		switch(volumeMode) {

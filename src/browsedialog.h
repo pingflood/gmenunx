@@ -65,8 +65,8 @@ private:
 	string title;
 	string subtitle;
 
-	SDL_Rect clipRect;
-	SDL_Rect touchRect;
+	// SDL_Rect clipRect;
+	// SDL_Rect touchRect;
 
 	unsigned int numRows;
 	unsigned int rowHeight;

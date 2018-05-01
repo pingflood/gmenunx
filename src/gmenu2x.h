@@ -179,8 +179,9 @@ public:
 	 * Variables needed for elements disposition
 	 */
 	uint resX, resY, halfX, halfY;
-	uint bottomBarIconY, bottomBarTextY, linkColumns, linkRows;
-
+	// uint bottomBarIconY, bottomBarTextY
+	uint linkColumns, linkRows;
+	SDL_Rect listRect;
 	/*!
 	Retrieves the parent directory of GMenu2X.
 	This functions is used to initialize the "path" variable.

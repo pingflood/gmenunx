@@ -23,7 +23,7 @@
 
 using namespace std;
 
-static SDL_Rect rect;
+// static SDL_Rect rect;
 
 TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, vector<string> *text)
 	: Dialog(gmenu2x)
@@ -78,7 +78,7 @@ void TextDialog::preProcess() {
 }
 
 void TextDialog::drawText(vector<string> *text, uint firstRow, uint rowsPerPage) {
-	gmenu2x->s->setClipRect(rect);
+	gmenu2x->s->setClipRect(gmenu2x->listRect);
 
 	for (uint i=firstRow; i<firstRow+rowsPerPage && i<text->size(); i++) {
 		int rowY;
@@ -93,7 +93,7 @@ void TextDialog::drawText(vector<string> *text, uint firstRow, uint rowsPerPage)
 	}
 
 	gmenu2x->s->clearClipRect();
-	gmenu2x->drawScrollBar(rowsPerPage, text->size(), firstRow, rect.y, rect.h);
+	gmenu2x->drawScrollBar(rowsPerPage, text->size(), firstRow, gmenu2x->listRect.y, gmenu2x->listRect.h);
 }
 
 void TextDialog::exec() {
@@ -104,7 +104,7 @@ void TextDialog::exec() {
 	gmenu2x->drawTopBar(gmenu2x->bg);
 	gmenu2x->drawBottomBar(gmenu2x->bg);
 
-	rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
+	// rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
 
 	//link icon
 	if (gmenu2x->sc.skinRes(icon)==NULL)
@@ -119,9 +119,9 @@ void TextDialog::exec() {
 	gmenu2x->drawButton(gmenu2x->bg, "down", gmenu2x->tr["Scroll"],
 	gmenu2x->drawButton(gmenu2x->bg, "up", "", 5)-10));
 
-	gmenu2x->bg->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	uint firstRow = 0, rowsPerPage = rect.h/gmenu2x->font->getHeight();
+	uint firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 	while (!close) {
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
 		drawText(text, firstRow, rowsPerPage);

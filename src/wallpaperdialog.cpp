@@ -36,11 +36,11 @@ bool WallpaperDialog::exec()
 
 	bool close = false, result = true;
 
-	SDL_Rect rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
+	// SDL_Rect rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
 
 	// dc: adjust rowheight with font
 	uint rowHeight = gmenu2x->font->getHeight()+1; // gp2x=15+1 / pandora=19+1
-	uint numRows = rect.h/rowHeight - 1;
+	uint numRows = gmenu2x->listRect.h/rowHeight - 1;
 
 	FileLister fl("skins/"+gmenu2x->confStr["skin"]+"/wallpapers");
 	fl.setFilter(".png,.jpg,.jpeg,.bmp");
@@ -77,27 +77,27 @@ bool WallpaperDialog::exec()
 		writeTitle(gmenu2x->tr["Wallpaper selection"]);
 		writeSubTitle(gmenu2x->tr["Select an image from the list, to use as a wallpaper"]);
 
-		gmenu2x->s->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 		gmenu2x->drawButton(gmenu2x->s, "b", gmenu2x->tr["Select wallpaper"],5);
 
 		//Selection
 		iY = selected-firstElement;
-		iY = rect.y+(iY*rowHeight);
+		iY = gmenu2x->listRect.y+(iY*rowHeight);
 
 		gmenu2x->s->box(0, iY + 3, gmenu2x->resX, rowHeight-1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//Files & Directories
-		gmenu2x->s->setClipRect(rect);
+		gmenu2x->s->setClipRect(gmenu2x->listRect);
 
 		for (i=firstElement; i<wallpapers.size() && i<=firstElement+numRows; i++) {
 			iY = i-firstElement;
-			iY = iY*rowHeight + 3 + rect.y + rowHeight/3;
+			iY = iY*rowHeight + 3 + gmenu2x->listRect.y + rowHeight/3;
 
 			gmenu2x->s->write(gmenu2x->font, wallpapers[i], 5, iY, HAlignLeft, VAlignMiddle);
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(numRows, wallpapers.size(), firstElement, rect.y, rect.h);
+		gmenu2x->drawScrollBar(numRows, wallpapers.size(), firstElement, gmenu2x->listRect.y, gmenu2x->listRect.h);
 
 		gmenu2x->s->flip();
 

@@ -57,7 +57,7 @@ int Selector::exec(int startSelection) {
 	bool close = false, result = true;
 	vector<string> screens, titles;
 
-	Uint32 selTick = SDL_GetTicks(), curTick;
+	// Uint32 selTick = SDL_GetTicks(), curTick;
 	uint i, firstElement = 0, iY;
 
 	FileLister fl(dir, link->getSelectorBrowser());
@@ -71,7 +71,7 @@ int Selector::exec(int startSelection) {
 
 	if (screendir == "") {
 		gmenu2x->drawTopBar(gmenu2x->bg);
-		rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
+		rect = gmenu2x->listRect; //{0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
 	} else {
 		gmenu2x->bg->box(0, 0, gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 		gmenu2x->bg->setClipRect(0, 0, gmenu2x->skinConfInt["selectorX"]-4, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]);
@@ -192,25 +192,25 @@ int Selector::exec(int startSelection) {
 				selected = fl.size()-1;
 			else
 				selected -= 1;
-			selTick = SDL_GetTicks();
+			// selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
 			if (selected < numRows)
 				selected = 0;
 			else
 				selected -= numRows;
-			selTick = SDL_GetTicks();
+			// selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[DOWN] ) {
 			if (selected + 1 >= fl.size())
 				selected = 0;
 			else
 				selected += 1;
-			selTick = SDL_GetTicks();
+			// selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
 			if (selected + numRows >= fl.size())
 				selected = fl.size()-1;
 			else
 				selected += numRows;
-			selTick = SDL_GetTicks();
+			// selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[CANCEL] ) {
 			if (link->getSelectorBrowser()) {
 				string::size_type p = dir.rfind("/", dir.size()-2);

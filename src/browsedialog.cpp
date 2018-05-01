@@ -50,18 +50,18 @@ bool BrowseDialog::exec() {
 
 	fl->browse();
 
-	clipRect = (SDL_Rect){0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
-	touchRect = clipRect; //(SDL_Rect){2, gmenu2x->skinConfInt["topBarHeight"]+4, gmenu2x->resX-12, clipRect.h};
+	// clipRect = (SDL_Rect){0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
+	// touchRect = gmenu2x->listRect; //(SDL_Rect){2, gmenu2x->skinConfInt["topBarHeight"]+4, gmenu2x->resX-12, gmenu2x->listRect.h};
 
 	rowHeight = gmenu2x->font->getHeight()+1;
-	numRows = clipRect.h/rowHeight - 1;
+	numRows = gmenu2x->listRect.h/rowHeight - 1;
 
 	selected = 0;
 	close = false;
 
 	gmenu2x->drawTopBar(gmenu2x->bg);
 	gmenu2x->drawBottomBar(gmenu2x->bg);
-	gmenu2x->bg->box(clipRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	while (!close) {
 		if (gmenu2x->f200) gmenu2x->ts.poll();
@@ -80,29 +80,29 @@ bool BrowseDialog::exec() {
 		if (selected<firstElement) firstElement=selected;
 
 		//paint();
-		offsetY = clipRect.y;
+		offsetY = gmenu2x->listRect.y;
 
 		//Selection
 		iY = selected-firstElement;
 		iY = offsetY + iY*rowHeight;
-		gmenu2x->s->box(clipRect.x, iY, clipRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 
 		//Files & Directories
-		gmenu2x->s->setClipRect(clipRect);
+		gmenu2x->s->setClipRect(gmenu2x->listRect);
 		for (i = firstElement; i < fl->size() && i <= firstElement+numRows; i++) {
 
 			if (fl->isDirectory(i)) {
 				if ((*fl)[i] == "..")
-						iconGoUp->blitCenter(gmenu2x->s, clipRect.x + 10, offsetY + rowHeight/2);
+						iconGoUp->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2);
 					else
-						iconFolder->blitCenter(gmenu2x->s, clipRect.x + 10, offsetY + rowHeight/2);
+						iconFolder->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2);
 				} else{
-					iconFile->blitCenter(gmenu2x->s, clipRect.x + 10, offsetY + rowHeight/2);
+					iconFile->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2);
 				}
-				gmenu2x->s->write(gmenu2x->font, (*fl)[i], clipRect.x + 21, offsetY+4, HAlignLeft, VAlignMiddle);
+				gmenu2x->s->write(gmenu2x->font, (*fl)[i], gmenu2x->listRect.x + 21, offsetY+4, HAlignLeft, VAlignMiddle);
 
-			if (gmenu2x->f200 && gmenu2x->ts.pressed() && gmenu2x->ts.inRect(touchRect.x, offsetY + 3, touchRect.w, rowHeight)) {
+			if (gmenu2x->f200 && gmenu2x->ts.pressed() && gmenu2x->ts.inRect(gmenu2x->listRect.x, offsetY + 3, gmenu2x->listRect.w, rowHeight)) {
 				ts_pressed = true;
 				selected = i;
 			}
@@ -111,7 +111,7 @@ bool BrowseDialog::exec() {
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(numRows, fl->size(), firstElement, clipRect.y, clipRect.h);
+		gmenu2x->drawScrollBar(numRows, fl->size(), firstElement, gmenu2x->listRect.y, gmenu2x->listRect.h);
 		gmenu2x->s->flip();
 
 		handleInput();
@@ -178,7 +178,7 @@ void BrowseDialog::handleInput() {
 		action = getAction();
 	}
 
-	if (gmenu2x->f200 && gmenu2x->ts.pressed() && !gmenu2x->ts.inRect(touchRect)) ts_pressed = false;
+	if (gmenu2x->f200 && gmenu2x->ts.pressed() && !gmenu2x->ts.inRect(gmenu2x->listRect)) ts_pressed = false;
 
 	if (action == BrowseDialog::ACT_SELECT && (*fl)[selected] == "..")
 		action = BrowseDialog::ACT_GOUP;

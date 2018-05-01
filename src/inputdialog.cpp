@@ -126,7 +126,7 @@ void InputDialog::setKeyboard(int kb) {
 
 bool InputDialog::exec() {
 	SDL_Rect box = {0, 60, 0, gmenu2x->font->getHeight()+4};
-	SDL_Rect rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
+	// SDL_Rect rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
 
 	Uint32 caretTick = 0, curTick;
 	bool caretOn = true;
@@ -139,7 +139,7 @@ bool InputDialog::exec() {
 	gmenu2x->drawTopBar(gmenu2x->bg);
 	gmenu2x->drawBottomBar(gmenu2x->bg);
 
-	gmenu2x->bg->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	while (!close) {
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
