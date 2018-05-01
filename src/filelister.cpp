@@ -43,11 +43,7 @@ const string &FileLister::getPath() {
 	return path;
 }
 void FileLister::setPath(const string &path, bool doBrowse) {
-WARNING("PATH RECV: %s", path.c_str());
-
 	this->path = real_path(path);
-WARNING("PATH SET: %s", this->path.c_str());
-
 	if (doBrowse)
 		browse();
 }

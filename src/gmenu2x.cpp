@@ -784,7 +784,7 @@ void GMenu2X::readConfig() {
 
 	if (!confStr["lang"].empty()) tr.setLang(confStr["lang"]);
 	if (!confStr["wallpaper"].empty() && !fileExists(confStr["wallpaper"])) confStr["wallpaper"] = "";
-	if (confStr["skin"].empty() || !fileExists("skins/"+confStr["skin"])) confStr["skin"] = "Default";
+	if (confStr["skin"].empty() || !dirExists("skins/"+confStr["skin"])) confStr["skin"] = "Default";
 	if (confStr["batteryType"].empty()) confStr["batteryType"] = "BL-5B";
 
 	// evalIntConf( &confInt["batteryLog"], 0, 0, 1 );
@@ -2171,11 +2171,11 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingString(      this, tr["Parameters"],           tr["Parameters to pass to the application"], &linkParams, diagTitle, diagIcon ));
 
 	sd.addSetting(new MenuSettingBool(        this, tr["Selector Browser"],     tr["Allow the selector to change directory"], &linkSelBrowser ));
-	sd.addSetting(new MenuSettingDir(         this, tr["Selector Directory"],   tr["Directory to scan for the selector"], &linkSelDir, dir_name(linkSelDir) ));
+	sd.addSetting(new MenuSettingDir(         this, tr["Selector Directory"],   tr["Directory to scan for the selector"], &linkSelDir, real_path(linkSelDir) ));
 	sd.addSetting(new MenuSettingString(      this, tr["Selector Filter"],      tr["Filter for the selector (Separate values with a comma)"], &linkSelFilter, diagTitle, diagIcon ));
 	sd.addSetting(new MenuSettingDir(         this, tr["Selector Screenshots"], tr["Directory of the screenshots for the selector"], &linkSelScreens, dir_name(linkSelScreens) ));
 	sd.addSetting(new MenuSettingFile(        this, tr["Selector Aliases"],     tr["File containing a list of aliases for the selector"], &linkSelAliases, dir_name(linkSelAliases) ));
-	sd.addSetting(new MenuSettingImage(       this, tr["Backdrop"],             tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", dir_name(linkBackdrop)));
+	sd.addSetting(new MenuSettingImage(       this, tr["Backdrop"],             tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", real_path(linkBackdrop)));
 
 #	if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	bool linkUseGinge = menu->selLinkApp()->getUseGinge();

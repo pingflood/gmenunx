@@ -62,13 +62,14 @@ char * string_copy(const string &s) {
 	return cs;
 }
 
-bool fileExists(const string &file) {
-	fstream fin;
-	fin.open(file.c_str() ,ios::in);
-	bool exists = fin.is_open();
-	fin.close();
+bool dirExists(const string &path) {
+	struct stat s;
+	return (stat(path.c_str(), &s) == 0 && s.st_mode & S_IFDIR); // exists and is dir
+}
 
-	return exists;
+bool fileExists(const string &path) {
+	struct stat s;
+	return (stat(path.c_str(), &s) == 0 && s.st_mode & S_IFREG); // exists and is file
 }
 
 bool rmtree(string path) {
