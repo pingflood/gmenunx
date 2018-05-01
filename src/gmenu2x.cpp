@@ -395,18 +395,21 @@ void GMenu2X::quit() {
 #endif
 }
 
-void GMenu2X::initBG() {
+void GMenu2X::initBG(const string &imagePath) {
 	sc.del("bgmain");
 
 	if (bg != NULL) delete bg;
 
 	bg = new Surface(s);
 	bg->box(0,0,resX,resY,0,0,0);
-	if (fileExists(confStr["wallpaper"])) {
-		Surface wall(confStr["wallpaper"],false);
-		wall.blit(bg,0,0);
-	}
 
+	if (!imagePath.empty() && fileExists(imagePath)) {
+		Surface wall(imagePath, false);
+		wall.blit(bg, 0, 0);
+	} else if (fileExists(confStr["wallpaper"])) {
+		Surface wall(confStr["wallpaper"], false);
+		wall.blit(bg, 0, 0);
+	}
 
 	Surface *bgmain = new Surface(bg);
 	sc.add(bgmain,"bgmain");

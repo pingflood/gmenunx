@@ -52,7 +52,7 @@ Dialog(gmenu2x)
 }
 
 int Selector::exec(int startSelection) {
-	gmenu2x->initBG();
+	gmenu2x->initBG(link->getBackdrop());
 
 	bool close = false, result = true;
 	vector<string> screens, titles;

@@ -270,7 +270,7 @@ public:
 	void renameSection();
 	void deleteSection();
 
-	void initBG();
+	void initBG(const string &imagePath="");
 	int drawButton(Button *btn, int x=5, int y=-10);
 	int drawButton(Surface *s, const string &btn, const string &text, int x=5, int y=-10);
 	int drawButtonRight(Surface *s, const string &btn, const string &text, int x=5, int y=-10);
