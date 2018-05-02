@@ -296,13 +296,26 @@ bool Menu::addSection(const string &sectionName) {
 }
 
 void Menu::deleteSelectedLink() {
-	INFO("Deleting link '%s'", selLink()->getTitle().c_str());
+	string iconpath = selLink()->getIconPath();
+
+	INFO("Deleting link '%s'\n", selLink()->getTitle().c_str());
 
 	if (selLinkApp()!=NULL)
 		unlink(selLinkApp()->getFile().c_str());
-	gmenu2x->sc.del(selLink()->getIconPath());
 	sectionLinks()->erase( sectionLinks()->begin() + selLinkIndex() );
 	setLinkIndex(selLinkIndex());
+
+	bool icon_used = false;
+	for (auto& section : links) {
+		for (auto& link : section) {
+			if (iconpath == link->getIconPath()) {
+				icon_used = true;
+			}
+		}
+	}
+	if (!icon_used) {
+		gmenu2x->sc.del(iconpath);
+	}
 }
 
 void Menu::deleteSelectedSection() {
