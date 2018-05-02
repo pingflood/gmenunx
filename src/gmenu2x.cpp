@@ -362,7 +362,7 @@ GMenu2X::GMenu2X() {
 	listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
 
 	// LINKS rect
-	linksRect = {0, 0, resX, resY};
+	linksRect = (SDL_Rect){0, 0, resX, resY};
 }
 
 GMenu2X::~GMenu2X() {
@@ -1063,10 +1063,10 @@ udc_status getUDCStatus(void) {
   fclose(f);
 
   if (memcmp(buf, "offline", 7) == 0) {
-    return UDC_REMOVE;
+	return UDC_REMOVE;
   }
   else if (memcmp(buf, "usb", 3) == 0) {
-    return UDC_CONNECT;
+	return UDC_CONNECT;
   }
 #endif
 	return UDC_ERROR;

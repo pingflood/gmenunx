@@ -75,7 +75,7 @@ int Selector::exec(int startSelection) {
 	} else {
 		gmenu2x->bg->box(0, 0, gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 		gmenu2x->bg->setClipRect(0, 0, gmenu2x->skinConfInt["selectorX"]-4, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]);
-		rect = {gmenu2x->skinConfInt["selectorX"], 0, gmenu2x->resX - gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]};
+		rect = (SDL_Rect){gmenu2x->skinConfInt["selectorX"], 0, gmenu2x->resX - gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]};
 	}
 
 	// dc: adjust rowHeight with font
