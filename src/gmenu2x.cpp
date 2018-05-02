@@ -2130,7 +2130,7 @@ void GMenu2X::editLink() {
 	stringstream ss;
 	ss << DEFAULT_CPU_CLK;
 	ss >> strClock;
-	const string wd = "/"; //menu->selLinkApp()->getRealWorkdir();
+	// const string wd = "/"; //menu->selLinkApp()->getRealWorkdir();
 
 	SettingsDialog sd(this, input, ts, diagTitle, diagIcon);
 	sd.addSetting(new MenuSettingString(      this, tr["Title"],                tr["Link title"], &linkTitle, diagTitle, diagIcon ));
