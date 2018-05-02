@@ -1226,7 +1226,7 @@ void GMenu2X::main() {
 
 		//Background
 		if (prevBackdrop != currBackdrop) {
-			WARNING("[BACKDROP] %s", currBackdrop.c_str());
+			INFO("BACKDROP: %s", currBackdrop.c_str());
 			sc.del(prevBackdrop);
 			prevBackdrop = currBackdrop;
 		}
