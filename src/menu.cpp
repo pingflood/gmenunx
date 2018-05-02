@@ -298,7 +298,7 @@ bool Menu::addSection(const string &sectionName) {
 void Menu::deleteSelectedLink() {
 	string iconpath = selLink()->getIconPath();
 
-	INFO("Deleting link '%s'\n", selLink()->getTitle().c_str());
+	INFO("Deleting link '%s'", selLink()->getTitle().c_str());
 
 	if (selLinkApp()!=NULL)
 		unlink(selLinkApp()->getFile().c_str());
@@ -306,9 +306,9 @@ void Menu::deleteSelectedLink() {
 	setLinkIndex(selLinkIndex());
 
 	bool icon_used = false;
-	for (auto& section : links) {
-		for (auto& link : section) {
-			if (iconpath == link->getIconPath()) {
+	for (uint i = 0; i < sections.size(); i++) {
+		for (uint j = 0; j < sectionLinks(i)->size(); j++) {
+			if (iconpath == sectionLinks(i)->at(j)->getIconPath()) {
 				icon_used = true;
 			}
 		}
