@@ -172,7 +172,7 @@ bool Menu::addActionLink(uint section, const string &title, LinkRunAction action
 	if (section>=sections.size()) return false;
 
 	LinkAction *linkact = new LinkAction(gmenu2x,action);
-	linkact->setSize(gmenu2x->resX - gmenu2x->skinConfInt["sectionBarWidth"], gmenu2x->skinConfInt["linkItemHeight"]);
+	linkact->setSize(gmenu2x->resX - gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]);
 	linkact->setTitle(title);
 	linkact->setDescription(description);
 	if (gmenu2x->sc.exists(icon) || (icon.substr(0,5)=="skin:" && !gmenu2x->sc.getSkinFilePath(icon.substr(5,icon.length())).empty()) || fileExists(icon))
@@ -254,8 +254,8 @@ bool Menu::addLink(string path, string file, string section) {
 	if (fileExists(exename+".png")) icon = exename+".png";
 
 	//Reduce title length to fit the link width
-	if ((int)gmenu2x->font->getTextWidth(shorttitle) > (gmenu2x->resX - gmenu2x->skinConfInt["sectionBarWidth"])) {
-		while ((int)gmenu2x->font->getTextWidth(shorttitle+"..") > (gmenu2x->resX - gmenu2x->skinConfInt["sectionBarWidth"]))
+	if ((int)gmenu2x->font->getTextWidth(shorttitle) > (gmenu2x->resX - gmenu2x->linksRect.w)) {
+		while ((int)gmenu2x->font->getTextWidth(shorttitle+"..") > (gmenu2x->resX - gmenu2x->linksRect.w))
 			shorttitle = shorttitle.substr(0,shorttitle.length()-1);
 		shorttitle += "..";
 	}
@@ -274,7 +274,7 @@ bool Menu::addLink(string path, string file, string section) {
 			INFO("Section: '%s(%i)'", sections[isection].c_str(), isection);
 
 			LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkpath.c_str());
-			link->setSize(gmenu2x->resX - gmenu2x->skinConfInt["sectionBarWidth"], gmenu2x->skinConfInt["linkItemHeight"]);
+			link->setSize(gmenu2x->resX - gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]);
 			if (link->targetExists())
 				links[isection].push_back( link );
 			else
@@ -452,7 +452,7 @@ void Menu::readLinks() {
 		sort(linkfiles.begin(), linkfiles.end(),case_less());
 		for (uint x=0; x<linkfiles.size(); x++) {
 			LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkfiles[x].c_str());
-			link->setSize(gmenu2x->resX - gmenu2x->skinConfInt["sectionBarWidth"], gmenu2x->skinConfInt["linkItemHeight"]);
+			link->setSize(gmenu2x->resX - gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]);
 			if (link->targetExists())
 				links[i].push_back( link );
 			else
