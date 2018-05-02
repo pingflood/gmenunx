@@ -274,7 +274,7 @@ public:
 	int drawButton(Button *btn, int x=5, int y=-10);
 	int drawButton(Surface *s, const string &btn, const string &text, int x=5, int y=-10);
 	int drawButtonRight(Surface *s, const string &btn, const string &text, int x=5, int y=-10);
-	void drawScrollBar(uint pagesize, uint totalsize, uint pagepos, uint top, uint height);
+	void drawScrollBar(uint pagesize, uint totalsize, uint pagepos, SDL_Rect scrollRect);
 
 	// void drawSectionBar(Surface *s=NULL);
 	void drawTopBar(Surface *s=NULL);

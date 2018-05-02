@@ -152,7 +152,7 @@ int Selector::exec(int startSelection) {
 		}
 
 		gmenu2x->s->clearClipRect();
-		gmenu2x->drawScrollBar(numRows,fl.size(),firstElement, rect.y, rect.h);
+		gmenu2x->drawScrollBar(numRows,fl.size(),firstElement, rect);
 		gmenu2x->s->flip();
 
 		gmenu2x->input.update();

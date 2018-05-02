@@ -103,7 +103,7 @@ bool SettingsDialog::exec() {
 		}
 		gmenu2x->s->clearClipRect();
 
-		gmenu2x->drawScrollBar(numRows,voices.size(),firstElement,gmenu2x->listRect.y,gmenu2x->listRect.h);
+		gmenu2x->drawScrollBar(numRows, voices.size(), firstElement, gmenu2x->listRect);
 
 		//description
 		writeSubTitle(voices[sel]->getDescription());

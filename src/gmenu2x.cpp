@@ -701,7 +701,7 @@ void GMenu2X::batteryLogger() {
 			}
 		}
 
-		drawScrollBar(rowsPerPage, log.size(), firstRow, listRect.y, listRect.h);
+		drawScrollBar(rowsPerPage, log.size(), firstRow, listRect);
 
 		s->flip();
 
@@ -1231,7 +1231,7 @@ void GMenu2X::main() {
 		// s->setClipRect(0,0,skinConfInt["sectionBarWidth"],skinConfInt["sectionBarHeight"]); //32*2+10
 
 		// SECTIONS
-		x = 0; y = 0; string sectionBarPosition = "left";
+		x = 0; y = 0; string sectionBarPosition = "right";
 		if (sectionBarPosition == "left" || sectionBarPosition == "right") {
 			s->box((sectionBarPosition == "right")*(resX - skinConfInt["sectionBarWidth"]), 0, skinConfInt["sectionBarWidth"], resY, skinConfColors[COLOR_TOP_BAR_BG]);
 		} else {
@@ -1291,7 +1291,7 @@ void GMenu2X::main() {
 
 		s->clearClipRect();
 
-		drawScrollBar(linkRows,menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1),menu->firstDispRow(), linksRect.y, linksRect.h);
+		drawScrollBar(linkRows, menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1), menu->firstDispRow(), linksRect);
 
 		// TRAY 0,0
 		switch(volumeMode) {
@@ -2794,24 +2794,24 @@ int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, 
 	return x-6;
 }
 
-void GMenu2X::drawScrollBar(uint pagesize, uint totalsize, uint pagepos, uint top, uint height) {
-	if (totalsize<=pagesize) return;
+void GMenu2X::drawScrollBar(uint pagesize, uint totalsize, uint pagepos, SDL_Rect scrollRect) {
+	if (totalsize <= pagesize) return;
 
 
-	// s->box(resX-9, top, 9, height, skinConfColors[COLOR_LIST_BG]);
-	// s->rectangle(resX-8, top+1, 7, height-2, skinConfColors[COLOR_SELECTION_BG]);
+	// s->box(resX-9, y, 9, height, skinConfColors[COLOR_LIST_BG]);
+	// s->rectangle(resX-8, y+1, 7, height-2, skinConfColors[COLOR_SELECTION_BG]);
+	// s->box(resX-6, by, 3, bs, skinConfColors[COLOR_SELECTION_BG]);
 
 	//internal bar total height = height-2
 	//bar size
-	uint bs = (height-3) * pagesize / totalsize;
+	uint bs = (scrollRect.h - 4) * pagesize / totalsize;
 	//bar y position
-	uint by = (height-3) * pagepos / totalsize;
-	by = top+3+by;
-	if (by+bs>top+height-3) by = top+height-3-bs;
+	uint by = (scrollRect.h - 4) * pagepos / totalsize;
+	by = scrollRect.y + 4 + by;
+	if ( by + bs > scrollRect.y + scrollRect.h - 4) by = scrollRect.y + scrollRect.h - 4 - bs;
 
-	s->rectangle(resX-4, by, 4, bs, skinConfColors[COLOR_LIST_BG]);
-	// s->box(resX-6, by, 3, bs, skinConfColors[COLOR_SELECTION_BG]);
-	s->box(resX-3, by+1, 2, bs-2, skinConfColors[COLOR_SELECTION_BG]);
+	s->rectangle(scrollRect.x + scrollRect.w - 5, by, 5, bs, skinConfColors[COLOR_LIST_BG]);
+	s->box(scrollRect.x + scrollRect.w - 4, by + 1, 2, bs - 2, skinConfColors[COLOR_SELECTION_BG]);
 }
 
 void GMenu2X::drawTopBar(Surface *s) {
