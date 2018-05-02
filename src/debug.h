@@ -15,13 +15,16 @@
 // -------------
 
 #ifndef COLOR_DEBUG
-# define COLOR_DEBUG   "\e[0;34m"
+# define COLOR_DEBUG   "\e[1;34m"
 #endif
 #ifndef COLOR_WARNING
-# define COLOR_WARNING "\e[01;33m"
+# define COLOR_WARNING "\e[1;33m"
 #endif
 #ifndef COLOR_ERROR
-# define COLOR_ERROR   "\e[01;31m"
+# define COLOR_ERROR   "\e[1;31m"
+#endif
+#ifndef COLOR_INFO
+# define COLOR_INFO   "\e[1;32m"
 #endif
 
 #define COLOR_END "\e[00m"
