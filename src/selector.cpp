@@ -92,12 +92,12 @@ int Selector::exec(int startSelection) {
 	gmenu2x->drawBottomBar(gmenu2x->bg);
 
 	if (link->getSelectorBrowser()) {
-		gmenu2x->drawButton(gmenu2x->bg, "start", gmenu2x->tr["Exit"],
-			gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Select a file"],
-				gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Up one folder"], 5)));
+		gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Select"],
+			gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Up one folder"],
+				gmenu2x->drawButton(gmenu2x->bg, "start", gmenu2x->tr["Exit"], 5)));
 	} else {
 		gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Exit"],
-			gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Select a file"], 5));
+			gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Select"], 5));
 	}
 
 	prepare(&fl,&screens,&titles);

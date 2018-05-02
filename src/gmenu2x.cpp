@@ -643,7 +643,7 @@ void GMenu2X::batteryLogger() {
 	sc.skinRes("icons/ebook.png")->blit(bg, 4, 4, 32, 32);
 
 	drawBottomBar(bg);
-	drawButton(bg, "b", tr["Exit"],
+	drawButton(bg, "b", tr["Back"],
 	drawButton(bg, "select", tr["Del battery.csv"],
 	drawButton(bg, "down", tr["Scroll"],
 	drawButton(bg, "up", "", 5)-10)));
@@ -2303,8 +2303,7 @@ void GMenu2X::scanner() {
 	sc.skinRes("icons/configure.png")->blit(bg, 4, 4, 32, 32);
 
 	drawBottomBar(bg);
-	drawButton(bg, "b", tr["Exit"],
-	drawButton(bg, "a", "", 5)-10);
+	drawButton(bg, "b", tr["Back"], 5);
 
 	bg->box(listRect, skinConfColors[COLOR_LIST_BG]);
 

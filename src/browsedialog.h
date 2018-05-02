@@ -87,6 +87,7 @@ private:
 	void directoryUp();
 	void directoryEnter();
 	void confirm();
+	void cancel();
 
 public:
 	bool exec();

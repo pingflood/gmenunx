@@ -78,7 +78,8 @@ bool WallpaperDialog::exec()
 		writeSubTitle(gmenu2x->tr["Select an image from the list, to use as a wallpaper"]);
 
 		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-		gmenu2x->drawButton(gmenu2x->s, "b", gmenu2x->tr["Select wallpaper"],5);
+		gmenu2x->drawButton(gmenu2x->s, "a", gmenu2x->tr["Select wallpaper"],
+		gmenu2x->drawButton(gmenu2x->s, "b", gmenu2x->tr["Back"],5));
 
 		//Selection
 		iY = selected-firstElement;
