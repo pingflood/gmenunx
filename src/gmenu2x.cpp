@@ -1160,7 +1160,7 @@ bool GMenu2X::setSuspend(bool suspend) {
 }
 
 void GMenu2X::main() {
-	int ret;
+	// int ret;
 	bool suspendActive = false;
 	unsigned short battlevel = 0; //getBatteryLevel();
 	// int battMsgWidth = (19*2);
@@ -1195,8 +1195,7 @@ void GMenu2X::main() {
 	// btnContextMenu->setPosition(resX-18, resY-18);
 	// btnContextMenu->setAction(MakeDelegate(this, &GMenu2X::contextMenu));
 	exitMainThread = 0;
-	ret = pthread_create(&thread_id, NULL, mainThread, this);
-	if (ret) {
+	if (pthread_create(&thread_id, NULL, mainThread, this)) {
 		ERROR("%s, failed to create main thread\n", __func__);
 	}
 	setClock(528);
@@ -2750,13 +2749,10 @@ string GMenu2X::getDiskFree(const char *path) {
 	string df = "N/A";
 	struct statvfs b;
 
-	int ret = statvfs(path, &b);
-	if (ret == 0) {
+	if (statvfs(path, &b) == 0) {
 		// Make sure that the multiplication happens in 64 bits.
-		unsigned long freeMiB =
-				((unsigned long long)b.f_bfree * b.f_bsize) / (1024 * 1024);
-		unsigned long totalMiB =
-				((unsigned long long)b.f_blocks * b.f_frsize) / (1024 * 1024);
+		unsigned long freeMiB = ((unsigned long long)b.f_bfree * b.f_bsize) / (1024 * 1024);
+		unsigned long totalMiB = ((unsigned long long)b.f_blocks * b.f_frsize) / (1024 * 1024);
 		stringstream ss;
 		if (totalMiB >= 10000) {
 			ss << (freeMiB / 1024) << "." << ((freeMiB % 1024) * 10) / 1024 << "/"
@@ -2768,42 +2764,6 @@ string GMenu2X::getDiskFree(const char *path) {
 	} else WARNING("statvfs failed with error '%s'.\n", strerror(errno));
 	return df;
 }
-// string GMenu2X::getDiskFree() {
-// 	stringstream ss;
-// 	string df = "";
-// 	int r1, r2;
-// 	struct statvfs b1;
-// 	struct statvfs b2;
-// 	unsigned long long f1, f2;
-// 	unsigned long long t1, t2;
-
-// 	r1 = statvfs("/mnt/int_sd", &b1);
-// 	if (r1 == 0) {
-// 		f1 = (unsigned long long)(((unsigned long long)b1.f_bfree * b1.f_bsize) >> 30);
-// 		t1 = (unsigned long long)(((unsigned long long)b1.f_blocks * b1.f_frsize) >> 30);
-// 	} 
-// 	else {
-// 		WARNING("statvfs failed with error '%s'.", strerror(errno));
-// 	}
-	
-// 	r2 = statvfs("/mnt/ext_sd", &b2);
-// 	if (r2 == 0) {
-// 		f2 = (unsigned long long)(((unsigned long long)b2.f_bfree * b2.f_bsize) >> 30);
-// 		t2 = (unsigned long long)(((unsigned long long)b2.f_blocks * b2.f_frsize) >> 30);
-// 	} 
-// 	else {
-// 		WARNING("statvfs failed with error '%s'.", strerror(errno));
-// 	}
-
-// 	if (r2 == 0) {
-// 		ss << f1 << "/" << t1 << "GB," << f2 << "/" << t2 << "GB";
-// 	}
-// 	else {
-// 		ss << f1 << "/" << t1 << "GB";
-// 	}
-// 	ss >> df;
-// 	return df;
-// }
 
 int GMenu2X::drawButton(Button *btn, int x, int y) {
 	if (y<0) y = resY+y;
