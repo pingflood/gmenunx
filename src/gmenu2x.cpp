@@ -1231,13 +1231,12 @@ void GMenu2X::main() {
 		// s->setClipRect(0,0,skinConfInt["sectionBarWidth"],skinConfInt["sectionBarHeight"]); //32*2+10
 
 		// SECTIONS
-		x = 0; y = 0; string sectionBarPosition = "right";
+		x = 0; y = 0; string sectionBarPosition = "left";
 		if (sectionBarPosition == "left" || sectionBarPosition == "right") {
 			s->box((sectionBarPosition == "right")*(resX - skinConfInt["sectionBarWidth"]), 0, skinConfInt["sectionBarWidth"], resY, skinConfColors[COLOR_TOP_BAR_BG]);
 		} else {
 			s->box(0, (sectionBarPosition == "bottom")*(resY - skinConfInt["sectionBarWidth"]), resX, skinConfInt["sectionBarWidth"], skinConfColors[COLOR_TOP_BAR_BG]);
 		}
-
 
 		for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
 			string sectionIcon = "skin:sections/"+menu->getSections()[i]+".png";
