@@ -479,39 +479,39 @@ void GMenu2X::initMenu() {
 	for (uint i=0; i<menu->getSections().size(); i++) {
 		//Add virtual links in the applications section
 		if (menu->getSections()[i]=="applications") {
-			menu->addActionLink(i,tr.translate("Explorer").c_str(),MakeDelegate(this,&GMenu2X::explorer),tr.translate("Launch an application").c_str(),"skin:icons/explorer.png");
+			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Launch an application"], "skin:icons/explorer.png");
 		}
 
 		//Add virtual links in the setting section
 		else if (menu->getSections()[i]=="settings") {
-			menu->addActionLink(i,"Settings",MakeDelegate(this,&GMenu2X::options),tr["Configure options"],"skin:icons/configure.png");
-			menu->addActionLink(i,tr["Skin"],MakeDelegate(this,&GMenu2X::skinMenu),tr["Configure skin"],"skin:icons/skin.png");
-			menu->addActionLink(i,tr["Wallpaper"],MakeDelegate(this,&GMenu2X::changeWallpaper),tr["Change wallpaper"],"skin:icons/wallpaper.png");
+			menu->addActionLink(i, tr["Settings"], MakeDelegate(this, &GMenu2X::options), tr["Configure options"], "skin:icons/configure.png");
+			menu->addActionLink(i, tr["Skin"], MakeDelegate(this, &GMenu2X::skinMenu), tr["Configure skin"], "skin:icons/skin.png");
+			menu->addActionLink(i, tr["Wallpaper"], MakeDelegate(this, &GMenu2X::changeWallpaper), tr["Change wallpaper"], "skin:icons/wallpaper.png");
 #ifdef TARGET_GP2X
 			if (fwType=="open2x")
-				menu->addActionLink(i,"Open2x",MakeDelegate(this,&GMenu2X::settingsOpen2x),tr["Configure Open2x system settings"],"skin:icons/o2xconfigure.png");
-			menu->addActionLink(i,"TV",MakeDelegate(this,&GMenu2X::toggleTvOut),tr["Activate/deactivate tv-out"],"skin:icons/tv.png");
-			menu->addActionLink(i,"USB Sd",MakeDelegate(this,&GMenu2X::activateSdUsb),tr["Activate Usb on SD"],"skin:icons/usb.png");
+				menu->addActionLink(i, "Open2x", MakeDelegate(this, &GMenu2X::settingsOpen2x), tr["Configure Open2x system settings"], "skin:icons/o2xconfigure.png");
+			menu->addActionLink(i, "TV", MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
+			menu->addActionLink(i, "USB SD", MakeDelegate(this, &GMenu2X::activateSdUsb), tr["Activate USB on SD"], "skin:icons/usb.png");
 			if (fwType=="gph" && !f200)
-				menu->addActionLink(i,"USB Nand",MakeDelegate(this,&GMenu2X::activateNandUsb),tr["Activate Usb on Nand"],"skin:icons/usb.png");
-			//menu->addActionLink(i,"USB Root",MakeDelegate(this,&GMenu2X::activateRootUsb),tr["Activate Usb on the root of the Gp2x Filesystem"],"skin:icons/usb.png");
+				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "skin:icons/usb.png");
+			//menu->addActionLink(i, "USB Root", MakeDelegate(this, &GMenu2X::activateRootUsb), tr["Activate USB on the root of the Gp2x Filesystem"], "skin:icons/usb.png");
 #elif defined(TARGET_RS97)
-			//menu->addActionLink(i,"Speaker",MakeDelegate(this,&GMenu2X::toggleSpeaker),tr["Activate/deactivate Speaker"],"skin:icons/speaker.png");
-			menu->addActionLink(i,tr["TV"],MakeDelegate(this,&GMenu2X::toggleTvOut),tr["Activate/deactivate tv-out"],"skin:icons/tv.png");
-			//menu->addActionLink(i,"USB",MakeDelegate(this,&GMenu2X::activateSdUsb),tr["Activate Usb on SD"],"skin:icons/usb.png");
-			//menu->addActionLink(i,"Format",MakeDelegate(this,&GMenu2X::formatSd),tr["Format internal SD"],"skin:icons/format.png");
-			menu->addActionLink(i,tr["Umount"],MakeDelegate(this,&GMenu2X::umountSd),tr["Umount external SD"],"skin:icons/eject.png");
+			//menu->addActionLink(i, "Speaker", MakeDelegate(this, &GMenu2X::toggleSpeaker), tr["Activate/deactivate Speaker"], "skin:icons/speaker.png");
+			menu->addActionLink(i, tr["TV"], MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
+			//menu->addActionLink(i, "USB", MakeDelegate(this, &GMenu2X::activateSdUsb), tr["Activate USB on SD"], "skin:icons/usb.png");
+			//menu->addActionLink(i, "Format", MakeDelegate(this, &GMenu2X::formatSd), tr["Format internal SD"], "skin:icons/format.png");
+			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSd), tr["Umount external SD"], "skin:icons/eject.png");
 #endif
 
 			if (fileExists(path+"log.txt"))
-				menu->addActionLink(i,tr["Log Viewer"],MakeDelegate(this,&GMenu2X::viewLog),tr["Displays last launched program's output"],"skin:icons/ebook.png");
+				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "skin:icons/ebook.png");
 
 			// if (getBatteryStatus() > 5) // show only if charging
-				menu->addActionLink(i,tr["Battery Logger"],MakeDelegate(this,&GMenu2X::batteryLogger),tr["Log battery power to battery.csv"],"skin:icons/ebook.png");
+				menu->addActionLink(i, tr["Battery Logger"], MakeDelegate(this, &GMenu2X::batteryLogger), tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
 
-			menu->addActionLink(i,tr["About"],MakeDelegate(this,&GMenu2X::about),tr["Info about system"],"skin:icons/about.png");
-			// menu->addActionLink(i,"Reboot",MakeDelegate(this,&GMenu2X::reboot),tr["Reboot device"],"skin:icons/reboot.png");
-			menu->addActionLink(i,tr["Power"],MakeDelegate(this,&GMenu2X::poweroff),tr["Power options"],"skin:icons/exit.png");
+			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "skin:icons/about.png");
+			// menu->addActionLink(i, "Reboot", MakeDelegate(this, &GMenu2X::reboot), tr["Reboot device"], "skin:icons/reboot.png");
+			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroff), tr["Power menu"], "skin:icons/exit.png");
 		}
 	}
 	menu->setSectionIndex(confInt["section"]);
@@ -743,7 +743,7 @@ void GMenu2X::batteryLogger() {
 		}
 		else if ( input[SETTINGS] || input[CANCEL] ) close = true;
 		else if (input[MENU]) {
-			MessageBox mb(this, tr.translate("Deleting $1","battery.csv",NULL)+"\n"+tr["Are you sure?"]);
+			MessageBox mb(this, tr.translate("Deleting $1", "battery.csv", NULL) + "\n" + tr["Are you sure?"]);
 			mb.setButton(CONFIRM, tr["Yes"]);
 			mb.setButton(CANCEL,  tr["No"]);
 			if (mb.exec() == CONFIRM) {
@@ -1936,16 +1936,16 @@ void GMenu2X::main() {
 	void GMenu2X::contextMenu() {
 		vector<MenuOption> voices;
 		{
-			MenuOption opt = {tr.translate("Add link in $1",menu->selSection().c_str(),NULL), MakeDelegate(this, &GMenu2X::addLink)};
+			MenuOption opt = {tr.translate("Add link in $1", menu->selSection().c_str(), NULL), MakeDelegate(this, &GMenu2X::addLink)};
 			voices.push_back(opt);
 		}
 
 		if (menu->selLinkApp()!=NULL) {
 			{
-				MenuOption opt = {tr.translate("Edit $1",menu->selLink()->getTitle().c_str(),NULL), MakeDelegate(this, &GMenu2X::editLink)};
+				MenuOption opt = {tr.translate("Edit $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::editLink)};
 				voices.push_back(opt);
 			}{
-				MenuOption opt = {tr.translate("Delete $1 link",menu->selLink()->getTitle().c_str(),NULL), MakeDelegate(this, &GMenu2X::deleteLink)};
+				MenuOption opt = {tr.translate("Delete $1 link", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::deleteLink)};
 				voices.push_back(opt);
 			}
 		}
@@ -2237,7 +2237,7 @@ void GMenu2X::editLink() {
 
 void GMenu2X::deleteLink() {
 	if (menu->selLinkApp()!=NULL) {
-		MessageBox mb(this, tr.translate("Deleting $1",menu->selLink()->getTitle().c_str(),NULL)+"\n"+tr["Are you sure?"], menu->selLink()->getIconPath());
+		MessageBox mb(this, tr.translate("Deleting $1", menu->selLink()->getTitle().c_str(), NULL) + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
 		mb.setButton(CONFIRM, tr["Yes"]);
 		mb.setButton(CANCEL,  tr["No"]);
 		if (mb.exec() == CONFIRM) {
