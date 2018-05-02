@@ -514,10 +514,6 @@ void GMenu2X::initMenu() {
 			menu->addActionLink(i,tr["Power"],MakeDelegate(this,&GMenu2X::poweroff),tr["Power options"],"skin:icons/exit.png");
 		}
 	}
-
-	DEBUG("menu->setLinkIndex( %d", confInt["link"]);
-
-
 	menu->setSectionIndex(confInt["section"]);
 	menu->setLinkIndex(confInt["link"]);
 	menu->loadIcons();
@@ -1152,12 +1148,12 @@ int GMenu2X::setBacklight(int val, bool popup) {
 bool GMenu2X::setSuspend(bool suspend) {
 	if(suspend) {
 		setBacklight(0);
-		printf("enter suspend mode\n");
-		printf("current backlight: %d\n", getBacklight());
+		INFO("enter suspend mode");
+		INFO("current backlight: %d", getBacklight());
 	} else{
 		setBacklight(max(10, confInt["backlight"]));
-		printf("exit from suspend mode\n");
-		printf("restore backlight: %d\n", confInt["backlight"]);
+		INFO("exit from suspend mode");
+		INFO("restore backlight: %d", confInt["backlight"]);
 		setClock(528);
 	}
 	return suspend;
@@ -1200,8 +1196,8 @@ void GMenu2X::main() {
 	// btnContextMenu->setAction(MakeDelegate(this, &GMenu2X::contextMenu));
 	exitMainThread = 0;
 	ret = pthread_create(&thread_id, NULL, mainThread, this);
-	if(ret) {
-		printf("%s, failed to create main thread\n", __func__);
+	if (ret) {
+		ERROR("%s, failed to create main thread\n", __func__);
 	}
 	setClock(528);
 
@@ -1309,14 +1305,14 @@ void GMenu2X::main() {
 			if (preMMCStatus != curMMCStatus) {
 				if (curMMCStatus == MMC_REMOVE) {
 					system("/usr/bin/umount_ext_sd.sh");
-					printf("%s, umount external sd from /mnt/ext_sd\n", __func__);
+					INFO("%s, umount external sd from /mnt/ext_sd", __func__);
 				}
 				else if(curMMCStatus == MMC_INSERT) {
 					system("/usr/bin/mount_ext_sd.sh");
-					printf("%s, mount external sd on /mnt/ext_sd\n", __func__);
+					INFO("%s, mount external sd on /mnt/ext_sd", __func__);
 				}
 				else {
-					printf("%s, unexpected mmc status !\n", __func__);
+					WARNING("%s, unexpected mmc status!", __func__);
 				}
 				preMMCStatus = curMMCStatus;
 			}
@@ -1378,10 +1374,10 @@ void GMenu2X::main() {
 				if (curUDCStatus == UDC_REMOVE) {
 					if (needUSBUmount) {
 						system("/usr/bin/usb_disconn_int_sd.sh");
-						printf("%s, disconnect usbdisk for internal sd\n", __func__);
+						INFO("%s, disconnect usbdisk for internal sd", __func__);
 						if (curMMCStatus == MMC_INSERT) {
 							system("/usr/bin/usb_disconn_ext_sd.sh");
-							printf("%s, disconnect usbdisk for external sd\n", __func__);
+							INFO("%s, disconnect usbdisk for external sd", __func__);
 						}
 						needUSBUmount = 0;
 					}
@@ -1393,20 +1389,19 @@ void GMenu2X::main() {
 					if (mb.exec() == CONFIRM) {
 						needUSBUmount = 1;
 						system("/usr/bin/usb_conn_int_sd.sh");
-						printf("%s, connect usbdisk for internal sd\n", __func__);
+						INFO("%s, connect usbdisk for internal sd", __func__);
 						if (curMMCStatus == MMC_INSERT) {
 							system("/usr/bin/usb_conn_ext_sd.sh");
-							printf("%s, connect usbdisk for external sd\n", __func__);
+							INFO("%s, connect usbdisk for external sd", __func__);
 						}
 					}
 				}
 				else {
-					printf("%s, unexpected usb status !\n", __func__);
+					WARNING("%s, unexpected usb status!", __func__);
 				}
 				preUDCStatus = curUDCStatus;
 			}
 		}
-
 		s->flip();
 
 // #if defined(TARGET_RS97)
@@ -1794,16 +1789,16 @@ void GMenu2X::main() {
 		int fd = open("/mnt/game/gmenu2x/tvout", O_RDWR);
 		if(fd > 0){
 			read(fd, buf, sizeof(buf));
-			printf("current tvout value: %s\n", buf);
+			INFO("current tvout value: %s", buf);
 			if(memcmp(buf, "1", 1) == 0){
 				tvout = 0;
 				sprintf(buf, "0");
-				printf("turn off tvout\n");
+				INFO("turn off tvout");
 			}
 			else{
 				tvout = 1;
 				sprintf(buf, "1");
-				printf("turn on tvout\n");
+				INFO("turn on tvout");
 			}
 			lseek(fd, 0, SEEK_SET);
 			write(fd, buf, 1);
@@ -1815,12 +1810,12 @@ void GMenu2X::main() {
 			sprintf(buf, "1");
 			write(fd, buf, 1);
 			close(fd);
-			printf("create new tvout file\n");
+			INFO("create new tvout file");
 		}
 
 		sprintf(buf, "/usr/bin/tvout.sh %d %d", tvout, confStr["tvoutEncoding"] == "PAL" ? 1 : 2);
 		system(buf);
-		printf("run cmd: %s\n", buf);
+		INFO("run cmd: %s", buf);
 #endif
 	}
 
@@ -2613,7 +2608,7 @@ void GMenu2X::setClock(unsigned mhz) {
 		#define CPPCR     (0x10 >> 2)
 		unsigned long m = mhz / 6;
 		memregs[CPPCR] = (m << 24) | 0x090520;
-		printf("set cpu clock: %d\n", mhz);
+		INFO("set cpu clock: %d", mhz);
 
 #elif defined(TARGET_GP2X)
 		unsigned v;
