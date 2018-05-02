@@ -1180,7 +1180,7 @@ void GMenu2X::main() {
 	uint i;
 	unsigned long tickSuspend = 0, tickPowerOff = 0, tickBattery = -4800, tickNow, tickMMC = 0, tickUSB = 0;
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
-	string prevBackdrop = "bgmain", currBackdrop = "bgmain";
+	string prevBackdrop = "bgmain", currBackdrop = confStr["wallpaper"];
 	// char backlightMsg[16]={0};
 	stringstream ss;
 	// uint sectionsCoordX = 24;
@@ -1325,11 +1325,11 @@ void GMenu2X::main() {
 		}
 
 		currBackdrop = confStr["wallpaper"];
-		if (menu->selLink()!=NULL) {
-			if (menu->selLinkApp()!=NULL) {
-				if (!menu->selLinkApp()->getBackdrop().empty() && fileExists(menu->selLinkApp()->getBackdrop())) {
-					currBackdrop = menu->selLinkApp()->getBackdrop();
-				} 
+		if (menu->selLink() != NULL) {
+			if (menu->selLinkApp() != NULL) {
+				if (!menu->selLinkApp()->getBackdrop().empty() && sc.add(menu->selLinkApp()->getBackdrop()) != NULL) {
+						currBackdrop = menu->selLinkApp()->getBackdrop();
+				}
 
 				if (!menu->selLinkApp()->getManual().empty() && iconTrayShift < 2) {
 					// Manual indicator

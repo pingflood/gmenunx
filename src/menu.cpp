@@ -143,7 +143,6 @@ int Menu::sectionNumItems() {
 	return gmenu2x->skinConfInt["sectionBarHeight"] > gmenu2x->skinConfInt["sectionBarWidth"] ? gmenu2x->skinConfInt["sectionBarHeight"]/gmenu2x->skinConfInt["sectionBarWidth"] : gmenu2x->skinConfInt["sectionBarWidth"]/gmenu2x->skinConfInt["sectionBarHeight"];
 }
 
-
 void Menu::setSectionIndex(int i) {
 	if (i < 0)
 		i = sections.size() - 1;
@@ -153,16 +152,10 @@ void Menu::setSectionIndex(int i) {
 
 	int numRows = sectionNumItems();
 	numRows -= 1;
-	WARNING("gmenu2x->skinConfInt[\"sectionBarHeight\"]: %d", gmenu2x->skinConfInt["sectionBarHeight"]);
-	WARNING("gmenu2x->skinConfInt[\"sectionBarWidth\"]: %d", gmenu2x->skinConfInt["sectionBarWidth"]);
-	WARNING("numRows: %d", numRows);
 	if ( i >= (int)iFirstDispSection + numRows)
 		iFirstDispSection = i - numRows;
 	else if ( i < (int)iFirstDispSection)
 		iFirstDispSection = i;
-
-	WARNING("iFirstDispSection: %d", iFirstDispSection);
-
 	iLink = 0;
 	iFirstDispRow = 0;
 }
