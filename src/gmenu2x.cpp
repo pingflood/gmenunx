@@ -1935,34 +1935,16 @@ void GMenu2X::main() {
 
 	void GMenu2X::contextMenu() {
 		vector<MenuOption> voices;
-		{
-			MenuOption opt = {tr.translate("Add link in $1", menu->selSection().c_str(), NULL), MakeDelegate(this, &GMenu2X::addLink)};
-			voices.push_back(opt);
-		}
 
+		voices.push_back((MenuOption){tr.translate("Add link in $1", menu->selSection().c_str(), NULL), MakeDelegate(this, &GMenu2X::addLink)});
 		if (menu->selLinkApp()!=NULL) {
-			{
-				MenuOption opt = {tr.translate("Edit $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::editLink)};
-				voices.push_back(opt);
-			}{
-				MenuOption opt = {tr.translate("Delete $1 link", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::deleteLink)};
-				voices.push_back(opt);
-			}
+			voices.push_back((MenuOption){tr.translate("Edit $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::editLink)});
+			voices.push_back((MenuOption){tr.translate("Delete $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::deleteLink)});
 		}
-
-		{
-			MenuOption opt = {tr["Add section"], MakeDelegate(this, &GMenu2X::addSection)};
-			voices.push_back(opt);
-		}{
-			MenuOption opt = {tr["Rename section"], MakeDelegate(this, &GMenu2X::renameSection)};
-			voices.push_back(opt);
-		}{
-			MenuOption opt = {tr["Delete section"], MakeDelegate(this, &GMenu2X::deleteSection)};
-			voices.push_back(opt);
-		}{
-			MenuOption opt = {tr["Link scanner"], MakeDelegate(this, &GMenu2X::scanner)};
-			voices.push_back(opt);
-		}
+		voices.push_back((MenuOption){tr["Add section"],	MakeDelegate(this, &GMenu2X::addSection)});
+		voices.push_back((MenuOption){tr["Rename section"],	MakeDelegate(this, &GMenu2X::renameSection)});
+		voices.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
+		voices.push_back((MenuOption){tr["Link scanner"],	MakeDelegate(this, &GMenu2X::scanner)});
 
 		bool close = false;
 		uint i, fadeAlpha=0;
