@@ -27,13 +27,13 @@ private:
 	int originalValue;
 	int *_value;
 	std::string strvalue;
-	int min, max, delta;
+	int def, min, max, delta;
 
 	void inc();
 	void dec();
 
 public:
-	MenuSettingInt(GMenu2X *gmenu2x, const std::string &name, const std::string &description, int *value, int min, int max, int delta=1);
+	MenuSettingInt(GMenu2X *gmenu2x, const std::string &name, const std::string &description, int *value, int def, int min, int max, int delta=1);
 	virtual ~MenuSettingInt() {};
 
 	virtual void manageInput();
@@ -42,6 +42,8 @@ public:
 	virtual bool edited();
 
 	virtual void setValue(int value);
+	virtual void setDefault();
+
 	int value();
 };
 

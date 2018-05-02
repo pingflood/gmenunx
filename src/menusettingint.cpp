@@ -27,12 +27,13 @@ using std::string;
 using std::stringstream;
 using fastdelegate::MakeDelegate;
 
-MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &name, const string &description, int *value, int min, int max, int delta)
+MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &name, const string &description, int *value, int def, int min, int max, int delta)
 	: MenuSetting(gmenu2x,name,description) {
 	IconButton *btn;
 
 	_value = value;
 	originalValue = *value;
+	this->def = def;
 	this->min = min;
 	this->max = max;
 	this->delta = delta;
@@ -57,6 +58,10 @@ MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &name, const strin
 	//btn = new IconButton(gmenu2x, "skin:imgs/buttons/x.png", gmenu2x->tr["Decrease value"]);
 	//btn->setAction(actionDec);
 	//buttonBox.add(btn);
+
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/b.png", gmenu2x->tr["Default"]);
+	btn->setAction(MakeDelegate(this, &MenuSettingInt::setDefault));
+	buttonBox.add(btn);
 }
 
 void MenuSettingInt::draw(int y) {
@@ -67,6 +72,7 @@ void MenuSettingInt::draw(int y) {
 void MenuSettingInt::manageInput() {
 	if ( gmenu2x->input[LEFT ] || gmenu2x->input[DEC] ) dec();
 	if ( gmenu2x->input[RIGHT] || gmenu2x->input[INC] ) inc();
+	if ( gmenu2x->input[CANCEL] ) setDefault();
 }
 
 void MenuSettingInt::inc() {
@@ -84,6 +90,11 @@ void MenuSettingInt::setValue(int value) {
 	strvalue = "";
 	ss >> strvalue;
 }
+
+void MenuSettingInt::setDefault() {
+	setValue(def);
+}
+
 
 int MenuSettingInt::value() {
 	return *_value;
