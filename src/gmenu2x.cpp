@@ -1176,7 +1176,7 @@ void GMenu2X::main() {
 	// int backlightOffset;
 	bool inputAction;
 	bool quit = false;
-	int x,y; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
+	int x = 0, y = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
 	uint i;
 	unsigned long tickSuspend = 0, tickPowerOff = 0, tickBattery = -4800, tickNow, tickMMC = 0, tickUSB = 0;
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
@@ -1227,41 +1227,43 @@ void GMenu2X::main() {
 
 		// s->setClipRect(skinConfInt["sectionBarX"],skinConfInt["sectionBarY"],skinConfInt["sectionBarWidth"],skinConfInt["sectionBarHeight"]); //32*2+10
 		s->box(0, 0, skinConfInt["sectionBarWidth"], resY, skinConfColors[COLOR_TOP_BAR_BG]);
-		s->setClipRect(0,0,skinConfInt["sectionBarWidth"],skinConfInt["sectionBarHeight"]); //32*2+10
+		// s->setClipRect(0,0,skinConfInt["sectionBarWidth"],skinConfInt["sectionBarHeight"]); //32*2+10
 
 		// SECTIONS
-		// sectionsCoordX = halfX - (constrain((uint)menu->getSections().size(), 0 , linkColumns) * (resX - skinConfInt["sectionBarWidth"])) / 2;
-		// sectionsCoordY = 0;//(constrain((uint)menu->getSections().size(), 0 , linkColumns) * skinConfInt["sectionBarHeight"]);// / 2;
-
-		// if (menu->firstDispSection()>0) sc.skinRes("imgs/l_enabled.png")->blit(s,0,0);
-		// else sc.skinRes("imgs/l_disabled.png")->blit(s,0,0);
-		// if (menu->firstDispSection()+linkColumns<menu->getSections().size()) sc.skinRes("imgs/r_enabled.png")->blit(s,resX-10,0);
-		// else sc.skinRes("imgs/r_disabled.png")->blit(s,resX-10,0);
-
-		// for (i=menu->firstDispSection(); i<menu->getSections().size() && i<menu->firstDispSection()+linkRows; i++) {
-		for (i=menu->firstDispSection(); i<menu->getSections().size(); i++) {
+		x = 0; y = 0; string sectionBarPosition = "left";
+		for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
 			string sectionIcon = "skin:sections/"+menu->getSections()[i]+".png";
 			if (!sc.exists(sectionIcon))
 				sectionIcon = "skin:icons/section.png";
 
-			y = (i-menu->firstDispSection())*skinConfInt["sectionBarWidth"]+sectionsCoordY;
+			if (sectionBarPosition == "left" || sectionBarPosition == "right") {
+				y = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
+
+				// // VERTICAL RIGHT
+				if (sectionBarPosition == "right")
+					x = resX - skinConfInt["sectionBarWidth"];
+			} else {
+				x = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
+
+				// HORIZONTAL BOTTOM
+				if (sectionBarPosition == "bottom")
+					y = resY - skinConfInt["sectionBarWidth"];
+			}
 
 			if (menu->selSectionIndex()==(int)i)
-				s->box(0, y, skinConfInt["sectionBarWidth"], skinConfInt["sectionBarWidth"], skinConfColors[COLOR_SELECTION_BG]);
+				s->box(x, y, skinConfInt["sectionBarWidth"], skinConfInt["sectionBarWidth"], skinConfColors[COLOR_SELECTION_BG]);
 
-			sc[sectionIcon]->blit(s,sectionLinkPadding,y+sectionLinkPadding,32,32);
-
-			y += skinConfInt["sectionBarWidth"];///2;
+			sc[sectionIcon]->blitCenter(s, x + skinConfInt["sectionBarWidth"]/2, y + skinConfInt["sectionBarWidth"]/2, skinConfInt["sectionBarWidth"], skinConfInt["sectionBarWidth"]);
 		}
 
 		// LINKS
 		s->setClipRect(linksRect);
 		s->box(linksRect, skinConfColors[COLOR_LIST_BG]);
 
-		for (i=menu->firstDispRow()*linkColumns; i<(menu->firstDispRow()*linkColumns)+linksPerPage && i<menu->sectionLinks()->size(); i++) {
-			int ir = i-menu->firstDispRow()*linkColumns;
-			x = skinConfInt["sectionBarWidth"]; //(ir%linkColumns)*(skinConfInt["linkWidth"]+linkSpacingX)+offset;
-			y = (ir%linkRows)*skinConfInt["linkItemHeight"]; //+skinConfInt["sectionBarY"];//ir/linkColumns*(skinConfInt["linkItemHeight"]+linkSpacingY)+skinConfInt["linkItemHeight"]+2;
+		x = skinConfInt["sectionBarWidth"]; y = 0; //(ir%linkColumns)*(skinConfInt["linkWidth"]+linkSpacingX)+offset;
+		for (i = menu->firstDispRow() * linkColumns; i < (menu->firstDispRow() * linkColumns) + linksPerPage && i < menu->sectionLinks()->size(); i++) {
+			int ir = i - menu->firstDispRow() * linkColumns;
+			y = (ir % linkRows) * skinConfInt["linkItemHeight"]; //+skinConfInt["sectionBarY"];//ir/linkColumns*(skinConfInt["linkItemHeight"]+linkSpacingY)+skinConfInt["linkItemHeight"]+2;
 
 			menu->sectionLinks()->at(i)->setPosition(x,y);
 

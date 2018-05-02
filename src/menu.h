@@ -55,6 +55,8 @@ public:
 	linklist *sectionLinks(int i = -1);
 
 	int selSectionIndex();
+	int sectionNumItems();
+
 	const string &selSection();
 	void decSectionIndex();
 	void incSectionIndex();
