@@ -48,8 +48,15 @@ MenuSettingBool::MenuSettingBool(GMenu2X *gmenu2x, const string &name, const str
 
 void MenuSettingBool::initButton()
 {
-	IconButton *btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Switch"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingBool::toggle));
+	IconButton *btn;
+	ButtonAction actionToggle = MakeDelegate(this, &MenuSettingBool::toggle);
+
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/left.png");
+	btn->setAction(actionToggle);
+	buttonBox.add(btn);
+
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change value"]);
+	btn->setAction(actionToggle);
 	buttonBox.add(btn);
 }
 
@@ -61,7 +68,7 @@ void MenuSettingBool::draw(int y)
 
 void MenuSettingBool::manageInput()
 {
-	if (gmenu2x->input[CONFIRM])
+	if (gmenu2x->input[CONFIRM] || gmenu2x->input[LEFT] || gmenu2x->input[RIGHT] )
 		toggle();
 }
 
