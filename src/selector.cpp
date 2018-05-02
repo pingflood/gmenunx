@@ -271,6 +271,10 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 				screens->at(i) = realdir+noext+".jpg";
 			else if (fileExists(realdir+noext+".png"))
 				screens->at(i) = realdir+noext+".png";
+			else if (fileExists(real_path(fl->getPath() + "/" + noext + ".png")))
+				screens->at(i) = real_path(fl->getPath() + "/" + noext + ".png");
+			else if (fileExists(real_path(fl->getPath() + "/" + noext + ".jpg")))
+				screens->at(i) = real_path(fl->getPath() + "/" + noext + ".jpg");
 			else
 				screens->at(i) = "";
 		}
