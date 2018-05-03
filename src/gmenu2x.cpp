@@ -656,13 +656,27 @@ void GMenu2X::batteryLogger() {
 
 	bg->blit(s,0,0);
 
-	// bg->box(2,2,8,8, strtorgba(skinConfStr["color1"]));
-	// bg->box(12,2,8,8, strtorgba(skinConfStr["color2"]));
-	// bg->box(22,2,8,8, strtorgba(skinConfStr["color3"]));
-	// bg->box(32,2,8,8, strtorgba(skinConfStr["color4"]));
-	// bg->box(42,2,8,8, strtorgba(skinConfStr["color5"]));
-	// bg->box(52,2,8,8, strtorgba(skinConfStr["color6"]));
-	// bg->box(62,2,8,8, strtorgba(skinConfStr["color7"]));
+// skinConfColor
+	// ConfIntHash::iterator endI = ;
+	int i = 0, j = 0;
+	for(ConfColorHash::iterator curr = skinConfColor.begin(); curr != skinConfColor.end(); curr++) {
+		i++;
+		if (i > 31) {
+			j++;
+			i=0;
+		}
+		if (j > 14) break;
+
+		DEBUG("COLOR: %d,%d %s = %d", i,j, curr->first.c_str(),  (unsigned short)curr->second.r);
+			// inf << curr->first << "=" << curr->second << endl;
+		bg->box(2+i*10,2+j*10,8,8, curr->second);
+		// bg->box(12,2,8,8, strtorgba(skinConfStr["color2"]));
+		// bg->box(22,2,8,8, strtorgba(skinConfStr["color3"]));
+		// bg->box(32,2,8,8, strtorgba(skinConfStr["color4"]));
+		// bg->box(42,2,8,8, strtorgba(skinConfStr["color5"]));
+		// bg->box(52,2,8,8, strtorgba(skinConfStr["color6"]));
+		// bg->box(62,2,8,8, strtorgba(skinConfStr["color7"]));
+	}
 
 	bg->flip();
 
@@ -1858,8 +1872,10 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 				if (value.length()>0) {
 					if (value.length()>1 && value.at(0)=='"' && value.at(value.length()-1)=='"')
 						skinConfStr[name] = value.substr(1,value.length()-2);
-					else if (value.at(0) == '#')
+					else if (value.at(0) == '#') {
+						skinConfColor[name] = strtorgba( value.substr(1,value.length()) );
 						skinConfColors[stringToColor(name)] = strtorgba( value.substr(1,value.length()) );
+					}
 					else
 						skinConfInt[name] = atoi(value.c_str());
 				}
