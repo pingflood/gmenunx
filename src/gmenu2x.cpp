@@ -398,23 +398,25 @@ void GMenu2X::quit() {
 }
 
 void GMenu2X::initBG(const string &imagePath) {
-	sc.del("bgmain");
+	// sc.del("bgmain");
 
 	if (bg != NULL) delete bg;
 
 	bg = new Surface(s);
 	bg->box(0,0,resX,resY,0,0,0);
 
-	if (!imagePath.empty() && fileExists(imagePath)) {
-		Surface wall(imagePath, false);
-		wall.blit(bg, 0, 0);
-	} else if (fileExists(confStr["wallpaper"])) {
-		Surface wall(confStr["wallpaper"], false);
-		wall.blit(bg, 0, 0);
+	if (!imagePath.empty() && sc.add(imagePath) != NULL) {
+		// Surface wall(imagePath, false);
+		// wall.blit(bg, 0, 0);
+		sc[imagePath]->blit(bg,0,0);
+	} else if (sc.add(confStr["wallpaper"]) != NULL) {
+		sc[confStr["wallpaper"]]->blit(bg,0,0);
+		// Surface wall(confStr["wallpaper"], false);
+		// wall.blit(bg, 0, 0);
 	}
 
-	Surface *bgmain = new Surface(bg);
-	sc.add(bgmain,"bgmain");
+	// Surface *bgmain = new Surface(bg);
+	// sc.add(bgmain,"bgmain");
 
 	//Surface sd("imgs/sd.png", confStr["skin"]);
 	// Surface cpu("imgs/cpu.png", confStr["skin"]);
@@ -1182,7 +1184,7 @@ void GMenu2X::main() {
 	uint i;
 	unsigned long tickSuspend = 0, tickPowerOff = 0, tickBattery = -4800, tickNow, tickMMC = 0, tickUSB = 0;
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
-	string prevBackdrop = "bgmain", currBackdrop = confStr["wallpaper"];
+	string prevBackdrop = confStr["wallpaper"], currBackdrop = confStr["wallpaper"];
 	// char backlightMsg[16]={0};
 	stringstream ss;
 	// uint sectionsCoordX = 24;
