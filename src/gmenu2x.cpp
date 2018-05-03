@@ -1242,7 +1242,6 @@ void GMenu2X::main() {
 		}
 		s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
 
-
 		for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
 			string sectionIcon = "skin:sections/"+menu->getSections()[i]+".png";
 			if (!sc.exists(sectionIcon))
