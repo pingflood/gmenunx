@@ -359,10 +359,9 @@ GMenu2X::GMenu2X() {
 	// bottomBarTextY = resY - (skinConfInt["bottomBarHeight"]/2) - 2; //10;
 	// bottomBarIconY = bottomBarTextY - 6; //10;
 
+	// LIST rect
 	listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
 
-	// LINKS rect
-	linksRect = (SDL_Rect){0, 0, resX, resY};
 }
 
 GMenu2X::~GMenu2X() {
@@ -414,6 +413,11 @@ void GMenu2X::initBG(const string &imagePath) {
 		// Surface wall(confStr["wallpaper"], false);
 		// wall.blit(bg, 0, 0);
 	}
+
+
+	// LINKS rect
+	linksRect = (SDL_Rect){0, 0, resX, resY};
+	sectionBarRect = (SDL_Rect){0, 0, resX, resY};
 
 	// Surface *bgmain = new Surface(bg);
 	// sc.add(bgmain,"bgmain");
@@ -1181,7 +1185,7 @@ void GMenu2X::main() {
 	unsigned short battlevel = 0; //getBatteryLevel();
 	// int battMsgWidth = (19*2);
 	pthread_t thread_id;
-	uint linksPerPage = linkColumns*linkRows;
+	// uint linksPerPage = linkColumns*linkRows;
 	// int linkSpacingX = (resX-10 - linkColumns*(resX - skinConfInt["sectionBarX"]))/linkColumns;
 	// int linkSpacingY = (resY-35 - skinConfInt["sectionBarY"] - linkRows*skinConfInt["sectionBarHeight"])/linkRows;
 	uint sectionLinkPadding = 4; //max(skinConfInt["sectionBarHeight"] - 32 - font->getHeight(), 0) / 3;
@@ -1217,7 +1221,6 @@ void GMenu2X::main() {
 	setClock(528);
 
 	// SDL_Rect sectionBarRect = {skinConfInt["sectionBarWidth"], 0, resX - skinConfInt["sectionBarWidth"], resY};
-	SDL_Rect sectionBarRect = {0, 0, resX, resY};
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();
@@ -1248,13 +1251,30 @@ void GMenu2X::main() {
 		// s->setClipRect(0,0,skinConfInt["sectionBarWidth"],skinConfInt["sectionBarHeight"]); //32*2+10
 
 		// SECTIONS
-		x = 0; y = 0; string sectionBarPosition = "left";
-		if (sectionBarPosition == "left" || sectionBarPosition == "right") {
-			sectionBarRect.x = (sectionBarPosition == "right")*(resX - skinConfInt["sectionBarWidth"]);
+		x = 0; y = 0; // string skinConfStr["sectionBarPosition"] = "Left";menu->
+		// menu->setSectionBarPosition("Bottom");
+		if (skinConfStr["sectionBarPosition"] == "Left" || skinConfStr["sectionBarPosition"] == "Right") {
+			sectionBarRect.x = (skinConfStr["sectionBarPosition"] == "Right")*(resX - skinConfInt["sectionBarWidth"]);
 			sectionBarRect.w = skinConfInt["sectionBarWidth"];
+				linksRect.w = resX - skinConfInt["sectionBarWidth"];
+
+				if (skinConfStr["sectionBarPosition"] == "Left") {
+					linksRect.x = skinConfInt["sectionBarWidth"];
+				} else {
+					// VERTICAL RIGHT
+					x = resX - skinConfInt["sectionBarWidth"];
+				}
 		} else {
-			sectionBarRect.y = (sectionBarPosition == "bottom")*(resY - skinConfInt["sectionBarWidth"]);
+			sectionBarRect.y = (skinConfStr["sectionBarPosition"] == "Bottom")*(resY - skinConfInt["sectionBarWidth"]);
 			sectionBarRect.h = skinConfInt["sectionBarWidth"];
+				linksRect.h = resY - skinConfInt["sectionBarWidth"];
+
+				if (skinConfStr["sectionBarPosition"] == "Top") {
+					linksRect.y = skinConfInt["sectionBarWidth"];
+				} else {
+					// HORIZONTAL BOTTOM
+					y = resY - skinConfInt["sectionBarWidth"];
+				}
 		}
 		s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
 
@@ -1263,27 +1283,10 @@ void GMenu2X::main() {
 			if (!sc.exists(sectionIcon))
 				sectionIcon = "skin:icons/section.png";
 
-			if (sectionBarPosition == "left" || sectionBarPosition == "right") {
+			if (skinConfStr["sectionBarPosition"] == "Left" || skinConfStr["sectionBarPosition"] == "Right") {
 				y = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
-				linksRect.w = resX - skinConfInt["sectionBarWidth"];
-
-				if (sectionBarPosition == "left") {
-					linksRect.x = skinConfInt["sectionBarWidth"];
-				} else {
-					// VERTICAL RIGHT
-					x = resX - skinConfInt["sectionBarWidth"];
-				}
-
 			} else {
 				x = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
-				linksRect.h = resY - skinConfInt["sectionBarWidth"];
-
-				if (sectionBarPosition == "top") {
-					linksRect.y = skinConfInt["sectionBarWidth"];
-				} else {
-					// HORIZONTAL BOTTOM
-					y = resY - skinConfInt["sectionBarWidth"];
-				}
 			}
 
 			if (menu->selSectionIndex()==(int)i)
@@ -1296,10 +1299,11 @@ void GMenu2X::main() {
 		s->setClipRect(linksRect);
 		s->box(linksRect, skinConfColors[COLOR_LIST_BG]);
 
+		linkRows = linksRect.h / skinConfInt["linkItemHeight"];
 		x = linksRect.x;
-		for (i = menu->firstDispRow() * linkColumns; i < (menu->firstDispRow() * linkColumns) + linksPerPage && i < menu->sectionLinks()->size(); i++) {
-			int ir = i - menu->firstDispRow() * linkColumns;
-			y = (ir % linkRows) * skinConfInt["linkItemHeight"] + linksRect.y; //+skinConfInt["sectionBarY"];//ir/linkColumns*(skinConfInt["linkItemHeight"]+linkSpacingY)+skinConfInt["linkItemHeight"]+2;
+		for (i = menu->firstDispRow(); i < menu->firstDispRow() + linkRows && i < menu->sectionLinks()->size(); i++) {
+			int ir = i - menu->firstDispRow();
+			y = (ir) * skinConfInt["linkItemHeight"] + linksRect.y; //+skinConfInt["sectionBarY"];//ir/linkColumns*(skinConfInt["linkItemHeight"]+linkSpacingY)+skinConfInt["linkItemHeight"]+2;
 
 			menu->sectionLinks()->at(i)->setPosition(x,y);
 
@@ -1307,7 +1311,6 @@ void GMenu2X::main() {
 				menu->sectionLinks()->at(i)->paintHover();
 			menu->sectionLinks()->at(i)->paint();
 		}
-
 		s->clearClipRect();
 
 		drawScrollBar(linkRows, menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1), menu->firstDispRow(), linksRect);
@@ -1685,7 +1688,7 @@ void GMenu2X::settingsOpen2x() {
 		writeConfigOpen2x();
 		switch(volumeMode) {
 			case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
-			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones);   break;
+			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones); break;
 			case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
 		}
 		setVolume(confInt["globalVolume"]);
@@ -1698,8 +1701,15 @@ void GMenu2X::skinMenu() {
 	fl_sk.browse();
 	string curSkin = confStr["skin"];
 
+	vector<string> sectionBarPosition;
+	sectionBarPosition.push_back("Left");
+	sectionBarPosition.push_back("Right");
+	sectionBarPosition.push_back("Top");
+	sectionBarPosition.push_back("Bottom");
+
 	SettingsDialog sd(this, input, ts, tr["Skin"], "skin:icons/skin.png");
 	sd.addSetting(new MenuSettingMultiString(this,tr["Skin"],tr["Set the skin used by GMenu2X"],&confStr["skin"],&fl_sk.getDirectories()));
+	// sd.addSetting(new MenuSettingMultiString(this,tr["Section Bar Postition"],tr["Set the position of the Section Bar"],&skinConfStr["sectionBarPosition"],&sectionBarPosition));
 	sd.addSetting(new MenuSettingRGBA(this,tr["Top Bar"],tr["Color of the top bar"],&skinConfColors[COLOR_TOP_BAR_BG]));
 	sd.addSetting(new MenuSettingRGBA(this,tr["List Body"],tr["Color of the list body"],&skinConfColors[COLOR_LIST_BG]));
 	sd.addSetting(new MenuSettingRGBA(this,tr["Bottom Bar"],tr["Color of the bottom bar"],&skinConfColors[COLOR_BOTTOM_BAR_BG]));
@@ -1717,7 +1727,9 @@ void GMenu2X::skinMenu() {
 			writeConfig();
 		}
 		font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
+
 		writeSkinConfig();
+		setSkin(confStr["skin"]);
 		initBG();
 	}
 }
@@ -1856,6 +1868,8 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 	skinConfColors[COLOR_FONT] = (RGBAColor){255,255,255,255};
 	skinConfColors[COLOR_FONT_OUTLINE] = (RGBAColor){0,0,0,200};
 
+	skinConfStr["sectionBarPosition"] == "Left";
+
 //load skin settings
 	string skinconfname = "skins/"+skin+"/skin.conf";
 	if (fileExists(skinconfname)) {
@@ -1888,7 +1902,7 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 	}
 
 	evalIntConf( &skinConfInt["topBarHeight"], 40, 32, resY);
-	evalIntConf( &skinConfInt["sectionBarHeight"], 200, 32, resY);
+	// evalIntConf( &skinConfInt["sectionBarHeight"], 200, 32, resY);
 	evalIntConf( &skinConfInt["sectionBarWidth"], 40, 32, resX);
 	evalIntConf( &skinConfInt["linkHeight"], 40, 32, resY);
 	evalIntConf( &skinConfInt["linkItemHeight"], 40, 32, resY);
@@ -1903,7 +1917,7 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 
 //recalculate some coordinates based on the new element sizes
 	linkColumns = 1;//(resX-10)/skinConfInt["linkWidth"];
-	linkRows = resY/skinConfInt["linkItemHeight"];
+	// linkRows = resY/skinConfInt["linkItemHeight"];
 
 	if (menu != NULL) menu->loadIcons();
 

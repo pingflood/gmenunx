@@ -182,7 +182,7 @@ public:
 	uint resX, resY, halfX, halfY;
 	// uint bottomBarIconY, bottomBarTextY
 	uint linkColumns, linkRows;
-	SDL_Rect listRect, linksRect;
+	SDL_Rect listRect, linksRect, sectionBarRect;
 	/*!
 	Retrieves the parent directory of GMenu2X.
 	This functions is used to initialize the "path" variable.
