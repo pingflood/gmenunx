@@ -1258,47 +1258,49 @@ void GMenu2X::main() {
 		// s->setClipRect(0,0,skinConfInt["sectionBarWidth"],skinConfInt["sectionBarHeight"]); //32*2+10
 
 		// SECTIONS
-		x = 0; y = 0;
-		if (confStr["sectionBarPosition"] == "Left" || confStr["sectionBarPosition"] == "Right") {
-			sectionBarRect.x = (confStr["sectionBarPosition"] == "Right")*(resX - skinConfInt["sectionBarWidth"]);
-			sectionBarRect.w = skinConfInt["sectionBarWidth"];
-				linksRect.w = resX - skinConfInt["sectionBarWidth"];
+		if (confStr["sectionBarPosition"] != "OFF") {
+				x = 0; y = 0;
+				if (confStr["sectionBarPosition"] == "Left" || confStr["sectionBarPosition"] == "Right") {
+					sectionBarRect.x = (confStr["sectionBarPosition"] == "Right")*(resX - skinConfInt["sectionBarWidth"]);
+					sectionBarRect.w = skinConfInt["sectionBarWidth"];
+						linksRect.w = resX - skinConfInt["sectionBarWidth"];
 
-				if (confStr["sectionBarPosition"] == "Left") {
-					linksRect.x = skinConfInt["sectionBarWidth"];
+						if (confStr["sectionBarPosition"] == "Left") {
+							linksRect.x = skinConfInt["sectionBarWidth"];
+						} else {
+							// VERTICAL RIGHT
+							x = resX - skinConfInt["sectionBarWidth"];
+						}
 				} else {
-					// VERTICAL RIGHT
-					x = resX - skinConfInt["sectionBarWidth"];
+					sectionBarRect.y = (confStr["sectionBarPosition"] == "Bottom")*(resY - skinConfInt["sectionBarWidth"]);
+					sectionBarRect.h = skinConfInt["sectionBarWidth"];
+						linksRect.h = resY - skinConfInt["sectionBarWidth"];
+
+						if (confStr["sectionBarPosition"] == "Top") {
+							linksRect.y = skinConfInt["sectionBarWidth"];
+						} else {
+							// HORIZONTAL BOTTOM
+							y = resY - skinConfInt["sectionBarWidth"];
+						}
 				}
-		} else {
-			sectionBarRect.y = (confStr["sectionBarPosition"] == "Bottom")*(resY - skinConfInt["sectionBarWidth"]);
-			sectionBarRect.h = skinConfInt["sectionBarWidth"];
-				linksRect.h = resY - skinConfInt["sectionBarWidth"];
+				s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
 
-				if (confStr["sectionBarPosition"] == "Top") {
-					linksRect.y = skinConfInt["sectionBarWidth"];
-				} else {
-					// HORIZONTAL BOTTOM
-					y = resY - skinConfInt["sectionBarWidth"];
+				for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
+					string sectionIcon = "skin:sections/"+menu->getSections()[i]+".png";
+					if (!sc.exists(sectionIcon))
+						sectionIcon = "skin:icons/section.png";
+
+					if (confStr["sectionBarPosition"] == "Left" || confStr["sectionBarPosition"] == "Right") {
+						y = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
+					} else {
+						x = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
+					}
+
+					if (menu->selSectionIndex()==(int)i)
+						s->box(x, y, skinConfInt["sectionBarWidth"], skinConfInt["sectionBarWidth"], skinConfColors[COLOR_SELECTION_BG]);
+
+					sc[sectionIcon]->blitCenter(s, x + skinConfInt["sectionBarWidth"]/2, y + skinConfInt["sectionBarWidth"]/2, skinConfInt["sectionBarWidth"], skinConfInt["sectionBarWidth"]);
 				}
-		}
-		s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
-
-		for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
-			string sectionIcon = "skin:sections/"+menu->getSections()[i]+".png";
-			if (!sc.exists(sectionIcon))
-				sectionIcon = "skin:icons/section.png";
-
-			if (confStr["sectionBarPosition"] == "Left" || confStr["sectionBarPosition"] == "Right") {
-				y = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
-			} else {
-				x = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
-			}
-
-			if (menu->selSectionIndex()==(int)i)
-				s->box(x, y, skinConfInt["sectionBarWidth"], skinConfInt["sectionBarWidth"], skinConfColors[COLOR_SELECTION_BG]);
-
-			sc[sectionIcon]->blitCenter(s, x + skinConfInt["sectionBarWidth"]/2, y + skinConfInt["sectionBarWidth"]/2, skinConfInt["sectionBarWidth"], skinConfInt["sectionBarWidth"]);
 		}
 
 		// LINKS
@@ -1332,6 +1334,61 @@ void GMenu2X::main() {
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38 + 1 * 20, sectionBarRect.y + sectionBarRect.h - 18,16,16, strtorgba("00ff00ff"));
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("0000ffff"));
 		// s->box(sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("ff00ffff"));
+		if(tickNow - tickMMC >= 1000) {
+			tickMMC = tickNow;
+			curMMCStatus = getMMCStatus();
+			if (preMMCStatus != curMMCStatus) {
+				if (curMMCStatus == MMC_REMOVE) {
+					system("/usr/bin/umount_ext_sd.sh");
+					INFO("%s: umount external SD from /mnt/ext_sd", __func__);
+				}
+				else if(curMMCStatus == MMC_INSERT) {
+					system("/usr/bin/mount_ext_sd.sh");
+					INFO("%s: mount external SD on /mnt/ext_sd", __func__);
+				}
+				else {
+					WARNING("%s: unexpected MMC status!", __func__);
+				}
+				preMMCStatus = curMMCStatus;
+			}
+		}
+		if (tickNow - tickUSB >= 1000) {
+			tickUSB = tickNow;
+			curUDCStatus = getUDCStatus();
+			if (preUDCStatus != curUDCStatus) {
+				if (curUDCStatus == UDC_REMOVE) {
+					if (needUSBUmount) {
+						system("/usr/bin/usb_disconn_int_sd.sh");
+						INFO("%s, disconnect usbdisk for internal sd", __func__);
+						if (curMMCStatus == MMC_INSERT) {
+							system("/usr/bin/usb_disconn_ext_sd.sh");
+							INFO("%s, disconnect USB disk for external SD", __func__);
+						}
+						needUSBUmount = 0;
+					}
+				}
+				else if(curUDCStatus == UDC_CONNECT) {
+					MessageBox mb(this, tr["Which action do you want ?"], "icons/usb.png");
+					mb.setButton(CONFIRM, tr["USB disk"]);
+					mb.setButton(CANCEL,  tr["Charge only"]);
+					if (mb.exec() == CONFIRM) {
+						needUSBUmount = 1;
+						system("/usr/bin/usb_conn_int_sd.sh");
+						INFO("%s, connect USB disk for internal SD", __func__);
+						if (curMMCStatus == MMC_INSERT) {
+							system("/usr/bin/usb_conn_ext_sd.sh");
+							INFO("%s, connect USB disk for external SD", __func__);
+						}
+					}
+				}
+				else {
+					WARNING("%s, unexpected USB status!", __func__);
+				}
+				preUDCStatus = curUDCStatus;
+			}
+		}
+
+
 
 		// TRAY 0,0
 		switch(volumeMode) {
@@ -1355,24 +1412,6 @@ void GMenu2X::main() {
 		}
 		sc.skinRes(batteryIcon)->blit(s, sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38);
 
-		if(tickNow - tickMMC >= 1000) {
-			tickMMC = tickNow;
-			curMMCStatus = getMMCStatus();
-			if (preMMCStatus != curMMCStatus) {
-				if (curMMCStatus == MMC_REMOVE) {
-					system("/usr/bin/umount_ext_sd.sh");
-					INFO("%s: umount external SD from /mnt/ext_sd", __func__);
-				}
-				else if(curMMCStatus == MMC_INSERT) {
-					system("/usr/bin/mount_ext_sd.sh");
-					INFO("%s: mount external SD on /mnt/ext_sd", __func__);
-				}
-				else {
-					WARNING("%s: unexpected MMC status!", __func__);
-				}
-				preMMCStatus = curMMCStatus;
-			}
-		}
 
 		// TRAY iconTrayShift,1
 		int iconTrayShift = 0;
@@ -1423,41 +1462,7 @@ void GMenu2X::main() {
 			iconTrayShift++;
 		}
 
-		if (tickNow - tickUSB >= 1000) {
-			tickUSB = tickNow;
-			curUDCStatus = getUDCStatus();
-			if (preUDCStatus != curUDCStatus) {
-				if (curUDCStatus == UDC_REMOVE) {
-					if (needUSBUmount) {
-						system("/usr/bin/usb_disconn_int_sd.sh");
-						INFO("%s, disconnect usbdisk for internal sd", __func__);
-						if (curMMCStatus == MMC_INSERT) {
-							system("/usr/bin/usb_disconn_ext_sd.sh");
-							INFO("%s, disconnect USB disk for external SD", __func__);
-						}
-						needUSBUmount = 0;
-					}
-				}
-				else if(curUDCStatus == UDC_CONNECT) {
-					MessageBox mb(this, tr["Which action do you want ?"], "icons/usb.png");
-					mb.setButton(CONFIRM, tr["USB disk"]);
-					mb.setButton(CANCEL,  tr["Charge only"]);
-					if (mb.exec() == CONFIRM) {
-						needUSBUmount = 1;
-						system("/usr/bin/usb_conn_int_sd.sh");
-						INFO("%s, connect USB disk for internal SD", __func__);
-						if (curMMCStatus == MMC_INSERT) {
-							system("/usr/bin/usb_conn_ext_sd.sh");
-							INFO("%s, connect USB disk for external SD", __func__);
-						}
-					}
-				}
-				else {
-					WARNING("%s, unexpected USB status!", __func__);
-				}
-				preUDCStatus = curUDCStatus;
-			}
-		}
+
 		s->flip();
 
 		if (inputAction == 0) {
@@ -1646,6 +1651,7 @@ void GMenu2X::options() {
 	sectionBarPosition.push_back("Right");
 	sectionBarPosition.push_back("Top");
 	sectionBarPosition.push_back("Bottom");
+	sectionBarPosition.push_back("OFF");
 
 	SettingsDialog sd(this, input, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
