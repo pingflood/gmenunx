@@ -782,6 +782,11 @@ void GMenu2X::batteryLogger() {
 
 void GMenu2X::readConfig() {
 	string conffile = path+"gmenu2x.conf";
+
+	// Defaults
+	confStr["batteryType"] = "BL-5B";
+	confStr["sectionBarPosition"] = "Left";
+
 	if (fileExists(conffile)) {
 		ifstream inf(conffile.c_str(), ios_base::in);
 		if (inf.is_open()) {
@@ -803,7 +808,6 @@ void GMenu2X::readConfig() {
 	if (!confStr["lang"].empty()) tr.setLang(confStr["lang"]);
 	if (!confStr["wallpaper"].empty() && !fileExists(confStr["wallpaper"])) confStr["wallpaper"] = "";
 	if (confStr["skin"].empty() || !dirExists("skins/"+confStr["skin"])) confStr["skin"] = "Default";
-	if (confStr["batteryType"].empty()) confStr["batteryType"] = "BL-5B";
 
 	// evalIntConf( &confInt["batteryLog"], 0, 0, 1 );
 	evalIntConf( &confInt["backlightTimeout"], 30, 10, 300);
@@ -916,7 +920,6 @@ void GMenu2X::writeSkinConfig() {
 			<< hex << setw(2) << setfill('0') << right << (unsigned short)skinConfColors[i].b
 			<< hex << setw(2) << setfill('0') << right << (unsigned short)skinConfColors[i].a << endl;
 		}
-
 
 		inf.close();
 		sync();
@@ -1251,25 +1254,24 @@ void GMenu2X::main() {
 		// s->setClipRect(0,0,skinConfInt["sectionBarWidth"],skinConfInt["sectionBarHeight"]); //32*2+10
 
 		// SECTIONS
-		x = 0; y = 0; // string skinConfStr["sectionBarPosition"] = "Left";menu->
-		// menu->setSectionBarPosition("Bottom");
-		if (skinConfStr["sectionBarPosition"] == "Left" || skinConfStr["sectionBarPosition"] == "Right") {
-			sectionBarRect.x = (skinConfStr["sectionBarPosition"] == "Right")*(resX - skinConfInt["sectionBarWidth"]);
+		x = 0; y = 0;
+		if (confStr["sectionBarPosition"] == "Left" || confStr["sectionBarPosition"] == "Right") {
+			sectionBarRect.x = (confStr["sectionBarPosition"] == "Right")*(resX - skinConfInt["sectionBarWidth"]);
 			sectionBarRect.w = skinConfInt["sectionBarWidth"];
 				linksRect.w = resX - skinConfInt["sectionBarWidth"];
 
-				if (skinConfStr["sectionBarPosition"] == "Left") {
+				if (confStr["sectionBarPosition"] == "Left") {
 					linksRect.x = skinConfInt["sectionBarWidth"];
 				} else {
 					// VERTICAL RIGHT
 					x = resX - skinConfInt["sectionBarWidth"];
 				}
 		} else {
-			sectionBarRect.y = (skinConfStr["sectionBarPosition"] == "Bottom")*(resY - skinConfInt["sectionBarWidth"]);
+			sectionBarRect.y = (confStr["sectionBarPosition"] == "Bottom")*(resY - skinConfInt["sectionBarWidth"]);
 			sectionBarRect.h = skinConfInt["sectionBarWidth"];
 				linksRect.h = resY - skinConfInt["sectionBarWidth"];
 
-				if (skinConfStr["sectionBarPosition"] == "Top") {
+				if (confStr["sectionBarPosition"] == "Top") {
 					linksRect.y = skinConfInt["sectionBarWidth"];
 				} else {
 					// HORIZONTAL BOTTOM
@@ -1283,7 +1285,7 @@ void GMenu2X::main() {
 			if (!sc.exists(sectionIcon))
 				sectionIcon = "skin:icons/section.png";
 
-			if (skinConfStr["sectionBarPosition"] == "Left" || skinConfStr["sectionBarPosition"] == "Right") {
+			if (confStr["sectionBarPosition"] == "Left" || confStr["sectionBarPosition"] == "Right") {
 				y = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
 			} else {
 				x = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
@@ -1301,9 +1303,15 @@ void GMenu2X::main() {
 
 		linkRows = linksRect.h / skinConfInt["linkItemHeight"];
 		x = linksRect.x;
+		// for (i = menu->firstDispRow() * linkColumns; i < (menu->firstDispRow() * linkColumns) && i < menu->sectionLinks()->size(); i++) {
+		// for (i = menu->firstDispRow() * linkColumns; i < (menu->firstDispRow() * linkColumns) + linksPerPage && i < menu->sectionLinks()->size(); i++) {
+		// for (i = menu->firstDispRow() * linkColumns; i < (menu->firstDispRow() * linkColumns) + linkRows && i < menu->sectionLinks()->size(); i++) {
 		for (i = menu->firstDispRow(); i < menu->firstDispRow() + linkRows && i < menu->sectionLinks()->size(); i++) {
-			int ir = i - menu->firstDispRow();
-			y = (ir) * skinConfInt["linkItemHeight"] + linksRect.y; //+skinConfInt["sectionBarY"];//ir/linkColumns*(skinConfInt["linkItemHeight"]+linkSpacingY)+skinConfInt["linkItemHeight"]+2;
+			// int ir = i - menu->firstDispRow();
+			int ir = i - menu->firstDispRow() * linkColumns;
+
+			// y = (ir) * skinConfInt["linkItemHeight"] + linksRect.y; //+skinConfInt["sectionBarY"];//ir/linkColumns*(skinConfInt["linkItemHeight"]+linkSpacingY)+skinConfInt["linkItemHeight"]+2;
+			y = (ir % linkRows) * skinConfInt["linkItemHeight"] + linksRect.y; //+skinConfInt["sectionBarY"];//ir/linkColumns*(skinConfInt["linkItemHeight"]+linkSpacingY)+skinConfInt["linkItemHeight"]+2;
 
 			menu->sectionLinks()->at(i)->setPosition(x,y);
 
@@ -1627,10 +1635,20 @@ void GMenu2X::options() {
 	batteryType.push_back("BL-5B");
 	batteryType.push_back("Linear");
 
+	int prevSkinBackdrops = confInt["skinBackdrops"];
+
+	vector<string> sectionBarPosition;
+	sectionBarPosition.push_back("Left");
+	sectionBarPosition.push_back("Right");
+	sectionBarPosition.push_back("Top");
+	sectionBarPosition.push_back("Bottom");
+
 	SettingsDialog sd(this, input, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
 	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Set the screen timeout and suspend delay"], &confInt["backlightTimeout"], 30, 10, 300));
 	sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
+	sd.addSetting(new MenuSettingBool(this, tr["Skin Backdrops"], tr["Automatic load of backdrops from skin pack"], &confInt["skinBackdrops"]));
+	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &confStr["sectionBarPosition"], &sectionBarPosition));
 
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
 #ifdef TARGET_GP2X
@@ -1652,6 +1670,15 @@ void GMenu2X::options() {
 	if (sd.exec() && sd.edited()) {
 	//G
 		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
+
+
+
+
+
+
+
+
+		setGamma(confInt["gamma"]);
 		if (curMenuClock!=confInt["menuClock"]) {
 			setClock(confInt["menuClock"]);
 		}
@@ -1666,7 +1693,17 @@ void GMenu2X::options() {
 		if (confStr["lang"] != lang) {
 			confStr["lang"] = lang;
 		}
+
 		writeConfig();
+		if (prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) {
+			// menu->loadIcons();
+			quit();
+			WARNING("Re-launching gmenu2x");
+			chdir(getExePath().c_str());
+			execlp("./gmenu2x", "./gmenu2x", NULL);
+			// menu->loadIcons();
+
+		}
 	}
 }
 
@@ -1701,25 +1738,19 @@ void GMenu2X::skinMenu() {
 	fl_sk.browse();
 	string curSkin = confStr["skin"];
 
-	vector<string> sectionBarPosition;
-	sectionBarPosition.push_back("Left");
-	sectionBarPosition.push_back("Right");
-	sectionBarPosition.push_back("Top");
-	sectionBarPosition.push_back("Bottom");
 
 	SettingsDialog sd(this, input, ts, tr["Skin"], "skin:icons/skin.png");
-	sd.addSetting(new MenuSettingMultiString(this,tr["Skin"],tr["Set the skin used by GMenu2X"],&confStr["skin"],&fl_sk.getDirectories()));
-	// sd.addSetting(new MenuSettingMultiString(this,tr["Section Bar Postition"],tr["Set the position of the Section Bar"],&skinConfStr["sectionBarPosition"],&sectionBarPosition));
-	sd.addSetting(new MenuSettingRGBA(this,tr["Top Bar"],tr["Color of the top bar"],&skinConfColors[COLOR_TOP_BAR_BG]));
-	sd.addSetting(new MenuSettingRGBA(this,tr["List Body"],tr["Color of the list body"],&skinConfColors[COLOR_LIST_BG]));
-	sd.addSetting(new MenuSettingRGBA(this,tr["Bottom Bar"],tr["Color of the bottom bar"],&skinConfColors[COLOR_BOTTOM_BAR_BG]));
-	sd.addSetting(new MenuSettingRGBA(this,tr["Selection"],tr["Color of the selection and other interface details"],&skinConfColors[COLOR_SELECTION_BG]));
-	sd.addSetting(new MenuSettingRGBA(this,tr["Message Box"],tr["Background color of the message box"],&skinConfColors[COLOR_MESSAGE_BOX_BG]));
-	sd.addSetting(new MenuSettingRGBA(this,tr["Message Box Border"],tr["Border color of the message box"],&skinConfColors[COLOR_MESSAGE_BOX_BORDER]));
-	sd.addSetting(new MenuSettingRGBA(this,tr["Message Box Selection"],tr["Color of the selection of the message box"],&skinConfColors[COLOR_MESSAGE_BOX_SELECTION]));
-	sd.addSetting(new MenuSettingRGBA(this,tr["Font"],tr["Color of the font"],&skinConfColors[COLOR_FONT]));
-	sd.addSetting(new MenuSettingRGBA(this,tr["Font Outline"],tr["Color of the font's outline"],&skinConfColors[COLOR_FONT_OUTLINE]));
-// sd.addSetting(new MenuSettingRGBA(this,tr["Bottom Bar Font Color"],tr["Color of the font"],&skinConfColors[COLOR_BOTTOM_BAR_FONT]));
+	sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories()));
+	sd.addSetting(new MenuSettingRGBA(this, tr["Top Bar"], tr["Color of the top bar"], &skinConfColors[COLOR_TOP_BAR_BG]));
+	sd.addSetting(new MenuSettingRGBA(this, tr["List Body"], tr["Color of the list body"], &skinConfColors[COLOR_LIST_BG]));
+	sd.addSetting(new MenuSettingRGBA(this, tr["Bottom Bar"], tr["Color of the bottom bar"], &skinConfColors[COLOR_BOTTOM_BAR_BG]));
+	sd.addSetting(new MenuSettingRGBA(this, tr["Selection"], tr["Color of the selection and other interface details"], &skinConfColors[COLOR_SELECTION_BG]));
+	sd.addSetting(new MenuSettingRGBA(this, tr["Message Box"], tr["Background color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BG]));
+	sd.addSetting(new MenuSettingRGBA(this, tr["Message Box Border"], tr["Border color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BORDER]));
+	sd.addSetting(new MenuSettingRGBA(this, tr["Message Box Selection"], tr["Color of the selection of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_SELECTION]));
+	sd.addSetting(new MenuSettingRGBA(this, tr["Font"], tr["Color of the font"], &skinConfColors[COLOR_FONT]));
+	sd.addSetting(new MenuSettingRGBA(this, tr["Font Outline"], tr["Color of the font's outline"], &skinConfColors[COLOR_FONT_OUTLINE]));
+// sd.addSetting(new MenuSettingRGBA(this, tr["Bottom Bar Font Color"], tr["Color of the font"], &skinConfColors[COLOR_BOTTOM_BAR_FONT]));
 
 	if (sd.exec() && sd.edited()) {
 		if (curSkin != confStr["skin"]) {
@@ -1729,7 +1760,7 @@ void GMenu2X::skinMenu() {
 		font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
 
 		writeSkinConfig();
-		setSkin(confStr["skin"]);
+		// setSkin(confStr["skin"]);
 		initBG();
 	}
 }
@@ -1868,8 +1899,6 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 	skinConfColors[COLOR_FONT] = (RGBAColor){255,255,255,255};
 	skinConfColors[COLOR_FONT_OUTLINE] = (RGBAColor){0,0,0,200};
 
-	skinConfStr["sectionBarPosition"] == "Left";
-
 //load skin settings
 	string skinconfname = "skins/"+skin+"/skin.conf";
 	if (fileExists(skinconfname)) {
@@ -1916,8 +1945,11 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 	evalIntConf( &skinConfInt["titleFontSize"], 14, 6, 60);
 
 //recalculate some coordinates based on the new element sizes
-	linkColumns = 1;//(resX-10)/skinConfInt["linkWidth"];
 	// linkRows = resY/skinConfInt["linkItemHeight"];
+	// needed until refactor menu.cpp
+	linkColumns = 1;//(resX-10)/skinConfInt["linkWidth"];
+	linkRows = resY / skinConfInt["linkItemHeight"];
+	// linkRows = linksRect.h / skinConfInt["linkItemHeight"];
 
 	if (menu != NULL) menu->loadIcons();
 

@@ -58,6 +58,7 @@ private:
 public:
 	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* linkfile);
 	virtual const string &searchIcon();
+	virtual const string &searchBackdrop();
 
 	const string &getExec();
 	void setExec(const string &exec);

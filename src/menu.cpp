@@ -86,6 +86,8 @@ void Menu::loadIcons() {
 			sectionLinks(i)->at(x)->updateSurfaces();
 			LinkApp *linkapp = dynamic_cast<LinkApp*>(sectionLinks(i)->at(x));
 
+			if (linkapp != NULL) linkapp->searchBackdrop();
+
 			if (linkIcon.substr(0,5)=="skin:") {
 				linkIcon = gmenu2x->sc.getSkinFilePath(linkIcon.substr(5,linkIcon.length()));
 				if (linkapp != NULL && !fileExists(linkIcon))
@@ -140,7 +142,7 @@ const string &Menu::selSection() {
 }
 
 int Menu::sectionNumItems() {
-	return gmenu2x->skinConfStr["sectionBarPosition"] == "Top" || gmenu2x->skinConfStr["sectionBarPosition"] == "Bottom" ? (gmenu2x->resX - 40)/gmenu2x->skinConfInt["sectionBarWidth"] : (gmenu2x->resY - 40)/gmenu2x->skinConfInt["sectionBarWidth"];
+	return gmenu2x->confStr["sectionBarPosition"] == "Top" || gmenu2x->confStr["sectionBarPosition"] == "Bottom" ? (gmenu2x->resX - 40)/gmenu2x->skinConfInt["sectionBarWidth"] : (gmenu2x->resY - 40)/gmenu2x->skinConfInt["sectionBarWidth"];
 }
 
 void Menu::setSectionIndex(int i) {
