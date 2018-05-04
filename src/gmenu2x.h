@@ -68,6 +68,8 @@ enum color {
 	COLOR_MESSAGE_BOX_SELECTION,
 	COLOR_FONT,
 	COLOR_FONT_OUTLINE,
+	COLOR_FONT_ALT,
+	COLOR_FONT_ALT_OUTLINE,
 
 	NUM_COLORS,
 };
@@ -222,7 +224,7 @@ public:
 	SurfaceCollection sc;
 	Translator tr;
 	Surface *s, *bg;
-	FontHelper *font, *titlefont, *bottombarfont;
+	FontHelper *font, *titlefont; //, *bottombarfont;
 
 	//Status functions
 	void main();

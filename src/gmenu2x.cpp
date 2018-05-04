@@ -98,7 +98,9 @@ static const char *colorNames[NUM_COLORS] = {
 	"messageBoxBorder",
 	"messageBoxSelection",
 	"font",
-	"fontOutline"
+	"fontOutline",
+	"fontAlt",
+	"fontAltOutline"
 };
 
 static enum color stringToColor(const string &name) {
@@ -374,7 +376,7 @@ GMenu2X::~GMenu2X() {
 	delete s;
 	delete font;
 	delete titlefont;
-	delete bottombarfont;
+	// delete bottombarfont;
 }
 
 void GMenu2X::quit() {
@@ -469,16 +471,16 @@ void GMenu2X::initFont() {
 		delete titlefont;
 		titlefont = NULL;
 	}
-	if (bottombarfont != NULL) {
-		delete bottombarfont;
-		bottombarfont = NULL;
-	}
+	// if (bottombarfont != NULL) {
+	// 	delete bottombarfont;
+	// 	bottombarfont = NULL;
+	// }
 
 	font = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
 	titlefont = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["titleFontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
 
 	// bottombarfont = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSize"], skinConfColors[COLOR_FONT_OUTLINE], skinConfColors[COLOR_FONT]);
-	bottombarfont = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
+	// bottombarfont = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
 }
 
 void GMenu2X::initMenu() {
@@ -646,8 +648,10 @@ void GMenu2X::batteryLogger() {
 	bool close = false;
 
 	drawTopBar(bg);
+	titlefont->setColor(skinConfColors[COLOR_FONT_ALT])->setOutlineColor(skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 	bg->write(titlefont, tr["Battery Logger"], 40, 4 + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
 	bg->write(font, tr["Log battery power to battery.csv"], 40, 38, HAlignLeft, VAlignBottom);
+	titlefont->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
 	sc.skinRes("icons/ebook.png")->blit(bg, 4, 4, 32, 32);
 
 	drawBottomBar(bg);
@@ -1744,6 +1748,9 @@ void GMenu2X::skinMenu() {
 	sd.addSetting(new MenuSettingRGBA(this, tr["Message Box Selection"], tr["Color of the selection of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_SELECTION]));
 	sd.addSetting(new MenuSettingRGBA(this, tr["Font"], tr["Color of the font"], &skinConfColors[COLOR_FONT]));
 	sd.addSetting(new MenuSettingRGBA(this, tr["Font Outline"], tr["Color of the font's outline"], &skinConfColors[COLOR_FONT_OUTLINE]));
+	sd.addSetting(new MenuSettingRGBA(this, tr["Alt Font"], tr["Color of the alternative font"], &skinConfColors[COLOR_FONT_ALT]));
+	sd.addSetting(new MenuSettingRGBA(this, tr["Alt Font Outline"], tr["Color of the alternative font outline"], &skinConfColors[COLOR_FONT_ALT_OUTLINE]));
+
 // sd.addSetting(new MenuSettingRGBA(this, tr["Bottom Bar Font Color"], tr["Color of the font"], &skinConfColors[COLOR_BOTTOM_BAR_FONT]));
 
 	if (sd.exec() && sd.edited()) {
@@ -1905,6 +1912,10 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 	skinConfColors[COLOR_FONT] = (RGBAColor){255,255,255,255};
 	skinConfColors[COLOR_FONT_OUTLINE] = (RGBAColor){0,0,0,200};
 
+	skinConfColors[COLOR_FONT] = (RGBAColor){0,0,0,0};
+	skinConfColors[COLOR_FONT_OUTLINE] = (RGBAColor){0,0,0,0};
+
+
 //load skin settings
 	string skinconfname = "skins/"+skin+"/skin.conf";
 	if (fileExists(skinconfname)) {
@@ -1935,6 +1946,10 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 				confStr["wallpaper"] = "skins/"+skin+"/wallpapers/"+skinConfStr["wallpaper"];
 		}
 	}
+
+// (poor) HACK: ensure font alt colors have a default value
+	if (skinConfColors[COLOR_FONT_ALT].a == 0) skinConfColors[COLOR_FONT_ALT] = skinConfColors[COLOR_FONT];
+	if (skinConfColors[COLOR_FONT_ALT_OUTLINE].a == 0) skinConfColors[COLOR_FONT_ALT_OUTLINE] = skinConfColors[COLOR_FONT_OUTLINE];
 
 	evalIntConf( &skinConfInt["topBarHeight"], 40, 32, resY);
 	// evalIntConf( &skinConfInt["sectionBarHeight"], 200, 32, resY);
@@ -2366,8 +2381,10 @@ void GMenu2X::scanner() {
 	initBG();
 
 	drawTopBar(bg);
+	titlefont->setColor(skinConfColors[COLOR_FONT_ALT])->setOutlineColor(skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 	bg->write(titlefont, tr["Link scanner"], 40, 4 + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
 	bg->write(font, tr["Scan for applications and games"], 40, 38, HAlignLeft, VAlignBottom);
+	titlefont->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
 	sc.skinRes("icons/configure.png")->blit(bg, 4, 4, 32, 32);
 
 	drawBottomBar(bg);
@@ -2827,7 +2844,9 @@ int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x
 	if (sc.skinRes("imgs/buttons/"+btn+".png") != NULL) {
 		sc["imgs/buttons/"+btn+".png"]->blit(s, x, y-7);
 		re.w = sc["imgs/buttons/"+btn+".png"]->raw->w+3;
-		s->write(bottombarfont, text, x+re.w, y, HAlignLeft, VAlignMiddle);
+		font->setColor(skinConfColors[COLOR_FONT_ALT])->setOutlineColor(skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+		s->write(font, text, x+re.w, y, HAlignLeft, VAlignMiddle);
+		font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
 		re.w += font->getTextWidth(text);
 	}
 	return x+re.w+6;
@@ -2839,7 +2858,9 @@ int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, 
 		x -= 16;
 		sc["imgs/buttons/"+btn+".png"]->blit(s, x, y-7);
 		x -= 3;
-		s->write(bottombarfont, text, x, y, HAlignRight, VAlignMiddle);
+		font->setColor(skinConfColors[COLOR_FONT_ALT])->setOutlineColor(skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+		s->write(font, text, x, y, HAlignRight, VAlignMiddle);
+		font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
 		return x-6-font->getTextWidth(text);
 	}
 	return x-6;
