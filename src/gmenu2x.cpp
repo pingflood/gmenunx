@@ -494,7 +494,7 @@ void GMenu2X::initMenu() {
 		else if (menu->getSections()[i]=="settings") {
 			menu->addActionLink(i, tr["Settings"], MakeDelegate(this, &GMenu2X::options), tr["Configure options"], "skin:icons/configure.png");
 			menu->addActionLink(i, tr["Skin"], MakeDelegate(this, &GMenu2X::skinMenu), tr["Configure skin"], "skin:icons/skin.png");
-			menu->addActionLink(i, tr["Wallpaper"], MakeDelegate(this, &GMenu2X::changeWallpaper), tr["Change wallpaper"], "skin:icons/wallpaper.png");
+			menu->addActionLink(i, tr["Wallpaper"], MakeDelegate(this, &GMenu2X::changeWallpaper), tr["Select an image to use as a wallpaper"], "skin:icons/wallpaper.png");
 #ifdef TARGET_GP2X
 			if (fwType=="open2x")
 				menu->addActionLink(i, "Open2x", MakeDelegate(this, &GMenu2X::settingsOpen2x), tr["Configure Open2x system settings"], "skin:icons/o2xconfigure.png");
@@ -1696,13 +1696,7 @@ void GMenu2X::options() {
 
 		writeConfig();
 		if (prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) {
-			// menu->loadIcons();
-			quit();
-			WARNING("Re-launching gmenu2x");
-			chdir(getExePath().c_str());
-			execlp("./gmenu2x", "./gmenu2x", NULL);
-			// menu->loadIcons();
-
+			restart();
 		}
 	}
 }
@@ -1800,6 +1794,18 @@ void GMenu2X::formatSd() {
 
 // void GMenu2X::reboot() {
 // }
+
+void GMenu2X::restart() {
+	MessageBox mb(this, tr["GMenuNext will restart to apply\nthe settings. Continue?"], "icons/exit.png");
+	mb.setButton(CONFIRM, tr["Restart"]);
+	mb.setButton(CANCEL,  tr["Cancel"]);
+	if (mb.exec() == CONFIRM) {
+		quit();
+		WARNING("Re-launching gmenu2x");
+		chdir(getExePath().c_str());
+		execlp("./gmenu2x", "./gmenu2x", NULL);
+	}
+}
 
 void GMenu2X::poweroff() {
 	MessageBox mb(this, tr["   Poweroff or reboot the device?   "], "icons/exit.png");

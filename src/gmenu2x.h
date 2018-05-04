@@ -228,6 +228,7 @@ public:
 	void main();
 	void options();
 	void settingsOpen2x();
+	void restart();
 	void poweroff();
 	// void toggleSpeaker();
 	void umountSd();

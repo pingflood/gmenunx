@@ -74,11 +74,11 @@ bool WallpaperDialog::exec()
 		gmenu2x->drawBottomBar(gmenu2x->s);
 
 		drawTitleIcon("icons/wallpaper.png",true);
-		writeTitle(gmenu2x->tr["Wallpaper selection"]);
-		writeSubTitle(gmenu2x->tr["Select an image from the list, to use as a wallpaper"]);
+		writeTitle(gmenu2x->tr["Wallpaper"]);
+		writeSubTitle(gmenu2x->tr["Select an image to use as a wallpaper"]);
 
 		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-		gmenu2x->drawButton(gmenu2x->s, "a", gmenu2x->tr["Select wallpaper"],
+		gmenu2x->drawButton(gmenu2x->s, "a", gmenu2x->tr["Select"],
 		gmenu2x->drawButton(gmenu2x->s, "b", gmenu2x->tr["Back"],5));
 
 		//Selection
