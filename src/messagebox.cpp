@@ -101,7 +101,10 @@ int MessageBox::exec() {
 	//icon+text
 	if (gmenu2x->sc[icon] != NULL)
 		gmenu2x->sc[icon]->blitCenter( gmenu2x->s, box.x+25, box.y+gmenu2x->font->getHeight()+7 );
-	gmenu2x->s->write( gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 10), gmenu2x->halfY-gmenu2x->font->getHalfHeight()/3, HAlignLeft, VAlignMiddle );
+
+	gmenu2x->font->setColor(gmenu2x->skinConfColors[COLOR_FONT_ALT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+	gmenu2x->s->write(gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 10), gmenu2x->halfY-gmenu2x->font->getHalfHeight()/3, HAlignLeft, VAlignMiddle);
+	gmenu2x->font->setColor(gmenu2x->skinConfColors[COLOR_FONT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_OUTLINE]);
 
 	if (this->autohide) {
 		gmenu2x->s->flip();

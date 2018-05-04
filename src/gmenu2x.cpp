@@ -2387,8 +2387,10 @@ void GMenu2X::scanner() {
 	drawTopBar(bg);
 	titlefont->setColor(skinConfColors[COLOR_FONT_ALT])->setOutlineColor(skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 	bg->write(titlefont, tr["Link scanner"], 40, 4 + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
-	bg->write(font, tr["Scan for applications and games"], 40, 38, HAlignLeft, VAlignBottom);
 	titlefont->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
+	font->setColor(skinConfColors[COLOR_FONT_ALT])->setOutlineColor(skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+	bg->write(font, tr["Scan for applications and games"], 40, 38, HAlignLeft, VAlignBottom);
+	font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
 	sc.skinRes("icons/configure.png")->blit(bg, 4, 4, 32, 32);
 
 	drawBottomBar(bg);
