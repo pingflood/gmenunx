@@ -1388,7 +1388,10 @@ void GMenu2X::main() {
 			}
 		}
 
-
+		currBackdrop = confStr["wallpaper"];
+		if (menu->selLink() != NULL && menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdrop().empty() && sc.add(menu->selLinkApp()->getBackdrop()) != NULL) {
+			currBackdrop = menu->selLinkApp()->getBackdrop();
+		}
 
 		// TRAY 0,0
 		switch(volumeMode) {
@@ -1420,13 +1423,8 @@ void GMenu2X::main() {
 			iconTrayShift++;
 		}
 
-		currBackdrop = confStr["wallpaper"];
 		if (menu->selLink() != NULL) {
 			if (menu->selLinkApp() != NULL) {
-				if (!menu->selLinkApp()->getBackdrop().empty() && sc.add(menu->selLinkApp()->getBackdrop()) != NULL) {
-						currBackdrop = menu->selLinkApp()->getBackdrop();
-				}
-
 				if (!menu->selLinkApp()->getManual().empty() && iconTrayShift < 2) {
 					// Manual indicator
 					sc.skinRes("imgs/manual.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
