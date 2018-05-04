@@ -50,13 +50,22 @@ InputDialog::InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr_,
 	selRow = 0;
 	keyboard.resize(7);
 
-	keyboard[0].push_back("abcdefghijklm");
-	keyboard[0].push_back("nopqrstuvwxyz");
-	keyboard[0].push_back("0123456789.  ");
 
-	keyboard[1].push_back("ABCDEFGHIJKLM");
-	keyboard[1].push_back("NOPQRSTUVWXYZ");
-	keyboard[1].push_back("_\"'`.,:;!?   ");
+	keyboard[0].push_back("qwertyuiop789");
+	keyboard[0].push_back(",asdfghjkl456");
+	keyboard[0].push_back(".zxcvbnm-0123");
+
+	keyboard[1].push_back("QWERTYUIOP-+=");
+	keyboard[1].push_back("@ASDFGHJKL'\"`");
+	keyboard[1].push_back("#ZXCVBNM_:;/?");
+
+	// keyboard[0].push_back("abcdefghijklm");
+	// keyboard[0].push_back("nopqrstuvwxyz");
+	// keyboard[0].push_back("0123456789.  ");
+
+	// keyboard[1].push_back("ABCDEFGHIJKLM");
+	// keyboard[1].push_back("NOPQRSTUVWXYZ");
+	// keyboard[1].push_back("_\"'`.,:;!?   ");
 
 
 	keyboard[2].push_back("¡¿*+-/\\&<=>|");

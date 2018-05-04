@@ -1393,73 +1393,76 @@ void GMenu2X::main() {
 			currBackdrop = menu->selLinkApp()->getBackdrop();
 		}
 
-		// TRAY 0,0
-		switch(volumeMode) {
-			case VOLUME_MODE_PHONES: sc.skinRes("imgs/phones.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
-			case VOLUME_MODE_MUTE:   sc.skinRes("imgs/mute.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
-			default: sc.skinRes("imgs/volume.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
-		}
 
-		// TRAY 1,0
-		if (tickNow - tickBattery >= 5000) {
-			tickBattery = tickNow;
-			battlevel = getBatteryLevel();
-			if (battlevel > 5) {
-				batteryIcon = "imgs/battery/ac.png";
-			} else {
+		if (confStr["sectionBarPosition"] != "OFF") {
+
+			// TRAY 0,0
+			switch(volumeMode) {
+				case VOLUME_MODE_PHONES: sc.skinRes("imgs/phones.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
+				case VOLUME_MODE_MUTE:   sc.skinRes("imgs/mute.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
+				default: sc.skinRes("imgs/volume.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
+			}
+
+			// TRAY 1,0
+			if (tickNow - tickBattery >= 5000) {
+				tickBattery = tickNow;
+				battlevel = getBatteryLevel();
+				if (battlevel > 5) {
+					batteryIcon = "imgs/battery/ac.png";
+				} else {
+					ss.clear();
+					ss << battlevel;
+					ss >> batteryIcon;
+					batteryIcon = "imgs/battery/"+batteryIcon+".png";
+				}
+			}
+			sc.skinRes(batteryIcon)->blit(s, sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38);
+
+
+			// TRAY iconTrayShift,1
+			int iconTrayShift = 0;
+			if (preMMCStatus == MMC_INSERT) {
+				sc.skinRes("imgs/sd1.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+				iconTrayShift++;
+			}
+
+			if (menu->selLink() != NULL) {
+				if (menu->selLinkApp() != NULL) {
+					if (!menu->selLinkApp()->getManual().empty() && iconTrayShift < 2) {
+						// Manual indicator
+						sc.skinRes("imgs/manual.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+						iconTrayShift++;
+					}
+
+					if (iconTrayShift < 2) {
+						// CPU indicator
+						sc.skinRes("imgs/cpu.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+						iconTrayShift++;
+					}
+				}
+			}
+
+			if (iconTrayShift < 2) {
+				// menu indicator
+				sc.skinRes("imgs/menu.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+				iconTrayShift++;
+			}
+
+			if (iconTrayShift < 2) {
+				int backlightLevel = confInt["backlight"]/20;
+				string backlightIcon;
 				ss.clear();
-				ss << battlevel;
-				ss >> batteryIcon;
-				batteryIcon = "imgs/battery/"+batteryIcon+".png";
+				ss << backlightLevel;
+				ss >> backlightIcon;
+				backlightIcon = "imgs/brightness/"+backlightIcon+".png";
+
+				if (backlightLevel > 4 || sc.skinRes(backlightIcon)==NULL) 
+					backlightIcon = "imgs/brightness.png";
+
+				sc.skinRes(backlightIcon)->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+				iconTrayShift++;
 			}
 		}
-		sc.skinRes(batteryIcon)->blit(s, sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38);
-
-
-		// TRAY iconTrayShift,1
-		int iconTrayShift = 0;
-		if (preMMCStatus == MMC_INSERT) {
-			sc.skinRes("imgs/sd1.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
-			iconTrayShift++;
-		}
-
-		if (menu->selLink() != NULL) {
-			if (menu->selLinkApp() != NULL) {
-				if (!menu->selLinkApp()->getManual().empty() && iconTrayShift < 2) {
-					// Manual indicator
-					sc.skinRes("imgs/manual.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
-					iconTrayShift++;
-				}
-
-				if (iconTrayShift < 2) {
-					// CPU indicator
-					sc.skinRes("imgs/cpu.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
-					iconTrayShift++;
-				}
-			}
-		}
-
-		if (iconTrayShift < 2) {
-			// menu indicator
-			sc.skinRes("imgs/menu.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
-			iconTrayShift++;
-		}
-
-		if (iconTrayShift < 2) {
-			int backlightLevel = confInt["backlight"]/20;
-			string backlightIcon;
-			ss.clear();
-			ss << backlightLevel;
-			ss >> backlightIcon;
-			backlightIcon = "imgs/brightness/"+backlightIcon+".png";
-
-			if (backlightLevel > 4 || sc.skinRes(backlightIcon)==NULL) 
-				backlightIcon = "imgs/brightness.png";
-
-			sc.skinRes(backlightIcon)->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
-			iconTrayShift++;
-		}
-
 
 		s->flip();
 
