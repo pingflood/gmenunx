@@ -58,6 +58,9 @@ Menu::Menu(GMenu2X *gmenu2x) {
 		}
 	}
 
+	addSection("settings");
+	addSection("applications");
+
 	closedir(dirp);
 	sort(sections.begin(),sections.end(),case_less());
 	setSectionIndex(0);
