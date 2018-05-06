@@ -81,7 +81,7 @@ using fastdelegate::FastDelegate0;
 typedef FastDelegate0<> MenuAction;
 typedef unordered_map<string, string, hash<string> > ConfStrHash;
 typedef unordered_map<string, int, hash<string> > ConfIntHash;
-typedef unordered_map<string, RGBAColor, hash<string> > ConfColorHash;
+// typedef unordered_map<string, RGBAColor, hash<string> > ConfColorHash;
 
 typedef struct {
 	unsigned short batt;
@@ -199,7 +199,7 @@ public:
 	//Configuration hashes
 	ConfStrHash confStr, skinConfStr;
 	ConfIntHash confInt, skinConfInt;
-	ConfColorHash skinConfColor;
+	// ConfColorHash skinConfColor;
 
 	RGBAColor skinConfColors[NUM_COLORS];
 
