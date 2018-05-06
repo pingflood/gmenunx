@@ -490,6 +490,10 @@ void GMenu2X::initMenu() {
 		//Add virtual links in the applications section
 		if (menu->getSections()[i]=="applications") {
 			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Launch an application"], "skin:icons/explorer.png");
+#if !defined(TARGET_PC)
+			if (getBatteryStatus() > 5) // show only if charging
+#endif
+				menu->addActionLink(i, tr["Battery Logger"], MakeDelegate(this, &GMenu2X::batteryLogger), tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
 		}
 
 		//Add virtual links in the setting section
@@ -516,8 +520,6 @@ void GMenu2X::initMenu() {
 			if (fileExists(path+"log.txt"))
 				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "skin:icons/ebook.png");
 
-			// if (getBatteryStatus() > 5) // show only if charging
-				menu->addActionLink(i, tr["Battery Logger"], MakeDelegate(this, &GMenu2X::batteryLogger), tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
 
 			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "skin:icons/about.png");
 			// menu->addActionLink(i, "Reboot", MakeDelegate(this, &GMenu2X::reboot), tr["Reboot device"], "skin:icons/reboot.png");
