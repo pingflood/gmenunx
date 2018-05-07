@@ -147,7 +147,7 @@ void GMenu2X::gp2x_init() {
 #endif
 
 	if (memdev > 0) {
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 		memregs = (unsigned short*)mmap(0, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
 		MEM_REG=&memregs[0];
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
@@ -175,7 +175,7 @@ void GMenu2X::gp2x_init() {
 }
 
 void GMenu2X::gp2x_deinit() {
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	if (memdev > 0) {
 		memregs[0x28DA>>1]=0x4AB;
 		memregs[0x290C>>1]=640;
@@ -191,7 +191,7 @@ void GMenu2X::gp2x_deinit() {
 }
 
 void GMenu2X::gp2x_tvout_on(bool pal) {
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	if (memdev!=0) {
 		/*Ioctl_Dummy_t *msg;
 		#define FBMMSP2CTRL 0x4619
@@ -209,7 +209,7 @@ void GMenu2X::gp2x_tvout_on(bool pal) {
 }
 
 void GMenu2X::gp2x_tvout_off() {
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	if (memdev!=0) {
 		close(cx25874);
 		cx25874 = 0;
@@ -227,7 +227,7 @@ GMenu2X::GMenu2X() {
 		fwType = "gph";
 		fwVersion = "";
 	}
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	f200 = fileExists("/dev/touchscreen/wm97xx");
 #elif defined(TARGET_RS97)
 	fwType = "rs97";
@@ -287,7 +287,7 @@ GMenu2X::GMenu2X() {
 	gp2x_init();
 #endif
 
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	//Fix tv-out
 	if (memdev > 0) {
 		if (memregs[0x2800>>1]&0x100) {
@@ -384,7 +384,7 @@ void GMenu2X::quit() {
 	sc.clear();
 	s->free();
 	SDL_Quit();
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	if (memdev!=0) {
 		//Fix tv-out
 		if (memregs[0x2800>>1]&0x100) {
@@ -501,7 +501,7 @@ void GMenu2X::initMenu() {
 			menu->addActionLink(i, tr["Settings"], MakeDelegate(this, &GMenu2X::options), tr["Configure options"], "skin:icons/configure.png");
 			menu->addActionLink(i, tr["Skin"], MakeDelegate(this, &GMenu2X::skinMenu), tr["Configure skin"], "skin:icons/skin.png");
 			menu->addActionLink(i, tr["Wallpaper"], MakeDelegate(this, &GMenu2X::changeWallpaper), tr["Select an image to use as a wallpaper"], "skin:icons/wallpaper.png");
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 			if (fwType=="open2x")
 				menu->addActionLink(i, "Open2x", MakeDelegate(this, &GMenu2X::settingsOpen2x), tr["Configure Open2x system settings"], "skin:icons/o2xconfigure.png");
 			menu->addActionLink(i, "TV", MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
@@ -538,7 +538,7 @@ char *ms2hms(unsigned long t, bool mm = true, bool ss = true) {
 	int s = (t % 60);
 	int m = (t % 3600) / 60;
 	int h = (t % 86400) / 3600;
-	int d = (t % (86400 * 30)) / 86400;
+	// int d = (t % (86400 * 30)) / 86400;
 
 	if (!ss) sprintf(buf, "%02d:%02d", h, m);
 	else if (!mm) sprintf(buf, "%02d", h);
@@ -808,7 +808,7 @@ void GMenu2X::readConfig() {
 	// evalIntConf( &confInt["batteryLog"], 0, 0, 1 );
 	evalIntConf( &confInt["backlightTimeout"], 30, 10, 300);
 	evalIntConf( &confInt["outputLogs"], 0, 0, 1 );
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	evalIntConf( &confInt["maxClock"], 300, 200, 300 );
 	evalIntConf( &confInt["menuClock"], 140, 50, 300 );
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
@@ -910,7 +910,7 @@ void GMenu2X::writeSkinConfig() {
 			inf << curr->first << "=" << curr->second << endl;
 
 		for (int i = 0; i < NUM_COLORS; ++i) {
-			inf << colorToString((enum color)i) << "=" << RGBAColor::toString(skinConfColors[i]) << endl;
+			inf << colorToString((enum color)i) << "=" << rgbatostr(skinConfColors[i]) << endl;
 		}
 
 		inf.close();
@@ -995,7 +995,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 }
 
 void GMenu2X::initServices() {
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	if (usbnet) {
 		string services = "scripts/services.sh "+ip+" "+(inet?"on":"off")+" "+(samba?"on":"off")+" "+(web?"on":"off")+" &";
 		system(services.c_str());
@@ -1004,14 +1004,14 @@ void GMenu2X::initServices() {
 }
 
 void GMenu2X::ledOn() {
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	if (memdev!=0 && !f200) memregs[0x106E >> 1] ^= 16;
 	//SDL_SYS_JoystickGp2xSys(joy.joystick, BATT_LED_ON);
 #endif
 }
 
 void GMenu2X::ledOff() {
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	if (memdev!=0 && !f200) memregs[0x106E >> 1] ^= 16;
 	//SDL_SYS_JoystickGp2xSys(joy.joystick, BATT_LED_OFF);
 #endif
@@ -1023,6 +1023,7 @@ enum mmc_status{
 };
 
 long GMenu2X::getBatteryStatus() {
+#if defined(TARGET_RS97)
 	char buf[32]={0};
 
 	FILE *f = fopen("/proc/jz/battery", "r");
@@ -1031,10 +1032,12 @@ long GMenu2X::getBatteryStatus() {
 		fclose(f);
 		return atol(buf);
 	}
+#endif
 	return -1;
 }
 
 mmc_status getMMCStatus(void) {
+#if defined(TARGET_RS97)
 	char buf[32]={0};
 
 	FILE *f = fopen("/proc/jz/mmc", "r");
@@ -1049,6 +1052,7 @@ mmc_status getMMCStatus(void) {
 			return MMC_INSERT;
 		}
 	}
+#endif
 	return MMC_ERROR;
 }
 
@@ -1059,7 +1063,7 @@ enum udc_status{
 udc_status getUDCStatus(void) {
 	char buf[32]={0};
 
-#if 1
+#if defined(TARGET_RS97)
 	FILE *f = fopen("/proc/jz/udc", "r");
 	if (f) {
 		fgets(buf, sizeof(buf), f);
@@ -1072,17 +1076,17 @@ udc_status getUDCStatus(void) {
 			return UDC_CONNECT;
 		}
 	}
-#else
-  FILE *f = fopen("/sys/devices/platform/musb_hdrc.0/uh_cable", "r");
-  fgets(buf, sizeof(buf), f);
-  fclose(f);
+// #else
+//   FILE *f = fopen("/sys/devices/platform/musb_hdrc.0/uh_cable", "r");
+//   fgets(buf, sizeof(buf), f);
+//   fclose(f);
 
-  if (memcmp(buf, "offline", 7) == 0) {
-	return UDC_REMOVE;
-  }
-  else if (memcmp(buf, "usb", 3) == 0) {
-	return UDC_CONNECT;
-  }
+//   if (memcmp(buf, "offline", 7) == 0) {
+// 	return UDC_REMOVE;
+//   }
+//   else if (memcmp(buf, "usb", 3) == 0) {
+// 	return UDC_CONNECT;
+//   }
 #endif
 	return UDC_ERROR;
 }
@@ -1100,13 +1104,14 @@ int GMenu2X::setBacklight(int val, bool popup) {
 	unsigned long tickStart = 0;
 	int backlightIcon;
 
+	if (val < 0) val = 100;
+	else if (val > 100) val = backlightStep;
 
-	if(val < 0) val = 100;
-	else if(val > 100) val = backlightStep;
-
+#if defined(TARGET_RS97)
 	sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
 	system(buf);
 	// DEBUG("%s", buf);
+#endif
 
 	if (popup) {
 		bool close = false;
@@ -1650,11 +1655,10 @@ void GMenu2X::options() {
 	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &confStr["sectionBarPosition"], &sectionBarPosition));
 
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], 140, 50, 325));
 	sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], 300, 50, 325));
-#endif
-#if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], 200, 50, 900, 10));
 	sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], 900, 50, 900, 10));
 #endif
@@ -1669,13 +1673,6 @@ void GMenu2X::options() {
 	if (sd.exec() && sd.edited()) {
 	//G
 		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
-
-
-
-
-
-
-
 
 		setGamma(confInt["gamma"]);
 		if (curMenuClock!=confInt["menuClock"]) {
@@ -1758,7 +1755,7 @@ void GMenu2X::skinMenu() {
 }
 
 void GMenu2X::umountSd() {
-#ifdef TARGET_RS97
+#if defined(TARGET_RS97)
 	MessageBox mb(this, tr["Do you want to umount external sdcard ?"], "icons/eject.png");
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
@@ -1771,7 +1768,7 @@ void GMenu2X::umountSd() {
 }
 
 void GMenu2X::formatSd() {
-#ifdef TARGET_RS97
+#if defined(TARGET_RS97)
 	MessageBox mb(this, tr["Do you want to format internal SD card?"], "icons/format.png");
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
@@ -1838,12 +1835,12 @@ void GMenu2X::poweroff() {
 }
 
 void GMenu2X::toggleTvOut() {
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	if (cx25874!=0)
 		gp2x_tvout_off();
 	else
 		gp2x_tvout_on(confStr["tvoutEncoding"] == "PAL");
-#else
+#elif defined(TARGET_RS97)
 	int tvout=0;
 	char buf[32]={0};
 	int fd = open("/mnt/game/gmenu2x/tvout", O_RDWR);
@@ -1924,7 +1921,7 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 						skinConfStr[name] = value.substr(1,value.length()-2);
 					else if (value.at(0) == '#') {
 						// skinConfColor[name] = strtorgba( value.substr(1,value.length()) );
-						skinConfColors[stringToColor(name)] = RGBAColor::fromString( value );
+						skinConfColors[stringToColor(name)] = strtorgba(value);
 					}
 					else
 						skinConfInt[name] = atoi(value.c_str());
@@ -2225,12 +2222,12 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingFile(        this, tr["Selector Aliases"],     tr["File containing a list of aliases for the selector"], &linkSelAliases, dir_name(linkSelAliases) ));
 	sd.addSetting(new MenuSettingImage(       this, tr["Backdrop"],             tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", real_path(linkBackdrop)));
 
-#	if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+#if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	bool linkUseGinge = menu->selLinkApp()->getUseGinge();
 	string ginge_prep = getExePath() + "/ginge/ginge_prep";
 	if (fileExists(ginge_prep))
 		sd.addSetting(new MenuSettingBool(        this, tr["Use Ginge"],            tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
-#	endif
+#endif
 
 	//G
 	//sd.addSetting(new MenuSettingInt(         this, tr["Gamma (default: 0)"],   tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
@@ -2258,9 +2255,9 @@ void GMenu2X::editLink() {
 		//G
 		menu->selLinkApp()->setGamma(linkGamma);
 
-#		if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+#if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 		menu->selLinkApp()->setUseGinge(linkUseGinge);
-#		endif
+#endif
 
 		INFO("New Section: '%s'", newSection.c_str());
 
@@ -2325,9 +2322,7 @@ void GMenu2X::renameSection() {
 	InputDialog id(this, input, ts, tr["Insert a new name for this section"],menu->selSection(),tr ["Rename section"]);
 	if (id.exec()) {
 		//only if a section with the same name does not exist & !samename
-		if (menu->selSection() != id.getInput()
-			&& find(menu->getSections().begin(),menu->getSections().end(), id.getInput())
-			== menu->getSections().end()) {
+		if (menu->selSection() != id.getInput() && find(menu->getSections().begin(),menu->getSections().end(), id.getInput()) == menu->getSections().end()) {
 			//section directory doesn't exists
 			string newsectiondir = "sections/" + id.getInput();
 		string sectiondir = "sections/" + menu->selSection();
@@ -2631,7 +2626,7 @@ void GMenu2X::setInputSpeed() {
 }
 
 void GMenu2X::applyRamTimings() {
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	// 6 4 1 1 1 2 2
 	if (memdev!=0) {
 		int tRC = 5, tRAS = 3, tWR = 0, tMRD = 0, tRFC = 0, tRP = 1, tRCD = 1;
@@ -2642,7 +2637,7 @@ void GMenu2X::applyRamTimings() {
 }
 
 void GMenu2X::applyDefaultTimings() {
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	// 8 16 3 8 8 8 8
 	if (memdev!=0) {
 		int tRC = 7, tRAS = 15, tWR = 2, tMRD = 7, tRFC = 7, tRP = 7, tRCD = 7;
@@ -2653,7 +2648,7 @@ void GMenu2X::applyDefaultTimings() {
 }
 
 void GMenu2X::setClock(unsigned mhz) {
-	mhz = constrain(mhz,250,confInt["maxClock"]);
+	mhz = constrain(mhz, 250, confInt["maxClock"]);
 	if (memdev > 0) {
 		DEBUG("Setting clock to %d", mhz);
 
@@ -2696,7 +2691,7 @@ void GMenu2X::setClock(unsigned mhz) {
 }
 
 void GMenu2X::setGamma(int gamma) {
-#ifdef TARGET_GP2X
+#if defined(TARGET_GP2X)
 	float fgamma = (float)constrain(gamma,1,100)/10;
 	fgamma = 1 / fgamma;
 	MEM_REG[0x2880>>1]&=~(1<<12);
@@ -2788,6 +2783,7 @@ const string &GMenu2X::getExePath() {
 
 
 int GMenu2X::getBacklight() {
+#if defined(TARGET_RS97)
 	char buf[32];
 
 	FILE *f = fopen("/proc/jz/lcd_backlight", "r");
@@ -2796,6 +2792,7 @@ int GMenu2X::getBacklight() {
 		fclose(f);
 		return atoi(buf);
 	}
+#endif
 	return -1;
 }
 

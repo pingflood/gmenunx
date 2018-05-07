@@ -25,35 +25,36 @@
 #include "utilities.h"
 #include "debug.h"
 
-// RGBAColor strtorgba(const string &strColor) {
-// 	RGBAColor c = {0,0,0,255};
-// 	c.r = constrain( strtol( strColor.substr(0,2).c_str(), NULL, 16 ), 0, 255 );
-// 	c.g = constrain( strtol( strColor.substr(2,2).c_str(), NULL, 16 ), 0, 255 );
-// 	c.b = constrain( strtol( strColor.substr(4,2).c_str(), NULL, 16 ), 0, 255 );
-// 	c.a = constrain( strtol( strColor.substr(6,2).c_str(), NULL, 16 ), 0, 255 );
-// 	return c;
+
+// RGBAColor RGBAColor::fromString(const string &strColor) {
+// 	int s = (strColor.at(0) == '#') ? 1 : 0;
+// 	return (RGBAColor){
+// 		uint8_t(constrain(strtol(strColor.substr(0 + s, 2).c_str(), nullptr, 16), 0, 255)),
+// 		uint8_t(constrain(strtol(strColor.substr(2 + s, 2).c_str(), nullptr, 16), 0, 255)),
+// 		uint8_t(constrain(strtol(strColor.substr(4 + s, 2).c_str(), nullptr, 16), 0, 255)),
+// 		uint8_t(constrain(strtol(strColor.substr(6 + s, 2).c_str(), nullptr, 16), 0, 255)),
+// 	};
 // }
-
-RGBAColor RGBAColor::fromString(const string &strColor) {
-	int s = (strColor.at(0) == '#') ? 1 : 0;
-	return {
-		uint8_t(constrain(strtol(strColor.substr(0 + s, 2).c_str(), nullptr, 16), 0, 255)),
-		uint8_t(constrain(strtol(strColor.substr(2 + s, 2).c_str(), nullptr, 16), 0, 255)),
-		uint8_t(constrain(strtol(strColor.substr(4 + s, 2).c_str(), nullptr, 16), 0, 255)),
-		uint8_t(constrain(strtol(strColor.substr(6 + s, 2).c_str(), nullptr, 16), 0, 255)),
-	};
-}
-string RGBAColor::toString(RGBAColor &color) {
-	char hexcolor[10];
-	snprintf(hexcolor, sizeof(hexcolor), "#%02x%02x%02x%02x", color.r, color.g, color.b, color.a);
-	return (string)hexcolor;
-}
-
-// string rgbatostr(RGBAColor color) {
+// string RGBAColor::toString(RGBAColor &color) {
 // 	char hexcolor[10];
 // 	snprintf(hexcolor, sizeof(hexcolor), "#%02x%02x%02x%02x", color.r, color.g, color.b, color.a);
 // 	return (string)hexcolor;
 // }
+
+RGBAColor strtorgba(const string &strColor) {
+	RGBAColor c = {0,0,0,255};
+	c.r = constrain( strtol( strColor.substr(0,2).c_str(), NULL, 16 ), 0, 255 );
+	c.g = constrain( strtol( strColor.substr(2,2).c_str(), NULL, 16 ), 0, 255 );
+	c.b = constrain( strtol( strColor.substr(4,2).c_str(), NULL, 16 ), 0, 255 );
+	c.a = constrain( strtol( strColor.substr(6,2).c_str(), NULL, 16 ), 0, 255 );
+	return c;
+}
+
+string rgbatostr(RGBAColor color) {
+	char hexcolor[10];
+	snprintf(hexcolor, sizeof(hexcolor), "#%02x%02x%02x%02x", color.r, color.g, color.b, color.a);
+	return (string)hexcolor;
+}
 
 SDL_Color rgbatosdl(RGBAColor color) {
 	return (SDL_Color){color.r, color.g, color.b, color.a};
