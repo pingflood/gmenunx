@@ -1913,9 +1913,8 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 	skinConfColors[COLOR_FONT] = (RGBAColor){255,255,255,255};
 	skinConfColors[COLOR_FONT_OUTLINE] = (RGBAColor){0,0,0,200};
 
-	skinConfColors[COLOR_FONT] = (RGBAColor){0,0,0,0};
-	skinConfColors[COLOR_FONT_OUTLINE] = (RGBAColor){0,0,0,0};
-
+	skinConfColors[COLOR_FONT_ALT] = (RGBAColor){253,1,253,0};
+	skinConfColors[COLOR_FONT_ALT_OUTLINE] = (RGBAColor){253,1,253,0};
 
 //load skin settings
 	string skinconfname = "skins/"+skin+"/skin.conf";
@@ -1949,8 +1948,8 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 	}
 
 // (poor) HACK: ensure font alt colors have a default value
-	if (skinConfColors[COLOR_FONT_ALT].a == 0) skinConfColors[COLOR_FONT_ALT] = skinConfColors[COLOR_FONT];
-	if (skinConfColors[COLOR_FONT_ALT_OUTLINE].a == 0) skinConfColors[COLOR_FONT_ALT_OUTLINE] = skinConfColors[COLOR_FONT_OUTLINE];
+	if (skinConfColors[COLOR_FONT_ALT].r == 253 && skinConfColors[COLOR_FONT_ALT].g == 1 && skinConfColors[COLOR_FONT_ALT].b == 253 && skinConfColors[COLOR_FONT_ALT].a == 0) skinConfColors[COLOR_FONT_ALT] = skinConfColors[COLOR_FONT];
+	if (skinConfColors[COLOR_FONT_ALT_OUTLINE].r == 253 && skinConfColors[COLOR_FONT_ALT_OUTLINE].g == 1 && skinConfColors[COLOR_FONT_ALT_OUTLINE].b == 253 && skinConfColors[COLOR_FONT_ALT_OUTLINE].a == 0) skinConfColors[COLOR_FONT_ALT_OUTLINE] = skinConfColors[COLOR_FONT_OUTLINE];
 
 	evalIntConf( &skinConfInt["topBarHeight"], 40, 32, resY);
 	// evalIntConf( &skinConfInt["sectionBarHeight"], 200, 32, resY);
