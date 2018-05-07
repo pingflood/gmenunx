@@ -40,10 +40,17 @@ public:
 
 	bool utf8Code(unsigned char c);
 
+	void write(SDL_Surface *s, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor);
 	void write(SDL_Surface *s, const string &text, int x, int y);
+
+	void write(SDL_Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
 	void write(SDL_Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign = 0);
-	void write(SDL_Surface* surface, vector<string> *text, int x, int y, const unsigned short halign=0, const unsigned short valign = 0);
-	void write(Surface* surface, const string& text, int x, int y, const unsigned short halign=0, const unsigned short valign = 0);
+
+	void write(SDL_Surface* surface, vector<string> *text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
+	void write(SDL_Surface* surface, vector<string> *text, int x, int y, const unsigned short halign = 0, const unsigned short valign = 0);
+	
+	void write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
+	void write(Surface* surface, const string& text, int x, int y, const unsigned short halign = 0, const unsigned short valign = 0);
 
 	uint getLineWidth(const string& text);
 	uint getTextWidth(const string& text);

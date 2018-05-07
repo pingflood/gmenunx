@@ -304,8 +304,12 @@ void Surface::blendAdd(Surface *target, int x, int y) {
 }
 
 void Surface::write(FontHelper *font, const string &text, int x, int y, const unsigned short halign, const unsigned short valign) {
-	font->write(this,text,x,y,halign,valign);
+	font->write(this, text, x, y, halign, valign);
 }
+void Surface::write(FontHelper *font, const string &text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor) {
+	font->write(this, text, x, y, halign, valign, fgColor, bgColor);
+}
+
 
 void Surface::operator = (SDL_Surface *s) {
 	raw = SDL_DisplayFormat(s);

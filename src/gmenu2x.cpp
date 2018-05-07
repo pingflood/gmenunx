@@ -650,10 +650,8 @@ void GMenu2X::batteryLogger() {
 	bool close = false;
 
 	drawTopBar(bg);
-	titlefont->setColor(skinConfColors[COLOR_FONT_ALT])->setOutlineColor(skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-	bg->write(titlefont, tr["Battery Logger"], 40, 4 + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
-	bg->write(font, tr["Log battery power to battery.csv"], 40, 38, HAlignLeft, VAlignBottom);
-	titlefont->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
+	bg->write(titlefont, tr["Battery Logger"], 40, (4 + titlefont->getHeight()/2), HAlignLeft, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+	bg->write(font, tr["Log battery power to battery.csv"], 40, 38, HAlignLeft, VAlignBottom, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 	sc.skinRes("icons/ebook.png")->blit(bg, 4, 4, 32, 32);
 
 	drawBottomBar(bg);
@@ -2377,12 +2375,8 @@ void GMenu2X::scanner() {
 	initBG();
 
 	drawTopBar(bg);
-	titlefont->setColor(skinConfColors[COLOR_FONT_ALT])->setOutlineColor(skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-	bg->write(titlefont, tr["Link scanner"], 40, 4 + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
-	titlefont->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
-	font->setColor(skinConfColors[COLOR_FONT_ALT])->setOutlineColor(skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-	bg->write(font, tr["Scan for applications and games"], 40, 38, HAlignLeft, VAlignBottom);
-	font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
+	bg->write(titlefont, tr["Link scanner"], 40, 4 + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+	bg->write(font, tr["Scan for applications and games"], 40, 38, HAlignLeft, VAlignBottom, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 	sc.skinRes("icons/configure.png")->blit(bg, 4, 4, 32, 32);
 
 	drawBottomBar(bg);
@@ -2842,9 +2836,7 @@ int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x
 	if (sc.skinRes("imgs/buttons/"+btn+".png") != NULL) {
 		sc["imgs/buttons/"+btn+".png"]->blit(s, x, y-7);
 		re.w = sc["imgs/buttons/"+btn+".png"]->raw->w+3;
-		font->setColor(skinConfColors[COLOR_FONT_ALT])->setOutlineColor(skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-		s->write(font, text, x+re.w, y, HAlignLeft, VAlignMiddle);
-		font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
+		s->write(font, text, x+re.w, y, HAlignLeft, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 		re.w += font->getTextWidth(text);
 	}
 	return x+re.w+6;
@@ -2856,9 +2848,7 @@ int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, 
 		x -= 16;
 		sc["imgs/buttons/"+btn+".png"]->blit(s, x, y-7);
 		x -= 3;
-		font->setColor(skinConfColors[COLOR_FONT_ALT])->setOutlineColor(skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-		s->write(font, text, x, y, HAlignRight, VAlignMiddle);
-		font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
+		s->write(font, text, x, y, HAlignRight, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 		return x-6-font->getTextWidth(text);
 	}
 	return x-6;
