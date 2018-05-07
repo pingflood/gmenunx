@@ -27,7 +27,7 @@
 
 
 // RGBAColor RGBAColor::fromString(const string &strColor) {
-// 	int s = (strColor.at(0) == '#') ? 1 : 0;
+// 	const int s = (strColor.at(0) == '#') ? 1 : 0;
 // 	return (RGBAColor){
 // 		uint8_t(constrain(strtol(strColor.substr(0 + s, 2).c_str(), nullptr, 16), 0, 255)),
 // 		uint8_t(constrain(strtol(strColor.substr(2 + s, 2).c_str(), nullptr, 16), 0, 255)),
@@ -42,11 +42,12 @@
 // }
 
 RGBAColor strtorgba(const string &strColor) {
+	const int s = (strColor.at(0) == '#') ? 1 : 0;
 	RGBAColor c = {0,0,0,255};
-	c.r = constrain( strtol( strColor.substr(0,2).c_str(), NULL, 16 ), 0, 255 );
-	c.g = constrain( strtol( strColor.substr(2,2).c_str(), NULL, 16 ), 0, 255 );
-	c.b = constrain( strtol( strColor.substr(4,2).c_str(), NULL, 16 ), 0, 255 );
-	c.a = constrain( strtol( strColor.substr(6,2).c_str(), NULL, 16 ), 0, 255 );
+	c.r = constrain( strtol( strColor.substr(0 + s,2).c_str(), NULL, 16 ), 0, 255 );
+	c.g = constrain( strtol( strColor.substr(2 + s,2).c_str(), NULL, 16 ), 0, 255 );
+	c.b = constrain( strtol( strColor.substr(4 + s,2).c_str(), NULL, 16 ), 0, 255 );
+	c.a = constrain( strtol( strColor.substr(6 + s,2).c_str(), NULL, 16 ), 0, 255 );
 	return c;
 }
 
