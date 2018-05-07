@@ -30,10 +30,12 @@ class FontHelper;
 
 struct RGBAColor {
 	Uint8 r,g,b,a;
+	static RGBAColor fromString(std::string const& strColor);
+	static string toString(RGBAColor &color);
 };
 
-RGBAColor strtorgba(const string &strColor);
-string rgbatostr(RGBAColor color);
+// RGBAColor strtorgba(const string &strColor);
+// string rgbatostr(RGBAColor color);
 SDL_Color rgbatosdl(RGBAColor color);
 
 /**

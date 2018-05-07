@@ -912,7 +912,7 @@ void GMenu2X::writeSkinConfig() {
 			inf << curr->first << "=" << curr->second << endl;
 
 		for (int i = 0; i < NUM_COLORS; ++i) {
-			inf << colorToString((enum color)i) << "=" << rgbatostr(skinConfColors[i]) << endl;
+			inf << colorToString((enum color)i) << "=" << RGBAColor::toString(skinConfColors[i]) << endl;
 		}
 
 		inf.close();
@@ -1930,7 +1930,7 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 						skinConfStr[name] = value.substr(1,value.length()-2);
 					else if (value.at(0) == '#') {
 						// skinConfColor[name] = strtorgba( value.substr(1,value.length()) );
-						skinConfColors[stringToColor(name)] = strtorgba( value.substr(1,value.length()) );
+						skinConfColors[stringToColor(name)] = RGBAColor::fromString( value );
 					}
 					else
 						skinConfInt[name] = atoi(value.c_str());
