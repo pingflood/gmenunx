@@ -1731,7 +1731,6 @@ void GMenu2X::skinMenu() {
 	fl_sk.browse();
 	string curSkin = confStr["skin"];
 
-
 	SettingsDialog sd(this, input, ts, tr["Skin"], "skin:icons/skin.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories()));
 	sd.addSetting(new MenuSettingRGBA(this, tr["Top Bar"], tr["Color of the top bar"], &skinConfColors[COLOR_TOP_BAR_BG]));
@@ -1746,8 +1745,6 @@ void GMenu2X::skinMenu() {
 	sd.addSetting(new MenuSettingRGBA(this, tr["Alt Font"], tr["Color of the alternative font"], &skinConfColors[COLOR_FONT_ALT]));
 	sd.addSetting(new MenuSettingRGBA(this, tr["Alt Font Outline"], tr["Color of the alternative font outline"], &skinConfColors[COLOR_FONT_ALT_OUTLINE]));
 
-// sd.addSetting(new MenuSettingRGBA(this, tr["Bottom Bar Font Color"], tr["Color of the font"], &skinConfColors[COLOR_BOTTOM_BAR_FONT]));
-
 	if (sd.exec() && sd.edited()) {
 		if (curSkin != confStr["skin"]) {
 			setSkin(confStr["skin"]);
@@ -1756,7 +1753,6 @@ void GMenu2X::skinMenu() {
 		font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
 
 		writeSkinConfig();
-		// setSkin(confStr["skin"]);
 		initBG();
 	}
 }
@@ -2214,7 +2210,7 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingString(      this, tr["Description"],          tr["Link description"], &linkDescription, diagTitle, diagIcon ));
 	sd.addSetting(new MenuSettingMultiString( this, tr["Section"],              tr["The section this link belongs to"], &newSection, &menu->getSections() ));
 	sd.addSetting(new MenuSettingImage(       this, tr["Icon"],                 tr["Select an icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg", dir_name(linkIcon) ));
-	sd.addSetting(new MenuSettingFile(        this, tr["Manual"],               tr["Select a graphic/textual manual or a readme"], &linkManual, ".man.png,.txt", dir_name(linkManual)));
+	sd.addSetting(new MenuSettingFile(        this, tr["Manual"],               tr["Select a manual or README file"], &linkManual, ".man.png,.txt", dir_name(linkManual)));
 
 	//sd.addSetting(new MenuSettingInt(         this, tr.translate("Clock (default: $1)","528", NULL), tr["Cpu clock frequency to set when launching this link"], &linkClock, 50, confInt["maxClock"] ));
 	sd.addSetting(new MenuSettingInt(         this, tr["CPU Clock"], tr["CPU clock frequency to set when launching this link"], &linkClock, 528, 528, 750));
@@ -2224,7 +2220,7 @@ void GMenu2X::editLink() {
 
 	sd.addSetting(new MenuSettingBool(        this, tr["Selector Browser"],     tr["Allow the selector to change directory"], &linkSelBrowser ));
 	sd.addSetting(new MenuSettingDir(         this, tr["Selector Directory"],   tr["Directory to scan for the selector"], &linkSelDir, real_path(linkSelDir) ));
-	sd.addSetting(new MenuSettingString(      this, tr["Selector Filter"],      tr["Filter for the selector (separate with commas)"], &linkSelFilter, diagTitle, diagIcon ));
+	sd.addSetting(new MenuSettingString(      this, tr["Selector Filter"],      tr["Filter file type (separate with commas)"], &linkSelFilter, diagTitle, diagIcon ));
 	sd.addSetting(new MenuSettingDir(         this, tr["Selector Screenshots"], tr["Directory of the screenshots for the selector"], &linkSelScreens, dir_name(linkSelScreens) ));
 	sd.addSetting(new MenuSettingFile(        this, tr["Selector Aliases"],     tr["File containing a list of aliases for the selector"], &linkSelAliases, dir_name(linkSelAliases) ));
 	sd.addSetting(new MenuSettingImage(       this, tr["Backdrop"],             tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", real_path(linkBackdrop)));
