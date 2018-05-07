@@ -34,6 +34,12 @@ RGBAColor strtorgba(const string &strColor) {
 	return c;
 }
 
+string rgbatostr(RGBAColor color) {
+	char hexcolor[10];
+	snprintf(hexcolor, sizeof(hexcolor), "#%02x%02x%02x%02x", color.r, color.g, color.b, color.a);
+	return (string)hexcolor;
+}
+
 SDL_Color rgbatosdl(RGBAColor color) {
 	return (SDL_Color){color.r, color.g, color.b, color.a};
 }

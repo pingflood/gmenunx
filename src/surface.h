@@ -33,6 +33,7 @@ struct RGBAColor {
 };
 
 RGBAColor strtorgba(const string &strColor);
+string rgbatostr(RGBAColor color);
 SDL_Color rgbatosdl(RGBAColor color);
 
 /**
