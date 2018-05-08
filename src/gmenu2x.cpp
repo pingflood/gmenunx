@@ -68,6 +68,8 @@
 #include "menusettingimage.h"
 #include "menusettingdir.h"
 
+#include "batteryloggerdialog.h"
+
 #include "debug.h"
 
 #include <sys/mman.h>
@@ -629,157 +631,9 @@ void GMenu2X::viewLog() {
 }
 
 void GMenu2X::batteryLogger() {
-	long tickNow = 0, tickStart = SDL_GetTicks(), tickBatteryLogger = -1000000;
-	string logfile = path+"battery.csv";
-
-	char buf[100];
-	sprintf(buf, "echo '----' >> %s/battery.csv; sync", cmdclean(getExePath()).c_str());
-	system(buf);
-
-	if (!fileExists(logfile)) return;
-
-	ifstream inf(logfile.c_str(), ios_base::in);
-	if (!inf.is_open()) return;
-	vector<string> log;
-
-	string line;
-	while (getline(inf, line, '\n'))
-		log.push_back(line);
-	inf.close();
-
-	initBG();
-
-	setBacklight(100);
-	setClock(528);
-
-	bool close = false;
-
-	drawTopBar(bg);
-	bg->write(titlefont, tr["Battery Logger"], 40, (4 + titlefont->getHeight()/2), HAlignLeft, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-	bg->write(font, tr["Log battery power to battery.csv"], 40, 38, HAlignLeft, VAlignBottom, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-	sc.skinRes("icons/ebook.png")->blit(bg, 4, 4, 32, 32);
-
-	drawBottomBar(bg);
-	drawButton(bg, "b", tr["Back"],
-	drawButton(bg, "select", tr["Del battery.csv"],
-	drawButton(bg, "down", tr["Scroll"],
-	drawButton(bg, "up", "", 5)-10)));
-
-	bg->box(listRect, skinConfColors[COLOR_LIST_BG]);
-
-	bg->blit(s,0,0);
-
-// // skinConfColor
-// 	int i = 0, j = 0;
-// 	for(ConfColorHash::iterator curr = skinConfColor.begin(); curr != skinConfColor.end(); curr++) {
-// 		i++;
-// 		if (i > 31) {
-// 			j++;
-// 			i=0;
-// 		}
-// 		if (j > 14) break;
-
-// 		DEBUG("COLOR: %d,%d %s = %d", i,j, curr->first.c_str(),  (unsigned short)curr->second.r);
-// 		bg->box(2+i*10,2+j*10,8,8, curr->second);
-// 	}
-
-	bg->flip();
-
-	MessageBox mb(this, tr["Welcome to the Battery Logger.\nMake sure the battery is fully charged.\nAfter pressing OK, leave the device ON until\nthe battery has been fully discharged.\nThe log will be saved in 'battery.csv'."]);
-	mb.exec();
-
-	uint firstRow = 0, rowsPerPage = listRect.h/font->getHeight();
-		// s->setClipRect(rect);
-	while (!close) {
-		tickNow = SDL_GetTicks();
-		if ((tickNow - tickBatteryLogger) >= 60000) {
-			tickBatteryLogger = tickNow;
-
-			char buf[100];
-			sprintf(buf, "echo '%s,%d,%d' >> %s/battery.csv; sync", ms2hms(tickNow - tickStart, true, false), getBatteryStatus(), getBatteryLevel(), cmdclean(getExePath()).c_str());
-			system(buf);
-
-			ifstream inf(logfile.c_str(), ios_base::in);
-			log.clear();
-
-			// string line;
-			while (getline(inf, line, '\n'))
-				log.push_back(line);
-			inf.close();
-		}
-
-		bg->blit(s,0,0);
-
-		for (uint i=firstRow; i<firstRow+rowsPerPage && i<log.size(); i++) {
-			int rowY, j = log.size() - i - 1;
-			if (log.at(j)=="----") { //draw a line
-				rowY = 42+(int)((i-firstRow+0.5)*font->getHeight());
-				s->hline(5,rowY,resX-16,255,255,255,130);
-				s->hline(5,rowY+1,resX-16,0,0,0,130);
-			} else {
-				rowY = 42+(i-firstRow)*font->getHeight();
-				font->write(s, log.at(j), 5, rowY);
-			}
-		}
-
-		drawScrollBar(rowsPerPage, log.size(), firstRow, listRect);
-
-		s->flip();
-
-		input.update(0);
-
-// COMMON ACTIONS
-		if ( input.isActive(MODIFIER) ) {
-			if (input.isActive(SECTION_NEXT)) {
-				if (!saveScreenshot()) { ERROR("Can't save screenshot"); continue; }
-				MessageBox mb(this, tr["Screenshot Saved"]);
-				mb.setAutoHide(1000);
-				mb.exec();
-			} else if (input.isActive(SECTION_PREV)) {
-				int vol = getVolume();
-				if (vol) {
-					vol = 0;
-					volumeMode = VOLUME_MODE_MUTE;
-				} else {
-					vol = 100;
-					volumeMode = VOLUME_MODE_NORMAL;
-				}
-				confInt["globalVolume"] = vol;
-				setVolume(vol);
-				writeConfig();
-			}
-		}
-// END OF COMMON ACTIONS
-		else if ( input[UP  ] && firstRow > 0 ) firstRow--;
-		else if ( input[DOWN] && firstRow + rowsPerPage < log.size() ) firstRow++;
-		else if ( input[PAGEUP] || input[LEFT]) {
-			if (firstRow >= rowsPerPage - 1)
-				firstRow -= rowsPerPage - 1;
-			else
-				firstRow = 0;
-		}
-		else if ( input[PAGEDOWN] || input[RIGHT]) {
-			if (firstRow + rowsPerPage * 2 - 1 < log.size())
-				firstRow += rowsPerPage - 1;
-			else
-				firstRow = max(0,log.size()-rowsPerPage);
-		}
-		else if ( input[SETTINGS] || input[CANCEL] ) close = true;
-		else if (input[MENU]) {
-			MessageBox mb(this, tr.translate("Deleting $1", "battery.csv", NULL) + "\n" + tr["Are you sure?"]);
-			mb.setButton(CONFIRM, tr["Yes"]);
-			mb.setButton(CANCEL,  tr["No"]);
-			if (mb.exec() == CONFIRM) {
-				system("rm battery.csv");
-				log.clear();
-			}
-		}
-	}
-
-		// s->clearClipRect();
-	setBacklight(confInt["backlight"]);
+	BatteryLoggerDialog bl(this, tr["Battery Logger"], tr["Log battery power to battery.csv"], "icons/ebook.png");
+	bl.exec();
 }
-
 
 void GMenu2X::readConfig() {
 	string conffile = path+"gmenu2x.conf";
@@ -852,8 +706,6 @@ void GMenu2X::writeConfig() {
 	}
 	ledOff();
 }
-
-
 
 void GMenu2X::writeSkinConfig() {
 	ledOn();

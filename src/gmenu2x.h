@@ -113,12 +113,6 @@ private:
 	// unsigned short cpuX; //!< Offset for displaying cpu clock information
 	unsigned short volumeX; //!< Offset for displaying volume level
 	// unsigned short manualX; //!< Offset for displaying the manual indicator in the taskbar
-	/*!
-	Reads the current battery state and returns a number representing it's level of charge
-	@return A number representing battery charge. 0 means fully discharged. 5 means fully charged. 6 represents a gp2x using AC power.
-	*/
-	unsigned short getBatteryLevel();
-	long getBatteryStatus();
 
 
 	int batteryHandle;
@@ -224,6 +218,13 @@ public:
 	void options();
 	void restart();
 	void poweroff();
+	/*!
+	Reads the current battery state and returns a number representing it's level of charge
+	@return A number representing battery charge. 0 means fully discharged. 5 means fully charged. 6 represents a gp2x using AC power.
+	*/
+	unsigned short getBatteryLevel();
+	long getBatteryStatus();
+
 	// void toggleSpeaker();
 	void umountSd();
 	void formatSd();
