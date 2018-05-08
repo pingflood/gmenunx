@@ -228,8 +228,6 @@ public:
 	long getBatteryStatus();
 
 	// void toggleSpeaker();
-	void umountSd();
-	void formatSd();
 	// void reboot();
 	void skinMenu();
 
@@ -254,6 +252,9 @@ public:
 	void setGamma(int gamma);
 	void setVolumeScaler(int scaler);
 	int getVolumeScaler();
+#elif defined(TARGET_RS97)
+	void umountSd();
+	void formatSd();
 #endif
 
 	void about();
