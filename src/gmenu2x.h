@@ -132,21 +132,15 @@ private:
 	*/
 	void explorer();
 
-	bool inet, //!< Represents the configuration of the basic network services. @see readCommonIni @see usbnet @see samba @see web
-		usbnet,
-		samba,
-		web;
-	string ip, defaultgw, lastSelectorDir;
+	string lastSelectorDir;
 	int lastSelectorElement;
 	void readConfig();
 
 
 
 	void readTmp();
-	void readCommonIni();
 	// void writeCommonIni();
 
-	void initServices();
 	void initFont();
 	void initMenu();
 
@@ -154,16 +148,24 @@ private:
 
 	unsigned int memdev;
 #ifdef TARGET_RS97
-  volatile unsigned long *memregs;
+	volatile unsigned long *memregs;
 #else
 	volatile unsigned short *memregs;
 #endif
 
 #ifdef TARGET_GP2X
+	string ip, defaultgw;
+	
+	bool inet, //!< Represents the configuration of the basic network services. @see readCommonIni @see usbnet @see samba @see web
+		usbnet,
+		samba,
+		web;
 	volatile unsigned short *MEM_REG;
 	int cx25874; //tv-out
 	void gp2x_tvout_on(bool pal);
 	void gp2x_tvout_off();
+	void readCommonIni();
+	void initServices();
 #endif
 	void gp2x_deinit();
 	void gp2x_init();

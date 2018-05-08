@@ -351,15 +351,15 @@ GMenu2X::GMenu2X() {
 	initBG();
 	input.init(path+"input.conf");
 	setInputSpeed();
-	initServices();
 
-	setVolume(confInt["globalVolume"]);
 #if defined(TARGET_GP2X)
+	initServices();
 	setGamma(confInt["gamma"]);
 	applyDefaultTimings();
 #endif
-	setClock(confInt["menuClock"]);
 
+	setVolume(confInt["globalVolume"]);
+	setClock(confInt["menuClock"]);
 	//recover last session
 	readTmp();
 	if (lastSelectorElement>-1 && menu->selLinkApp()!=NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
@@ -734,41 +734,6 @@ void GMenu2X::writeSkinConfig() {
 	ledOff();
 }
 
-void GMenu2X::readCommonIni() {
-#if defined(TARGET_GP2X)
-	if (!fileExists("/usr/gp2x/common.ini")) return;
-	ifstream inf("/usr/gp2x/common.ini", ios_base::in);
-	if (!inf.is_open()) return;
-	string line;
-	string section = "";
-	while (getline(inf, line, '\n')) {
-		line = trim(line);
-		if (line[0]=='[' && line[line.length()-1]==']') {
-			section = line.substr(1,line.length()-2);
-		} else {
-			string::size_type pos = line.find("=");
-			string name = trim(line.substr(0,pos));
-			string value = trim(line.substr(pos+1,line.length()));
-
-			if (section=="usbnet") {
-				if (name=="enable")
-					usbnet = value=="true" ? true : false;
-				else if (name=="ip")
-					ip = value;
-
-			} else if (section=="server") {
-				if (name=="inet")
-					inet = value=="true" ? true : false;
-				else if (name=="samba")
-					samba = value=="true" ? true : false;
-				else if (name=="web")
-					web = value=="true" ? true : false;
-			}
-		}
-	}
-	inf.close();
-#endif
-}
 
 // void GMenu2X::writeCommonIni() {}
 
@@ -811,14 +776,6 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 	}
 }
 
-void GMenu2X::initServices() {
-#if defined(TARGET_GP2X)
-	if (usbnet) {
-		string services = "scripts/services.sh "+ip+" "+(inet?"on":"off")+" "+(samba?"on":"off")+" "+(web?"on":"off")+" &";
-		system(services.c_str());
-	}
-#endif
-}
 
 void GMenu2X::ledOn() {
 #if defined(TARGET_GP2X)
@@ -2600,5 +2557,46 @@ int GMenu2X::getVolumeScaler() {
 		close(soundDev);
 	}
 	return currentscalefactor;
+}
+
+void GMenu2X::readCommonIni() {
+	if (!fileExists("/usr/gp2x/common.ini")) return;
+	ifstream inf("/usr/gp2x/common.ini", ios_base::in);
+	if (!inf.is_open()) return;
+	string line;
+	string section = "";
+	while (getline(inf, line, '\n')) {
+		line = trim(line);
+		if (line[0]=='[' && line[line.length()-1]==']') {
+			section = line.substr(1,line.length()-2);
+		} else {
+			string::size_type pos = line.find("=");
+			string name = trim(line.substr(0,pos));
+			string value = trim(line.substr(pos+1,line.length()));
+
+			if (section=="usbnet") {
+				if (name=="enable")
+					usbnet = value=="true" ? true : false;
+				else if (name=="ip")
+					ip = value;
+
+			} else if (section=="server") {
+				if (name=="inet")
+					inet = value=="true" ? true : false;
+				else if (name=="samba")
+					samba = value=="true" ? true : false;
+				else if (name=="web")
+					web = value=="true" ? true : false;
+			}
+		}
+	}
+	inf.close();
+}
+
+void GMenu2X::initServices() {
+	if (usbnet) {
+		string services = "scripts/services.sh "+ip+" "+(inet?"on":"off")+" "+(samba?"on":"off")+" "+(web?"on":"off")+" &";
+		system(services.c_str());
+	}
 }
 #endif
