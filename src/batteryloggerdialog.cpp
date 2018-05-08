@@ -1,5 +1,4 @@
 #include "batteryloggerdialog.h"
-#include "messagebox.h"
 
 BatteryLoggerDialog::BatteryLoggerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
 	: Dialog(gmenu2x)
@@ -21,14 +20,12 @@ void BatteryLoggerDialog::exec() {
 
 	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-
 	gmenu2x->drawBottomBar(gmenu2x->bg);
 	gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Back"],
 	gmenu2x->drawButton(gmenu2x->bg, "select", gmenu2x->tr["Del battery.csv"],
 	gmenu2x->drawButton(gmenu2x->bg, "down", gmenu2x->tr["Scroll"],
 	gmenu2x->drawButton(gmenu2x->bg, "up", "", 5)-10)));
 
-	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	gmenu2x->bg->blit(gmenu2x->s,0,0);
 

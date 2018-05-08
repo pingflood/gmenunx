@@ -69,6 +69,7 @@
 #include "menusettingdir.h"
 
 #include "batteryloggerdialog.h"
+#include "linkscannerdialog.h"
 
 #include "debug.h"
 
@@ -553,8 +554,6 @@ char *ms2hms(unsigned long t, bool mm = true, bool ss = true) {
 	return buf;
 };
 
-
-
 void GMenu2X::about() {
 	vector<string> text;
 	string temp, batt;
@@ -633,6 +632,11 @@ void GMenu2X::viewLog() {
 void GMenu2X::batteryLogger() {
 	BatteryLoggerDialog bl(this, tr["Battery Logger"], tr["Log battery power to battery.csv"], "icons/ebook.png");
 	bl.exec();
+}
+
+void GMenu2X::linkScanner() {
+	LinkScannerDialog ls(this, tr["Link scanner"], tr["Scan for applications and games"], "icons/configure.png");
+	ls.exec();
 }
 
 void GMenu2X::readConfig() {
@@ -1770,7 +1774,7 @@ void GMenu2X::contextMenu() {
 	voices.push_back((MenuOption){tr["Add section"],	MakeDelegate(this, &GMenu2X::addSection)});
 	voices.push_back((MenuOption){tr["Rename section"],	MakeDelegate(this, &GMenu2X::renameSection)});
 	voices.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
-	voices.push_back((MenuOption){tr["Link scanner"],	MakeDelegate(this, &GMenu2X::scanner)});
+	voices.push_back((MenuOption){tr["Link scanner"],	MakeDelegate(this, &GMenu2X::linkScanner)});
 
 	bool close = false;
 	uint i, fadeAlpha=0;
@@ -2119,162 +2123,6 @@ void GMenu2X::deleteSection() {
 	}
 }
 
-void GMenu2X::scanner() {
-	initBG();
-
-	drawTopBar(bg);
-	bg->write(titlefont, tr["Link scanner"], 40, 4 + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-	bg->write(font, tr["Scan for applications and games"], 40, 38, HAlignLeft, VAlignBottom, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-	sc.skinRes("icons/configure.png")->blit(bg, 4, 4, 32, 32);
-
-	drawBottomBar(bg);
-	drawButton(bg, "b", tr["Back"], 5);
-
-	bg->box(listRect, skinConfColors[COLOR_LIST_BG]);
-
-
-	// Surface bg(bg);
-	// bg.write(font,tr["Link Scanner"],halfX,7,HAlignCenter,VAlignMiddle);
-
-#if defined(TARGET_RS97)
-	uint lineY = 80;
-#else
-	uint lineY = 42;
-#endif
-
-	if (confInt["menuClock"] < DEFAULT_CPU_CLK) {
-		setClock(DEFAULT_CPU_CLK);
-		string strClock;
-		stringstream ss;
-		ss << DEFAULT_CPU_CLK;
-		ss >> strClock;
-		bg->write(font,tr.translate("Raising cpu clock to $1Mhz", strClock.c_str(), NULL),5,lineY);
-		bg->blit(s,0,0);
-		s->flip();
-		lineY += 26;
-	}
-
-	bg->write(font,tr["Scanning SD filesystem..."],5,lineY);
-	bg->blit(s,0,0);
-	s->flip();
-	lineY += 26;
-
-	vector<string> files;
-	scanPath("/mnt/sd",&files);
-
-	//Onyl gph firmware has nand
-	if (fwType=="gph" && !f200) {
-		bg->write(font,tr["Scanning NAND filesystem..."],5,lineY);
-		bg->blit(s,0,0);
-		s->flip();
-		lineY += 26;
-		scanPath("/mnt/nand",&files);
-	}
-
-	stringstream ss;
-	ss << files.size();
-	string str = "";
-	ss >> str;
-	bg->write(font,tr.translate("$1 files found.",str.c_str(),NULL),5,lineY);
-	lineY += 26;
-	bg->write(font,tr["Creating links..."],5,lineY);
-	bg->blit(s,0,0);
-	s->flip();
-	lineY += 26;
-
-	string path, file;
-	string::size_type pos;
-	uint linkCount = 0;
-
-	ledOn();
-	for (uint i = 0; i<files.size(); i++) {
-		pos = files[i].rfind("/");
-		if (pos!=string::npos && pos>0) {
-			path = files[i].substr(0, pos+1);
-			file = files[i].substr(pos+1, files[i].length());
-			if (menu->addLink(path,file,"found "+file.substr(file.length()-3,3)))
-				linkCount++;
-		}
-	}
-
-	ss.clear();
-	ss << linkCount;
-	ss >> str;
-	bg->write(font,tr.translate("$1 links created.",str.c_str(),NULL),5,lineY);
-	bg->blit(s,0,0);
-	s->flip();
-	lineY += 26;
-
-	if (confInt["menuClock"]<DEFAULT_CPU_CLK) {
-		setClock(confInt["menuClock"]);
-		bg->write(font,tr["Decreasing cpu clock"],5,lineY);
-		bg->blit(s,0,0);
-		s->flip();
-		lineY += 26;
-	}
-
-	sync();
-	ledOff();
-
-	bool close = false;
-	while (!close) {
-		input.update();
-
-// COMMON ACTIONS
-		if ( input.isActive(MODIFIER) ) {
-			if (input.isActive(SECTION_NEXT)) {
-				if (!saveScreenshot()) { ERROR("Can't save screenshot"); continue; }
-				MessageBox mb(this, tr["Screenshot Saved"]);
-				mb.setAutoHide(1000);
-				mb.exec();
-			} else if (input.isActive(SECTION_PREV)) {
-				int vol = getVolume();
-				if (vol) {
-					vol = 0;
-					volumeMode = VOLUME_MODE_MUTE;
-				} else {
-					vol = 100;
-					volumeMode = VOLUME_MODE_NORMAL;
-				}
-				confInt["globalVolume"] = vol;
-				setVolume(vol);
-				writeConfig();
-			}
-		}
-		// BACKLIGHT
-		else if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
-// END OF COMMON ACTIONS
-		else if (input[SETTINGS] || input[CONFIRM] || input[CANCEL]) close = true;
-	}
-}
-
-void GMenu2X::scanPath(string path, vector<string> *files) {
-	DIR *dirp;
-	struct stat st;
-	struct dirent *dptr;
-	string filepath, ext;
-
-	if (path[path.length()-1]!='/') path += "/";
-	if ((dirp = opendir(path.c_str())) == NULL) return;
-
-	while ((dptr = readdir(dirp))) {
-		if (dptr->d_name[0]=='.')
-			continue;
-		filepath = path+dptr->d_name;
-		int statRet = stat(filepath.c_str(), &st);
-		if (S_ISDIR(st.st_mode))
-			scanPath(filepath, files);
-		if (statRet != -1) {
-			ext = filepath.substr(filepath.length()-4,4);
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-			if (ext==".gpu" || ext==".gpe")
-#endif
-				files->push_back(filepath);
-		}
-	}
-
-	closedir(dirp);
-}
 
 unsigned short GMenu2X::getBatteryLevel() {
 	//if (batteryHandle<=0) return 6; //AC Power
