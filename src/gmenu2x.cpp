@@ -1528,13 +1528,16 @@ void GMenu2X::formatSd() {
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() == CONFIRM) {
-		s->box(10, 80, 300, 52, skinConfColors[COLOR_MESSAGE_BOX_BG]);
-		s->rectangle( 12, 82, 296, 48, skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
-		s->write( font, tr["Formatting internal SD card..."], 55, 90 );
-		s->flip();
-		system("/usr/bin/format_int_sd.sh");
-		MessageBox mb(this,tr["Complete!"]);
+		MessageBox mb(this, tr["Formatting internal SD card..."], "icons/format.png");
+		mb.setAutoHide(1);
 		mb.exec();
+
+		system("/usr/bin/format_int_sd.sh");
+		{ // new mb scope
+			MessageBox mb(this,tr["Complete!"]);
+			mb.setAutoHide(0);
+			mb.exec();
+		}
 	}
 #endif
 }
@@ -1773,7 +1776,7 @@ void GMenu2X::contextMenu() {
 	//draw selection rect
 		s->box( selbox.x, selbox.y, selbox.w, selbox.h, skinConfColors[COLOR_MESSAGE_BOX_SELECTION] );
 		for (i=0; i<voices.size(); i++)
-			s->write( font, voices[i].text, box.x+12, box.y+h2+3+h*i, HAlignLeft, VAlignMiddle );
+			s->write( font, voices[i].text, box.x+12, box.y+h2+3+h*i, HAlignLeft, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 		s->flip();
 
 #if defined(TARGET_GP2X)
