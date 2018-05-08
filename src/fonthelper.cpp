@@ -27,7 +27,7 @@ FontHelper::FontHelper(const string &font, int size, RGBAColor textColor, RGBACo
 	TTF_SetFontOutline(fontOutline, 1);
 	height = 0;
 	// Get maximum line height with a sample text
-	TTF_SizeUTF8(fontOutline, "AZ|¹0987654321", NULL, &height);
+	TTF_SizeUTF8(fontOutline, "AZ0987654321", NULL, &height);
 	halfHeight = height/2;
 }
 

@@ -980,7 +980,7 @@ void GMenu2X::main() {
 	// char backlightMsg[16]={0};
 	stringstream ss;
 	// uint sectionsCoordX = 24;
-	uint sectionsCoordY = 0;//24;
+	// uint sectionsCoordY = 0;//24;
 	// SDL_Rect re = {0,0,0,0};
 
 	// backlightLevel = confInt["backlight"];

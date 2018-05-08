@@ -24,6 +24,7 @@
 #include <SDL_gfxPrimitives.h>
 
 #include "messagebox.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -88,21 +89,22 @@ int MessageBox::exec() {
 	gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0,200);
 
 	SDL_Rect box;
-	box.h = gmenu2x->font->getTextHeight(text)*gmenu2x->font->getHeight()+gmenu2x->font->getHeight();
+	box.h = gmenu2x->font->getTextHeight(text) * gmenu2x->font->getHeight() + gmenu2x->font->getHeight();
+	if (gmenu2x->sc[icon] != NULL && box.h < 40) box.h = 48;
 	box.w = gmenu2x->font->getTextWidth(text) + 24 + (gmenu2x->sc[icon] != NULL ? 37 : 0);
-	box.x = gmenu2x->halfX - box.w/2 -2;
-	box.y = gmenu2x->halfY - box.h/2 -2;
+	box.x = gmenu2x->halfX - box.w/2 - 2;
+	box.y = gmenu2x->halfY - box.h/2 - 2;
 
 	//outer box
 	gmenu2x->s->box(box, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 	//draw inner rectangle
-	gmenu2x->s->rectangle(box.x+2, box.y+2, box.w-4, box.h-4,
-	gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
+	gmenu2x->s->rectangle(box.x+2, box.y+2, box.w-4, box.h-4, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
+
 	//icon+text
 	if (gmenu2x->sc[icon] != NULL)
-		gmenu2x->sc[icon]->blitCenter( gmenu2x->s, box.x+25, box.y+gmenu2x->font->getHeight()+7 );
+		gmenu2x->sc[icon]->blitCenter( gmenu2x->s, box.x + 24, box.y + 24 );
 
-	gmenu2x->s->write(gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 10), gmenu2x->halfY-gmenu2x->font->getHalfHeight()/3, HAlignLeft, VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+	gmenu2x->s->write(gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 11), gmenu2x->halfY - gmenu2x->font->getHeight()/5, HAlignLeft, VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 
 	if (this->autohide) {
 		gmenu2x->s->flip();
