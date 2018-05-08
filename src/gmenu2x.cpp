@@ -190,8 +190,8 @@ void GMenu2X::gp2x_deinit() {
 	if (batteryHandle!=0) close(batteryHandle);
 }
 
-void GMenu2X::gp2x_tvout_on(bool pal) {
 #if defined(TARGET_GP2X)
+void GMenu2X::gp2x_tvout_on(bool pal) {
 	if (memdev!=0) {
 		/*Ioctl_Dummy_t *msg;
 		#define FBMMSP2CTRL 0x4619
@@ -205,18 +205,18 @@ void GMenu2X::gp2x_tvout_on(bool pal) {
 		memregs[0x28E4>>1]=memregs[0x290C>>1];
 		memregs[0x28E8>>1]=239;
 	}
-#endif
 }
+#endif
 
-void GMenu2X::gp2x_tvout_off() {
 #if defined(TARGET_GP2X)
+void GMenu2X::gp2x_tvout_off() {
 	if (memdev!=0) {
 		close(cx25874);
 		cx25874 = 0;
 		memregs[0x2906>>1]=1024;
 	}
-#endif
 }
+#endif
 
 GMenu2X::GMenu2X() {
 	//Detect firmware version and type
@@ -229,19 +229,11 @@ GMenu2X::GMenu2X() {
 	}
 #if defined(TARGET_GP2X)
 	f200 = fileExists("/dev/touchscreen/wm97xx");
-#elif defined(TARGET_RS97)
-	fwType = "rs97";
-#else
-	f200 = true;
-#endif
 
 	//open2x
 	savedVolumeMode = 0;
-	volumeMode = VOLUME_MODE_NORMAL;
 	volumeScalerNormal = VOLUME_SCALER_NORMAL;
 	volumeScalerPhones = VOLUME_SCALER_PHONES;
-
-	backlightStep = 10;
 
 	o2x_usb_net_on_boot = false;
 	o2x_usb_net_ip = "";
@@ -253,10 +245,21 @@ GMenu2X::GMenu2X() {
 	o2x_usb_storage_on_boot = false;
 
 	usbnet = samba = inet = web = false;
+
 	useSelectionPng = false;
+#elif defined(TARGET_RS97)
+	fwType = "rs97";
+#else
+	f200 = true;
+#endif
+
+	volumeMode = VOLUME_MODE_NORMAL;
+	backlightStep = 10;
+
 
 	//load config data
 	readConfig();
+#if defined(TARGET_GP2X)
 	if (fwType=="open2x") {
 		readConfigOpen2x();
 		//	VOLUME MODIFIER
@@ -266,7 +269,6 @@ GMenu2X::GMenu2X() {
 			case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
 		}
 	}
-#if !defined(TARGET_GP2x)
 	readCommonIni();
 #endif
 
@@ -348,9 +350,11 @@ GMenu2X::GMenu2X() {
 	setInputSpeed();
 	initServices();
 
-	setGamma(confInt["gamma"]);
 	setVolume(confInt["globalVolume"]);
+#if defined(TARGET_GP2X)
+	setGamma(confInt["gamma"]);
 	applyDefaultTimings();
+#endif
 	setClock(confInt["menuClock"]);
 
 	//recover last session
@@ -368,8 +372,10 @@ GMenu2X::GMenu2X() {
 
 GMenu2X::~GMenu2X() {
 	writeConfig();
-	if (fwType=="open2x") writeConfigOpen2x();
 
+#if defined(TARGET_GP2X)
+	if (fwType=="open2x") writeConfigOpen2x();
+#endif
 	quit();
 
 	delete menu;
@@ -509,10 +515,9 @@ void GMenu2X::initMenu() {
 			if (fwType=="gph" && !f200)
 				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "skin:icons/usb.png");
 			//menu->addActionLink(i, "USB Root", MakeDelegate(this, &GMenu2X::activateRootUsb), tr["Activate USB on the root of the Gp2x Filesystem"], "skin:icons/usb.png");
-#elif defined(TARGET_RS97)
 			//menu->addActionLink(i, "Speaker", MakeDelegate(this, &GMenu2X::toggleSpeaker), tr["Activate/deactivate Speaker"], "skin:icons/speaker.png");
+#elif defined(TARGET_RS97)
 			menu->addActionLink(i, tr["TV"], MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
-			//menu->addActionLink(i, "USB", MakeDelegate(this, &GMenu2X::activateSdUsb), tr["Activate USB on SD"], "skin:icons/usb.png");
 			//menu->addActionLink(i, "Format", MakeDelegate(this, &GMenu2X::formatSd), tr["Format internal SD"], "skin:icons/format.png");
 			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSd), tr["Umount external SD"], "skin:icons/eject.png");
 #endif
@@ -849,52 +854,6 @@ void GMenu2X::writeConfig() {
 }
 
 
-void GMenu2X::readConfigOpen2x() {
-	string conffile = "/etc/config/open2x.conf";
-	if (!fileExists(conffile)) return;
-	ifstream inf(conffile.c_str(), ios_base::in);
-	if (!inf.is_open()) return;
-	string line;
-	while (getline(inf, line, '\n')) {
-		string::size_type pos = line.find("=");
-		string name = trim(line.substr(0,pos));
-		string value = trim(line.substr(pos+1,line.length()));
-
-		if (name=="USB_NET_ON_BOOT") o2x_usb_net_on_boot = value == "y" ? true : false;
-		else if (name=="USB_NET_IP") o2x_usb_net_ip = value;
-		else if (name=="TELNET_ON_BOOT") o2x_telnet_on_boot = value == "y" ? true : false;
-		else if (name=="FTP_ON_BOOT") o2x_ftp_on_boot = value == "y" ? true : false;
-		else if (name=="GP2XJOY_ON_BOOT") o2x_gp2xjoy_on_boot = value == "y" ? true : false;
-		else if (name=="USB_HOST_ON_BOOT") o2x_usb_host_on_boot = value == "y" ? true : false;
-		else if (name=="USB_HID_ON_BOOT") o2x_usb_hid_on_boot = value == "y" ? true : false;
-		else if (name=="USB_STORAGE_ON_BOOT") o2x_usb_storage_on_boot = value == "y" ? true : false;
-		else if (name=="VOLUME_MODE") volumeMode = savedVolumeMode = constrain( atoi(value.c_str()), 0, 2);
-		else if (name=="PHONES_VALUE") volumeScalerPhones = constrain( atoi(value.c_str()), 0, 100);
-		else if (name=="NORMAL_VALUE") volumeScalerNormal = constrain( atoi(value.c_str()), 0, 150);
-	}
-	inf.close();
-}
-void GMenu2X::writeConfigOpen2x() {
-	ledOn();
-	string conffile = "/etc/config/open2x.conf";
-	ofstream inf(conffile.c_str());
-	if (inf.is_open()) {
-		inf << "USB_NET_ON_BOOT=" << ( o2x_usb_net_on_boot ? "y" : "n" ) << endl;
-		inf << "USB_NET_IP=" << o2x_usb_net_ip << endl;
-		inf << "TELNET_ON_BOOT=" << ( o2x_telnet_on_boot ? "y" : "n" ) << endl;
-		inf << "FTP_ON_BOOT=" << ( o2x_ftp_on_boot ? "y" : "n" ) << endl;
-		inf << "GP2XJOY_ON_BOOT=" << ( o2x_gp2xjoy_on_boot ? "y" : "n" ) << endl;
-		inf << "USB_HOST_ON_BOOT=" << ( (o2x_usb_host_on_boot || o2x_usb_hid_on_boot || o2x_usb_storage_on_boot) ? "y" : "n" ) << endl;
-		inf << "USB_HID_ON_BOOT=" << ( o2x_usb_hid_on_boot ? "y" : "n" ) << endl;
-		inf << "USB_STORAGE_ON_BOOT=" << ( o2x_usb_storage_on_boot ? "y" : "n" ) << endl;
-		inf << "VOLUME_MODE=" << volumeMode << endl;
-		if (volumeScalerPhones != VOLUME_SCALER_PHONES) inf << "PHONES_VALUE=" << volumeScalerPhones << endl;
-		if (volumeScalerNormal != VOLUME_SCALER_NORMAL) inf << "NORMAL_VALUE=" << volumeScalerNormal << endl;
-		inf.close();
-		sync();
-	}
-	ledOff();
-}
 
 void GMenu2X::writeSkinConfig() {
 	ledOn();
@@ -920,6 +879,7 @@ void GMenu2X::writeSkinConfig() {
 }
 
 void GMenu2X::readCommonIni() {
+#if defined(TARGET_GP2X)
 	if (!fileExists("/usr/gp2x/common.ini")) return;
 	ifstream inf("/usr/gp2x/common.ini", ios_base::in);
 	if (!inf.is_open()) return;
@@ -951,6 +911,7 @@ void GMenu2X::readCommonIni() {
 		}
 	}
 	inf.close();
+#endif
 }
 
 // void GMenu2X::writeCommonIni() {}
@@ -1529,6 +1490,7 @@ void GMenu2X::main() {
 		else if ( input[POWER] ) { tickPowerOff++; }
 
 		// VOLUME SCALE MODIFIER
+#if defined(TARGET_GP2X)
 		else if ( fwType=="open2x" && input[CANCEL] ) {
 			volumeMode = constrain(volumeMode-1, -VOLUME_MODE_MUTE-1, VOLUME_MODE_NORMAL);
 			if(volumeMode < VOLUME_MODE_MUTE)
@@ -1540,7 +1502,7 @@ void GMenu2X::main() {
 			}
 			setVolume(confInt["globalVolume"]);
 		}
-
+#endif
 		// SELLINKAPP SELECTED
 		else if (menu->selLinkApp()!=NULL) {
 			if ( input[MANUAL] ) menu->selLinkApp()->showManual();
@@ -1600,8 +1562,11 @@ void GMenu2X::explorer() {
 	if (fd.exec()) {
 		if (confInt["saveSelection"] && (confInt["section"]!=menu->selSectionIndex() || confInt["link"]!=menu->selLinkIndex()))
 			writeConfig();
+
+#if defined(TARGET_GP2X)
 		if (fwType == "open2x" && savedVolumeMode != volumeMode)
 			writeConfigOpen2x();
+#endif
 
 	//string command = cmdclean(fd.path()+"/"+fd.file) + "; sync & cd "+cmdclean(getExePath())+"; exec ./gmenu2x";
 		string command = cmdclean(fd.getPath()+"/"+fd.getFile());
@@ -1672,9 +1637,11 @@ void GMenu2X::options() {
 
 	if (sd.exec() && sd.edited()) {
 	//G
+#if defined(TARGET_GP2X)
 		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
-
 		setGamma(confInt["gamma"]);
+#endif
+
 		if (curMenuClock!=confInt["menuClock"]) {
 			setClock(confInt["menuClock"]);
 		}
@@ -1694,31 +1661,6 @@ void GMenu2X::options() {
 		if (prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) {
 			restart();
 		}
-	}
-}
-
-void GMenu2X::settingsOpen2x() {
-	SettingsDialog sd(this, input, ts, tr["Open2x Settings"]);
-	sd.addSetting(new MenuSettingBool(this,tr["USB net on boot"],tr["Allow USB networking to be started at boot time"],&o2x_usb_net_on_boot));
-	sd.addSetting(new MenuSettingString(this,tr["USB net IP"],tr["IP address to be used for USB networking"],&o2x_usb_net_ip));
-	sd.addSetting(new MenuSettingBool(this,tr["Telnet on boot"],tr["Allow telnet to be started at boot time"],&o2x_telnet_on_boot));
-	sd.addSetting(new MenuSettingBool(this,tr["FTP on boot"],tr["Allow FTP to be started at boot time"],&o2x_ftp_on_boot));
-	sd.addSetting(new MenuSettingBool(this,tr["GP2XJOY on boot"],tr["Create a js0 device for GP2X controls"],&o2x_gp2xjoy_on_boot));
-	sd.addSetting(new MenuSettingBool(this,tr["USB host on boot"],tr["Allow USB host to be started at boot time"],&o2x_usb_host_on_boot));
-	sd.addSetting(new MenuSettingBool(this,tr["USB HID on boot"],tr["Allow USB HID to be started at boot time"],&o2x_usb_hid_on_boot));
-	sd.addSetting(new MenuSettingBool(this,tr["USB storage on boot"],tr["Allow USB storage to be started at boot time"],&o2x_usb_storage_on_boot));
-//sd.addSetting(new MenuSettingInt(this,tr["Speaker Mode on boot"],tr["Set Speaker mode. 0 = Mute, 1 = Phones, 2 = Speaker"],&volumeMode,0,2,1));
-	sd.addSetting(new MenuSettingInt(this,tr["Speaker Scaler"],tr["Set the Speaker Mode scaling 0-150\% (default is 100\%)"],&volumeScalerNormal,100, 0,150));
-	sd.addSetting(new MenuSettingInt(this,tr["Headphones Scaler"],tr["Set the Headphones Mode scaling 0-100\% (default is 65\%)"],&volumeScalerPhones,65, 0,100));
-
-	if (sd.exec() && sd.edited()) {
-		writeConfigOpen2x();
-		switch(volumeMode) {
-			case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
-			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones); break;
-			case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
-		}
-		setVolume(confInt["globalVolume"]);
 	}
 }
 
@@ -1965,44 +1907,6 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 	initFont();
 }
 
-void GMenu2X::activateSdUsb() {
-	if (usbnet) {
-		MessageBox mb(this,tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
-		mb.exec();
-	} else {
-		MessageBox mb(this,tr["USB Enabled (SD)"],"icons/usb.png");
-		mb.setButton(CONFIRM, tr["Turn off"]);
-		mb.exec();
-		system("scripts/usbon.sh nand");
-	}
-}
-
-void GMenu2X::activateNandUsb() {
-	if (usbnet) {
-		MessageBox mb(this,tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
-		mb.exec();
-	} else {
-		system("scripts/usbon.sh nand");
-		MessageBox mb(this,tr["USB Enabled (Nand)"],"icons/usb.png");
-		mb.setButton(CONFIRM, tr["Turn off"]);
-		mb.exec();
-		system("scripts/usboff.sh nand");
-	}
-}
-
-void GMenu2X::activateRootUsb() {
-	if (usbnet) {
-		MessageBox mb(this,tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
-		mb.exec();
-	} else {
-		system("scripts/usbon.sh root");
-		MessageBox mb(this,tr["USB Enabled (Root)"],"icons/usb.png");
-		mb.setButton(CONFIRM, tr["Turn off"]);
-		mb.exec();
-		system("scripts/usboff.sh root");
-	}
-}
-
 void GMenu2X::contextMenu() {
 	vector<MenuOption> voices;
 
@@ -2190,8 +2094,6 @@ void GMenu2X::editLink() {
 	int linkClock = menu->selLinkApp()->clock();
 	int linkVolume = menu->selLinkApp()->volume();
 	string linkBackdrop = menu->selLinkApp()->getBackdrop();
-	//G
-	int linkGamma = menu->selLinkApp()->gamma();
 
 	string diagTitle = tr.translate("Edit $1", linkTitle.c_str(), NULL);
 	string diagIcon = menu->selLinkApp()->getIconPath();
@@ -2227,10 +2129,13 @@ void GMenu2X::editLink() {
 	string ginge_prep = getExePath() + "/ginge/ginge_prep";
 	if (fileExists(ginge_prep))
 		sd.addSetting(new MenuSettingBool(        this, tr["Use Ginge"],            tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
+#elif defined(TARGET_GP2X)
+	//G
+	int linkGamma = menu->selLinkApp()->gamma();
+	sd.addSetting(new MenuSettingInt(         this, tr["Gamma (default: 0)"],   tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
 #endif
 
 	//G
-	//sd.addSetting(new MenuSettingInt(         this, tr["Gamma (default: 0)"],   tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
 	sd.addSetting(new MenuSettingBool(        this, tr["Wrapper"],              tr["Relaunch GMenu2X after this link's execution ends"], &menu->selLinkApp()->needsWrapperRef() ));
 	//sd.addSetting(new MenuSettingBool(        this, tr["Don't Leave"],          tr["Don't quit GMenu2X when launching this link"], &menu->selLinkApp()->runsInBackgroundRef() ));
 
@@ -2253,9 +2158,9 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setClock(linkClock);
 		menu->selLinkApp()->setVolume(linkVolume);
 		//G
+#if defined(TARGET_GP2X)
 		menu->selLinkApp()->setGamma(linkGamma);
-
-#if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 		menu->selLinkApp()->setUseGinge(linkUseGinge);
 #endif
 
@@ -2625,40 +2530,13 @@ void GMenu2X::setInputSpeed() {
 	input.setInterval(500, POWER);
 }
 
-void GMenu2X::applyRamTimings() {
-#if defined(TARGET_GP2X)
-	// 6 4 1 1 1 2 2
-	if (memdev!=0) {
-		int tRC = 5, tRAS = 3, tWR = 0, tMRD = 0, tRFC = 0, tRP = 1, tRCD = 1;
-		memregs[0x3802>>1] = ((tMRD & 0xF) << 12) | ((tRFC & 0xF) << 8) | ((tRP & 0xF) << 4) | (tRCD & 0xF);
-		memregs[0x3804>>1] = ((tRC & 0xF) << 8) | ((tRAS & 0xF) << 4) | (tWR & 0xF);
-	}
-#endif
-}
-
-void GMenu2X::applyDefaultTimings() {
-#if defined(TARGET_GP2X)
-	// 8 16 3 8 8 8 8
-	if (memdev!=0) {
-		int tRC = 7, tRAS = 15, tWR = 2, tMRD = 7, tRFC = 7, tRP = 7, tRCD = 7;
-		memregs[0x3802>>1] = ((tMRD & 0xF) << 12) | ((tRFC & 0xF) << 8) | ((tRP & 0xF) << 4) | (tRCD & 0xF);
-		memregs[0x3804>>1] = ((tRC & 0xF) << 8) | ((tRAS & 0xF) << 4) | (tWR & 0xF);
-	}
-#endif
-}
 
 void GMenu2X::setClock(unsigned mhz) {
 	mhz = constrain(mhz, 250, confInt["maxClock"]);
 	if (memdev > 0) {
 		DEBUG("Setting clock to %d", mhz);
 
-#if defined(TARGET_RS97)
-		#define CPPCR     (0x10 >> 2)
-		unsigned long m = mhz / 6;
-		memregs[CPPCR] = (m << 24) | 0x090520;
-		INFO("Set CPU clock: %d", mhz);
-
-#elif defined(TARGET_GP2X)
+#if defined(TARGET_GP2X)
 		unsigned v;
 		unsigned mdiv, pdiv=3, scale=0;
 
@@ -2686,25 +2564,16 @@ void GMenu2X::setClock(unsigned mhz) {
 		PLLSETREG0 = v;
 		PWRMODE |= 0x8000;
 		for (int i = 0; (PWRMODE & 0x8000) && i < 0x100000; i++);
+
+#elif defined(TARGET_RS97)
+		#define CPPCR     (0x10 >> 2)
+		unsigned long m = mhz / 6;
+		memregs[CPPCR] = (m << 24) | 0x090520;
+		INFO("Set CPU clock: %d", mhz);
 #endif
 	}
 }
 
-void GMenu2X::setGamma(int gamma) {
-#if defined(TARGET_GP2X)
-	float fgamma = (float)constrain(gamma,1,100)/10;
-	fgamma = 1 / fgamma;
-	MEM_REG[0x2880>>1]&=~(1<<12);
-	MEM_REG[0x295C>>1]=0;
-
-	for (int i=0; i<256; i++) {
-		unsigned char g = (unsigned char)(255.0*pow(i/255.0,fgamma));
-		unsigned short s = (g<<8) | g;
-		MEM_REG[0x295E>>1]= s;
-		MEM_REG[0x295E>>1]= g;
-	}
-#endif
-}
 
 int GMenu2X::getVolume() {
 	int vol = -1;
@@ -2748,24 +2617,6 @@ void GMenu2X::setVolume(int vol) {
 	}
 }
 
-void GMenu2X::setVolumeScaler(int scale) {
-	scale = constrain(scale,0,MAX_VOLUME_SCALE_FACTOR);
-	unsigned long soundDev = open("/dev/mixer", O_WRONLY);
-	if (soundDev) {
-		ioctl(soundDev, SOUND_MIXER_PRIVATE2, &scale);
-		close(soundDev);
-	}
-}
-
-int GMenu2X::getVolumeScaler() {
-	int currentscalefactor = -1;
-	unsigned long soundDev = open("/dev/mixer", O_RDONLY);
-	if (soundDev) {
-		ioctl(soundDev, SOUND_MIXER_PRIVATE1, &currentscalefactor);
-		close(soundDev);
-	}
-	return currentscalefactor;
-}
 
 const string &GMenu2X::getExePath() {
 	if (path.empty()) {
@@ -2886,3 +2737,168 @@ void GMenu2X::drawBottomBar(Surface *s) {
 	// else
 	s->box(0, resY - skinConfInt["bottomBarHeight"], resX, skinConfInt["bottomBarHeight"], skinConfColors[COLOR_BOTTOM_BAR_BG]);
 }
+
+
+#if defined(TARGET_GP2X)
+void GMenu2X::settingsOpen2x() {
+	SettingsDialog sd(this, input, ts, tr["Open2x Settings"]);
+	sd.addSetting(new MenuSettingBool(this,tr["USB net on boot"],tr["Allow USB networking to be started at boot time"],&o2x_usb_net_on_boot));
+	sd.addSetting(new MenuSettingString(this,tr["USB net IP"],tr["IP address to be used for USB networking"],&o2x_usb_net_ip));
+	sd.addSetting(new MenuSettingBool(this,tr["Telnet on boot"],tr["Allow telnet to be started at boot time"],&o2x_telnet_on_boot));
+	sd.addSetting(new MenuSettingBool(this,tr["FTP on boot"],tr["Allow FTP to be started at boot time"],&o2x_ftp_on_boot));
+	sd.addSetting(new MenuSettingBool(this,tr["GP2XJOY on boot"],tr["Create a js0 device for GP2X controls"],&o2x_gp2xjoy_on_boot));
+	sd.addSetting(new MenuSettingBool(this,tr["USB host on boot"],tr["Allow USB host to be started at boot time"],&o2x_usb_host_on_boot));
+	sd.addSetting(new MenuSettingBool(this,tr["USB HID on boot"],tr["Allow USB HID to be started at boot time"],&o2x_usb_hid_on_boot));
+	sd.addSetting(new MenuSettingBool(this,tr["USB storage on boot"],tr["Allow USB storage to be started at boot time"],&o2x_usb_storage_on_boot));
+//sd.addSetting(new MenuSettingInt(this,tr["Speaker Mode on boot"],tr["Set Speaker mode. 0 = Mute, 1 = Phones, 2 = Speaker"],&volumeMode,0,2,1));
+	sd.addSetting(new MenuSettingInt(this,tr["Speaker Scaler"],tr["Set the Speaker Mode scaling 0-150\% (default is 100\%)"],&volumeScalerNormal,100, 0,150));
+	sd.addSetting(new MenuSettingInt(this,tr["Headphones Scaler"],tr["Set the Headphones Mode scaling 0-100\% (default is 65\%)"],&volumeScalerPhones,65, 0,100));
+
+	if (sd.exec() && sd.edited()) {
+		writeConfigOpen2x();
+		switch(volumeMode) {
+			case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
+			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones); break;
+			case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
+		}
+		setVolume(confInt["globalVolume"]);
+	}
+}
+
+void GMenu2X::readConfigOpen2x() {
+	string conffile = "/etc/config/open2x.conf";
+	if (!fileExists(conffile)) return;
+	ifstream inf(conffile.c_str(), ios_base::in);
+	if (!inf.is_open()) return;
+	string line;
+	while (getline(inf, line, '\n')) {
+		string::size_type pos = line.find("=");
+		string name = trim(line.substr(0,pos));
+		string value = trim(line.substr(pos+1,line.length()));
+
+		if (name=="USB_NET_ON_BOOT") o2x_usb_net_on_boot = value == "y" ? true : false;
+		else if (name=="USB_NET_IP") o2x_usb_net_ip = value;
+		else if (name=="TELNET_ON_BOOT") o2x_telnet_on_boot = value == "y" ? true : false;
+		else if (name=="FTP_ON_BOOT") o2x_ftp_on_boot = value == "y" ? true : false;
+		else if (name=="GP2XJOY_ON_BOOT") o2x_gp2xjoy_on_boot = value == "y" ? true : false;
+		else if (name=="USB_HOST_ON_BOOT") o2x_usb_host_on_boot = value == "y" ? true : false;
+		else if (name=="USB_HID_ON_BOOT") o2x_usb_hid_on_boot = value == "y" ? true : false;
+		else if (name=="USB_STORAGE_ON_BOOT") o2x_usb_storage_on_boot = value == "y" ? true : false;
+		else if (name=="VOLUME_MODE") volumeMode = savedVolumeMode = constrain( atoi(value.c_str()), 0, 2);
+		else if (name=="PHONES_VALUE") volumeScalerPhones = constrain( atoi(value.c_str()), 0, 100);
+		else if (name=="NORMAL_VALUE") volumeScalerNormal = constrain( atoi(value.c_str()), 0, 150);
+	}
+	inf.close();
+}
+
+void GMenu2X::writeConfigOpen2x() {
+	ledOn();
+	string conffile = "/etc/config/open2x.conf";
+	ofstream inf(conffile.c_str());
+	if (inf.is_open()) {
+		inf << "USB_NET_ON_BOOT=" << ( o2x_usb_net_on_boot ? "y" : "n" ) << endl;
+		inf << "USB_NET_IP=" << o2x_usb_net_ip << endl;
+		inf << "TELNET_ON_BOOT=" << ( o2x_telnet_on_boot ? "y" : "n" ) << endl;
+		inf << "FTP_ON_BOOT=" << ( o2x_ftp_on_boot ? "y" : "n" ) << endl;
+		inf << "GP2XJOY_ON_BOOT=" << ( o2x_gp2xjoy_on_boot ? "y" : "n" ) << endl;
+		inf << "USB_HOST_ON_BOOT=" << ( (o2x_usb_host_on_boot || o2x_usb_hid_on_boot || o2x_usb_storage_on_boot) ? "y" : "n" ) << endl;
+		inf << "USB_HID_ON_BOOT=" << ( o2x_usb_hid_on_boot ? "y" : "n" ) << endl;
+		inf << "USB_STORAGE_ON_BOOT=" << ( o2x_usb_storage_on_boot ? "y" : "n" ) << endl;
+		inf << "VOLUME_MODE=" << volumeMode << endl;
+		if (volumeScalerPhones != VOLUME_SCALER_PHONES) inf << "PHONES_VALUE=" << volumeScalerPhones << endl;
+		if (volumeScalerNormal != VOLUME_SCALER_NORMAL) inf << "NORMAL_VALUE=" << volumeScalerNormal << endl;
+		inf.close();
+		sync();
+	}
+	ledOff();
+}
+
+void GMenu2X::activateSdUsb() {
+	if (usbnet) {
+		MessageBox mb(this,tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
+		mb.exec();
+	} else {
+		MessageBox mb(this,tr["USB Enabled (SD)"],"icons/usb.png");
+		mb.setButton(CONFIRM, tr["Turn off"]);
+		mb.exec();
+		system("scripts/usbon.sh nand");
+	}
+}
+
+void GMenu2X::activateNandUsb() {
+	if (usbnet) {
+		MessageBox mb(this,tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
+		mb.exec();
+	} else {
+		system("scripts/usbon.sh nand");
+		MessageBox mb(this,tr["USB Enabled (Nand)"],"icons/usb.png");
+		mb.setButton(CONFIRM, tr["Turn off"]);
+		mb.exec();
+		system("scripts/usboff.sh nand");
+	}
+}
+
+void GMenu2X::activateRootUsb() {
+	if (usbnet) {
+		MessageBox mb(this,tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
+		mb.exec();
+	} else {
+		system("scripts/usbon.sh root");
+		MessageBox mb(this,tr["USB Enabled (Root)"],"icons/usb.png");
+		mb.setButton(CONFIRM, tr["Turn off"]);
+		mb.exec();
+		system("scripts/usboff.sh root");
+	}
+}
+
+void GMenu2X::applyRamTimings() {
+	// 6 4 1 1 1 2 2
+	if (memdev!=0) {
+		int tRC = 5, tRAS = 3, tWR = 0, tMRD = 0, tRFC = 0, tRP = 1, tRCD = 1;
+		memregs[0x3802>>1] = ((tMRD & 0xF) << 12) | ((tRFC & 0xF) << 8) | ((tRP & 0xF) << 4) | (tRCD & 0xF);
+		memregs[0x3804>>1] = ((tRC & 0xF) << 8) | ((tRAS & 0xF) << 4) | (tWR & 0xF);
+	}
+}
+
+void GMenu2X::applyDefaultTimings() {
+	// 8 16 3 8 8 8 8
+	if (memdev!=0) {
+		int tRC = 7, tRAS = 15, tWR = 2, tMRD = 7, tRFC = 7, tRP = 7, tRCD = 7;
+		memregs[0x3802>>1] = ((tMRD & 0xF) << 12) | ((tRFC & 0xF) << 8) | ((tRP & 0xF) << 4) | (tRCD & 0xF);
+		memregs[0x3804>>1] = ((tRC & 0xF) << 8) | ((tRAS & 0xF) << 4) | (tWR & 0xF);
+	}
+}
+
+void GMenu2X::setGamma(int gamma) {
+	float fgamma = (float)constrain(gamma,1,100)/10;
+	fgamma = 1 / fgamma;
+	MEM_REG[0x2880>>1]&=~(1<<12);
+	MEM_REG[0x295C>>1]=0;
+
+	for (int i=0; i<256; i++) {
+		unsigned char g = (unsigned char)(255.0*pow(i/255.0,fgamma));
+		unsigned short s = (g<<8) | g;
+		MEM_REG[0x295E>>1]= s;
+		MEM_REG[0x295E>>1]= g;
+	}
+}
+
+void GMenu2X::setVolumeScaler(int scale) {
+	scale = constrain(scale,0,MAX_VOLUME_SCALE_FACTOR);
+	unsigned long soundDev = open("/dev/mixer", O_WRONLY);
+	if (soundDev) {
+		ioctl(soundDev, SOUND_MIXER_PRIVATE2, &scale);
+		close(soundDev);
+	}
+}
+
+int GMenu2X::getVolumeScaler() {
+	int currentscalefactor = -1;
+	unsigned long soundDev = open("/dev/mixer", O_RDONLY);
+	if (soundDev) {
+		ioctl(soundDev, SOUND_MIXER_PRIVATE1, &currentscalefactor);
+		close(soundDev);
+	}
+	return currentscalefactor;
+}
+#endif

@@ -43,8 +43,12 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
 	dontleave = false;
 	setClock(DEFAULT_CPU_CLK);
 	setVolume(-1);
+
+#if defined(TARGET_GP2X)
 	//G
 	setGamma(0);
+#endif
+
 	selectordir = "";
 	selectorfilter = "";
 	icon = iconPath = "";
@@ -84,9 +88,12 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
 			dontleave = true;
 		} else if (name == "clock") {
 			setClock( atoi(value.c_str()) );
+
+#if defined(TARGET_GP2X)
 		//G
 		} else if (name == "gamma") {
 			setGamma( atoi(value.c_str()) );
+#endif
 		} else if (name == "volume") {
 			setVolume( atoi(value.c_str()) );
 		} else if (name == "selectordir") {
@@ -208,6 +215,7 @@ void LinkApp::setVolume(int vol) {
 	edited = true;
 }
 
+#if defined(TARGET_GP2X)
 //G
 int LinkApp::gamma() {
 	return igamma;
@@ -227,16 +235,16 @@ void LinkApp::setGamma(int gamma) {
 	edited = true;
 }
 // /G
+#endif
 
 void LinkApp::setBackdrop(const string selectedFile) {
 	backdrop = selectedFile;
 	edited = true;
 }
 
-
-
 bool LinkApp::targetExists() {
-#if !defined(TARGET_GP2X) && !defined(TARGET_WIZ) && !defined(TARGET_CAANOO)
+// #if !defined(TARGET_GP2X) && !defined(TARGET_WIZ) && !defined(TARGET_CAANOO)
+#if defined(TARGET_PC)
 	return true; //For displaying elements during testing on pc
 #endif
 
@@ -263,8 +271,12 @@ bool LinkApp::save() {
 		if (useRamTimings      ) f << "useramtimings=true"                  << endl;
 		if (useGinge           ) f << "useginge=true"                       << endl;
 		if (ivolume>0          ) f << "volume="          << ivolume         << endl;
+
+#if defined(TARGET_GP2X)
 		//G
 		if (igamma!=0          ) f << "gamma="           << igamma          << endl;
+#endif
+
 		if (selectordir!=""    ) f << "selectordir="     << selectordir     << endl;
 		if (selectorbrowser    ) f << "selectorbrowser=true"                << endl;
 		if (selectorfilter!="" ) f << "selectorfilter="  << selectorfilter  << endl;
@@ -464,17 +476,24 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	} else {
 		if (gmenu2x->confInt["saveSelection"] && (gmenu2x->confInt["section"]!=gmenu2x->menu->selSectionIndex() || gmenu2x->confInt["link"]!=gmenu2x->menu->selLinkIndex()))
 			gmenu2x->writeConfig();
+
+#if defined(TARGET_GP2X)
 		if (gmenu2x->fwType == "open2x" && gmenu2x->savedVolumeMode != gmenu2x->volumeMode)
 			gmenu2x->writeConfigOpen2x();
+#endif
 		if (selectedFile=="")
 			gmenu2x->writeTmp();
 		gmenu2x->quit();
 
-		if (clock()!=gmenu2x->confInt["menuClock"]){
+		if (clock()!=gmenu2x->confInt["menuClock"]) {
 			gmenu2x->setClock(clock());
-    }
+	    }
+
+#if defined(TARGET_GP2X)
 		if (gamma()!=0 && gamma()!=gmenu2x->confInt["gamma"])
 			gmenu2x->setGamma(gamma());
+#endif
+
 		execlp("/bin/sh","/bin/sh","-c",command.c_str(),NULL);
 		//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 		//try relaunching gmenu2x
