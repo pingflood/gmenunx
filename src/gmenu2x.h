@@ -230,7 +230,7 @@ public:
 	// void toggleSpeaker();
 	// void reboot();
 	void skinMenu();
-	void onChangeSkin();
+	uint onChangeSkin();
 
 #if defined(TARGET_GP2X)
 	void writeConfigOpen2x();

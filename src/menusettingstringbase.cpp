@@ -44,7 +44,7 @@ void MenuSettingStringBase::draw(int y)
 			HAlignLeft, VAlignMiddle);
 }
 
-void MenuSettingStringBase::manageInput()
+uint MenuSettingStringBase::manageInput()
 {
 	if (gmenu2x->input[CANCEL ]) clear();
 	if (gmenu2x->input[CONFIRM]) edit();

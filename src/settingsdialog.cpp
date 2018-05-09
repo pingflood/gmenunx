@@ -23,6 +23,7 @@
 
 #include "settingsdialog.h"
 #include "messagebox.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -129,15 +130,16 @@ bool SettingsDialog::exec() {
 		// BACKLIGHT
 		else if ( inputMgr[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
 // END OF COMMON ACTIONS
-		else if ( inputMgr[SETTINGS] ) action = SD_ACTION_CLOSE;
+		else if ( inputMgr[SETTINGS] ) action = SD_ACTION_SAVE;
 		else if ( inputMgr[UP      ] ) action = SD_ACTION_UP;
 		else if ( inputMgr[DOWN    ] ) action = SD_ACTION_DOWN;
 		else if ( inputMgr[PAGEUP  ] ) sel = (sel < numRows) ? sel = 0 : sel - numRows + 1;
 		else if ( inputMgr[PAGEDOWN] ) sel = (sel + numRows >= voices.size()) ? voices.size() - 1 : sel + numRows - 1;
-		voices[sel]->manageInput();
+		else action = voices[sel]->manageInput();
 
 		switch (action) {
-			case SD_ACTION_CLOSE: close = true; break;
+			case SD_ACTION_SAVE: save = true; close = true; break;
+			case SD_ACTION_CLOSE: save = false; close = true; break;
 			case SD_ACTION_UP: {
 				if (sel==0)
 					sel = voices.size()-1;
@@ -165,6 +167,7 @@ void SettingsDialog::addSetting(MenuSetting* set) {
 }
 
 bool SettingsDialog::edited() {
+	WARNING("EDITED!!");
 	for (uint i=0; i<voices.size(); i++)
 		if (voices[i]->edited()) return true;
 	return false;

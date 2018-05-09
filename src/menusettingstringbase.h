@@ -37,7 +37,7 @@ public:
 	virtual ~MenuSettingStringBase();
 
 	virtual void draw(int y);
-	virtual void manageInput();
+	virtual uint manageInput();
 	virtual bool edited();
 
 	void setValue(const std::string &value) { *_value = value; }

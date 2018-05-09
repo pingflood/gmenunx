@@ -66,7 +66,7 @@ void MenuSettingBool::draw(int y)
 	gmenu2x->s->write( gmenu2x->font, strvalue, 155, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
 }
 
-void MenuSettingBool::manageInput()
+uint MenuSettingBool::manageInput()
 {
 	if (gmenu2x->input[CONFIRM] || gmenu2x->input[LEFT] || gmenu2x->input[RIGHT] )
 		toggle();

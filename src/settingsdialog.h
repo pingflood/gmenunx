@@ -25,6 +25,7 @@
 #define SD_ACTION_CLOSE 1
 #define SD_ACTION_UP 2
 #define SD_ACTION_DOWN 3
+#define SD_ACTION_SAVE 4
 
 #include <string>
 #include "gmenu2x.h"
@@ -47,7 +48,7 @@ private:
 public:
 	SettingsDialog(GMenu2X *gmenu2x, InputManager &inputMgr, Touchscreen &ts, const string &text, const string &icon="skin:sections/settings.png");
 	~SettingsDialog();
-
+	bool save = false;
 	bool edited();
 	bool exec();
 	void addSetting(MenuSetting* set);

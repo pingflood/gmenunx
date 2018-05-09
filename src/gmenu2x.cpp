@@ -334,6 +334,9 @@ GMenu2X::GMenu2X() {
 	font = NULL;
 	menu = NULL;
 	setSkin(confStr["skin"], false);
+	
+	initBG();
+
 	initMenu();
 
 	if (!fileExists(confStr["wallpaper"])) {
@@ -348,7 +351,6 @@ GMenu2X::GMenu2X() {
 			confStr["wallpaper"] = fl.getPath()+"/"+fl.getFiles()[0];
 	}
 
-	initBG();
 	input.init(path+"input.conf");
 	setInputSpeed();
 
@@ -425,10 +427,31 @@ void GMenu2X::initBG(const string &imagePath) {
 		// wall.blit(bg, 0, 0);
 	}
 
-
 	// LINKS rect
 	linksRect = (SDL_Rect){0, 0, resX, resY};
 	sectionBarRect = (SDL_Rect){0, 0, resX, resY};
+
+	if (confStr["sectionBarPosition"] != "OFF") {
+		// x = 0; y = 0;
+		if (confStr["sectionBarPosition"] == "Left" || confStr["sectionBarPosition"] == "Right") {
+			sectionBarRect.x = (confStr["sectionBarPosition"] == "Right")*(resX - skinConfInt["sectionBarWidth"]);
+			sectionBarRect.w = skinConfInt["sectionBarWidth"];
+			linksRect.w = resX - skinConfInt["sectionBarWidth"];
+
+			if (confStr["sectionBarPosition"] == "Left") {
+				linksRect.x = skinConfInt["sectionBarWidth"];
+			}
+		} else {
+			sectionBarRect.y = (confStr["sectionBarPosition"] == "Bottom")*(resY - skinConfInt["sectionBarWidth"]);
+			sectionBarRect.h = skinConfInt["sectionBarWidth"];
+			linksRect.h = resY - skinConfInt["sectionBarWidth"];
+
+			if (confStr["sectionBarPosition"] == "Top") {
+				linksRect.y = skinConfInt["sectionBarWidth"];
+			}
+		}
+	}
+
 
 	// Surface *bgmain = new Surface(bg);
 	// sc.add(bgmain,"bgmain");
@@ -1026,48 +1049,25 @@ void GMenu2X::main() {
 
 		// SECTIONS
 		if (confStr["sectionBarPosition"] != "OFF") {
-				x = 0; y = 0;
+			s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
+
+			x = sectionBarRect.x; y = sectionBarRect.y;
+			for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
+				string sectionIcon = "skin:sections/"+menu->getSections()[i]+".png";
+				if (!sc.exists(sectionIcon))
+					sectionIcon = "skin:icons/section.png";
+
 				if (confStr["sectionBarPosition"] == "Left" || confStr["sectionBarPosition"] == "Right") {
-					sectionBarRect.x = (confStr["sectionBarPosition"] == "Right")*(resX - skinConfInt["sectionBarWidth"]);
-					sectionBarRect.w = skinConfInt["sectionBarWidth"];
-						linksRect.w = resX - skinConfInt["sectionBarWidth"];
-
-						if (confStr["sectionBarPosition"] == "Left") {
-							linksRect.x = skinConfInt["sectionBarWidth"];
-						} else {
-							// VERTICAL RIGHT
-							x = resX - skinConfInt["sectionBarWidth"];
-						}
+					y = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
 				} else {
-					sectionBarRect.y = (confStr["sectionBarPosition"] == "Bottom")*(resY - skinConfInt["sectionBarWidth"]);
-					sectionBarRect.h = skinConfInt["sectionBarWidth"];
-						linksRect.h = resY - skinConfInt["sectionBarWidth"];
-
-						if (confStr["sectionBarPosition"] == "Top") {
-							linksRect.y = skinConfInt["sectionBarWidth"];
-						} else {
-							// HORIZONTAL BOTTOM
-							y = resY - skinConfInt["sectionBarWidth"];
-						}
+					x = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
 				}
-				s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
 
-				for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
-					string sectionIcon = "skin:sections/"+menu->getSections()[i]+".png";
-					if (!sc.exists(sectionIcon))
-						sectionIcon = "skin:icons/section.png";
+				if (menu->selSectionIndex()==(int)i)
+					s->box(x, y, skinConfInt["sectionBarWidth"], skinConfInt["sectionBarWidth"], skinConfColors[COLOR_SELECTION_BG]);
 
-					if (confStr["sectionBarPosition"] == "Left" || confStr["sectionBarPosition"] == "Right") {
-						y = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
-					} else {
-						x = (i - menu->firstDispSection()) * skinConfInt["sectionBarWidth"];
-					}
-
-					if (menu->selSectionIndex()==(int)i)
-						s->box(x, y, skinConfInt["sectionBarWidth"], skinConfInt["sectionBarWidth"], skinConfColors[COLOR_SELECTION_BG]);
-
-					sc[sectionIcon]->blitCenter(s, x + skinConfInt["sectionBarWidth"]/2, y + skinConfInt["sectionBarWidth"]/2, skinConfInt["sectionBarWidth"], skinConfInt["sectionBarWidth"]);
-				}
+				sc[sectionIcon]->blitCenter(s, x + skinConfInt["sectionBarWidth"]/2, y + skinConfInt["sectionBarWidth"]/2, skinConfInt["sectionBarWidth"], skinConfInt["sectionBarWidth"]);
+			}
 		}
 
 		// LINKS
@@ -1477,17 +1477,8 @@ void GMenu2X::options() {
 	}
 }
 
-
-void GMenu2X::onChangeSkin() {
-	DEBUG("novo skin: %s", confStr["skin"].c_str());
-
-	// sc.setSkin(confStr["skin"]);
-
-	setSkin(confStr["skin"], true, true);
-	// DEBUG("22222222NOVO ONCHANGE");
-	// if (menu != NULL) menu->loadIcons();
-	// DEBUG("333333333NOVO ONCHANGE");
-	skinMenu();
+uint GMenu2X::onChangeSkin() {
+	return 1;
 }
 
 void GMenu2X::skinMenu() {
@@ -1495,33 +1486,38 @@ void GMenu2X::skinMenu() {
 	fl_sk.addExclude("..");
 	fl_sk.browse();
 	string curSkin = confStr["skin"];
+	bool save = false;
 
-	SettingsDialog sd(this, input, ts, tr["Skin"], "skin:icons/skin.png");
-	// sd.onChange(&NOVOCHANGE);
-	sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
-	sd.addSetting(new MenuSettingRGBA(this, tr["Top/Section Bar"], tr["Color of the top and section bar"], &skinConfColors[COLOR_TOP_BAR_BG]));
-	sd.addSetting(new MenuSettingRGBA(this, tr["List Body"], tr["Color of the list body"], &skinConfColors[COLOR_LIST_BG]));
-	sd.addSetting(new MenuSettingRGBA(this, tr["Bottom Bar"], tr["Color of the bottom bar"], &skinConfColors[COLOR_BOTTOM_BAR_BG]));
-	sd.addSetting(new MenuSettingRGBA(this, tr["Selection"], tr["Color of the selection and other interface details"], &skinConfColors[COLOR_SELECTION_BG]));
-	sd.addSetting(new MenuSettingRGBA(this, tr["Message Box"], tr["Background color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BG]));
-	sd.addSetting(new MenuSettingRGBA(this, tr["Msg Box Border"], tr["Border color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BORDER]));
-	sd.addSetting(new MenuSettingRGBA(this, tr["Msg Box Selection"], tr["Color of the selection of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_SELECTION]));
-	sd.addSetting(new MenuSettingRGBA(this, tr["Font"], tr["Color of the font"], &skinConfColors[COLOR_FONT]));
-	sd.addSetting(new MenuSettingRGBA(this, tr["Font Outline"], tr["Color of the font's outline"], &skinConfColors[COLOR_FONT_OUTLINE]));
-	sd.addSetting(new MenuSettingRGBA(this, tr["Alt Font"], tr["Color of the alternative font"], &skinConfColors[COLOR_FONT_ALT]));
-	sd.addSetting(new MenuSettingRGBA(this, tr["Alt Font Outline"], tr["Color of the alternative font outline"], &skinConfColors[COLOR_FONT_ALT_OUTLINE]));
+	do {
+		SettingsDialog sd(this, input, ts, tr["Skin"], "skin:icons/skin.png");
+		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
+		sd.addSetting(new MenuSettingRGBA(this, tr["Top/Section Bar"], tr["Color of the top and section bar"], &skinConfColors[COLOR_TOP_BAR_BG]));
+		sd.addSetting(new MenuSettingRGBA(this, tr["List Body"], tr["Color of the list body"], &skinConfColors[COLOR_LIST_BG]));
+		sd.addSetting(new MenuSettingRGBA(this, tr["Bottom Bar"], tr["Color of the bottom bar"], &skinConfColors[COLOR_BOTTOM_BAR_BG]));
+		sd.addSetting(new MenuSettingRGBA(this, tr["Selection"], tr["Color of the selection and other interface details"], &skinConfColors[COLOR_SELECTION_BG]));
+		sd.addSetting(new MenuSettingRGBA(this, tr["Message Box"], tr["Background color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BG]));
+		sd.addSetting(new MenuSettingRGBA(this, tr["Msg Box Border"], tr["Border color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BORDER]));
+		sd.addSetting(new MenuSettingRGBA(this, tr["Msg Box Selection"], tr["Color of the selection of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_SELECTION]));
+		sd.addSetting(new MenuSettingRGBA(this, tr["Font"], tr["Color of the font"], &skinConfColors[COLOR_FONT]));
+		sd.addSetting(new MenuSettingRGBA(this, tr["Font Outline"], tr["Color of the font's outline"], &skinConfColors[COLOR_FONT_OUTLINE]));
+		sd.addSetting(new MenuSettingRGBA(this, tr["Alt Font"], tr["Color of the alternative font"], &skinConfColors[COLOR_FONT_ALT]));
+		sd.addSetting(new MenuSettingRGBA(this, tr["Alt Font Outline"], tr["Color of the alternative font outline"], &skinConfColors[COLOR_FONT_ALT_OUTLINE]));
+		sd.exec();
 
-	if (sd.exec() && sd.edited()) {
+		save = sd.save;
 		font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
-		setSkin(confStr["skin"]);
-		writeSkinConfig();
+		setSkin(confStr["skin"], true, true);
 
-		if (curSkin != confStr["skin"]) {
-			writeConfig();
-			restart();
+		if (save && sd.edited()) {
+			writeSkinConfig();
+			if (curSkin != confStr["skin"]) {
+				writeConfig();
+				// restart();
+			}
+			initBG();
 		}
-		initBG();
-	}
+	} while (!save);
+
 }
 
 #if defined(TARGET_RS97)

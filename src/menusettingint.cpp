@@ -69,7 +69,7 @@ void MenuSettingInt::draw(int y) {
 	gmenu2x->s->write( gmenu2x->font, strvalue, 155, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
 }
 
-void MenuSettingInt::manageInput() {
+uint MenuSettingInt::manageInput() {
 	if ( gmenu2x->input[LEFT ] || gmenu2x->input[DEC] ) dec();
 	if ( gmenu2x->input[RIGHT] || gmenu2x->input[INC] || gmenu2x->input[CONFIRM] ) inc();
 	if ( gmenu2x->input[CANCEL] ) setDefault();

@@ -23,18 +23,17 @@
 #include "menusettingstringbase.h"
 
 #include <vector>
-#include <functional>
+// #include <functional>
 #include "debug.h"
 
 #include "FastDelegate.h"
 using namespace fastdelegate;
+using fastdelegate::MakeDelegate;
 
-// using std::function;
+// typedef void (*callback_function)(void); // type for conciseness
+// static void doNothing() {};
 
-typedef void (*callback_function)(void); // type for conciseness
-static void doNothing() {};
-
-typedef FastDelegate0<> cbAction, doNothingo;
+typedef FastDelegate0<uint> cbAction;
 
 class MenuSettingMultiString : public MenuSettingStringBase {
 private:
@@ -72,30 +71,18 @@ public:
 	// MenuSettingMultiString(
 	// 		GMenu2X *gmenu2x, const std::string &name,
 	// 		const std::string &description, std::string *value,
-	// 		const std::vector<std::string> *choices, callback_function pFunc);
+	// 		const std::vector<std::string> *choices, callback_function cbOnChange);
 
 	MenuSettingMultiString(
 			GMenu2X *gmenu2x, const std::string &name,
 			const std::string &description, std::string *value,
-			const std::vector<std::string> *choices, cbAction pFunc);
+			const std::vector<std::string> *choices, cbAction cbOnChange);
 
-	void voidAction() {};
+	uint voidAction() { return 0; };
 
-
-
-    // void (*onChange)();
-    // SettingsDialog& onChange( void(*newOnChange)() ) { _onChange = newOnChange; return *this; }
 
 	virtual ~MenuSettingMultiString() {};
-	virtual void manageInput();
-    // std::function<void(MenuSettingMultiString&)> onChange = { DEBUG("OI");}
-    // std::function<void(MenuSettingMultiString&)> onChange = &MenuSettingMultiString::doNothing;
-    // void (*onChange)();
-    // void onChange = doNothing;
-	// void onChange();
-
-	// void (*_onChange)() = 0;
-	// MenuSettingMultiString& onChange( void(*newOnChange)() ) { _onChange = newOnChange; return *this; }
+	virtual uint manageInput();
 };
 
 #endif

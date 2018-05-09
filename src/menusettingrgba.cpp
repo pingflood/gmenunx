@@ -79,7 +79,7 @@ void MenuSettingRGBA::handleTS() {
 	MenuSetting::handleTS();
 }
 
-void MenuSettingRGBA::manageInput() {
+uint MenuSettingRGBA::manageInput() {
 	if (gmenu2x->input[INC])
 		inc();
 	if (gmenu2x->input[DEC])
