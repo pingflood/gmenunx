@@ -23,6 +23,18 @@
 #include "menusettingstringbase.h"
 
 #include <vector>
+#include <functional>
+#include "debug.h"
+
+#include "FastDelegate.h"
+using namespace fastdelegate;
+
+// using std::function;
+
+typedef void (*callback_function)(void); // type for conciseness
+static void doNothing() {};
+
+typedef FastDelegate0<> cbAction, doNothingo;
 
 class MenuSettingMultiString : public MenuSettingStringBase {
 private:
@@ -37,14 +49,53 @@ private:
 	void decSel();
 	void setSel(int sel);
 
+	cbAction onChange; // variable to store function pointer type
+
+
+	// virtual void onChange() = 0;
+
+    // std::function<void(MenuSettingMultiString&)> onChange = &MenuSettingMultiString::doNothing;
+
+	// void doNothing();
+    // std::function<void(MenuSettingMultiString&)> onChange = &MenuSettingMultiString::doNothing;
 public:
+	// MenuSettingMultiString(
+	// 		GMenu2X *gmenu2x, const std::string &name,
+	// 		const std::string &description, std::string *value,
+	// 		const std::vector<std::string> *choices);
+
 	MenuSettingMultiString(
 			GMenu2X *gmenu2x, const std::string &name,
 			const std::string &description, std::string *value,
 			const std::vector<std::string> *choices);
-	virtual ~MenuSettingMultiString() {};
 
+	// MenuSettingMultiString(
+	// 		GMenu2X *gmenu2x, const std::string &name,
+	// 		const std::string &description, std::string *value,
+	// 		const std::vector<std::string> *choices, callback_function pFunc);
+
+	MenuSettingMultiString(
+			GMenu2X *gmenu2x, const std::string &name,
+			const std::string &description, std::string *value,
+			const std::vector<std::string> *choices, cbAction pFunc);
+
+	void voidAction() {};
+
+
+
+    // void (*onChange)();
+    // SettingsDialog& onChange( void(*newOnChange)() ) { _onChange = newOnChange; return *this; }
+
+	virtual ~MenuSettingMultiString() {};
 	virtual void manageInput();
+    // std::function<void(MenuSettingMultiString&)> onChange = { DEBUG("OI");}
+    // std::function<void(MenuSettingMultiString&)> onChange = &MenuSettingMultiString::doNothing;
+    // void (*onChange)();
+    // void onChange = doNothing;
+	// void onChange();
+
+	// void (*_onChange)() = 0;
+	// MenuSettingMultiString& onChange( void(*newOnChange)() ) { _onChange = newOnChange; return *this; }
 };
 
 #endif

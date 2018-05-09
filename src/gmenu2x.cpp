@@ -1498,13 +1498,14 @@ void GMenu2X::skinMenu() {
 	sd.addSetting(new MenuSettingRGBA(this, tr["Alt Font Outline"], tr["Color of the alternative font outline"], &skinConfColors[COLOR_FONT_ALT_OUTLINE]));
 
 	if (sd.exec() && sd.edited()) {
-		if (curSkin != confStr["skin"]) {
-			setSkin(confStr["skin"]);
-			writeConfig();
-		}
 		font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
-
+		setSkin(confStr["skin"]);
 		writeSkinConfig();
+
+		if (curSkin != confStr["skin"]) {
+			writeConfig();
+			restart();
+		}
 		initBG();
 	}
 }

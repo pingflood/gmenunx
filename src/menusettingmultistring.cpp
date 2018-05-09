@@ -29,13 +29,31 @@ using std::string;
 using std::vector;
 using fastdelegate::MakeDelegate;
 
+
+
 MenuSettingMultiString::MenuSettingMultiString(
 		GMenu2X *gmenu2x, const string &name,
 		const string &description, string *value,
 		const vector<string> *choices_)
+	: MenuSettingMultiString(
+		gmenu2x, name,
+		description, value,
+		choices_, MakeDelegate(this, &MenuSettingMultiString::voidAction)
+	){
+	ERROR("NO FUNC");
+	};
+
+
+MenuSettingMultiString::MenuSettingMultiString(
+		GMenu2X *gmenu2x, const string &name,
+		const string &description, string *value,
+		const vector<string> *choices_, cbAction pFunc)
 	: MenuSettingStringBase(gmenu2x, name, description, value)
 	, choices(choices_)
 {
+	ERROR("WITH FUNC: %d", pFunc);
+this->onChange = pFunc; // store
+
 	setSel(find(choices->begin(), choices->end(), *value) - choices->begin());
 
 	IconButton *btn;
@@ -47,23 +65,42 @@ MenuSettingMultiString::MenuSettingMultiString(
 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change value"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingMultiString::incSel));
 	buttonBox.add(btn);
+
+
+	// this->onChange = doNothing;
+
+// onChange();
+
 }
 
-void MenuSettingMultiString::manageInput()
-{
+void MenuSettingMultiString::manageInput() {
 	if (gmenu2x->input[LEFT ]) decSel();
-	if (gmenu2x->input[RIGHT] || gmenu2x->input[CONFIRM]) incSel();
+	else if (gmenu2x->input[RIGHT] || gmenu2x->input[CONFIRM]) incSel();
+
 }
 
-void MenuSettingMultiString::incSel()
-{
+void MenuSettingMultiString::incSel() {
 	setSel(selected + 1);
+		this->onChange();
 }
 
-void MenuSettingMultiString::decSel()
-{
+void MenuSettingMultiString::decSel() {
 	setSel(selected - 1);
+		this->onChange();
 }
+
+// void MenuSettingMultiString::onChange()
+// {
+// 	ERROR("class onchange changeD!");
+// }
+
+
+
+// void MenuSettingMultiString::doNothing()
+// {
+// 	ERROR("DO NOTHING!");
+// }
+
 
 void MenuSettingMultiString::setSel(int sel)
 {
@@ -73,5 +110,12 @@ void MenuSettingMultiString::setSel(int sel)
 		sel = 0;
 	}
 	selected = sel;
+
+// doNothing();
+// (onChange)();
+// _onChange();
+	// if(this->onChange > 0);
+
+
 	setValue((*choices)[sel]);
 }
