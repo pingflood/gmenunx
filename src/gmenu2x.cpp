@@ -1477,6 +1477,19 @@ void GMenu2X::options() {
 	}
 }
 
+
+void GMenu2X::onChangeSkin() {
+	DEBUG("novo skin: %s", confStr["skin"].c_str());
+
+	// sc.setSkin(confStr["skin"]);
+
+	setSkin(confStr["skin"], true, true);
+	// DEBUG("22222222NOVO ONCHANGE");
+	// if (menu != NULL) menu->loadIcons();
+	// DEBUG("333333333NOVO ONCHANGE");
+	skinMenu();
+}
+
 void GMenu2X::skinMenu() {
 	FileLister fl_sk("skins",true,false);
 	fl_sk.addExclude("..");
@@ -1484,7 +1497,8 @@ void GMenu2X::skinMenu() {
 	string curSkin = confStr["skin"];
 
 	SettingsDialog sd(this, input, ts, tr["Skin"], "skin:icons/skin.png");
-	sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories()));
+	// sd.onChange(&NOVOCHANGE);
+	sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
 	sd.addSetting(new MenuSettingRGBA(this, tr["Top/Section Bar"], tr["Color of the top and section bar"], &skinConfColors[COLOR_TOP_BAR_BG]));
 	sd.addSetting(new MenuSettingRGBA(this, tr["List Body"], tr["Color of the list body"], &skinConfColors[COLOR_LIST_BG]));
 	sd.addSetting(new MenuSettingRGBA(this, tr["Bottom Bar"], tr["Color of the bottom bar"], &skinConfColors[COLOR_BOTTOM_BAR_BG]));
@@ -1633,7 +1647,7 @@ void GMenu2X::toggleTvOut() {
 #endif
 }
 
-void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
+void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 	confStr["skin"] = skin;
 
 //Clear previous skin settings
@@ -1641,7 +1655,7 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 	skinConfInt.clear();
 
 //clear collection and change the skin path
-	sc.clear();
+	if (clearSC) sc.clear();
 	sc.setSkin(skin);
 	if (btnContextMenu != NULL)
 		btnContextMenu->setIcon( btnContextMenu->getIcon() );
@@ -1686,8 +1700,15 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper) {
 			}
 			skinconf.close();
 
-			if (setWallpaper && !skinConfStr["wallpaper"].empty() && fileExists("skins/"+skin+"/wallpapers/"+skinConfStr["wallpaper"]))
+			if (setWallpaper && !skinConfStr["wallpaper"].empty() && fileExists("skins/"+skin+"/wallpapers/"+skinConfStr["wallpaper"])) {
 				confStr["wallpaper"] = "skins/"+skin+"/wallpapers/"+skinConfStr["wallpaper"];
+
+		sc[confStr["wallpaper"]]->blit(bg,0,0);
+
+				WARNING("set wallpaper: %s",confStr["wallpaper"].c_str());
+
+
+			}
 		}
 	}
 
