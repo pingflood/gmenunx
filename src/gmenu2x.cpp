@@ -371,7 +371,7 @@ GMenu2X::GMenu2X() {
 	// bottomBarIconY = bottomBarTextY - 6; //10;
 
 	// LIST rect
-	listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
+	// listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
 
 }
 
@@ -451,6 +451,7 @@ void GMenu2X::initBG(const string &imagePath) {
 			}
 		}
 	}
+	listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
 
 
 	// Surface *bgmain = new Surface(bg);
@@ -1506,7 +1507,6 @@ void GMenu2X::skinMenu() {
 
 		save = sd.save;
 		font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
-		setSkin(confStr["skin"], true, true);
 
 		if (save && sd.edited()) {
 			writeSkinConfig();
@@ -1514,8 +1514,10 @@ void GMenu2X::skinMenu() {
 				writeConfig();
 				// restart();
 			}
-			initBG();
 		}
+		setSkin(confStr["skin"], true, true);
+		initBG();
+		
 	} while (!save);
 
 }
