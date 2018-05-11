@@ -45,7 +45,7 @@ private:
 
 	string exec, params, workdir, manual, selectordir, selectorfilter, selectorscreens, backdrop;
 	bool selectorbrowser, useRamTimings, useGinge;
-	void drawRun();
+	// void drawRun();
 
 	string aliasfile;
 	string file;
