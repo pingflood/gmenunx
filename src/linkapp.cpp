@@ -294,18 +294,18 @@ bool LinkApp::save() {
 }
 
 void LinkApp::drawRun() {
-	MessageBox mb(gmenu2x, gmenu2x->tr.translate("Launching $1",getTitle().c_str()), getIconPath());
-	mb.setAutoHide(1);
+	return;
+	MessageBox mb(gmenu2x, gmenu2x->tr.translate("Launching $1", getTitle().c_str()), getIconPath());
+	mb.setAutoHide(1000);
 	mb.exec();
 }
 
 void LinkApp::run() {
 	if (selectordir!="") {
 		selector();
-  }
-	else {
+	} else {
 		launch();
-  }
+	}
 }
 
 void LinkApp::showManual() {
@@ -387,10 +387,10 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	drawRun();
 	save();
-#if !defined(TARGET_GP2X) && !defined(TARGET_WIZ) && !defined(TARGET_CAANOO)
-	//delay for testing
-	SDL_Delay(1000);
-#endif
+// #if !defined(TARGET_GP2X) && !defined(TARGET_WIZ) && !defined(TARGET_CAANOO)
+// 	//delay for testing
+// 	SDL_Delay(1000);
+// #endif
   
 	//Set correct working directory
 	string wd = getRealWorkdir();
