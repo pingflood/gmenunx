@@ -13,17 +13,25 @@
 using std::vector;
 using std::string;
 
-enum FHHAlign {
-	HAlignLeft,
-	HAlignRight,
-	HAlignCenter
-};
+// enum FHHAlign {
+// 	HAlignLeft,
+// 	HAlignRight,
+// 	HAlignCenter
+// };
 
-enum FHVAlign {
-	VAlignTop,
-	VAlignBottom,
-	VAlignMiddle
-};
+// enum FHVAlign {
+// 	VAlignTop,
+// 	VAlignBottom,
+// 	VAlignMiddle
+// };
+
+
+const int	HAlignLeft		= 1,
+			HAlignRight		= 2,
+			HAlignCenter	= 4,
+			VAlignTop		= 8,
+			VAlignBottom	= 16,
+			VAlignMiddle	= 32;
 
 class Surface;
 
