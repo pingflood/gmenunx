@@ -1491,7 +1491,8 @@ void GMenu2X::skinMenu() {
 
 	do {
 		SettingsDialog sd(this, input, ts, tr["Skin"], "skin:icons/skin.png");
-		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
+		// sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories()));
 		sd.addSetting(new MenuSettingRGBA(this, tr["Top/Section Bar"], tr["Color of the top and section bar"], &skinConfColors[COLOR_TOP_BAR_BG]));
 		sd.addSetting(new MenuSettingRGBA(this, tr["List Body"], tr["Color of the list body"], &skinConfColors[COLOR_LIST_BG]));
 		sd.addSetting(new MenuSettingRGBA(this, tr["Bottom Bar"], tr["Color of the bottom bar"], &skinConfColors[COLOR_BOTTOM_BAR_BG]));
@@ -1509,14 +1510,14 @@ void GMenu2X::skinMenu() {
 		font->setColor(skinConfColors[COLOR_FONT])->setOutlineColor(skinConfColors[COLOR_FONT_OUTLINE]);
 
 		if (save && sd.edited()) {
+			setSkin(confStr["skin"], true, true);
 			writeSkinConfig();
 			if (curSkin != confStr["skin"]) {
 				writeConfig();
 				// restart();
 			}
+			initBG();
 		}
-		setSkin(confStr["skin"], true, true);
-		initBG();
 		
 	} while (!save);
 
