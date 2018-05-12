@@ -167,7 +167,7 @@ void SettingsDialog::addSetting(MenuSetting* set) {
 }
 
 bool SettingsDialog::edited() {
-	WARNING("EDITED!!");
+	// WARNING("EDITED!!");
 	for (uint i=0; i<voices.size(); i++)
 		if (voices[i]->edited()) return true;
 	return false;

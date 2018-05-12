@@ -59,13 +59,12 @@ MenuSettingMultiString::MenuSettingMultiString(
 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change value"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingMultiString::incSel));
 	buttonBox.add(btn);
-
 }
 
 uint MenuSettingMultiString::manageInput() {
-	if (gmenu2x->input[LEFT ]) { decSel(); }
-	else if (gmenu2x->input[RIGHT] || gmenu2x->input[CONFIRM]) { incSel(); }
-	return this->onChange(); // SD_ACTION_CLOSE
+	if (gmenu2x->input[LEFT ]) { decSel(); return this->onChange();}
+	else if (gmenu2x->input[RIGHT] || gmenu2x->input[CONFIRM]) { incSel(); return this->onChange();}
+	return 0; // SD_ACTION_CLOSE
 }
 
 void MenuSettingMultiString::incSel() {
