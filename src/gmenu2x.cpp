@@ -1729,6 +1729,9 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 	if (skinConfColors[COLOR_FONT_ALT].r == 253 && skinConfColors[COLOR_FONT_ALT].g == 1 && skinConfColors[COLOR_FONT_ALT].b == 252 && skinConfColors[COLOR_FONT_ALT].a == 0) skinConfColors[COLOR_FONT_ALT] = skinConfColors[COLOR_FONT];
 	if (skinConfColors[COLOR_FONT_ALT_OUTLINE].r == 253 && skinConfColors[COLOR_FONT_ALT_OUTLINE].g == 1 && skinConfColors[COLOR_FONT_ALT_OUTLINE].b == 252 && skinConfColors[COLOR_FONT_ALT_OUTLINE].a == 0) skinConfColors[COLOR_FONT_ALT_OUTLINE] = skinConfColors[COLOR_FONT_OUTLINE];
 
+// prevents breaking current skin until they are updated
+	if (!skinConfInt["fontSizeTitle"] && skinConfInt["titleFontSize"] > 0) skinConfInt["fontSizeTitle"] = skinConfInt["titleFontSize"];
+
 	evalIntConf( &skinConfInt["topBarHeight"], 40, 1, resY);
 	// evalIntConf( &skinConfInt["sectionBarHeight"], 200, 32, resY);
 	evalIntConf( &skinConfInt["sectionBarSize"], 40, 1, resX);
