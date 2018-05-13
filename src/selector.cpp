@@ -70,7 +70,7 @@ int Selector::exec(int startSelection) {
 	SDL_Rect rect;
 
 	if (screendir == "") {
-		gmenu2x->drawTopBar(gmenu2x->bg);
+		drawTopBar(gmenu2x->bg);
 		rect = gmenu2x->listRect; //{0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
 	} else {
 		gmenu2x->bg->box(0, 0, gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
@@ -89,7 +89,7 @@ int Selector::exec(int startSelection) {
 	gmenu2x->bg->clearClipRect();
 
 	gmenu2x->bg->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-	gmenu2x->drawBottomBar(gmenu2x->bg);
+	drawBottomBar(gmenu2x->bg);
 
 	if (link->getSelectorBrowser()) {
 		gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Select"],

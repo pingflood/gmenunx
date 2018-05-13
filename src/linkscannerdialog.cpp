@@ -13,14 +13,10 @@ void LinkScannerDialog::exec() {
 
 	bool close = false;
 
-	gmenu2x->drawTopBar(gmenu2x->bg);
-	writeTitle(title, gmenu2x->bg);
-	writeSubTitle(description, gmenu2x->bg);
-	drawTitleIcon(icon, true, gmenu2x->bg);
-
+	drawTopBar(gmenu2x->bg, title, description, icon);
+	drawBottomBar(gmenu2x->bg);
 	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	gmenu2x->drawBottomBar(gmenu2x->bg);
 	gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Back"]);
 
 	gmenu2x->bg->blit(gmenu2x->s,0,0);

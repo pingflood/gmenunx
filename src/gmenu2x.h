@@ -294,8 +294,8 @@ public:
 	void drawScrollBar(uint pagesize, uint totalsize, uint pagepos, SDL_Rect scrollRect);
 
 	// void drawSectionBar(Surface *s=NULL);
-	void drawTopBar(Surface *s=NULL);
-	void drawBottomBar(Surface *s=NULL);
+	// void drawTopBar(Surface *s = NULL, const string &title = NULL, const string &description = NULL, const string &icon = NULL);
+	// void drawBottomBar(Surface *s=NULL);
 	// void redrawBottomBar();
 
 	Menu* menu;

@@ -71,17 +71,13 @@ bool WallpaperDialog::exec()
 		else
 			gmenu2x->sc["skins/Default/wallpapers/"+wallpapers[selected]]->blit(gmenu2x->s,0,0);
 
-		gmenu2x->drawTopBar(gmenu2x->s);
-		gmenu2x->drawBottomBar(gmenu2x->s);
+		drawTopBar(gmenu2x->s, title, description, icon);
+		drawBottomBar(gmenu2x->s);
 
-		writeTitle(title);
-		writeSubTitle(description);
-		drawTitleIcon(icon, true);
-
-		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 		gmenu2x->drawButton(gmenu2x->s, "a", gmenu2x->tr["Select"],
 		gmenu2x->drawButton(gmenu2x->s, "b", gmenu2x->tr["Back"],5));
 
+		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 		//Selection
 		iY = selected-firstElement;
 		iY = gmenu2x->listRect.y+(iY*rowHeight);

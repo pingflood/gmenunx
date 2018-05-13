@@ -101,10 +101,7 @@ void TextDialog::exec() {
 
 	bool close = false;
 
-	gmenu2x->drawTopBar(gmenu2x->bg);
-	gmenu2x->drawBottomBar(gmenu2x->bg);
-
-	// rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
+	drawTopBar(gmenu2x->bg, title, description);
 
 	//link icon
 	if (gmenu2x->sc.skinRes(icon)==NULL)
@@ -112,9 +109,7 @@ void TextDialog::exec() {
 	else
 		drawTitleIcon(icon, false, gmenu2x->bg);
 
-	writeTitle(title, gmenu2x->bg);
-	writeSubTitle(description, gmenu2x->bg);
-
+	drawBottomBar(gmenu2x->bg);
 	gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Exit"],
 	gmenu2x->drawButton(gmenu2x->bg, "down", gmenu2x->tr["Scroll"],
 	gmenu2x->drawButton(gmenu2x->bg, "up", "", 5)-10));

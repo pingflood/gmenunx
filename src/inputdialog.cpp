@@ -144,13 +144,8 @@ bool InputDialog::exec() {
 	ok = true;
 
 	// gmenu2x->bg->box(0, 0, gmenu2x->skinConfInt["listX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-	gmenu2x->drawTopBar(gmenu2x->bg);
-	gmenu2x->drawBottomBar(gmenu2x->bg);
-
-	writeTitle(title, gmenu2x->bg);
-	writeSubTitle(text, gmenu2x->bg);
-	drawTitleIcon(icon, true, gmenu2x->bg);
-
+	drawTopBar(gmenu2x->bg, title, text, icon);
+	drawBottomBar(gmenu2x->bg);
 	gmenu2x->drawButton(gmenu2x->bg, "x", gmenu2x->tr["Keys"],
 	gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Press"],
 	gmenu2x->drawButton(gmenu2x->bg, "r", gmenu2x->tr["Space"],

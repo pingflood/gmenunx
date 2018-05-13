@@ -55,14 +55,9 @@ bool BrowseDialog::exec() {
 	selected = 0;
 	close = false;
 
-	gmenu2x->drawTopBar(gmenu2x->bg);
-	gmenu2x->drawBottomBar(gmenu2x->bg);
+	drawTopBar(gmenu2x->bg, title, subtitle, "icons/explorer.png");
+	drawBottomBar(gmenu2x->bg);
 	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-
-	writeTitle(title, gmenu2x->bg);
-	writeSubTitle(subtitle, gmenu2x->bg);
-
-	drawTitleIcon("icons/explorer.png", true, gmenu2x->bg);
 
 	// gmenu2x->bg->setClipRect(gmenu2x->listRect);
 
