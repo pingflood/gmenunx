@@ -184,7 +184,11 @@ void BrowseDialog::handleInput() {
 		// action = BrowseDialog::ACT_GOUP;
 	switch (action) {
 	case BrowseDialog::ACT_CLOSE:
-		cancel();
+		if (fl->isDirectory(selected)) {
+			confirm();
+		} else {
+			cancel();
+		}
 		break;
 	case BrowseDialog::ACT_UP:
 		if (selected == 0)
@@ -239,11 +243,9 @@ void BrowseDialog::directoryUp() {
 	if (p == string::npos || p < 4 || path.compare(0, CARD_ROOT_LEN, CARD_ROOT) != 0) {
 		close = true;
 		result = false;
-
 	} else {
 		selected = 0;
 		setPath("/"+path.substr(0, p));
-
 	}
 }
 
