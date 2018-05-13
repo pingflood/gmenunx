@@ -1719,7 +1719,6 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 			if (setWallpaper && !skinConfStr["wallpaper"].empty() && fileExists("skins/"+skin+"/wallpapers/"+skinConfStr["wallpaper"])) {
 				confStr["wallpaper"] = "skins/"+skin+"/wallpapers/"+skinConfStr["wallpaper"];
 				sc[confStr["wallpaper"]]->blit(bg,0,0);
-				WARNING("set wallpaper: %s",confStr["wallpaper"].c_str());
 			}
 		}
 	}

@@ -39,7 +39,6 @@ bool BrowseDialog::exec() {
 	unsigned int i, iY;
 	unsigned int firstElement=0; //, lastElement;
 	unsigned int offsetY;
-	// Surface *icon;
 
 	if (!fl)
 		return false;
@@ -50,48 +49,44 @@ bool BrowseDialog::exec() {
 
 	fl->browse();
 
-	// clipRect = (SDL_Rect){0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
-	// touchRect = gmenu2x->listRect; //(SDL_Rect){2, gmenu2x->skinConfInt["topBarHeight"]+4, gmenu2x->resX-12, gmenu2x->listRect.h};
-
 	rowHeight = gmenu2x->font->getHeight()+1;
 	numRows = gmenu2x->listRect.h/rowHeight - 1;
 
 	selected = 0;
 	close = false;
 
-	gmenu2x->drawTopBar(gmenu2x->bg);
-	gmenu2x->drawBottomBar(gmenu2x->bg);
-	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	gmenu2x->drawTopBar(gmenu2x->s);
+	gmenu2x->drawBottomBar(gmenu2x->s);
+	gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+
+	writeTitle(title);
+	writeSubTitle(subtitle);
+
+	buttonBox.paint(5);
+	drawTitleIcon("icons/explorer.png", true);
+
+	gmenu2x->s->setClipRect(gmenu2x->listRect);
 
 	while (!close) {
 		if (gmenu2x->f200) gmenu2x->ts.poll();
 
 		gmenu2x->bg->blit(gmenu2x->s, 0, 0);
 
-		beforeFileList();
+		beforeFileList(); // imagedialog.cpp
 
-		drawTitleIcon("icons/explorer.png", true);
-		writeTitle(title);
-		writeSubTitle(subtitle);
+		if (selected > firstElement + numRows) firstElement = selected - numRows;
+		if (selected < firstElement) firstElement = selected;
 
-		buttonBox.paint(5);
-
-		if (selected>firstElement+numRows) firstElement=selected-numRows;
-		if (selected<firstElement) firstElement=selected;
-
-		//paint();
 		offsetY = gmenu2x->listRect.y;
 
+		iY = selected - firstElement;
+		iY = offsetY + iY * rowHeight;
+
 		//Selection
-		iY = selected-firstElement;
-		iY = offsetY + iY*rowHeight;
 		gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
-
 		//Files & Directories
-		gmenu2x->s->setClipRect(gmenu2x->listRect);
-		for (i = firstElement; i < fl->size() && i <= firstElement+numRows; i++) {
-
+		for (i = firstElement; i < fl->size() && i <= firstElement + numRows; i++) {
 			if (fl->isDirectory(i)) {
 				if ((*fl)[i] == "..")
 						iconGoUp->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2);
@@ -109,13 +104,13 @@ bool BrowseDialog::exec() {
 
 			offsetY += rowHeight;
 		}
-		gmenu2x->s->clearClipRect();
 
 		gmenu2x->drawScrollBar(numRows, fl->size(), firstElement, gmenu2x->listRect);
 		gmenu2x->s->flip();
 
 		handleInput();
 	}
+	gmenu2x->s->clearClipRect();
 	return result;
 }
 
