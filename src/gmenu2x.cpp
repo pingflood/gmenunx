@@ -952,7 +952,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 				s->box(progress, skinConfColors[COLOR_MESSAGE_BOX_BG]);
 				s->box(progress.x + 1, progress.y + 1, val * (progress.w - 3) / 100 + 1, progress.h - 2, skinConfColors[COLOR_MESSAGE_BOX_SELECTION]);
 				s->flip();
-				input.update(0);
+				input.update(false);
 				if ((SDL_GetTicks()-tickStart) >= 3000 || input[MODIFIER] || input[CONFIRM] || input[CANCEL]) close = true;
 
 				if (input[LEFT]) {
@@ -1031,7 +1031,7 @@ void GMenu2X::main() {
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();
-		inputAction = input.update(0);
+		inputAction = input.update(false);
 		if(suspendActive) {
 			// SUSPEND ACTIVE
 			if (input[POWER]) {

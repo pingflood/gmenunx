@@ -140,7 +140,7 @@ int MessageBox::exec() {
 			}
 		}
 
-		inputAction = gmenu2x->input.update(0);
+		inputAction = gmenu2x->input.update(false);
 		if (inputAction) {
 // COMMON ACTIONS
 			if ( gmenu2x->input.isActive(MODIFIER) ) {
