@@ -663,6 +663,16 @@ void GMenu2X::linkScanner() {
 	ls.exec();
 }
 
+void GMenu2X::changeWallpaper() {
+	WallpaperDialog wp(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], "icons/wallpaper.png");
+	if (wp.exec() && confStr["wallpaper"] != wp.wallpaper) {
+		confStr["wallpaper"] = wp.wallpaper;
+		initBG();
+		writeConfig();
+	}
+}
+
+
 void GMenu2X::readConfig() {
 	string conffile = path+"gmenu2x.conf";
 
@@ -1876,15 +1886,6 @@ void GMenu2X::contextMenu() {
 		else if ( input[RIGHT] || input[PAGEDOWN] ) sel = (int)voices.size()-1;
 	}
 	input.setWakeUpInterval(0);
-}
-
-void GMenu2X::changeWallpaper() {
-	WallpaperDialog wp(this);
-	if (wp.exec() && confStr["wallpaper"] != wp.wallpaper) {
-		confStr["wallpaper"] = wp.wallpaper;
-		initBG();
-		writeConfig();
-	}
 }
 
 bool GMenu2X::saveScreenshot() {

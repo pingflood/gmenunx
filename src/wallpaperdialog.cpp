@@ -27,8 +27,12 @@
 
 using namespace std;
 
-WallpaperDialog::WallpaperDialog(GMenu2X *gmenu2x)
-	: Dialog(gmenu2x) {}
+WallpaperDialog::WallpaperDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
+	: Dialog(gmenu2x) {
+	this->title = title;
+	this->description = description;
+	this->icon = icon;
+}
 
 bool WallpaperDialog::exec()
 {
@@ -70,9 +74,9 @@ bool WallpaperDialog::exec()
 		gmenu2x->drawTopBar(gmenu2x->s);
 		gmenu2x->drawBottomBar(gmenu2x->s);
 
-		drawTitleIcon("icons/wallpaper.png",true);
-		writeTitle(gmenu2x->tr["Wallpaper"]);
-		writeSubTitle(gmenu2x->tr["Select an image to use as a wallpaper"]);
+		writeTitle(title);
+		writeSubTitle(description);
+		drawTitleIcon(icon, true);
 
 		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 		gmenu2x->drawButton(gmenu2x->s, "a", gmenu2x->tr["Select"],
