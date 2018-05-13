@@ -1447,7 +1447,7 @@ void GMenu2X::options() {
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
 	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Set the screen timeout and suspend delay"], &confInt["backlightTimeout"], 30, 10, 300));
 	sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
-	sd.addSetting(new MenuSettingBool(this, tr["Skin Backdrops"], tr["Automatic load of backdrops from skin pack"], &confInt["skinBackdrops"]));
+	sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load of backdrops from skin pack"], &confInt["skinBackdrops"]));
 	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &confStr["sectionBarPosition"], &sectionBarPosition));
 
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
