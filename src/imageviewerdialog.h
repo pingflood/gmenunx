@@ -18,28 +18,29 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TEXTMANUALDIALOG_H_
-#define TEXTMANUALDIALOG_H_
+#ifndef IMAGEVIEWERDIALOG_H_
+#define IMAGEVIEWERDIALOG_H_
 
 #include <string>
-#include "textdialog.h"
-#include "gmenu2x.h"
+#include <fstream>
 
+#include "gmenu2x.h"
+#include "dialog.h"
+// #include "messagebox.h"
+
+using namespace std;
 using std::string;
 using std::vector;
+using std::ifstream;
+using std::ios_base;
 
-struct ManualPage {
-	string title;
-	vector<string> text;
-};
-
-class TextManualDialog : public TextDialog {
-private:
-	vector<ManualPage> pages;
+class ImageViewerDialog : protected Dialog {
+protected:
+	string title, description, icon, manual;
 
 public:
-	TextManualDialog(GMenu2X *gmenu2x, const string &title, const string &icon, vector<string> *text);
+	ImageViewerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon = "icons/ebook.png", const string &manual = "");
 	void exec();
 };
 
-#endif /*TEXTMANUALDIALOG_H_*/
+#endif /*IMAGEVIEWERDIALOG_H_*/

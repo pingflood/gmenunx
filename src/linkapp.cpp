@@ -27,7 +27,8 @@
 #include "linkapp.h"
 #include "menu.h"
 #include "selector.h"
-#include "textmanualdialog.h"
+#include "textdialog.h"
+#include "imageviewerdialog.h"
 // #include "messagebox.h"
 #include "debug.h"
 
@@ -311,46 +312,11 @@ void LinkApp::run() {
 void LinkApp::showManual() {
 	if (manual=="" || !fileExists(manual)) return;
 
-	// Png manuals
-	string ext8 = manual.substr(manual.size()-8,8);
-	if (ext8==".man.png" || ext8==".man.bmp" || ext8==".man.jpg" || manual.substr(manual.size()-9,9)==".man.jpeg") {
-		Surface pngman(manual);
-		Surface bg(gmenu2x->confStr["wallpaper"],false);
-		stringstream ss;
-		string pageStatus;
+	string ext = manual.substr(manual.size()-4,4);
+	if (ext==".png" || ext==".bmp" || ext==".jpg" || ext=="jpeg") {
 
-		bool close = false, repaint = true;
-		int page=0, pagecount=pngman.raw->w/320;
-
-		ss << pagecount;
-		string spagecount;
-		ss >> spagecount;
-
-		while (!close) {
-			if (repaint) {
-				bg.blit(gmenu2x->s, 0, 0);
-				pngman.blit(gmenu2x->s, -page*320, 0);
-
-				// drawBottomBar();
-				gmenu2x->drawButton(gmenu2x->s, "x", gmenu2x->tr["Exit"],
-				gmenu2x->drawButton(gmenu2x->s, "right", gmenu2x->tr["Change page"],
-				gmenu2x->drawButton(gmenu2x->s, "left", "", 5)-10));
-
-				ss.clear();
-				ss << page+1;
-				ss >> pageStatus;
-				pageStatus = gmenu2x->tr["Page"]+": "+pageStatus+"/"+spagecount;
-				gmenu2x->s->write(gmenu2x->font, pageStatus, 310, 230, HAlignRight, VAlignMiddle);
-
-				gmenu2x->s->flip();
-				repaint = false;
-			}
-
-			inputMgr.update();
-			if ( inputMgr[MANUAL] || inputMgr[CANCEL] || inputMgr[SETTINGS] ) close = true;
-			else if ( inputMgr[LEFT] && page>0 ) { page--; repaint=true; }
-			else if ( inputMgr[RIGHT] && page<pagecount-1 ) { page++; repaint=true; }
-		}
+		ImageViewerDialog im(gmenu2x, title, description, icon, manual);
+		im.exec();
 		return;
 	}
 
@@ -364,14 +330,10 @@ void LinkApp::showManual() {
 			txtman.push_back( strreplace(line, "\r", "") );
 		infile.close();
 
-		if (manual.substr(manual.size()-8,8)==".man.txt") {
-			TextManualDialog tmd(gmenu2x, getTitle(), getIconPath(), &txtman);
-			tmd.exec();
-		} else {
-			TextDialog td(gmenu2x, getTitle(), "ReadMe", getIconPath(), &txtman);
-			td.exec();
-		}
+		TextDialog td(gmenu2x, title, description, icon, &txtman);
+		td.exec();
 	}
+
 }
 
 void LinkApp::selector(int startSelection, const string &selectorDir) {
