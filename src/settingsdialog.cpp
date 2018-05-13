@@ -56,11 +56,11 @@ bool SettingsDialog::exec() {
 	uint rowHeight = gmenu2x->font->getHeight();
 	uint numRows = gmenu2x->listRect.h/rowHeight;
 
-	drawTopBar(gmenu2x->bg, text, "", icon);
-	drawBottomBar(gmenu2x->bg);
-	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-
 	while (!close) {
+		drawTopBar(gmenu2x->bg, text, "", icon);
+		drawBottomBar(gmenu2x->bg);
+		gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+
 		action = SD_NO_ACTION;
 		// if (gmenu2x->f200) ts.poll();
 		
