@@ -34,13 +34,11 @@ void LinkScannerDialog::exec() {
 		ss << DEFAULT_CPU_CLK;
 		ss >> strClock;
 		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("Raising cpu clock to $1Mhz",  strClock.c_str(),  NULL), 5, lineY);
-		// gmenu2x->bg->blit(gmenu2x->s,0,0);
 		gmenu2x->s->flip();
 		lineY += 26;
 	}
 
 	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Scanning SD filesystem..."], 5, lineY);
-	// gmenu2x->bg->blit(gmenu2x->s,0,0);
 	gmenu2x->s->flip();
 	lineY += 26;
 
@@ -50,7 +48,6 @@ void LinkScannerDialog::exec() {
 	//Onyl gph firmware has nand
 	if (gmenu2x->fwType == "gph" && !gmenu2x->f200) {
 		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Scanning NAND filesystem..."], 5, lineY);
-		// gmenu2x->bg->blit(gmenu2x->s,0,0);
 		gmenu2x->s->flip();
 		lineY += 26;
 		scanPath("/mnt/nand", &files);
@@ -63,7 +60,6 @@ void LinkScannerDialog::exec() {
 	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("$1 files found.", str.c_str(), NULL), 5, lineY);
 	lineY += 26;
 	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Creating links..."], 5, lineY);
-	// gmenu2x->bg->blit(gmenu2x->s,0,0);
 	gmenu2x->s->flip();
 	lineY += 26;
 
@@ -86,14 +82,12 @@ void LinkScannerDialog::exec() {
 	ss << linkCount;
 	ss >> str;
 	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("$1 links created.", str.c_str(), NULL), 5, lineY);
-	// gmenu2x->bg->blit(gmenu2x->s,0,0);
 	gmenu2x->s->flip();
 	lineY += 26;
 
 	if (gmenu2x->confInt["menuClock"] < DEFAULT_CPU_CLK) {
 		gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
 		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Decreasing CPU clock"], 5, lineY);
-		// gmenu2x->bg->blit(gmenu2x->s,0,0);
 		gmenu2x->s->flip();
 		lineY += 26;
 	}
@@ -101,9 +95,8 @@ void LinkScannerDialog::exec() {
 	sync();
 	// ledOff();
 
-
 	while (!close) {
-		gmenu2x->input.update(false);
+		gmenu2x->input.update();
 
 // COMMON ACTIONS
 		if ( gmenu2x->input.isActive(MODIFIER) ) {
