@@ -36,8 +36,6 @@ bool WallpaperDialog::exec()
 
 	bool close = false, result = true;
 
-	// SDL_Rect rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
-
 	// dc: adjust rowheight with font
 	uint rowHeight = gmenu2x->font->getHeight()+1; // gp2x=15+1 / pandora=19+1
 	uint numRows = gmenu2x->listRect.h/rowHeight - 1;
@@ -58,7 +56,6 @@ bool WallpaperDialog::exec()
 	DEBUG("Wallpapers: %i", wallpapers.size());
 
 	uint i, selected = 0, firstElement = 0, iY;
-
 
 	while (!close) {
 		if (selected>firstElement+numRows) firstElement=selected-numRows;
@@ -88,15 +85,12 @@ bool WallpaperDialog::exec()
 		gmenu2x->s->box(0, iY + 3, gmenu2x->resX, rowHeight-1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//Files & Directories
-		gmenu2x->s->setClipRect(gmenu2x->listRect);
-
 		for (i=firstElement; i<wallpapers.size() && i<=firstElement+numRows; i++) {
 			iY = i-firstElement;
 			iY = iY*rowHeight + 3 + gmenu2x->listRect.y + rowHeight/3;
 
 			gmenu2x->s->write(gmenu2x->font, wallpapers[i], 5, iY, HAlignLeft, VAlignMiddle);
 		}
-		gmenu2x->s->clearClipRect();
 
 		gmenu2x->drawScrollBar(numRows, wallpapers.size(), firstElement, gmenu2x->listRect);
 

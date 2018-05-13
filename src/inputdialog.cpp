@@ -94,22 +94,22 @@ InputDialog::InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr_,
 
 	setKeyboard(0);
 
-	ButtonAction actBackspace = MakeDelegate(this, &InputDialog::backspace);
+	// ButtonAction actBackspace = MakeDelegate(this, &InputDialog::backspace);
 
 	//btnBackspaceX = new IconButton(gmenu2x, "skin:imgs/buttons/x.png");
 	//btnBackspaceX->setAction(actBackspace);
 
-	btnBackspaceL = new IconButton(gmenu2x, "skin:imgs/buttons/l.png", gmenu2x->tr["Backspace"]);
-	btnBackspaceL->setAction(actBackspace);
+	// btnBackspaceL = new IconButton(gmenu2x, "skin:imgs/buttons/l.png", gmenu2x->tr["Backspace"]);
+	// btnBackspaceL->setAction(actBackspace);
 
-	btnSpace = new IconButton(gmenu2x, "skin:imgs/buttons/r.png", gmenu2x->tr["Space"]);
-	btnSpace->setAction(MakeDelegate(this, &InputDialog::space));
+	// btnSpace = new IconButton(gmenu2x, "skin:imgs/buttons/r.png", gmenu2x->tr["Space"]);
+	// btnSpace->setAction(MakeDelegate(this, &InputDialog::space));
 
-	btnConfirm = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Confirm"]);
-	btnConfirm->setAction(MakeDelegate(this, &InputDialog::confirm));
+	// btnConfirm = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Confirm"]);
+	// btnConfirm->setAction(MakeDelegate(this, &InputDialog::confirm));
 
-	btnChangeKeys = new IconButton(gmenu2x, "skin:imgs/buttons/y.png", gmenu2x->tr["Change keys"]);
-	btnChangeKeys->setAction(MakeDelegate(this, &InputDialog::changeKeys));
+	// btnChangeKeys = new IconButton(gmenu2x, "skin:imgs/buttons/y.png", gmenu2x->tr["Change keys"]);
+	// btnChangeKeys->setAction(MakeDelegate(this, &InputDialog::changeKeys));
 }
 
 void InputDialog::setKeyboard(int kb) {
@@ -135,7 +135,6 @@ void InputDialog::setKeyboard(int kb) {
 
 bool InputDialog::exec() {
 	SDL_Rect box = {0, 60, 0, gmenu2x->font->getHeight()+4};
-	// SDL_Rect rect = {0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
 
 	Uint32 caretTick = 0, curTick;
 	bool caretOn = true;
@@ -148,24 +147,23 @@ bool InputDialog::exec() {
 	gmenu2x->drawTopBar(gmenu2x->bg);
 	gmenu2x->drawBottomBar(gmenu2x->bg);
 
+	writeTitle(title, gmenu2x->bg);
+	writeSubTitle(text, gmenu2x->bg);
+	drawTitleIcon(icon, true, gmenu2x->bg);
+
+	gmenu2x->drawButton(gmenu2x->bg, "x", gmenu2x->tr["Keys"],
+	gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Press"],
+	gmenu2x->drawButton(gmenu2x->bg, "r", gmenu2x->tr["Space"],
+	gmenu2x->drawButton(gmenu2x->bg, "l", gmenu2x->tr["Backspace"]))));
+
 	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	while (!close) {
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
-		writeTitle(title);
-		writeSubTitle(text);
-		drawTitleIcon(icon);
 
-		gmenu2x->drawButton(gmenu2x->s, "x", gmenu2x->tr["Change keys"],
-		gmenu2x->drawButton(gmenu2x->s, "a", gmenu2x->tr["Confirm"],
-		gmenu2x->drawButton(gmenu2x->s, "r", gmenu2x->tr["Space"],
-		//gmenu2x->drawButton(btnBackspaceL, 
-      //gmenu2x->drawButton(btnBackspaceX)-6))));
-		gmenu2x->drawButton(btnBackspaceL))));
 		box.w = gmenu2x->font->getTextWidth(input)+18;
 		box.x = 160-box.w/2;
-		gmenu2x->s->box(box.x, box.y, box.w, box.h,
-		gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		gmenu2x->s->box(box.x, box.y, box.w, box.h, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 		gmenu2x->s->rectangle(box.x, box.y, box.w, box.h, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		gmenu2x->s->write(gmenu2x->font, input, box.x+5, box.y+box.h-4, HAlignLeft, VAlignBottom);

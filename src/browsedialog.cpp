@@ -55,22 +55,23 @@ bool BrowseDialog::exec() {
 	selected = 0;
 	close = false;
 
-	gmenu2x->drawTopBar(gmenu2x->s);
-	gmenu2x->drawBottomBar(gmenu2x->s);
-	gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	gmenu2x->drawTopBar(gmenu2x->bg);
+	gmenu2x->drawBottomBar(gmenu2x->bg);
+	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	writeTitle(title);
-	writeSubTitle(subtitle);
+	writeTitle(title, gmenu2x->bg);
+	writeSubTitle(subtitle, gmenu2x->bg);
 
-	buttonBox.paint(5);
-	drawTitleIcon("icons/explorer.png", true);
+	drawTitleIcon("icons/explorer.png", true, gmenu2x->bg);
 
-	gmenu2x->s->setClipRect(gmenu2x->listRect);
+	// gmenu2x->bg->setClipRect(gmenu2x->listRect);
 
 	while (!close) {
 		if (gmenu2x->f200) gmenu2x->ts.poll();
 
 		gmenu2x->bg->blit(gmenu2x->s, 0, 0);
+
+		buttonBox.paint(5);
 
 		beforeFileList(); // imagedialog.cpp
 
@@ -110,7 +111,7 @@ bool BrowseDialog::exec() {
 
 		handleInput();
 	}
-	gmenu2x->s->clearClipRect();
+	// gmenu2x->s->clearClipRect();
 	return result;
 }
 

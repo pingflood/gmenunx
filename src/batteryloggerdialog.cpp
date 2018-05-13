@@ -26,7 +26,6 @@ void BatteryLoggerDialog::exec() {
 	gmenu2x->drawButton(gmenu2x->bg, "down", gmenu2x->tr["Scroll"],
 	gmenu2x->drawButton(gmenu2x->bg, "up", "", 5)-10)));
 
-
 	gmenu2x->bg->blit(gmenu2x->s,0,0);
 
 	gmenu2x->setBacklight(100);
