@@ -82,12 +82,12 @@ static GMenu2X *app;
 
 using std::ifstream;
 using std::ofstream;
-using std::endl;
-using std::setw;
-using std::setfill;
-using std::right;
-using std::hex;
-using std::ios_base;
+// using std::endl;
+// using std::setw;
+// using std::setfill;
+// using std::right;
+// using std::hex;
+// using std::ios_base;
 using std::stringstream;
 using namespace fastdelegate;
 
@@ -671,7 +671,6 @@ void GMenu2X::changeWallpaper() {
 		writeConfig();
 	}
 }
-
 
 void GMenu2X::readConfig() {
 	string conffile = path+"gmenu2x.conf";
@@ -1553,12 +1552,12 @@ void GMenu2X::skinMenu() {
 
 #if defined(TARGET_RS97)
 void GMenu2X::umountSd() {
-	MessageBox mb(this, tr["Do you want to umount external sdcard ?"], "icons/eject.png");
+	MessageBox mb(this, tr["Do you want to umount external sdcard?"], "icons/eject.png");
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() == CONFIRM) {
 		system("/usr/bin/umount_ext_sd.sh");
-		MessageBox mb(this,tr["Complete !"]);
+		MessageBox mb(this,tr["Complete!"]);
 		mb.exec();
 	}
 }
