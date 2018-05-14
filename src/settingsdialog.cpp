@@ -57,14 +57,15 @@ bool SettingsDialog::exec() {
 	uint numRows = gmenu2x->listRect.h/rowHeight;
 
 	while (!close) {
-		drawTopBar(gmenu2x->bg, text, "", icon);
-		drawBottomBar(gmenu2x->bg);
-		gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+		gmenu2x->bg->blit(gmenu2x->s,0,0);
+
+		drawTopBar(gmenu2x->s, text, "", icon);
+		drawBottomBar(gmenu2x->s);
+		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 		action = SD_NO_ACTION;
 		// if (gmenu2x->f200) ts.poll();
 		
-		gmenu2x->bg->blit(gmenu2x->s,0,0);
 		writeSubTitle(voices[sel]->getDescription());
 
 		// gmenu2x->font->setColor(gmenu2x->skinConfColors[COLOR_FONT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_OUTLINE]);
@@ -84,6 +85,7 @@ bool SettingsDialog::exec() {
 
 		if (ts_pressed && !ts.pressed()) ts_pressed = false;
 		if (gmenu2x->f200 && ts.pressed() && !ts.inRect(gmenu2x->listRect)) ts_pressed = false;
+
 		for (i=firstElement; i<voices.size() && i<firstElement+numRows; i++) {
 			iY = i-firstElement;
 			voices[i]->draw(iY*rowHeight+gmenu2x->listRect.y);

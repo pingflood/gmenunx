@@ -1511,6 +1511,7 @@ void GMenu2X::skinMenu() {
 	bool save = false;
 
 	do {
+		sc.del("skin:icons/skin.png");
 		setSkin(confStr["skin"], true, false);
 
 		SettingsDialog sd(this, input, ts, tr["Skin"], "skin:icons/skin.png");
