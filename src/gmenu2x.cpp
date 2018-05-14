@@ -975,7 +975,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 	return val;
 }
 
-bool GMenu2X::setSuspend(bool suspend) {
+void GMenu2X::setSuspend(bool suspend) {
 	if (suspend) {
 		// input.setInterval(0);
 		input.setWakeUpInterval(0);
@@ -988,12 +988,12 @@ bool GMenu2X::setSuspend(bool suspend) {
 		// input.setWakeUpInterval(1000);
 		// setInputSpeed();
 	}
-	return suspend;
+	suspendActive = suspend;
 }
 
 void GMenu2X::main() {
 	// int ret;
-	bool suspendActive = false;
+	// bool suspendActive = false;
 	unsigned short battlevel = 0; //getBatteryLevel();
 	// int battMsgWidth = (19*2);
 	pthread_t thread_id;
@@ -1044,7 +1044,7 @@ void GMenu2X::main() {
 			if (input[POWER]) {
 				tickPowerOff = 0;
 				tickSuspend = tickNow;
-				suspendActive = setSuspend(false);
+				setSuspend(false);
 			}
 			continue;
 		}
@@ -1265,7 +1265,7 @@ void GMenu2X::main() {
 						mb.exec();
 
 						// SDL_Delay(1000);
-						suspendActive = setSuspend(true);
+						setSuspend(true);
 						tickPowerOff = 0;
 					}
 			} else {
@@ -1619,7 +1619,7 @@ void GMenu2X::poweroff() {
 		mb.setAutoHide(1000);
 		mb.exec();
 		setSuspend(true);
-		SDL_Delay(1000);
+		SDL_Delay(500);
 
 #if !defined(TARGET_PC)
 		system("poweroff");
@@ -1630,7 +1630,7 @@ void GMenu2X::poweroff() {
 		mb.setAutoHide(1000);
 		mb.exec();
 		setSuspend(true);
-		SDL_Delay(1000);
+		SDL_Delay(500);
 
 #if !defined(TARGET_PC)
 		system("reboot");

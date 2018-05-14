@@ -102,7 +102,8 @@ private:
 	int getBacklight();
 
 	int backlightStep;
-	bool setSuspend(bool suspend);
+	void setSuspend(bool suspend);
+	bool suspendActive = false;
 
 	string path; //!< Contains the working directory of GMenu2X
 	/*!
