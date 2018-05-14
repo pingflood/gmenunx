@@ -1513,6 +1513,8 @@ void GMenu2X::skinMenu() {
 
 	do {
 		sc.del("skin:icons/skin.png");
+		sc.del("skin:imgs/buttons/left.png");
+		sc.del("skin:imgs/buttons/right.png");
 		setSkin(confStr["skin"], true, false);
 
 		SettingsDialog sd(this, input, ts, tr["Skin"], "skin:icons/skin.png");
