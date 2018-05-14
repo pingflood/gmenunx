@@ -110,7 +110,7 @@ int Selector::exec(int startSelection) {
 	Surface *iconPreview = gmenu2x->sc.skinRes("imgs/preview.png");
 
 	gmenu2x->sc.defaultAlpha = false;
-	gmenu2x->input.setWakeUpInterval(40); //25FPS
+	// gmenu2x->input.setWakeUpInterval(40); //25FPS
 	while (!close) {
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
 
@@ -156,7 +156,6 @@ int Selector::exec(int startSelection) {
 		gmenu2x->s->flip();
 
 		gmenu2x->input.update();
-
 
 // COMMON ACTIONS
 		if ( gmenu2x->input.isActive(MODIFIER) ) {
@@ -243,7 +242,7 @@ int Selector::exec(int startSelection) {
 
 	gmenu2x->sc.defaultAlpha = true;
 	freeScreenshots(&screens);
-	gmenu2x->input.setWakeUpInterval(0);
+	// gmenu2x->input.setWakeUpInterval(0);
 
 	return result ? (int)selected : -1;
 }

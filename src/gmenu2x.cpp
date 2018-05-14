@@ -967,6 +967,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 				}
 			}
 		}
+		input.setWakeUpInterval(0);
 
 		confInt["backlight"] = val;
 		writeConfig();
