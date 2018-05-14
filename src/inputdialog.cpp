@@ -23,6 +23,7 @@
 
 #include "inputdialog.h"
 #include "messagebox.h"
+#include "debug.h"
 
 using namespace std;
 using namespace fastdelegate;
@@ -152,7 +153,7 @@ bool InputDialog::exec() {
 	gmenu2x->drawButton(gmenu2x->bg, "l", gmenu2x->tr["Backspace"]))));
 
 	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-
+	inputMgr.setWakeUpInterval(600);
 	while (!close) {
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
 
@@ -175,7 +176,7 @@ bool InputDialog::exec() {
 		action = drawVirtualKeyboard();
 		gmenu2x->s->flip();
 
-		inputMgr.update(false);
+		inputMgr.update();
 // COMMON ACTIONS
 		if ( inputMgr.isActive(MODIFIER) ) {
 			if (inputMgr.isActive(SECTION_NEXT)) {
@@ -236,6 +237,7 @@ bool InputDialog::exec() {
 			case ID_ACTION_SELECT: confirm(); break;
 		}
 	}
+	inputMgr.setWakeUpInterval(0);
 
 	return ok;
 }
