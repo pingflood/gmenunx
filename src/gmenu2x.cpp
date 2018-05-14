@@ -922,7 +922,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 
 	if (popup) {
 		bool close = false;
-		input.setWakeUpInterval(1000);
+		// input.setWakeUpInterval(1000);
 		SDL_Rect progress = {52, 32, resX-84, 8};
 		SDL_Rect window = {20, 20, resX-40, 32};
 
@@ -936,7 +936,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 		};
 		while (!close) {
 			tickStart = SDL_GetTicks();
-	
+
 			s->box(window, 255,255,255,255);
 			s->box(window, skinConfColors[COLOR_MESSAGE_BOX_BG]);
 			s->rectangle(window, skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
@@ -952,7 +952,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 				s->box(progress, skinConfColors[COLOR_MESSAGE_BOX_BG]);
 				s->box(progress.x + 1, progress.y + 1, val * (progress.w - 3) / 100 + 1, progress.h - 2, skinConfColors[COLOR_MESSAGE_BOX_SELECTION]);
 				s->flip();
-				input.update(false);
+				input.update();
 				if ((SDL_GetTicks()-tickStart) >= 3000 || input[MODIFIER] || input[CONFIRM] || input[CANCEL]) close = true;
 
 				if (input[LEFT]) {
@@ -967,7 +967,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 				}
 			}
 		}
-		input.setWakeUpInterval(0);
+		// input.setWakeUpInterval(1000);
 
 		confInt["backlight"] = val;
 		writeConfig();
@@ -976,15 +976,17 @@ int GMenu2X::setBacklight(int val, bool popup) {
 }
 
 bool GMenu2X::setSuspend(bool suspend) {
-	if(suspend) {
+	if (suspend) {
 		// input.setInterval(0);
+		input.setWakeUpInterval(0);
 		setBacklight(0);
 		INFO("Enter suspend mode. Current backlight: %d", getBacklight());
-	} else{
-		// setInputSpeed();
+	} else {
 		setBacklight(max(10, confInt["backlight"]));
 		INFO("Exit from suspend mode. Restore backlight to: %d", confInt["backlight"]);
 		setClock(528);
+		// input.setWakeUpInterval(1000);
+		// setInputSpeed();
 	}
 	return suspend;
 }
@@ -1032,10 +1034,10 @@ void GMenu2X::main() {
 
 	// SDL_Rect sectionBarRect = {skinConfInt["sectionBarSize"], 0, resX - skinConfInt["sectionBarSize"], resY};
 
-	input.setWakeUpInterval(1000);
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();
+
 		// inputAction = input.update(suspendActive);
 		inputAction = input.update();
 		if(suspendActive) {
@@ -1047,7 +1049,9 @@ void GMenu2X::main() {
 			}
 			continue;
 		}
+
 		// SUSPEND NOT ACTIVE
+		input.setWakeUpInterval(1000);
 
 		//Background
 		if (prevBackdrop != currBackdrop) {
@@ -1174,9 +1178,7 @@ void GMenu2X::main() {
 			currBackdrop = menu->selLinkApp()->getBackdrop();
 		}
 
-
 		if (confStr["sectionBarPosition"] != "OFF") {
-
 			// TRAY 0,0
 			switch(volumeMode) {
 				case VOLUME_MODE_PHONES: sc.skinRes("imgs/phones.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
@@ -1890,7 +1892,7 @@ void GMenu2X::contextMenu() {
 		else if ( input[LEFT]  || input[PAGEUP]   ) sel = 0;
 		else if ( input[RIGHT] || input[PAGEDOWN] ) sel = (int)voices.size()-1;
 	}
-	input.setWakeUpInterval(0);
+	// input.setWakeUpInterval(1000);
 }
 
 bool GMenu2X::saveScreenshot() {
