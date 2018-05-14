@@ -1248,7 +1248,7 @@ void GMenu2X::main() {
 		s->flip();
 
 		if (inputAction == 0) {
-			INFO("NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
+			// INFO("NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
 
 			// usleep(LOOP_DELAY);
 			
@@ -2062,7 +2062,7 @@ void GMenu2X::deleteLink() {
 }
 
 void GMenu2X::addSection() {
-	InputDialog id(this, input, ts, tr["Insert a name for the new section"], "", tr["Add section"]);
+	InputDialog id(this, input, ts, tr["Insert a name for the new section"], "", tr["Add section"], "skin:icons/section.png");
 	if (id.exec()) {
 		//only if a section with the same name does not exist
 		if (find(menu->getSections().begin(), menu->getSections().end(), id.getInput())
@@ -2079,7 +2079,7 @@ void GMenu2X::addSection() {
 }
 
 void GMenu2X::renameSection() {
-	InputDialog id(this, input, ts, tr["Insert a new name for this section"],menu->selSection(),tr ["Rename section"]);
+	InputDialog id(this, input, ts, tr["Insert a new name for this section"],menu->selSection(),tr ["Rename section"], "skin:sections/" + menu->selSection() + ".png");
 	if (id.exec()) {
 		//only if a section with the same name does not exist & !samename
 		if (menu->selSection() != id.getInput() && find(menu->getSections().begin(),menu->getSections().end(), id.getInput()) == menu->getSections().end()) {
