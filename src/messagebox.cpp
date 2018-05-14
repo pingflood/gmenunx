@@ -140,7 +140,8 @@ int MessageBox::exec() {
 			}
 		}
 
-		inputAction = gmenu2x->input.update(false);
+		inputAction = gmenu2x->input.update();
+
 		if (inputAction) {
 // COMMON ACTIONS
 			if ( gmenu2x->input.isActive(MODIFIER) ) {
@@ -176,7 +177,7 @@ int MessageBox::exec() {
 
 		//usleep(LOOP_DELAY);
 		gmenu2x->s->flip();
-		usleep(50000);
+		// usleep(50000);
 	}
 
 	return result;
