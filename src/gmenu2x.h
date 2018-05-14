@@ -46,7 +46,7 @@ const int VOLUME_MODE_PHONES = 1;
 const int VOLUME_MODE_NORMAL = 2;
 const int BATTERY_READS = 10;
 
-const int LOOP_DELAY=30000;
+const int LOOP_DELAY = 50000;
 
 #if defined(TARGET_GP2X)
 	#define DEFAULT_CPU_CLK 200
