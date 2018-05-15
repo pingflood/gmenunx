@@ -125,10 +125,7 @@ bool WallpaperDialog::exec()
 		else if ( gmenu2x->input[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
 // END OF COMMON ACTIONS
 
-		else if ( gmenu2x->input[SETTINGS] ) {
-			close = true;
-			result = false;
-		} else if ( gmenu2x->input[UP] ) {
+		if ( gmenu2x->input[UP] ) {
 			if (selected == 0)
 				selected = wallpapers.size()-1;
 			else
@@ -148,10 +145,10 @@ bool WallpaperDialog::exec()
 				selected = wallpapers.size()-1;
 			else
 				selected += numRows;
-		} else if ( gmenu2x->input[CANCEL] ) {
+		} else if ( gmenu2x->input[MENU] || gmenu2x->input[CANCEL] ) {
 			close = true;
 			result = false;
-		} else if ( gmenu2x->input[CONFIRM] ) {
+		} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) {
 			close = true;
 			if (wallpapers.size()>0) {
 				if (selected<wallpapers.size()-fl.getFiles().size())
@@ -164,8 +161,8 @@ bool WallpaperDialog::exec()
 		}
 	}
 
-	for (uint i=0; i<wallpapers.size(); i++)
-		if (i<wallpapers.size()-fl.getFiles().size())
+	for (uint i = 0; i < wallpapers.size(); i++)
+		if (i < wallpapers.size() - fl.getFiles().size())
 			gmenu2x->sc.del("skins/"+gmenu2x->confStr["skin"]+"/wallpapers/"+wallpapers[i]);
 		else
 			gmenu2x->sc.del("skins/Default/wallpapers/"+wallpapers[i]);

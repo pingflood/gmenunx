@@ -59,7 +59,7 @@ MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &name, const strin
 	//btn->setAction(actionDec);
 	//buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/b.png", gmenu2x->tr["Default"]);
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/select.png", gmenu2x->tr["Default"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingInt::setDefault));
 	buttonBox.add(btn);
 }
@@ -71,8 +71,8 @@ void MenuSettingInt::draw(int y) {
 
 uint MenuSettingInt::manageInput() {
 	if ( gmenu2x->input[LEFT ] || gmenu2x->input[DEC] ) dec();
-	if ( gmenu2x->input[RIGHT] || gmenu2x->input[INC] || gmenu2x->input[CONFIRM] ) inc();
-	if ( gmenu2x->input[CANCEL] ) setDefault();
+	if ( gmenu2x->input[RIGHT] || gmenu2x->input[INC] ) inc();
+	if ( gmenu2x->input[MENU] ) setDefault();
 }
 
 void MenuSettingInt::inc() {

@@ -1890,13 +1890,13 @@ void GMenu2X::contextMenu() {
 			}
 		}
 		// BACKLIGHT
-		else if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
+		if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
 // END OF COMMON ACTIONS
-		else if ( input[MENU]    ) close = true;
-		else if ( input[UP]      ) sel = (sel-1 < 0) ? (int)voices.size()-1 : sel -1 ;
-		else if ( input[DOWN]    ) sel = (sel+1 > (int)voices.size()-1) ? 0 : sel + 1;
-		else if ( input[CONFIRM] ) { voices[sel].action(); close = true; }
-		else if ( input[LEFT]  || input[PAGEUP]   ) sel = 0;
+		else if ( input[MENU] || input[CANCEL]) close = true;
+		else if ( input[UP] ) sel = (sel-1 < 0) ? (int)voices.size()-1 : sel -1 ;
+		else if ( input[DOWN] ) sel = (sel+1 > (int)voices.size()-1) ? 0 : sel + 1;
+		else if ( input[SETTINGS] || input[CONFIRM] ) { voices[sel].action(); close = true; }
+		else if ( input[LEFT] || input[PAGEUP] ) sel = 0;
 		else if ( input[RIGHT] || input[PAGEDOWN] ) sel = (int)voices.size()-1;
 	}
 	// input.setWakeUpInterval(1000);
