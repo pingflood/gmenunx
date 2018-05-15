@@ -11,6 +11,8 @@ BatteryLoggerDialog::BatteryLoggerDialog(GMenu2X *gmenu2x, const string &title, 
 void BatteryLoggerDialog::exec() {
 	gmenu2x->initBG();
 
+	return;
+
 	bool close = false;
 
 	drawTopBar(gmenu2x->bg, title, description, icon);

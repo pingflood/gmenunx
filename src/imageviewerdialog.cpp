@@ -21,7 +21,7 @@ void ImageViewerDialog::exec() {
 
 	drawBottomBar(gmenu2x->bg);
 
-	gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Exit"],
+	gmenu2x->drawButton(gmenu2x->bg, "start", gmenu2x->tr["Exit"],
 	gmenu2x->drawButton(gmenu2x->bg, "right", gmenu2x->tr["Pan"],
 	gmenu2x->drawButton(gmenu2x->bg, "down", "",
 	gmenu2x->drawButton(gmenu2x->bg, "up", "",
