@@ -326,7 +326,7 @@ GMenu2X::GMenu2X() {
 	s->ScreenSurface = SDL_SetVideoMode(320, 480, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
 	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, 16, 0, 0, 0, 0);
 
-	setTvOut();
+	// setTvOut();
 #else
 	s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
 #endif
@@ -722,7 +722,8 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["backlight"], 70, 1, 100);
 
 	// if (confStr["TVOut"] != "PAL") confStr["TVOut"] = "NTSC";
-	if (confStr["TVOut"] != "PAL" || confStr["TVOut"] != "NTSC") confStr["TVOut"] = "OFF";
+	// if (confStr["TVOut"] != "PAL" || confStr["TVOut"] != "NTSC")
+	confStr["TVOut"] = "OFF";
 	resX = constrain( confInt["resolutionX"], 320, 1920 );
 	resY = constrain( confInt["resolutionY"], 240, 1200 );
 }
@@ -1656,24 +1657,18 @@ void GMenu2X::poweroff() {
 void GMenu2X::setTvOut() {
 	char buf[16]={0};
 
-	int tvout = open("/proc/jz/tvout", O_RDWR);
+	// int tvout = open("/proc/jz/tvout", O_RDWR);
 	int norm = open("/proc/jz/tvselect", O_RDWR);
-	if(tvout > 0 && norm > 0){
+	if(norm > 0){
 		if(confStr["TVOut"] == "PAL") {
 			sprintf(buf, "1");
-			write(norm, buf, 1);
-			sprintf(buf, "1");
-		}
-		else if(confStr["TVOut"] == "NTSC") {
+		} else if(confStr["TVOut"] == "NTSC") {
 			sprintf(buf, "2");
-			write(norm, buf, 1);
-			sprintf(buf, "1");
 		} else {
 			sprintf(buf, "0");
 		}
-		write(tvout, buf, 1);
+		write(norm, buf, 1);
 	}
-	close(tvout);
 	close(norm);
 }
 #endif
