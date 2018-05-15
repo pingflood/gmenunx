@@ -828,7 +828,6 @@ void GMenu2X::ledOff() {
 #endif
 }
 
-int exitMainThread=0;
 enum mmc_status{
 	MMC_REMOVE, MMC_INSERT, MMC_ERROR
 };
@@ -902,9 +901,10 @@ udc_status getUDCStatus(void) {
 	return UDC_ERROR;
 }
 
+bool exitMainThread = false;
 void* mainThread(void* param) {
 	GMenu2X *menu = (GMenu2X*)param;
-	while(exitMainThread == 0) {
+	while(!exitMainThread) {
 		sleep(1);
 	}
 	return NULL;
@@ -981,25 +981,19 @@ int GMenu2X::setBacklight(int val, bool popup) {
 
 void GMenu2X::setSuspend(bool suspend) {
 	if (suspend) {
-		// input.setInterval(0);
 		input.setWakeUpInterval(0);
 		setBacklight(0);
 		INFO("Enter suspend mode. Current backlight: %d", getBacklight());
 	} else {
+		setClock(528);
 		setBacklight(max(10, confInt["backlight"]));
 		INFO("Exit from suspend mode. Restore backlight to: %d", confInt["backlight"]);
-		setClock(528);
-		// input.setWakeUpInterval(1000);
-		// setInputSpeed();
 	}
 	suspendActive = suspend;
 }
 
 void GMenu2X::main() {
-	// int ret;
-	// bool suspendActive = false;
 	unsigned short battlevel = 0; //getBatteryLevel();
-	// int battMsgWidth = (19*2);
 	pthread_t thread_id;
 	// uint linksPerPage = linkColumns*linkRows;
 	// int linkSpacingX = (resX-10 - linkColumns*(resX - skinConfInt["sectionBarX"]))/linkColumns;
@@ -1025,26 +1019,16 @@ void GMenu2X::main() {
 	// uint sectionsCoordY = 0;//24;
 	// SDL_Rect re = {0,0,0,0};
 
-	// backlightLevel = confInt["backlight"];
 	setBacklight(confInt["backlight"]);
-	// btnContextMenu = new IconButton(this,"skin:imgs/menu.png");
-	// btnContextMenu->setPosition(resX-18, resY-18);
-	// btnContextMenu->setAction(MakeDelegate(this, &GMenu2X::contextMenu));
-	exitMainThread = 0;
+	// exitMainThread = 0;
 	if (pthread_create(&thread_id, NULL, mainThread, this)) {
 		ERROR("%s, failed to create main thread\n", __func__);
 	}
-	// setClock(528);
-
-	// SDL_Rect sectionBarRect = {skinConfInt["sectionBarSize"], 0, resX - skinConfInt["sectionBarSize"], resY};
-
-	// INFO("11 NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
 
 	input.setWakeUpInterval(1000);
 
 	while (!quit) {
-		INFO("NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
-		// inputAction = input.update(suspendActive);
+		// INFO("NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
 		inputAction = input.update();
 		tickNow = SDL_GetTicks();
 		if(suspendActive) {
@@ -1061,10 +1045,6 @@ void GMenu2X::main() {
 		input.setWakeUpInterval(1000);
 
 		sc[currBackdrop]->blit(s,0,0);
-
-		// s->setClipRect(skinConfInt["sectionBarX"],skinConfInt["sectionBarY"],skinConfInt["sectionBarSize"],skinConfInt["sectionBarHeight"]); //32*2+10
-		// s->box(0, 0, skinConfInt["sectionBarSize"], resY, skinConfColors[COLOR_TOP_BAR_BG]);
-		// s->setClipRect(0,0,skinConfInt["sectionBarSize"],skinConfInt["sectionBarHeight"]); //32*2+10
 
 		// SECTIONS
 		if (confStr["sectionBarPosition"] != "OFF") {
@@ -1164,7 +1144,7 @@ void GMenu2X::main() {
 						needUSBUmount = 1;
 						// system("/usr/bin/usb_conn_int_sd.sh");
 						// system("mount -o remount,ro /dev/mmcblk0p4");
-						system("umount /dev/mmcblk0p4");
+						system("umount -l /dev/mmcblk0p4");
 						system("echo '/dev/mmcblk0p4' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
 						INFO("%s, connect USB disk for internal SD", __func__);
 						if (curMMCStatus == MMC_INSERT) {
@@ -1192,7 +1172,6 @@ void GMenu2X::main() {
 			input.setWakeUpInterval(1);
 		}
 
-
 		if (confStr["sectionBarPosition"] != "OFF") {
 			// TRAY 0,0
 			switch(volumeMode) {
@@ -1215,7 +1194,6 @@ void GMenu2X::main() {
 				}
 			}
 			sc.skinRes(batteryIcon)->blit(s, sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38);
-
 
 			// TRAY iconTrayShift,1
 			int iconTrayShift = 0;
@@ -1267,8 +1245,6 @@ void GMenu2X::main() {
 		if (inputAction == 0) {
 			// INFO("NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
 
-			// usleep(LOOP_DELAY);
-			
 			if (input.isActive(POWER)) {
 				if (tickPowerOff >= 4) { //4 * 500ms
 					tickPowerOff = 0;
@@ -1400,10 +1376,9 @@ void GMenu2X::main() {
 
 		// tickSuspend = tickPowerOff = SDL_GetTicks();
 		tickSuspend = SDL_GetTicks();
-		// tickPowerOff = 0;
 	}
 	
-	exitMainThread = 1;
+	exitMainThread = true;
 	pthread_join(thread_id, NULL);
 	delete btnContextMenu;
 	btnContextMenu = NULL;
