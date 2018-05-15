@@ -147,8 +147,8 @@ bool InputDialog::exec() {
 	// gmenu2x->bg->box(0, 0, gmenu2x->skinConfInt["listX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 	drawTopBar(gmenu2x->bg, title, text, icon);
 	drawBottomBar(gmenu2x->bg);
-	gmenu2x->drawButton(gmenu2x->bg, "x", gmenu2x->tr["Keys"],
 	gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Press"],
+	gmenu2x->drawButton(gmenu2x->bg, "y", gmenu2x->tr["Keys"],
 	gmenu2x->drawButton(gmenu2x->bg, "r", gmenu2x->tr["Space"],
 	gmenu2x->drawButton(gmenu2x->bg, "l", gmenu2x->tr["Backspace"]))));
 
@@ -203,17 +203,22 @@ bool InputDialog::exec() {
 		// BACKLIGHT
 		else if ( inputMgr[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
 // END OF COMMON ACTIONS
-		else if ( inputMgr[SETTINGS]     ) action = ID_ACTION_CLOSE;
-		else if ( inputMgr[UP]           ) action = ID_ACTION_UP;
-		else if ( inputMgr[DOWN]         ) action = ID_ACTION_DOWN;
-		else if ( inputMgr[LEFT]         ) action = ID_ACTION_LEFT;
-		else if ( inputMgr[RIGHT]        ) action = ID_ACTION_RIGHT;
-		else if ( inputMgr[CONFIRM]      ) action = ID_ACTION_SELECT;
-		else if ( inputMgr[MANUAL]       ) action = ID_ACTION_KB_CHANGE;
+		if ( inputMgr[MENU] ) action = ID_ACTION_CLOSE;
+		else if ( inputMgr[SETTINGS] ) action = ID_ACTION_SAVE;
+		else if ( inputMgr[UP]       ) action = ID_ACTION_UP;
+		else if ( inputMgr[DOWN]     ) action = ID_ACTION_DOWN;
+		else if ( inputMgr[LEFT]     ) action = ID_ACTION_LEFT;
+		else if ( inputMgr[RIGHT]    ) action = ID_ACTION_RIGHT;
+		else if ( inputMgr[CONFIRM]  ) action = ID_ACTION_SELECT;
+		else if ( inputMgr[MANUAL]   ) action = ID_ACTION_KB_CHANGE;
 		else if ( inputMgr[CANCEL] || inputMgr[SECTION_PREV] ) action = ID_ACTION_BACKSPACE;
 		else if ( inputMgr[SECTION_NEXT] ) action = ID_ACTION_SPACE;
 
 		switch (action) {
+			case ID_ACTION_SAVE: {
+				ok = true;
+				close = true;
+			} break;
 			case ID_ACTION_CLOSE: {
 				ok = false;
 				close = true;

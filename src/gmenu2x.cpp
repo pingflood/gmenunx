@@ -1034,11 +1034,11 @@ void GMenu2X::main() {
 	if (pthread_create(&thread_id, NULL, mainThread, this)) {
 		ERROR("%s, failed to create main thread\n", __func__);
 	}
-	setClock(528);
+	// setClock(528);
 
 	// SDL_Rect sectionBarRect = {skinConfInt["sectionBarSize"], 0, resX - skinConfInt["sectionBarSize"], resY};
 
-	INFO("11 NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
+	// INFO("11 NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
 
 	input.setWakeUpInterval(1000);
 
@@ -1144,7 +1144,10 @@ void GMenu2X::main() {
 			if (preUDCStatus != curUDCStatus) {
 				if (curUDCStatus == UDC_REMOVE) {
 					if (needUSBUmount) {
-						system("/usr/bin/usb_disconn_int_sd.sh");
+						// system("/usr/bin/usb_disconn_int_sd.sh");
+						system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
+						system("mount -o remount,rw /dev/mmcblk0p4");
+						// system("mount -o remount,rw /dev/mmcblk0p4");
 						INFO("%s, disconnect usbdisk for internal sd", __func__);
 						if (curMMCStatus == MMC_INSERT) {
 							system("/usr/bin/usb_disconn_ext_sd.sh");
@@ -1159,7 +1162,10 @@ void GMenu2X::main() {
 					mb.setButton(CANCEL,  tr["Charge only"]);
 					if (mb.exec() == CONFIRM) {
 						needUSBUmount = 1;
-						system("/usr/bin/usb_conn_int_sd.sh");
+						// system("/usr/bin/usb_conn_int_sd.sh");
+						// system("mount -o remount,ro /dev/mmcblk0p4");
+						system("umount /dev/mmcblk0p4");
+						system("echo '/dev/mmcblk0p4' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
 						INFO("%s, connect USB disk for internal SD", __func__);
 						if (curMMCStatus == MMC_INSERT) {
 							system("/usr/bin/usb_conn_ext_sd.sh");
@@ -1434,7 +1440,7 @@ void GMenu2X::options() {
 	int curGlobalVolume = confInt["globalVolume"];
 //G
 	int prevgamma = confInt["gamma"];
-	bool showRootFolder = fileExists("/mnt/root");
+	// bool showRootFolder = fileExists("/mnt/root");
 
 	FileLister fl_tr("translations");
 	fl_tr.browse();
@@ -1482,7 +1488,7 @@ void GMenu2X::options() {
 	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &confStr["TVOut"], &encodings));
 //sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
 
-	if (sd.exec() && sd.edited()) {
+	if (sd.exec() && sd.edited() && sd.save) {
 	//G
 #if defined(TARGET_GP2X)
 		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
@@ -1492,17 +1498,14 @@ void GMenu2X::options() {
 		setTvOut();
 #endif
 
-
-		if (curMenuClock!=confInt["menuClock"]) {
-			setClock(confInt["menuClock"]);
-		}
-		if (curGlobalVolume!=confInt["globalVolume"]) setVolume(confInt["globalVolume"]);
+		if (curMenuClock != confInt["menuClock"]) setClock(confInt["menuClock"]);
+		if (curGlobalVolume != confInt["globalVolume"]) setVolume(confInt["globalVolume"]);
 		if (lang == "English") lang = "";
 		if (lang != tr.lang()) tr.setLang(lang);
-		if (fileExists("/mnt/root") && !showRootFolder)
-			unlink("/mnt/root");
-		else if (!fileExists("/mnt/root") && showRootFolder)
-			symlink("/","/mnt/root");
+		// if (fileExists("/mnt/root") && !showRootFolder)
+			// unlink("/mnt/root");
+		// else if (!fileExists("/mnt/root") && showRootFolder)
+			// symlink("/","/mnt/root");
 
 		if (confStr["lang"] != lang) {
 			confStr["lang"] = lang;
@@ -2034,7 +2037,7 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingBool(        this, tr["Wrapper"],              tr["Relaunch GMenu2X after this link's execution ends"], &menu->selLinkApp()->needsWrapperRef() ));
 	//sd.addSetting(new MenuSettingBool(        this, tr["Don't Leave"],          tr["Don't quit GMenu2X when launching this link"], &menu->selLinkApp()->runsInBackgroundRef() ));
 
-	if (sd.exec() && sd.edited()) {
+	if (sd.exec() && sd.edited() && sd.save) {
 		ledOn();
 
 		menu->selLinkApp()->setTitle(linkTitle);

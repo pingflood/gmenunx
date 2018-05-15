@@ -93,7 +93,7 @@ int Selector::exec(int startSelection) {
 
 	if (link->getSelectorBrowser()) {
 		gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Select"],
-			gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Up one folder"],
+			gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Folder up"],
 				gmenu2x->drawButton(gmenu2x->bg, "start", gmenu2x->tr["Exit"], 5)));
 	} else {
 		gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Exit"],

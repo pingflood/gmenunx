@@ -17,7 +17,7 @@ BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &
 	btn->setAction(MakeDelegate(this, &BrowseDialog::cancel));
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/b.png", gmenu2x->tr["Up one folder"]);
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/b.png", gmenu2x->tr["Folder up"]);
 	btn->setAction(MakeDelegate(this, &BrowseDialog::directoryUp));
 	buttonBox.add(btn);
 

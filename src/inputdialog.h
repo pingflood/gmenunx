@@ -25,18 +25,6 @@
 #define KEY_HEIGHT 20
 #define KB_TOP 90
 
-#define ID_NO_ACTION 0
-#define ID_ACTION_CLOSE 1
-#define ID_ACTION_UP 2
-#define ID_ACTION_DOWN 3
-#define ID_ACTION_LEFT 4
-#define ID_ACTION_RIGHT 5
-#define ID_ACTION_BACKSPACE 6
-#define ID_ACTION_SPACE 7
-#define ID_ACTION_GOUP 8
-#define ID_ACTION_SELECT 9
-#define ID_ACTION_KB_CHANGE 10
-
 #include <string>
 #include "gmenu2x.h"
 #include "dialog.h"
@@ -51,6 +39,21 @@ class Touchscreen;
 
 class InputDialog : protected Dialog {
 private:
+	enum id_actions {
+		ID_NO_ACTION,
+		ID_ACTION_SAVE,
+		ID_ACTION_CLOSE,
+		ID_ACTION_UP,
+		ID_ACTION_DOWN,
+		ID_ACTION_LEFT,
+		ID_ACTION_RIGHT,
+		ID_ACTION_BACKSPACE,
+		ID_ACTION_SPACE,
+		ID_ACTION_GOUP,
+		ID_ACTION_SELECT,
+		ID_ACTION_KB_CHANGE
+	};
+
 	InputManager &inputMgr;
 	Touchscreen &ts;
 	int selRow, selCol;

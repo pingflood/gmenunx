@@ -43,24 +43,16 @@ MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &name, const strin
 	ButtonAction actionInc = MakeDelegate(this, &MenuSettingInt::inc);
 	ButtonAction actionDec = MakeDelegate(this, &MenuSettingInt::dec);
 
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/select.png", gmenu2x->tr["Default"]);
+	btn->setAction(MakeDelegate(this, &MenuSettingInt::setDefault));
+	buttonBox.add(btn);
+
 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/left.png");
 	btn->setAction(actionDec);
 	buttonBox.add(btn);
 
-	//btn = new IconButton(gmenu2x, "skin:imgs/buttons/y.png", gmenu2x->tr["Increase value"]);
-	//btn->setAction(actionInc);
-	//buttonBox.add(btn);
-
 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change value"]);
 	btn->setAction(actionInc);
-	buttonBox.add(btn);
-
-	//btn = new IconButton(gmenu2x, "skin:imgs/buttons/x.png", gmenu2x->tr["Decrease value"]);
-	//btn->setAction(actionDec);
-	//buttonBox.add(btn);
-
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/select.png", gmenu2x->tr["Default"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingInt::setDefault));
 	buttonBox.add(btn);
 }
 
