@@ -1034,8 +1034,12 @@ void GMenu2X::main() {
 
 	// SDL_Rect sectionBarRect = {skinConfInt["sectionBarSize"], 0, resX - skinConfInt["sectionBarSize"], resY};
 
+	INFO("11 NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
+
+	input.setWakeUpInterval(1000);
 
 	while (!quit) {
+		INFO("NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
 		// inputAction = input.update(suspendActive);
 		inputAction = input.update();
 		tickNow = SDL_GetTicks();
@@ -1052,12 +1056,6 @@ void GMenu2X::main() {
 		// SUSPEND NOT ACTIVE
 		input.setWakeUpInterval(1000);
 
-		//Background
-		if (prevBackdrop != currBackdrop) {
-			INFO("New backdrop: %s", currBackdrop.c_str());
-			sc.del(prevBackdrop);
-			prevBackdrop = currBackdrop;
-		}
 		sc[currBackdrop]->blit(s,0,0);
 
 		// s->setClipRect(skinConfInt["sectionBarX"],skinConfInt["sectionBarY"],skinConfInt["sectionBarSize"],skinConfInt["sectionBarHeight"]); //32*2+10
@@ -1176,6 +1174,14 @@ void GMenu2X::main() {
 		if (menu->selLink() != NULL && menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdrop().empty() && sc.add(menu->selLinkApp()->getBackdrop()) != NULL) {
 			currBackdrop = menu->selLinkApp()->getBackdrop();
 		}
+		//Background
+		if (prevBackdrop != currBackdrop) {
+			INFO("New backdrop: %s", currBackdrop.c_str());
+			sc.del(prevBackdrop);
+			prevBackdrop = currBackdrop;
+			input.setWakeUpInterval(1);
+		}
+
 
 		if (confStr["sectionBarPosition"] != "OFF") {
 			// TRAY 0,0
