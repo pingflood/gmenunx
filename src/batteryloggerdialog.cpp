@@ -11,8 +11,6 @@ BatteryLoggerDialog::BatteryLoggerDialog(GMenu2X *gmenu2x, const string &title, 
 void BatteryLoggerDialog::exec() {
 	gmenu2x->initBG();
 
-	return;
-
 	bool close = false;
 
 	drawTopBar(gmenu2x->bg, title, description, icon);
@@ -44,7 +42,7 @@ void BatteryLoggerDialog::exec() {
 // 		gmenu2x->bg->box(2+i*10,2+j*10,8,8, curr->second);
 // 	}
 
-	gmenu2x->bg->flip();
+	gmenu2x->s->flip();
 
 	MessageBox mb(gmenu2x, gmenu2x->tr["Welcome to the Battery Logger.\nMake sure the battery is fully charged.\nAfter pressing OK, leave the device ON until\nthe battery has been fully discharged.\nThe log will be saved in 'battery.csv'."]);
 	mb.exec();
@@ -133,7 +131,7 @@ void BatteryLoggerDialog::exec() {
 		// BACKLIGHT
 		else if ( gmenu2x->input[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
 // END OF COMMON ACTIONS
-		else if ( gmenu2x->input[UP  ] && firstRow > 0 ) firstRow--;
+		if ( gmenu2x->input[UP  ] && firstRow > 0 ) firstRow--;
 		else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < log.size() ) firstRow++;
 		else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT]) {
 			if (firstRow >= rowsPerPage - 1)
