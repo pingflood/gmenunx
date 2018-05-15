@@ -325,6 +325,8 @@ GMenu2X::GMenu2X() {
 	SDL_ShowCursor(0);
 	s->ScreenSurface = SDL_SetVideoMode(320, 480, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
 	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, 16, 0, 0, 0, 0);
+
+	setTvOut();
 #else
 	s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
 #endif
@@ -537,14 +539,14 @@ void GMenu2X::initMenu() {
 #if defined(TARGET_GP2X)
 			if (fwType=="open2x")
 				menu->addActionLink(i, "Open2x", MakeDelegate(this, &GMenu2X::settingsOpen2x), tr["Configure Open2x system settings"], "skin:icons/o2xconfigure.png");
-			menu->addActionLink(i, "TV", MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
+			// menu->addActionLink(i, "TV", MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
 			menu->addActionLink(i, "USB SD", MakeDelegate(this, &GMenu2X::activateSdUsb), tr["Activate USB on SD"], "skin:icons/usb.png");
 			if (fwType=="gph" && !f200)
 				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "skin:icons/usb.png");
 			//menu->addActionLink(i, "USB Root", MakeDelegate(this, &GMenu2X::activateRootUsb), tr["Activate USB on the root of the Gp2x Filesystem"], "skin:icons/usb.png");
 			//menu->addActionLink(i, "Speaker", MakeDelegate(this, &GMenu2X::toggleSpeaker), tr["Activate/deactivate Speaker"], "skin:icons/speaker.png");
 #elif defined(TARGET_RS97)
-			menu->addActionLink(i, tr["TV"], MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
+			// menu->addActionLink(i, tr["TV"], MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
 			//menu->addActionLink(i, "Format", MakeDelegate(this, &GMenu2X::formatSd), tr["Format internal SD"], "skin:icons/format.png");
 			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSd), tr["Umount external SD"], "skin:icons/eject.png");
 #endif
@@ -719,7 +721,8 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["videoBpp"], 16, 8, 32 );
 	evalIntConf( &confInt["backlight"], 70, 1, 100);
 
-	if (confStr["tvoutEncoding"] != "PAL") confStr["tvoutEncoding"] = "NTSC";
+	// if (confStr["TVOut"] != "PAL") confStr["TVOut"] = "NTSC";
+	if (confStr["TVOut"] != "PAL" || confStr["TVOut"] != "NTSC") confStr["TVOut"] = "OFF";
 	resX = constrain( confInt["resolutionX"], 320, 1920 );
 	resY = constrain( confInt["resolutionY"], 240, 1200 );
 }
@@ -1438,6 +1441,7 @@ void GMenu2X::options() {
 	string lang = tr.lang();
 
 	vector<string> encodings;
+	encodings.push_back("OFF");
 	encodings.push_back("NTSC");
 	encodings.push_back("PAL");
 
@@ -1474,7 +1478,7 @@ void GMenu2X::options() {
 	// sd.addSetting(new MenuSettingBool(this, tr["Battery log"], tr["Logs the battery power to battery.csv."],  &confInt["batteryLog"]));
 //G
 //sd.addSetting(new MenuSettingInt(this, tr["Gamma"], tr["Set gp2x gamma value (default: 10)"], &confInt["gamma"], 1, 100));
-	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out encoding"], tr["Encoding of the TV-out signal"], &confStr["tvoutEncoding"], &encodings));
+	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &confStr["TVOut"], &encodings));
 //sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
 
 	if (sd.exec() && sd.edited()) {
@@ -1482,7 +1486,11 @@ void GMenu2X::options() {
 #if defined(TARGET_GP2X)
 		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
 		setGamma(confInt["gamma"]);
+
+#elif defined(TARGET_RS97)
+		setTvOut();
 #endif
+
 
 		if (curMenuClock!=confInt["menuClock"]) {
 			setClock(confInt["menuClock"]);
@@ -1644,47 +1652,74 @@ void GMenu2X::poweroff() {
 	}
 }
 
-void GMenu2X::toggleTvOut() {
-#if defined(TARGET_GP2X)
-	if (cx25874!=0)
-		gp2x_tvout_off();
-	else
-		gp2x_tvout_on(confStr["tvoutEncoding"] == "PAL");
-#elif defined(TARGET_RS97)
-	int tvout=0;
-	char buf[32]={0};
-	int fd = open("/mnt/game/gmenu2x/tvout", O_RDWR);
-	if(fd > 0){
-		read(fd, buf, sizeof(buf));
-		INFO("Current TV-out value: %s", buf);
-		if(memcmp(buf, "1", 1) == 0){
-			tvout = 0;
-			sprintf(buf, "0");
-			INFO("Turn off TV-out");
-		}
-		else{
-			tvout = 1;
-			sprintf(buf, "1");
-			INFO("Turn on TV-out");
-		}
-		lseek(fd, 0, SEEK_SET);
-		write(fd, buf, 1);
-		close(fd);
-	}
-	else{
-		tvout = 1;
-		fd = open("/mnt/game/gmenu2x/tvout", O_CREAT);
-		sprintf(buf, "1");
-		write(fd, buf, 1);
-		close(fd);
-		INFO("Create new TV-out file");
-	}
+#if defined(TARGET_RS97)
+void GMenu2X::setTvOut() {
+	char buf[16]={0};
 
-	sprintf(buf, "/usr/bin/tvout.sh %d %d", tvout, confStr["tvoutEncoding"] == "PAL" ? 1 : 2);
-	system(buf);
-	INFO("run cmd: %s", buf);
-#endif
+	int tvout = open("/proc/jz/tvout", O_RDWR);
+	int norm = open("/proc/jz/tvselect", O_RDWR);
+	if(tvout > 0 && norm > 0){
+		if(confStr["TVOut"] == "PAL") {
+			sprintf(buf, "1");
+			write(norm, buf, 1);
+			sprintf(buf, "1");
+		}
+		else if(confStr["TVOut"] == "NTSC") {
+			sprintf(buf, "2");
+			write(norm, buf, 1);
+			sprintf(buf, "1");
+		} else {
+			sprintf(buf, "0");
+		}
+		write(tvout, buf, 1);
+	}
+	close(tvout);
+	close(norm);
 }
+#endif
+
+
+// void GMenu2X::toggleTvOut() {
+// #if defined(TARGET_GP2X)
+// 	if (cx25874!=0)
+// 		gp2x_tvout_off();
+// 	else
+// 		gp2x_tvout_on(confStr["TVOut"] == "PAL");
+// #elif defined(TARGET_RS97)
+// 	int tvout=0;
+// 	char buf[32]={0};
+// 	int fd = open("/mnt/game/gmenu2x/tvout", O_RDWR);
+// 	if(fd > 0){
+// 		read(fd, buf, sizeof(buf));
+// 		INFO("Current TV-out value: %s", buf);
+// 		if(memcmp(buf, "1", 1) == 0){
+// 			tvout = 0;
+// 			sprintf(buf, "0");
+// 			INFO("Turn off TV-out");
+// 		}
+// 		else{
+// 			tvout = 1;
+// 			sprintf(buf, "1");
+// 			INFO("Turn on TV-out");
+// 		}
+// 		lseek(fd, 0, SEEK_SET);
+// 		write(fd, buf, 1);
+// 		close(fd);
+// 	}
+// 	else{
+// 		tvout = 1;
+// 		fd = open("/mnt/game/gmenu2x/tvout", O_CREAT);
+// 		sprintf(buf, "1");
+// 		write(fd, buf, 1);
+// 		close(fd);
+// 		INFO("Create new TV-out file");
+// 	}
+
+// 	sprintf(buf, "/usr/bin/tvout.sh %d %d", tvout, confStr["TVOut"] == "PAL" ? 1 : 2);
+// 	system(buf);
+// 	INFO("run cmd: %s", buf);
+// #endif
+// }
 
 void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 	confStr["skin"] = skin;
