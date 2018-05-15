@@ -126,7 +126,7 @@ bool SettingsDialog::exec() {
 		// BACKLIGHT
 		else if ( inputMgr[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
 // END OF COMMON ACTIONS
-		else if ( inputMgr[SETTINGS] ) action = SD_ACTION_SAVE;
+		if ( inputMgr[SETTINGS] ) action = SD_ACTION_SAVE;
 		else if ( inputMgr[UP      ] ) action = SD_ACTION_UP;
 		else if ( inputMgr[DOWN    ] ) action = SD_ACTION_DOWN;
 		else if ( inputMgr[PAGEUP  ] ) sel = (sel < numRows) ? sel = 0 : sel - numRows + 1;

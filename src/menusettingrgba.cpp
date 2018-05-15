@@ -38,11 +38,11 @@ MenuSettingRGBA::MenuSettingRGBA(GMenu2X *gmenu2x, const string &name, const str
 	this->setB(this->value().b);
 	this->setA(this->value().a);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/x.png", gmenu2x->tr["Decrease"]);
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/y.png", gmenu2x->tr["Decrease"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingRGBA::dec));
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/y.png", gmenu2x->tr["Increase"]);
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/x.png", gmenu2x->tr["Increase"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingRGBA::inc));
 	buttonBox.add(btn);
 
