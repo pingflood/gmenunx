@@ -152,8 +152,11 @@ bool InputDialog::exec() {
 	gmenu2x->drawButton(gmenu2x->bg, "l", gmenu2x->tr["Backspace"]))));
 
 	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-	gmenu2x->input.setWakeUpInterval(600);
+
 	while (!close) {
+		bool inputAction = gmenu2x->input.update();
+		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
+
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
 
 		box.w = gmenu2x->font->getTextWidth(input)+18;
@@ -174,10 +177,6 @@ bool InputDialog::exec() {
 		if (gmenu2x->f200) ts.poll();
 		action = drawVirtualKeyboard();
 		gmenu2x->s->flip();
-
-		gmenu2x->input.update();
-
-		if (gmenu2x->inputCommonActions()) continue;
 
 		if ( gmenu2x->input[MENU] ) action = ID_ACTION_CLOSE;
 		else if ( gmenu2x->input[SETTINGS] ) action = ID_ACTION_SAVE;
