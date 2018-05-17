@@ -1362,9 +1362,9 @@ bool GMenu2X::powerManager(bool &inputAction) {
 	} else if (tickPowerOff >= 2 || tickNow - tickSuspend >= confInt["backlightTimeout"] * 1000) {
 			if(!suspendActive) {
 
-				MessageBox mb(this, tr["Suspend"]);
-				mb.setAutoHide(1000);
-				mb.exec();
+				// MessageBox mb(this, tr["Suspend"]);
+				// mb.setAutoHide(1000);
+				// mb.exec();
 
 				// bg->box(0,0,resX,resY,0,0,0);
 				// bg->blit(s,0,0);
