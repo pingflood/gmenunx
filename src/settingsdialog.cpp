@@ -61,16 +61,10 @@ bool SettingsDialog::exec() {
 
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
 
-		drawTopBar(gmenu2x->s, text, "", icon);
+		// redraw to due to realtime skin
+		drawTopBar(gmenu2x->s, text, voices[sel]->getDescription(), icon);
 		drawBottomBar(gmenu2x->s);
 		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-
-		action = SD_NO_ACTION;
-		// if (gmenu2x->f200) ts.poll();
-		
-		writeSubTitle(voices[sel]->getDescription());
-
-		// gmenu2x->font->setColor(gmenu2x->skinConfColors[COLOR_FONT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_OUTLINE]);
 
 		if (sel>firstElement+numRows-1) firstElement=sel-numRows+1;
 		if (sel<firstElement) firstElement=sel;
@@ -101,6 +95,7 @@ bool SettingsDialog::exec() {
 
 		gmenu2x->s->flip();
 
+		action = SD_NO_ACTION;
 		if ( gmenu2x->input[SETTINGS] ) action = SD_ACTION_SAVE;
 		else if ( gmenu2x->input[CANCEL] ) action = SD_ACTION_CLOSE;
 		else if ( gmenu2x->input[UP      ] ) action = SD_ACTION_UP;
