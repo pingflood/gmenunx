@@ -945,9 +945,9 @@ int GMenu2X::setBacklight(int val, bool popup) {
 
 			if ((SDL_GetTicks() - tickStart) >= 3000 || input[MODIFIER] || input[CONFIRM] || input[CANCEL]) close = true;
 
-			if (input[LEFT])			val = setBacklight(max(1, val - backlightStep), false);
-			else if (input[RIGHT])		val = setBacklight(min(100, val + backlightStep), false);
-			else if (input[BACKLIGHT])	val = setBacklight(val + backlightStep, false);
+			if ( input[LEFT] || input[DEC] )			val = setBacklight(max(1, val - backlightStep), false);
+			else if ( input[RIGHT] || input[INC] )		val = setBacklight(min(100, val + backlightStep), false);
+			else if ( input[BACKLIGHT] )				val = setBacklight(val + backlightStep, false);
 		}
 		// input.setWakeUpInterval(1000);
 
