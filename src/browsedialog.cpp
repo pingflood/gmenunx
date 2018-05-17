@@ -62,6 +62,8 @@ bool BrowseDialog::exec() {
 	// gmenu2x->bg->setClipRect(gmenu2x->listRect);
 
 	while (!close) {
+		handleInput();
+
 		if (gmenu2x->f200) gmenu2x->ts.poll();
 
 		gmenu2x->bg->blit(gmenu2x->s, 0, 0);
@@ -104,7 +106,6 @@ bool BrowseDialog::exec() {
 		gmenu2x->drawScrollBar(numRows, fl->size(), firstElement, gmenu2x->listRect);
 		gmenu2x->s->flip();
 
-		handleInput();
 	}
 	// gmenu2x->s->clearClipRect();
 	return result;
@@ -138,7 +139,8 @@ BrowseDialog::Action BrowseDialog::getAction() {
 void BrowseDialog::handleInput() {
 	BrowseDialog::Action action;
 
-	gmenu2x->input.update();
+	bool inputAction = gmenu2x->input.update();
+	if (gmenu2x->powerManager(inputAction)) return;
 
 	if (ts_pressed && !gmenu2x->ts.pressed()) {
 		action = BrowseDialog::ACT_SELECT;
