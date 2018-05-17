@@ -101,7 +101,6 @@ class GMenu2X {
 private:
 	int getBacklight();
 
-	int backlightStep;
 	void setSuspend(bool suspend);
 	bool suspendActive = false;
 
