@@ -1266,6 +1266,8 @@ void GMenu2X::main() {
 			continue;
 		}
 
+		if (inputCommonActions()) continue;
+
 		if ( input[CONFIRM] && menu->selLink() != NULL ) {
 			setVolume(confInt["globalVolume"]);
 
@@ -1278,32 +1280,6 @@ void GMenu2X::main() {
 
 			menu->selLink()->run();
 		}
-
-// COMMON ACTIONS
-		else if ( input.isActive(MODIFIER) ) {
-			if (input.isActive(SECTION_NEXT)) {
-				if (!saveScreenshot()) { ERROR("Can't save screenshot"); continue; }
-				MessageBox mb(this, tr["Screenshot saved"]);
-				mb.setAutoHide(1000);
-				mb.exec();
-			} else if (input.isActive(SECTION_PREV)) {
-				int vol = getVolume();
-				if (vol) {
-					vol = 0;
-					volumeMode = VOLUME_MODE_MUTE;
-				} else {
-					vol = 100;
-					volumeMode = VOLUME_MODE_NORMAL;
-				}
-				confInt["globalVolume"] = vol;
-				setVolume(vol);
-				writeConfig();
-			}
-		}
-		// BACKLIGHT
-		else if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
-// END OF COMMON ACTIONS
-
 		else if ( input[SETTINGS] ) options();
 		else if ( input[MENU]     ) contextMenu();
 		// LINK NAVIGATION
@@ -1382,6 +1358,39 @@ void GMenu2X::main() {
 	pthread_join(thread_id, NULL);
 	delete btnContextMenu;
 	btnContextMenu = NULL;
+}
+
+bool GMenu2X::inputCommonActions() {
+		if ( input.isActive(MODIFIER) ) {
+			if (input.isActive(SECTION_NEXT)) {
+				// SCREENSHOT
+				if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
+				MessageBox mb(this, tr["Screenshot saved"]);
+				mb.setAutoHide(1000);
+				mb.exec();
+				return true; 
+			} else if (input.isActive(SECTION_PREV)) {
+				// VOLUME / MUTE
+				int vol = getVolume();
+				if (vol) {
+					vol = 0;
+					volumeMode = VOLUME_MODE_MUTE;
+				} else {
+					vol = 100;
+					volumeMode = VOLUME_MODE_NORMAL;
+				}
+				confInt["globalVolume"] = vol;
+				setVolume(vol);
+				writeConfig();
+				return true; 
+			}
+		}
+		else if ( input[BACKLIGHT] ) {
+			// BACKLIGHT
+			setBacklight(confInt["backlight"], true);
+			return true; 
+		}
+	return false;
 }
 
 void GMenu2X::explorer() {
@@ -1882,30 +1891,8 @@ void GMenu2X::contextMenu() {
 #endif
 		input.update();
 
-	// COMMON ACTIONS
-		if ( input.isActive(MODIFIER) ) {
-			if (input.isActive(SECTION_NEXT)) {
-				if (!saveScreenshot()) { ERROR("Can't save screenshot"); continue; }
-				MessageBox mb(this, tr["Screenshot Saved"]);
-				mb.setAutoHide(1000);
-				mb.exec();
-			} else if (input.isActive(SECTION_PREV)) {
-				int vol = getVolume();
-				if (vol) {
-					vol = 0;
-					volumeMode = VOLUME_MODE_MUTE;
-				} else {
-					vol = 100;
-					volumeMode = VOLUME_MODE_NORMAL;
-				}
-				confInt["globalVolume"] = vol;
-				setVolume(vol);
-				writeConfig();
-			}
-		}
-		// BACKLIGHT
-		if ( input[BACKLIGHT] ) setBacklight(confInt["backlight"], true);
-// END OF COMMON ACTIONS
+		if (inputCommonActions()) continue;
+
 		else if ( input[MENU] || input[CANCEL]) close = true;
 		else if ( input[UP] ) sel = (sel-1 < 0) ? (int)voices.size()-1 : sel -1 ;
 		else if ( input[DOWN] ) sel = (sel+1 > (int)voices.size()-1) ? 0 : sel + 1;

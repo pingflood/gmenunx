@@ -98,32 +98,8 @@ void LinkScannerDialog::exec() {
 	while (!close) {
 		gmenu2x->input.update();
 
-// COMMON ACTIONS
-		if ( gmenu2x->input.isActive(MODIFIER) ) {
-			if (gmenu2x->input.isActive(SECTION_NEXT)) {
-				if (!gmenu2x->saveScreenshot()) { continue; }
-				MessageBox mb(gmenu2x, gmenu2x->tr["Screenshot Saved"]);
-				mb.setAutoHide(1000);
-				mb.exec();
-				continue;
-			} else if (gmenu2x->input.isActive(SECTION_PREV)) {
-				int vol = gmenu2x->getVolume();
-				if (vol) {
-					vol = 0;
-					gmenu2x->volumeMode = VOLUME_MODE_MUTE;
-				} else {
-					vol = 100;
-					gmenu2x->volumeMode = VOLUME_MODE_NORMAL;
-				}
-				gmenu2x->confInt["globalVolume"] = vol;
-				gmenu2x->setVolume(vol);
-				gmenu2x->writeConfig();
-				continue;
-			}
-		}
-		// BACKLIGHT
-		else if ( gmenu2x->input[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
-// END OF COMMON ACTIONS
+		if (gmenu2x->inputCommonActions()) continue;
+
 		else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
 	}
 	gmenu2x->setBacklight(gmenu2x->confInt["backlight"]);
