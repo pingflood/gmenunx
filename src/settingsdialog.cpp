@@ -28,10 +28,9 @@
 using namespace std;
 
 SettingsDialog::SettingsDialog(
-		GMenu2X *gmenu2x_, InputManager &inputMgr_, Touchscreen &ts_,
+		GMenu2X *gmenu2x_, Touchscreen &ts_,
 		const string &text_, const string &icon)
 	: Dialog(gmenu2x_)
-	, inputMgr(inputMgr_)
 	, ts(ts_)
 	, text(text_)
 {
@@ -99,16 +98,16 @@ bool SettingsDialog::exec() {
 
 		gmenu2x->s->flip();
 
-		inputMgr.update();
+		gmenu2x->input.update();
 // COMMON ACTIONS
-		if ( inputMgr.isActive(MODIFIER) ) {
-			if (inputMgr.isActive(SECTION_NEXT)) {
+		if ( gmenu2x->input.isActive(MODIFIER) ) {
+			if (gmenu2x->input.isActive(SECTION_NEXT)) {
 				if (!gmenu2x->saveScreenshot()) { continue; }
 				MessageBox mb(gmenu2x, gmenu2x->tr["Screenshot Saved"]);
 				mb.setAutoHide(1000);
 				mb.exec();
 				continue;
-			} else if (inputMgr.isActive(SECTION_PREV)) {
+			} else if (gmenu2x->input.isActive(SECTION_PREV)) {
 				int vol = gmenu2x->getVolume();
 				if (vol) {
 					vol = 0;
@@ -124,14 +123,14 @@ bool SettingsDialog::exec() {
 			}
 		}
 		// BACKLIGHT
-		else if ( inputMgr[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
+		else if ( gmenu2x->input[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
 // END OF COMMON ACTIONS
-		if ( inputMgr[SETTINGS] ) action = SD_ACTION_SAVE;
-		else if ( inputMgr[CANCEL] ) action = SD_ACTION_CLOSE;
-		else if ( inputMgr[UP      ] ) action = SD_ACTION_UP;
-		else if ( inputMgr[DOWN    ] ) action = SD_ACTION_DOWN;
-		else if ( inputMgr[PAGEUP  ] ) sel = (sel < numRows) ? sel = 0 : sel - numRows + 1;
-		else if ( inputMgr[PAGEDOWN] ) sel = (sel + numRows >= voices.size()) ? voices.size() - 1 : sel + numRows - 1;
+		if ( gmenu2x->input[SETTINGS] ) action = SD_ACTION_SAVE;
+		else if ( gmenu2x->input[CANCEL] ) action = SD_ACTION_CLOSE;
+		else if ( gmenu2x->input[UP      ] ) action = SD_ACTION_UP;
+		else if ( gmenu2x->input[DOWN    ] ) action = SD_ACTION_DOWN;
+		else if ( gmenu2x->input[PAGEUP  ] ) sel = (sel < numRows) ? sel = 0 : sel - numRows + 1;
+		else if ( gmenu2x->input[PAGEDOWN] ) sel = (sel + numRows >= voices.size()) ? voices.size() - 1 : sel + numRows - 1;
 		else action = voices[sel]->manageInput();
 
 		switch (action) {

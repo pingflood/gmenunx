@@ -35,18 +35,16 @@
 using std::string;
 using std::vector;
 
-class InputManager;
 class Touchscreen;
 
 class SettingsDialog : protected Dialog {
 private:
-	InputManager &inputMgr;
 	Touchscreen &ts;
 	vector<MenuSetting *> voices;
 	string text, icon;
 
 public:
-	SettingsDialog(GMenu2X *gmenu2x, InputManager &inputMgr, Touchscreen &ts, const string &text, const string &icon="skin:sections/settings.png");
+	SettingsDialog(GMenu2X *gmenu2x, Touchscreen &ts, const string &text, const string &icon="skin:sections/settings.png");
 	~SettingsDialog();
 	bool save = false;
 	bool edited();
