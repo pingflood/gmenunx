@@ -56,6 +56,9 @@ bool SettingsDialog::exec() {
 	uint numRows = gmenu2x->listRect.h/rowHeight;
 
 	while (!close) {
+		bool inputAction = gmenu2x->input.update();
+		if (gmenu2x->powerManager(inputAction)) continue;
+
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
 
 		drawTopBar(gmenu2x->s, text, "", icon);
@@ -98,7 +101,6 @@ bool SettingsDialog::exec() {
 
 		gmenu2x->s->flip();
 
-		gmenu2x->input.update();
 
 		if (gmenu2x->inputCommonActions()) continue;
 
