@@ -57,7 +57,7 @@ bool SettingsDialog::exec() {
 
 	while (!close) {
 		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->powerManager(inputAction)) continue;
+		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
 
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
 
@@ -100,9 +100,6 @@ bool SettingsDialog::exec() {
 		gmenu2x->drawScrollBar(numRows, voices.size(), firstElement, gmenu2x->listRect);
 
 		gmenu2x->s->flip();
-
-
-		if (gmenu2x->inputCommonActions()) continue;
 
 		if ( gmenu2x->input[SETTINGS] ) action = SD_ACTION_SAVE;
 		else if ( gmenu2x->input[CANCEL] ) action = SD_ACTION_CLOSE;

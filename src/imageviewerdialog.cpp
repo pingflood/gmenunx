@@ -33,14 +33,15 @@ void ImageViewerDialog::exec() {
 	gmenu2x->s->setClipRect(gmenu2x->listRect);
 
 	while (!close) {
+		bool inputAction = gmenu2x->input.update();
+		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) { repaint = true; continue; };
+
 		if (repaint) {
 			gmenu2x->bg->blit(gmenu2x->s, 0, 0);
 			pngman.blit(gmenu2x->s, gmenu2x->listRect.x + offsetX, gmenu2x->listRect.y + offsetY);
 			gmenu2x->s->flip();
 			repaint = false;
 		}
-
-		gmenu2x->input.update();
 
 		if ( gmenu2x->input[MANUAL] || gmenu2x->input[CANCEL] || gmenu2x->input[SETTINGS] ) close = true;
 		else if ( gmenu2x->input[LEFT] && offsetX < 0) {
