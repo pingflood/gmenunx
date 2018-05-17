@@ -34,7 +34,7 @@ using std::vector;
 
 typedef vector<string> stringlist;
 
-class InputManager;
+// class InputManager;
 class Touchscreen;
 
 class InputDialog : protected Dialog {
@@ -54,7 +54,7 @@ private:
 		ID_ACTION_KB_CHANGE
 	};
 
-	InputManager &inputMgr;
+	// InputManager &inputMgr;
 	Touchscreen &ts;
 	int selRow, selCol;
 	bool close, ok;
@@ -76,7 +76,7 @@ private:
 	void setKeyboard(int);
 
 public:
-	InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr, Touchscreen &ts, const string &text, const string &startvalue="", const string &title="", const string &icon="");
+	InputDialog(GMenu2X *gmenu2x, Touchscreen &ts, const string &text, const string &startvalue="", const string &title="", const string &icon="");
 
 	bool exec();
 	const string &getInput() { return input; }

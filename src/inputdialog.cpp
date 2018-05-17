@@ -28,11 +28,10 @@
 using namespace std;
 using namespace fastdelegate;
 
-InputDialog::InputDialog(GMenu2X *gmenu2x, InputManager &inputMgr_,
+InputDialog::InputDialog(GMenu2X *gmenu2x,
 		Touchscreen &ts_, const string &text,
 		const string &startvalue, const string &title, const string &icon)
 	: Dialog(gmenu2x)
-	, inputMgr(inputMgr_)
 	, ts(ts_)
 {
 	if (title=="") {
@@ -153,7 +152,7 @@ bool InputDialog::exec() {
 	gmenu2x->drawButton(gmenu2x->bg, "l", gmenu2x->tr["Backspace"]))));
 
 	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-	inputMgr.setWakeUpInterval(600);
+	gmenu2x->input.setWakeUpInterval(600);
 	while (!close) {
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
 
@@ -176,16 +175,16 @@ bool InputDialog::exec() {
 		action = drawVirtualKeyboard();
 		gmenu2x->s->flip();
 
-		inputMgr.update();
+		gmenu2x->input.update();
 // COMMON ACTIONS
-		if ( inputMgr.isActive(MODIFIER) ) {
-			if (inputMgr.isActive(SECTION_NEXT)) {
+		if ( gmenu2x->input.isActive(MODIFIER) ) {
+			if (gmenu2x->input.isActive(SECTION_NEXT)) {
 				if (!gmenu2x->saveScreenshot()) { continue; }
 				MessageBox mb(gmenu2x, gmenu2x->tr["Screenshot Saved"]);
 				mb.setAutoHide(1000);
 				mb.exec();
 				continue;
-			} else if (inputMgr.isActive(SECTION_PREV)) {
+			} else if (gmenu2x->input.isActive(SECTION_PREV)) {
 				int vol = gmenu2x->getVolume();
 				if (vol) {
 					vol = 0;
@@ -201,18 +200,18 @@ bool InputDialog::exec() {
 			}
 		}
 		// BACKLIGHT
-		else if ( inputMgr[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
+		else if ( gmenu2x->input[BACKLIGHT] ) gmenu2x->setBacklight(gmenu2x->confInt["backlight"], true);
 // END OF COMMON ACTIONS
-		if ( inputMgr[MENU] ) action = ID_ACTION_CLOSE;
-		else if ( inputMgr[SETTINGS] ) action = ID_ACTION_SAVE;
-		else if ( inputMgr[UP]       ) action = ID_ACTION_UP;
-		else if ( inputMgr[DOWN]     ) action = ID_ACTION_DOWN;
-		else if ( inputMgr[LEFT]     ) action = ID_ACTION_LEFT;
-		else if ( inputMgr[RIGHT]    ) action = ID_ACTION_RIGHT;
-		else if ( inputMgr[CONFIRM]  ) action = ID_ACTION_SELECT;
-		else if ( inputMgr[MANUAL]   ) action = ID_ACTION_KB_CHANGE;
-		else if ( inputMgr[CANCEL] || inputMgr[SECTION_PREV] ) action = ID_ACTION_BACKSPACE;
-		else if ( inputMgr[SECTION_NEXT] ) action = ID_ACTION_SPACE;
+		if ( gmenu2x->input[MENU] ) action = ID_ACTION_CLOSE;
+		else if ( gmenu2x->input[SETTINGS] ) action = ID_ACTION_SAVE;
+		else if ( gmenu2x->input[UP]       ) action = ID_ACTION_UP;
+		else if ( gmenu2x->input[DOWN]     ) action = ID_ACTION_DOWN;
+		else if ( gmenu2x->input[LEFT]     ) action = ID_ACTION_LEFT;
+		else if ( gmenu2x->input[RIGHT]    ) action = ID_ACTION_RIGHT;
+		else if ( gmenu2x->input[CONFIRM]  ) action = ID_ACTION_SELECT;
+		else if ( gmenu2x->input[MANUAL]   ) action = ID_ACTION_KB_CHANGE;
+		else if ( gmenu2x->input[CANCEL] || gmenu2x->input[SECTION_PREV] ) action = ID_ACTION_BACKSPACE;
+		else if ( gmenu2x->input[SECTION_NEXT] ) action = ID_ACTION_SPACE;
 
 		switch (action) {
 			case ID_ACTION_SAVE: {
@@ -242,7 +241,7 @@ bool InputDialog::exec() {
 			case ID_ACTION_SELECT: confirm(); break;
 		}
 	}
-	inputMgr.setWakeUpInterval(0);
+	gmenu2x->input.setWakeUpInterval(0);
 
 	return ok;
 }

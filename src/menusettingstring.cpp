@@ -45,8 +45,6 @@ MenuSettingString::MenuSettingString(
 
 void MenuSettingString::edit()
 {
-	InputDialog id(
-			gmenu2x, gmenu2x->input, gmenu2x->ts,
-				   description, value(), diagTitle, diagIcon);
+	InputDialog id(gmenu2x, gmenu2x->ts, description, value(), diagTitle, diagIcon);
 	if (id.exec()) setValue(id.getInput());
 }
