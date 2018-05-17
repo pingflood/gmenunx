@@ -109,6 +109,7 @@ int MessageBox::exec() {
 	if (this->autohide) {
 		gmenu2x->s->flip();
 		SDL_Delay(this->autohide);
+		gmenu2x->tickSuspend = SDL_GetTicks();
 		return -1;
 	}
 	//draw buttons rectangle
@@ -155,5 +156,6 @@ int MessageBox::exec() {
 		// usleep(50000);
 	}
 
+	gmenu2x->tickSuspend = SDL_GetTicks();
 	return result;
 }
