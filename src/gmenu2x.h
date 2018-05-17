@@ -161,6 +161,8 @@ private:
 		web;
 	volatile unsigned short *MEM_REG;
 	int cx25874; //tv-out
+
+
 	void gp2x_tvout_on(bool pal);
 	void gp2x_tvout_off();
 	void readCommonIni();
@@ -193,6 +195,8 @@ public:
 
 	InputManager input;
 	Touchscreen ts;
+
+	unsigned long tickSuspend, tickPowerOff;
 
 	//Configuration hashes
 	ConfStrHash confStr, skinConfStr;
@@ -234,6 +238,7 @@ public:
 	uint onChangeSkin();
 
 	bool inputCommonActions();
+	bool powerManager(bool &inputAction);
 
 #if defined(TARGET_GP2X)
 	void writeConfigOpen2x();

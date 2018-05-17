@@ -1010,7 +1010,8 @@ void GMenu2X::main() {
 	bool quit = false;
 	int x = 0, y = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
 	uint i;
-	unsigned long tickSuspend = 0, tickPowerOff = 0, tickBattery = -4800, tickNow, tickMMC = 0, tickUSB = 0;
+	unsigned long tickBattery = -4800, tickNow, tickMMC = 0, tickUSB = 0;
+	tickSuspend = 0; tickPowerOff = 0;
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
 	string prevBackdrop = confStr["wallpaper"], currBackdrop = confStr["wallpaper"];
 	// char backlightMsg[16]={0};
@@ -1030,19 +1031,10 @@ void GMenu2X::main() {
 	while (!quit) {
 		// INFO("NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
 		inputAction = input.update();
-		tickNow = SDL_GetTicks();
-		if(suspendActive) {
-			// SUSPEND ACTIVE
-			if (input[POWER]) {
-				tickPowerOff = 0;
-				tickSuspend = tickNow;
-				setSuspend(false);
-			}
-			continue;
-		}
 
-		// SUSPEND NOT ACTIVE
-		input.setWakeUpInterval(1000);
+		if (powerManager(inputAction)) continue;
+
+		tickNow = SDL_GetTicks();
 
 		sc[currBackdrop]->blit(s,0,0);
 
@@ -1242,30 +1234,6 @@ void GMenu2X::main() {
 
 		s->flip();
 
-		if (inputAction == 0) {
-			// INFO("NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
-
-			if (input.isActive(POWER)) {
-				if (tickPowerOff >= 4) { //4 * 500ms
-					tickPowerOff = 0;
-					poweroff();
-				}
-			} else if (tickPowerOff >= 2 || tickNow - tickSuspend >= confInt["backlightTimeout"] * 1000) {
-					if(!suspendActive) {
-						MessageBox mb(this, tr["Suspend"]);
-						mb.setAutoHide(1000);
-						mb.exec();
-
-						// SDL_Delay(1000);
-						setSuspend(true);
-						tickPowerOff = 0;
-					}
-			} else {
-				tickPowerOff = 0;
-			}
-			continue;
-		}
-
 		if (inputCommonActions()) continue;
 
 		if ( input[CONFIRM] && menu->selLink() != NULL ) {
@@ -1290,8 +1258,6 @@ void GMenu2X::main() {
 		// SECTION
 		else if ( input[SECTION_PREV] ) menu->decSectionIndex();
 		else if ( input[SECTION_NEXT] ) menu->incSectionIndex();
-		// POWER || SUSPEND
-		else if ( input[POWER] ) { tickPowerOff++; }
 
 		// VOLUME SCALE MODIFIER
 #if defined(TARGET_GP2X)
@@ -1351,7 +1317,7 @@ void GMenu2X::main() {
 		// }
 
 		// tickSuspend = tickPowerOff = SDL_GetTicks();
-		tickSuspend = SDL_GetTicks();
+		// tickSuspend = SDL_GetTicks();
 	}
 	
 	exitMainThread = true;
@@ -1390,6 +1356,58 @@ bool GMenu2X::inputCommonActions() {
 			setBacklight(confInt["backlight"], true);
 			return true; 
 		}
+	return false;
+}
+
+bool GMenu2X::powerManager(bool &inputAction) {
+	unsigned long tickNow = SDL_GetTicks();
+	if(suspendActive) {
+		// SUSPEND ACTIVE
+		if (input[POWER]) {
+			tickPowerOff = 0;
+			tickSuspend = tickNow;
+			setSuspend(false);
+		}
+		return true;
+	}
+
+	// SUSPEND NOT ACTIVE
+	input.setWakeUpInterval(1000);
+
+	// POWER MANAGER
+	if (inputAction) {
+		tickSuspend = tickNow; //SDL_GetTicks();
+	}
+
+	INFO("NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
+
+	if (input.isActive(POWER)) {
+		if (tickPowerOff >= 4) { //4 * 500ms
+			tickPowerOff = 0;
+			poweroff();
+		}
+	} else if (tickPowerOff >= 2 || tickNow - tickSuspend >= confInt["backlightTimeout"] * 1000) {
+			if(!suspendActive) {
+
+				MessageBox mb(this, tr["Suspend"]);
+				mb.setAutoHide(1000);
+				mb.exec();
+
+				// bg->box(0,0,resX,resY,0,0,0);
+				// bg->blit(s,0,0);
+				// s->flip();
+
+				// SDL_Delay(1000);
+				setSuspend(true);
+				tickPowerOff = 0;
+				return true;
+			}
+	} else {
+		tickPowerOff = 0;
+	}
+		// continue;
+	// POWER || SUSPEND
+	if ( input[POWER] ) { tickPowerOff++; }
 	return false;
 }
 
