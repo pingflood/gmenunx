@@ -112,6 +112,9 @@ int Selector::exec(int startSelection) {
 	gmenu2x->sc.defaultAlpha = false;
 	// gmenu2x->input.setWakeUpInterval(40); //25FPS
 	while (!close) {
+		bool inputAction = gmenu2x->input.update();
+		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
+
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
 
 		if (selected>firstElement+numRows) firstElement=selected-numRows;
@@ -154,10 +157,6 @@ int Selector::exec(int startSelection) {
 		gmenu2x->s->clearClipRect();
 		gmenu2x->drawScrollBar(numRows,fl.size(),firstElement, rect);
 		gmenu2x->s->flip();
-
-		gmenu2x->input.update();
-
-		if (gmenu2x->inputCommonActions()) continue;
 		
 		if ( gmenu2x->input[SETTINGS] ) {
 			close = true; result = false;

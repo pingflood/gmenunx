@@ -62,6 +62,9 @@ bool WallpaperDialog::exec()
 	uint i, selected = 0, firstElement = 0, iY;
 
 	while (!close) {
+		bool inputAction = gmenu2x->input.update();
+		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
+
 		if (selected>firstElement+numRows) firstElement=selected-numRows;
 		if (selected<firstElement) firstElement=selected;
 
@@ -95,10 +98,6 @@ bool WallpaperDialog::exec()
 		gmenu2x->drawScrollBar(numRows, wallpapers.size(), firstElement, gmenu2x->listRect);
 
 		gmenu2x->s->flip();
-
-		gmenu2x->input.update();
-
-		if (gmenu2x->inputCommonActions()) continue;
 
 		if ( gmenu2x->input[UP] ) {
 			if (selected == 0)

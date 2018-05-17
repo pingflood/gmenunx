@@ -96,13 +96,10 @@ void LinkScannerDialog::exec() {
 	// ledOff();
 
 	while (!close) {
-		gmenu2x->input.update();
-
-		if (gmenu2x->inputCommonActions()) continue;
-
+		bool inputAction = gmenu2x->input.update();
+		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
 		else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
 	}
-	gmenu2x->setBacklight(gmenu2x->confInt["backlight"]);
 }
 
 
