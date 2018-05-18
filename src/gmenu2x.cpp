@@ -953,7 +953,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 
 		confInt["backlight"] = val;
 		writeConfig();
-		tickSuspend = SDL_GetTicks();
+		tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 	}
 	return val;
 }
@@ -1802,14 +1802,12 @@ void GMenu2X::contextMenu() {
 	box.y = halfY - box.h/2;
 
 	SDL_Rect selbox = {box.x+4, 0, box.w-8, h};
-	unsigned long tickNow, tickStart = SDL_GetTicks();
+	unsigned long tickStart = SDL_GetTicks();
 
 	Surface bg(s);
 	input.setWakeUpInterval(40); //25FPS
 
 	while (!close) {
-		// tickNow = SDL_GetTicks();
-
 		selbox.y = box.y+4+h*sel;
 		bg.blit(s,0,0);
 
@@ -1869,7 +1867,7 @@ void GMenu2X::contextMenu() {
 		else if ( input[SETTINGS] || input[CONFIRM] ) { voices[sel].action(); close = true; }
 	}
 
-	tickSuspend = SDL_GetTicks();
+	tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 	// input.setWakeUpInterval(1000);
 }
 
