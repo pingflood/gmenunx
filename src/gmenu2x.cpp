@@ -1103,7 +1103,7 @@ void GMenu2X::main() {
 					}
 				}
 				else if(curUDCStatus == UDC_CONNECT) {
-					MessageBox mb(this, tr["Which action do you want ?"], "icons/usb.png");
+					MessageBox mb(this, tr["Which action do you want?"], "icons/usb.png");
 					mb.setButton(CONFIRM, tr["USB disk"]);
 					mb.setButton(CANCEL,  tr["Charge only"]);
 					if (mb.exec() == CONFIRM) {
@@ -1116,6 +1116,14 @@ void GMenu2X::main() {
 						if (curMMCStatus == MMC_INSERT) {
 							system("/usr/bin/usb_conn_ext_sd.sh");
 							INFO("%s, connect USB disk for external SD", __func__);
+						}
+
+						MessageBox mb(this, tr["USB Disk Connected"], "icons/usb.png");
+						mb.setAutoHide(1);
+						mb.exec();
+
+						while (getUDCStatus() == UDC_CONNECT) {
+							SDL_Delay(500);
 						}
 					}
 				}
@@ -1359,7 +1367,7 @@ bool GMenu2X::powerManager(bool &inputAction) {
 
 	// INFO("START: %d\tSUSPEND: %d\tPOWER: %d", tickStart, tickStart - tickSuspend, tickPower - tickStart);
 
-	if (tickPower - tickStart >= 2000) {
+	if (tickPower - tickStart >= 1500) {
 		poweroff();
 		return true;
 	} else if (tickPower - tickStart >= 200 || tickStart - tickSuspend >= confInt["backlightTimeout"] * 1000) {
@@ -2467,7 +2475,7 @@ void GMenu2X::activateSdUsb() {
 		MessageBox mb(this,tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
 		mb.exec();
 	} else {
-		MessageBox mb(this,tr["USB Enabled (SD)"],"icons/usb.png");
+		MessageBox mb(this,tr["USB Enabled (SD)"],"skin:icons/usb.png");
 		mb.setButton(CONFIRM, tr["Turn off"]);
 		mb.exec();
 		system("scripts/usbon.sh nand");
@@ -2480,7 +2488,7 @@ void GMenu2X::activateNandUsb() {
 		mb.exec();
 	} else {
 		system("scripts/usbon.sh nand");
-		MessageBox mb(this,tr["USB Enabled (Nand)"],"icons/usb.png");
+		MessageBox mb(this,tr["USB Enabled (Nand)"],"skin:icons/usb.png");
 		mb.setButton(CONFIRM, tr["Turn off"]);
 		mb.exec();
 		system("scripts/usboff.sh nand");
@@ -2493,7 +2501,7 @@ void GMenu2X::activateRootUsb() {
 		mb.exec();
 	} else {
 		system("scripts/usbon.sh root");
-		MessageBox mb(this,tr["USB Enabled (Root)"],"icons/usb.png");
+		MessageBox mb(this,tr["USB Enabled (Root)"],"skin:icons/usb.png");
 		mb.setButton(CONFIRM, tr["Turn off"]);
 		mb.exec();
 		system("scripts/usboff.sh root");

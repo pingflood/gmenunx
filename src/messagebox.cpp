@@ -109,7 +109,7 @@ int MessageBox::exec() {
 	if (this->autohide) {
 		gmenu2x->s->flip();
 		SDL_Delay(this->autohide);
-		gmenu2x->tickSuspend = SDL_GetTicks();
+		gmenu2x->tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 		return -1;
 	}
 	//draw buttons rectangle
@@ -146,8 +146,8 @@ int MessageBox::exec() {
 		if (inputAction) {
 			if (gmenu2x->inputCommonActions()) continue;
 
-			for (uint i=0; i<buttons.size(); i++) {
-				if (buttons[i]!="" && gmenu2x->input[i]) result = i;
+			for (uint i=0; i < buttons.size(); i++) {
+				if (buttons[i] !="" && gmenu2x->input[i]) result = i;
 			}
 		}
 
@@ -156,6 +156,6 @@ int MessageBox::exec() {
 		// usleep(50000);
 	}
 
-	gmenu2x->tickSuspend = SDL_GetTicks();
+	gmenu2x->tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 	return result;
 }
