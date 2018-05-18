@@ -1091,12 +1091,14 @@ void GMenu2X::main() {
 				if (curUDCStatus == UDC_REMOVE) {
 					if (needUSBUmount) {
 						// system("/usr/bin/usb_disconn_int_sd.sh");
-						system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
-						system("mount -o remount,rw /dev/mmcblk0p4");
 						// system("mount -o remount,rw /dev/mmcblk0p4");
+						system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
+						system("mount /dev/mmcblk0p4 /mnt/int_sd -t vfat -o rw,utf8");
 						INFO("%s, disconnect usbdisk for internal sd", __func__);
 						if (curMMCStatus == MMC_INSERT) {
-							system("/usr/bin/usb_disconn_ext_sd.sh");
+							// system("/usr/bin/usb_disconn_ext_sd.sh");
+							system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
+							system("mount /dev/mmcblk1p1 /mnt/ext_sd -t vfat -o rw,utf8 -t vfat -o rw,utf8");
 							INFO("%s, disconnect USB disk for external SD", __func__);
 						}
 						needUSBUmount = 0;
@@ -1110,16 +1112,18 @@ void GMenu2X::main() {
 						needUSBUmount = 1;
 						// system("/usr/bin/usb_conn_int_sd.sh");
 						// system("mount -o remount,ro /dev/mmcblk0p4");
-						system("umount -l /dev/mmcblk0p4");
+						system("umount -fl /dev/mmcblk0p4");
 						system("echo '/dev/mmcblk0p4' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
 						INFO("%s, connect USB disk for internal SD", __func__);
 						if (curMMCStatus == MMC_INSERT) {
-							system("/usr/bin/usb_conn_ext_sd.sh");
+							// system("/usr/bin/usb_conn_ext_sd.sh");
+							system("umount -fl /mnt/ext_sd");
+							system("echo '/dev/mmcblk1p1' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 							INFO("%s, connect USB disk for external SD", __func__);
 						}
 
 						MessageBox mb(this, tr["USB Disk Connected"], "icons/usb.png");
-						mb.setAutoHide(1);
+						mb.setAutoHide(500);
 						mb.exec();
 
 						while (getUDCStatus() == UDC_CONNECT) {
@@ -1225,7 +1229,7 @@ void GMenu2X::main() {
 			if (menu->selLinkApp()!=NULL && menu->selLinkApp()->getSelectorDir().empty()) {
 				// MessageBox mb(this, tr.translate("Launching $1", menu->selLink()->getTitle().c_str(), NULL), menu->selLinkApp()->getIconPath());
 				MessageBox mb(this, tr["Launching "] + menu->selLink()->getTitle().c_str(), menu->selLink()->getIconPath());
-				mb.setAutoHide(1);
+				mb.setAutoHide(500);
 				mb.exec();
 			}
 
@@ -1374,7 +1378,7 @@ bool GMenu2X::powerManager(bool &inputAction) {
 
 	if (tickPower >= 300 || tickStart - tickSuspend >= confInt["backlightTimeout"] * 1000) {
 		MessageBox mb(this, tr["Suspend"]);
-		mb.setAutoHide(1);
+		mb.setAutoHide(100);
 		mb.exec();
 		setSuspend(true);
 		return true;
@@ -1568,7 +1572,7 @@ void GMenu2X::formatSd() {
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() == CONFIRM) {
 		MessageBox mb(this, tr["Formatting internal SD card..."], "icons/format.png");
-		mb.setAutoHide(1);
+		mb.setAutoHide(100);
 		mb.exec();
 
 		system("/usr/bin/format_int_sd.sh");
@@ -1602,7 +1606,7 @@ void GMenu2X::poweroff() {
 	// del(mb);
 	if (response == CONFIRM) {
 		MessageBox mb(this, tr["Poweroff"]);
-		mb.setAutoHide(1000);
+		mb.setAutoHide(500);
 		mb.exec();
 		setSuspend(true);
 		SDL_Delay(500);
@@ -1613,7 +1617,7 @@ void GMenu2X::poweroff() {
 	}
 	else if (response == SECTION_NEXT) {
 		MessageBox mb(this, tr["Rebooting"]);
-		mb.setAutoHide(1000);
+		mb.setAutoHide(500);
 		mb.exec();
 		setSuspend(true);
 		SDL_Delay(500);
