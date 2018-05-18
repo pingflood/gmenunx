@@ -541,7 +541,7 @@ void GMenu2X::initMenu() {
 
 			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "skin:icons/about.png");
 			// menu->addActionLink(i, "Reboot", MakeDelegate(this, &GMenu2X::reboot), tr["Reboot device"], "skin:icons/reboot.png");
-			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroff), tr["Power menu"], "skin:icons/exit.png");
+			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroffDialog), tr["Power menu"], "skin:icons/exit.png");
 		}
 	}
 	menu->setSectionIndex(confInt["section"]);
@@ -689,6 +689,7 @@ void GMenu2X::readConfig() {
 
 	// evalIntConf( &confInt["batteryLog"], 0, 0, 1 );
 	evalIntConf( &confInt["backlightTimeout"], 30, 10, 300);
+	evalIntConf( &confInt["powerTimeout"], 10, 1, 300);
 	evalIntConf( &confInt["outputLogs"], 0, 0, 1 );
 #if defined(TARGET_GP2X)
 	evalIntConf( &confInt["maxClock"], 300, 200, 300 );
@@ -960,7 +961,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 
 void GMenu2X::setSuspend(bool suspend) {
 	if (suspend) {
-		input.setWakeUpInterval(0);
+		input.setWakeUpInterval(60e3);
 		setBacklight(0);
 		INFO("Enter suspend mode. Current backlight: %d", getBacklight());
 	} else {
@@ -1350,7 +1351,7 @@ bool GMenu2X::inputCommonActions() {
 bool GMenu2X::powerManager(bool &inputAction) {
 	unsigned long tickStart = SDL_GetTicks(), tickPower = 0;
 
-	if (inputAction) tickSuspend = tickStart;
+	// INFO("START: %d\tSUSPEND: %d\tPOWER: %d", tickStart, tickStart - tickSuspend, tickPower);
 
 	if(suspendActive) {
 		// SUSPEND ACTIVE
@@ -1358,8 +1359,16 @@ bool GMenu2X::powerManager(bool &inputAction) {
 			tickSuspend = tickStart;
 			setSuspend(false);
 		}
+		else if (tickStart - tickSuspend + 10 >= confInt["powerTimeout"] * 60e3) {
+			// DEBUG("SYSTEM POWEROFF");
+#if !defined(TARGET_PC)
+			system("poweroff");
+#endif
+		}
 		return true;
 	}
+
+	if (inputAction) tickSuspend = tickStart;
 
 	// SUSPEND NOT ACTIVE
 	input.setWakeUpInterval(1000);
@@ -1370,12 +1379,10 @@ bool GMenu2X::powerManager(bool &inputAction) {
 		SDL_Delay(100);
 		tickPower = SDL_GetTicks() - tickStart;
 		if (tickPower >= 1500) {
-			poweroff();
+			poweroffDialog();
 			return true;
 		}
 	}
-
-	// INFO("START: %d\tSUSPEND: %d\tPOWER: %d", tickStart, tickStart - tickSuspend, tickPower - tickStart);
 
 	if (tickPower >= 300 || tickStart - tickSuspend >= confInt["backlightTimeout"] * 1000) {
 		MessageBox mb(this, tr["Suspend"]);
@@ -1384,6 +1391,7 @@ bool GMenu2X::powerManager(bool &inputAction) {
 		setSuspend(true);
 		return true;
 	}
+
 	return false;
 }
 
@@ -1445,7 +1453,8 @@ void GMenu2X::options() {
 
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
-	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Set the screen timeout and suspend delay"], &confInt["backlightTimeout"], 30, 10, 300));
+	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Seconds to turn display off if inactive"], &confInt["backlightTimeout"], 30, 10, 300));
+	sd.addSetting(new MenuSettingInt(this,tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
 	sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
 	sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load of backdrops from skin pack"], &confInt["skinBackdrops"]));
 	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &confStr["sectionBarPosition"], &sectionBarPosition));
@@ -1496,7 +1505,7 @@ void GMenu2X::options() {
 
 		writeConfig();
 		if (prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) {
-			restart();
+			restartDialog();
 		}
 	}
 }
@@ -1584,7 +1593,7 @@ void GMenu2X::formatSd() {
 }
 #endif
 
-void GMenu2X::restart() {
+void GMenu2X::restartDialog() {
 	MessageBox mb(this, tr["GMenuNext will restart to apply\nthe settings. Continue?"], "icons/exit.png");
 	mb.setButton(CONFIRM, tr["Restart"]);
 	mb.setButton(CANCEL,  tr["Cancel"]);
@@ -1596,7 +1605,7 @@ void GMenu2X::restart() {
 	}
 }
 
-void GMenu2X::poweroff() {
+void GMenu2X::poweroffDialog() {
 	MessageBox mb(this, tr["   Poweroff or reboot the device?   "], "icons/exit.png");
 	mb.setButton(SECTION_NEXT, tr["Reboot"]);
 	mb.setButton(CONFIRM, tr["Poweroff"]);

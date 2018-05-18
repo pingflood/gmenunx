@@ -221,8 +221,8 @@ public:
 	//Status functions
 	void main();
 	void options();
-	void restart();
-	void poweroff();
+	void restartDialog();
+	void poweroffDialog();
 
 	/*!
 	Reads the current battery state and returns a number representing it's level of charge
