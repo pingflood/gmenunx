@@ -1136,6 +1136,7 @@ void GMenu2X::main() {
 				}
 				preUDCStatus = curUDCStatus;
 				tickSuspend = SDL_GetTicks(); // prevent immediate suspend
+				continue;
 			}
 		}
 
@@ -1314,35 +1315,35 @@ void GMenu2X::main() {
 }
 
 bool GMenu2X::inputCommonActions() {
-		if ( input.isActive(MODIFIER) ) {
-			if (input.isActive(SECTION_NEXT)) {
-				// SCREENSHOT
-				if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
-				MessageBox mb(this, tr["Screenshot saved"]);
-				mb.setAutoHide(1000);
-				mb.exec();
-				return true; 
-			} else if (input.isActive(SECTION_PREV)) {
-				// VOLUME / MUTE
-				int vol = getVolume();
-				if (vol) {
-					vol = 0;
-					volumeMode = VOLUME_MODE_MUTE;
-				} else {
-					vol = 100;
-					volumeMode = VOLUME_MODE_NORMAL;
-				}
-				confInt["globalVolume"] = vol;
-				setVolume(vol);
-				writeConfig();
-				return true; 
+	if ( input.isActive(MODIFIER) ) {
+		if (input.isActive(SECTION_NEXT)) {
+			// SCREENSHOT
+			if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
+			MessageBox mb(this, tr["Screenshot saved"]);
+			mb.setAutoHide(1000);
+			mb.exec();
+			return true; 
+		} else if (input.isActive(SECTION_PREV)) {
+			// VOLUME / MUTE
+			int vol = getVolume();
+			if (vol) {
+				vol = 0;
+				volumeMode = VOLUME_MODE_MUTE;
+			} else {
+				vol = 100;
+				volumeMode = VOLUME_MODE_NORMAL;
 			}
-		}
-		else if ( input[BACKLIGHT] ) {
-			// BACKLIGHT
-			setBacklight(confInt["backlight"], true);
+			confInt["globalVolume"] = vol;
+			setVolume(vol);
+			writeConfig();
 			return true; 
 		}
+	}
+	else if ( input[BACKLIGHT] ) {
+		// BACKLIGHT
+		setBacklight(confInt["backlight"], true);
+		return true; 
+	}
 	return false;
 }
 
@@ -1378,7 +1379,7 @@ bool GMenu2X::powerManager(bool &inputAction) {
 
 	if (tickPower >= 300 || tickStart - tickSuspend >= confInt["backlightTimeout"] * 1000) {
 		MessageBox mb(this, tr["Suspend"]);
-		mb.setAutoHide(100);
+		mb.setAutoHide(500);
 		mb.exec();
 		setSuspend(true);
 		return true;
