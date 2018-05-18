@@ -1342,7 +1342,7 @@ bool GMenu2X::inputCommonActions() {
 }
 
 bool GMenu2X::powerManager(bool &inputAction) {
-	unsigned long tickStart = SDL_GetTicks(), tickPower;
+	unsigned long tickStart = SDL_GetTicks(), tickPower = 0;
 
 	if (inputAction) tickSuspend = tickStart;
 
@@ -1362,15 +1362,16 @@ bool GMenu2X::powerManager(bool &inputAction) {
 		// HOLD POWER BUTTON
 		input.update();
 		SDL_Delay(100);
+		tickPower = SDL_GetTicks() - tickStart;
+		if (tickPower >= 1500) {
+			poweroff();
+			return true;
+		}
 	}
-	tickPower = SDL_GetTicks();
 
 	// INFO("START: %d\tSUSPEND: %d\tPOWER: %d", tickStart, tickStart - tickSuspend, tickPower - tickStart);
 
-	if (tickPower - tickStart >= 1500) {
-		poweroff();
-		return true;
-	} else if (tickPower - tickStart >= 200 || tickStart - tickSuspend >= confInt["backlightTimeout"] * 1000) {
+	if (tickPower >= 200 || tickStart - tickSuspend >= confInt["backlightTimeout"] * 1000) {
 		MessageBox mb(this, tr["Suspend"]);
 		mb.setAutoHide(1);
 		mb.exec();
