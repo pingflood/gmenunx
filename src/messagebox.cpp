@@ -82,7 +82,6 @@ void MessageBox::setAutoHide(int autohide) {
 
 int MessageBox::exec() {
 	int result = -1;
-	int inputAction = 0;
 
 	// Surface bg(gmenu2x->s);
 	//Darken background
@@ -97,6 +96,7 @@ int MessageBox::exec() {
 
 	//outer box
 	gmenu2x->s->box(box, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
+	
 	//draw inner rectangle
 	gmenu2x->s->rectangle(box.x+2, box.y+2, box.w-4, box.h-4, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
 
@@ -116,7 +116,7 @@ int MessageBox::exec() {
 	gmenu2x->s->box(box.x, box.y+box.h, box.w, gmenu2x->font->getHeight(), gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 
 	int btnX = gmenu2x->halfX+box.w/2-6;
-	for (uint i=0; i<buttons.size(); i++) {
+	for (uint i = 0; i < buttons.size(); i++) {
 		if (buttons[i] != "") {
 			buttonPositions[i].y = box.y+box.h+gmenu2x->font->getHalfHeight();
 			buttonPositions[i].w = btnX;
@@ -129,33 +129,30 @@ int MessageBox::exec() {
 	}
 	gmenu2x->s->flip();
 
-	while (result<0) {
+	while (result < 0) {
 		//touchscreen
-		if (gmenu2x->f200) {
-			if (gmenu2x->ts.poll()) {
-				for (uint i=0; i<buttons.size(); i++)
-					if (buttons[i]!="" && gmenu2x->ts.inRect(buttonPositions[i])) {
-						result = i;
-						i = buttons.size();
-					}
+		if (gmenu2x->f200 && gmenu2x->ts.poll()) {
+			for (uint i=0; i < buttons.size(); i++) {
+				if (buttons[i] != "" && gmenu2x->ts.inRect(buttonPositions[i])) {
+					result = i;
+					break;
+				}
 			}
 		}
 
-		inputAction = gmenu2x->input.update();
-
-		if (inputAction) {
+		if (gmenu2x->input.update()) {
 			if (gmenu2x->inputCommonActions()) continue;
 
 			for (uint i=0; i < buttons.size(); i++) {
-				if (buttons[i] !="" && gmenu2x->input[i]) result = i;
+				if (buttons[i] !="" && gmenu2x->input[i]) {
+					result = i;
+					break;
+				}
 			}
 		}
-
-		//usleep(LOOP_DELAY);
-		gmenu2x->s->flip();
-		// usleep(50000);
 	}
 
+	gmenu2x->input.dropEvents(); // prevent passing input away
 	gmenu2x->tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 	return result;
 }
