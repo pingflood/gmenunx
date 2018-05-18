@@ -989,7 +989,8 @@ void GMenu2X::main() {
 	int x = 0, y = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
 	uint i;
 	unsigned long tickBattery = -4800, tickNow, tickMMC = 0, tickUSB = 0;
-	tickSuspend = 0; tickPowerOff = 0;
+	tickSuspend = 0;
+	 // tickPowerOff = 0;
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
 	string prevBackdrop = confStr["wallpaper"], currBackdrop = confStr["wallpaper"];
 
@@ -1215,7 +1216,7 @@ void GMenu2X::main() {
 			if (menu->selLinkApp()!=NULL && menu->selLinkApp()->getSelectorDir().empty()) {
 				// MessageBox mb(this, tr.translate("Launching $1", menu->selLink()->getTitle().c_str(), NULL), menu->selLinkApp()->getIconPath());
 				MessageBox mb(this, tr["Launching "] + menu->selLink()->getTitle().c_str(), menu->selLink()->getIconPath());
-				mb.setAutoHide(500);
+				mb.setAutoHide(1);
 				mb.exec();
 			}
 
@@ -1333,12 +1334,14 @@ bool GMenu2X::inputCommonActions() {
 }
 
 bool GMenu2X::powerManager(bool &inputAction) {
-	unsigned long tickNow = SDL_GetTicks();
+	unsigned long tickStart = SDL_GetTicks(), tickPower;
+
+	if (inputAction) tickSuspend = tickStart;
+
 	if(suspendActive) {
 		// SUSPEND ACTIVE
 		if (input[POWER]) {
-			tickPowerOff = 0;
-			tickSuspend = tickNow;
+			tickSuspend = tickStart;
 			setSuspend(false);
 		}
 		return true;
@@ -1347,39 +1350,25 @@ bool GMenu2X::powerManager(bool &inputAction) {
 	// SUSPEND NOT ACTIVE
 	input.setWakeUpInterval(1000);
 
-	// POWER MANAGER
-	if (inputAction) {
-		tickSuspend = tickNow; //SDL_GetTicks();
+	while (input.isActive(POWER)) {
+		// HOLD POWER BUTTON
+		input.update();
+		SDL_Delay(100);
 	}
+	tickPower = SDL_GetTicks();
 
-	// INFO("NOW: %d\tSUSPEND: %d\tPOWER: %d", tickNow, tickSuspend, tickPowerOff);
+	// INFO("START: %d\tSUSPEND: %d\tPOWER: %d", tickStart, tickStart - tickSuspend, tickPower - tickStart);
 
-	if (input.isActive(POWER)) {
-		if (tickPowerOff >= 4) { //4 * 500ms
-			tickPowerOff = 0;
-			poweroff();
-		}
-	} else if (tickPowerOff >= 2 || tickNow - tickSuspend >= confInt["backlightTimeout"] * 1000) {
-			if(!suspendActive) {
-
-				// MessageBox mb(this, tr["Suspend"]);
-				// mb.setAutoHide(1000);
-				// mb.exec();
-
-				// bg->box(0,0,resX,resY,0,0,0);
-				// bg->blit(s,0,0);
-				// s->flip();
-
-				setSuspend(true);
-				tickPowerOff = 0;
-				return true;
-			}
-	} else {
-		tickPowerOff = 0;
+	if (tickPower - tickStart >= 2000) {
+		poweroff();
+		return true;
+	} else if (tickPower - tickStart >= 200 || tickStart - tickSuspend >= confInt["backlightTimeout"] * 1000) {
+		MessageBox mb(this, tr["Suspend"]);
+		mb.setAutoHide(1);
+		mb.exec();
+		setSuspend(true);
+		return true;
 	}
-		// continue;
-	// POWER || SUSPEND
-	if ( input[POWER] ) { tickPowerOff++; }
 	return false;
 }
 
