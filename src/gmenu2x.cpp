@@ -1090,7 +1090,7 @@ void GMenu2X::main() {
 	bool quit = false;
 	int x = 0, y = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
 	uint i;
-	unsigned long tickBattery = -4800, tickNow, tickMMC = 0, tickUSB = 0;
+	unsigned long tickBattery = -4800, tickNow, tickMMC = 0; //, tickUSB = 0;
 	tickSuspend = 0;
 	 // tickPowerOff = 0;
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
@@ -1185,9 +1185,7 @@ void GMenu2X::main() {
 				}
 				preMMCStatus = curMMCStatus;
 			}
-		}
-		if (tickNow - tickUSB >= 1000) {
-			tickUSB = tickNow;
+
 			curUDCStatus = getUDCStatus();
 			if (preUDCStatus != curUDCStatus) {
 				if (curUDCStatus == UDC_REMOVE) {
