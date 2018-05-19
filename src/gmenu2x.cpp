@@ -249,7 +249,7 @@ GMenu2X::GMenu2X() {
 
 	usbnet = samba = inet = web = false;
 
-	useSelectionPng = false;
+	// useSelectionPng = false;
 #elif defined(TARGET_RS97)
 	fwType = "rs97";
 #else
@@ -517,7 +517,7 @@ void GMenu2X::initMenu() {
 
 		//Add virtual links in the setting section
 		else if (menu->getSections()[i]=="settings") {
-			menu->addActionLink(i, tr["Settings"], MakeDelegate(this, &GMenu2X::options), tr["Configure options"], "skin:icons/configure.png");
+			menu->addActionLink(i, tr["Settings"], MakeDelegate(this, &GMenu2X::settings), tr["Configure settings"], "skin:icons/configure.png");
 			menu->addActionLink(i, tr["Skin"], MakeDelegate(this, &GMenu2X::skinMenu), tr["Configure skin"], "skin:icons/skin.png");
 			menu->addActionLink(i, tr["Wallpaper"], MakeDelegate(this, &GMenu2X::changeWallpaper), tr["Use image as wallpaper"], "skin:icons/wallpaper.png");
 #if defined(TARGET_GP2X)
@@ -1338,7 +1338,7 @@ void GMenu2X::main() {
 
 			menu->selLink()->run();
 		}
-		else if ( input[SETTINGS] ) options();
+		else if ( input[SETTINGS] ) settings();
 		else if ( input[MENU]     ) contextMenu();
 		// LINK NAVIGATION
 		else if ( input[LEFT ]  ) menu->linkLeft();
@@ -1522,7 +1522,7 @@ void GMenu2X::explorer() {
 	}
 }
 
-void GMenu2X::options() {
+void GMenu2X::settings() {
 	int curMenuClock = confInt["menuClock"];
 	int curGlobalVolume = confInt["globalVolume"];
 //G
