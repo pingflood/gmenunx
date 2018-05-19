@@ -74,6 +74,14 @@ enum color {
 	NUM_COLORS,
 };
 
+enum sb {
+	SB_OFF,
+	SB_LEFT,
+	SB_RIGHT,
+	SB_TOP,
+	SB_BOTTOM,
+};
+
 using std::string;
 using std::vector;
 using fastdelegate::FastDelegate0;

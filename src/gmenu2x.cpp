@@ -322,7 +322,7 @@ GMenu2X::GMenu2X() {
 #elif defined(TARGET_RS97)
 	SDL_ShowCursor(0);
 	s->ScreenSurface = SDL_SetVideoMode(320, 480, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
-	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, 16, 0, 0, 0, 0);
+	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
 
 	// setTvOut();
 #else
@@ -424,22 +424,22 @@ void GMenu2X::initBG(const string &imagePath) {
 	linksRect = (SDL_Rect){0, 0, resX, resY};
 	sectionBarRect = (SDL_Rect){0, 0, resX, resY};
 
-	if (confStr["sectionBarPosition"] != "OFF") {
+	if (confInt["sectionBar"] > SB_OFF) {
 		// x = 0; y = 0;
-		if (confStr["sectionBarPosition"] == "Left" || confStr["sectionBarPosition"] == "Right") {
-			sectionBarRect.x = (confStr["sectionBarPosition"] == "Right")*(resX - skinConfInt["sectionBarSize"]);
+		if (confInt["sectionBar"] == SB_LEFT || confInt["sectionBar"] == SB_RIGHT) {
+			sectionBarRect.x = (confInt["sectionBar"] == SB_RIGHT)*(resX - skinConfInt["sectionBarSize"]);
 			sectionBarRect.w = skinConfInt["sectionBarSize"];
 			linksRect.w = resX - skinConfInt["sectionBarSize"];
 
-			if (confStr["sectionBarPosition"] == "Left") {
+			if (confInt["sectionBar"] == SB_LEFT) {
 				linksRect.x = skinConfInt["sectionBarSize"];
 			}
 		} else {
-			sectionBarRect.y = (confStr["sectionBarPosition"] == "Bottom")*(resY - skinConfInt["sectionBarSize"]);
+			sectionBarRect.y = (confInt["sectionBar"] == SB_BOTTOM)*(resY - skinConfInt["sectionBarSize"]);
 			sectionBarRect.h = skinConfInt["sectionBarSize"];
 			linksRect.h = resY - skinConfInt["sectionBarSize"];
 
-			if (confStr["sectionBarPosition"] == "Top") {
+			if (confInt["sectionBar"] == SB_TOP) {
 				linksRect.y = skinConfInt["sectionBarSize"];
 			}
 		}
@@ -663,7 +663,6 @@ void GMenu2X::readConfig() {
 
 	// Defaults
 	confStr["batteryType"] = "BL-5B";
-	confStr["sectionBarPosition"] = "Left";
 
 	if (fileExists(conffile)) {
 		ifstream inf(conffile.c_str(), ios_base::in);
@@ -706,6 +705,10 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["videoBpp"], 16, 8, 32 );
 	evalIntConf( &confInt["backlight"], 70, 1, 100);
 
+	// evalIntConf( &confInt["sectionBar"], SB_LEFT, 1, 4);
+	confInt["sectionBar"] = SB_LEFT;
+
+
 	// if (confStr["TVOut"] != "PAL") confStr["TVOut"] = "NTSC";
 	// if (confStr["TVOut"] != "PAL" || confStr["TVOut"] != "NTSC")
 	confStr["TVOut"] = "OFF";
@@ -720,6 +723,7 @@ void GMenu2X::writeConfig() {
 	if (inf.is_open()) {
 		ConfStrHash::iterator endS = confStr.end();
 		for(ConfStrHash::iterator curr = confStr.begin(); curr != endS; curr++) {
+			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding" || curr->first == "batteryLog" ) continue;
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 		}
 
@@ -1014,7 +1018,7 @@ void GMenu2X::main() {
 		sc[currBackdrop]->blit(s,0,0);
 
 		// SECTIONS
-		if (confStr["sectionBarPosition"] != "OFF") {
+		if (confInt["sectionBar"] > SB_OFF) {
 			s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
 
 			x = sectionBarRect.x; y = sectionBarRect.y;
@@ -1023,7 +1027,7 @@ void GMenu2X::main() {
 				if (!sc.exists(sectionIcon))
 					sectionIcon = "skin:icons/section.png";
 
-				if (confStr["sectionBarPosition"] == "Left" || confStr["sectionBarPosition"] == "Right") {
+				if (confInt["sectionBar"] == SB_LEFT || confInt["sectionBar"] == SB_RIGHT) {
 					y = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
 				} else {
 					x = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
@@ -1153,7 +1157,7 @@ void GMenu2X::main() {
 			input.setWakeUpInterval(1);
 		}
 
-		if (confStr["sectionBarPosition"] != "OFF") {
+		if (confInt["sectionBar"] > SB_OFF) {
 			// TRAY 0,0
 			switch(volumeMode) {
 				case VOLUME_MODE_PHONES: sc.skinRes("imgs/phones.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
@@ -1444,12 +1448,14 @@ void GMenu2X::options() {
 
 	int prevSkinBackdrops = confInt["skinBackdrops"];
 
-	vector<string> sectionBarPosition;
-	sectionBarPosition.push_back("Left");
-	sectionBarPosition.push_back("Right");
-	sectionBarPosition.push_back("Top");
-	sectionBarPosition.push_back("Bottom");
-	sectionBarPosition.push_back("OFF");
+	vector<string> sectionBar;
+	sectionBar.push_back("OFF");
+	sectionBar.push_back("Left");
+	sectionBar.push_back("Right");
+	sectionBar.push_back("Top");
+	sectionBar.push_back("Bottom");
+
+	string sb_sel = sectionBar[confInt["sectionBar"]];
 
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
@@ -1457,7 +1463,8 @@ void GMenu2X::options() {
 	sd.addSetting(new MenuSettingInt(this,tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
 	sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
 	sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load of backdrops from skin pack"], &confInt["skinBackdrops"]));
-	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &confStr["sectionBarPosition"], &sectionBarPosition));
+	sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &sb_sel, &sectionBar));
+	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &confInt["sectionBar"], &sectionBar));
 
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
 #if defined(TARGET_GP2X)
@@ -1502,6 +1509,12 @@ void GMenu2X::options() {
 		if (confStr["lang"] != lang) {
 			confStr["lang"] = lang;
 		}
+
+		if (sb_sel == "Left") confInt["sectionBar"] = SB_LEFT;
+		else if (sb_sel == "Right") confInt["sectionBar"] = SB_RIGHT;
+		else if (sb_sel == "Top") confInt["sectionBar"] = SB_TOP;
+		else if (sb_sel == "Bottom") confInt["sectionBar"] = SB_BOTTOM;
+		else confInt["sectionBar"]  = SB_OFF;
 
 		writeConfig();
 		if (prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) {
