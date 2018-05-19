@@ -216,7 +216,7 @@ public:
 	// bool useSelectionPng;
 	void setSkin(const string &skin, bool setWallpaper = true, bool clearSC = true);
 	//firmware type and version
-	string fwType, fwVersion;
+	string fwType; //, fwVersion;
 	//gp2x type
 	bool f200;
 	int volumeMode;

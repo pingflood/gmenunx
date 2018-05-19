@@ -225,10 +225,10 @@ GMenu2X::GMenu2X() {
 	//Detect firmware version and type
 	if (fileExists("/etc/open2x")) {
 		fwType = "open2x";
-		fwVersion = "";
+		// fwVersion = "";
 	} else {
 		fwType = "gph";
-		fwVersion = "";
+		// fwVersion = "";
 	}
 #if defined(TARGET_GP2X)
 	f200 = fileExists("/dev/touchscreen/wm97xx");
