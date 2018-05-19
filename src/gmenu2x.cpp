@@ -1534,7 +1534,7 @@ void GMenu2X::settings() {
 	int curMenuClock = confInt["menuClock"];
 	int curGlobalVolume = confInt["globalVolume"];
 //G
-	int prevgamma = confInt["gamma"];
+	// int prevgamma = confInt["gamma"];
 	// bool showRootFolder = fileExists("/mnt/root");
 
 	FileLister fl_tr("translations");
