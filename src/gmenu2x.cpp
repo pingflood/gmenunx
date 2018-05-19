@@ -699,7 +699,7 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["menuClock"], DEFAULT_CPU_CLK, 250, 300 );
 #elif defined(TARGET_RS97)
 	evalIntConf( &confInt["maxClock"], 750, 750, 750 );
-	evalIntConf( &confInt["menuClock"], DEFAULT_CPU_CLK, 528, 528 );
+	evalIntConf( &confInt["menuClock"], DEFAULT_CPU_CLK, 528, 600 );
 #endif
 	evalIntConf( &confInt["globalVolume"], 60, 1, 100 );
 	evalIntConf( &confInt["gamma"], 10, 1, 100 );
@@ -965,7 +965,7 @@ void GMenu2X::setSuspend(bool suspend) {
 		setBacklight(0);
 		INFO("Enter suspend mode. Current backlight: %d", getBacklight());
 	} else {
-		setClock(528);
+		setClock(DEFAULT_CPU_CLK);
 		setBacklight(max(10, confInt["backlight"]));
 		INFO("Exit from suspend mode. Restore backlight to: %d", confInt["backlight"]);
 	}
@@ -1967,7 +1967,7 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingFile(        this, tr["Manual"],               tr["Select a manual or README file"], &linkManual, ".man.png,.txt", dir_name(linkManual)));
 
 	//sd.addSetting(new MenuSettingInt(         this, tr.translate("Clock (default: $1)","528", NULL), tr["Cpu clock frequency to set when launching this link"], &linkClock, 50, confInt["maxClock"] ));
-	sd.addSetting(new MenuSettingInt(         this, tr["CPU Clock"], tr["CPU clock frequency to set when launching this link"], &linkClock, 528, 528, 750));
+	sd.addSetting(new MenuSettingInt(         this, tr["CPU Clock"], tr["CPU clock frequency to set when launching this link"], &linkClock, DEFAULT_CPU_CLK, 528, 600));
 	//sd.addSetting(new MenuSettingBool(        this, tr["Tweak RAM Timings"],    tr["This usually speeds up the application at the cost of stability"], &linkUseRamTimings ));
 	//sd.addSetting(new MenuSettingInt(         this, tr["Volume"],               tr["Volume to set for this link"], &linkVolume, 0, 1 ));
 	sd.addSetting(new MenuSettingString(      this, tr["Parameters"],           tr["Parameters to pass to the application"], &linkParams, diagTitle, diagIcon ));
