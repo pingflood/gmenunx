@@ -100,7 +100,7 @@ public:
 	void setActionsCount(int count);
 	void setInterval(int ms, int action = -1);
 	void setWakeUpInterval(int ms);
-	bool operator[](int action);
+	bool &operator[](int action);
 	bool isActive(int action);
 };
 

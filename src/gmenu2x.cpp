@@ -424,7 +424,7 @@ void GMenu2X::initBG(const string &imagePath) {
 	linksRect = (SDL_Rect){0, 0, resX, resY};
 	sectionBarRect = (SDL_Rect){0, 0, resX, resY};
 
-	if (confInt["sectionBar"] > SB_OFF) {
+	if (confInt["sectionBar"]) {
 		// x = 0; y = 0;
 		if (confInt["sectionBar"] == SB_LEFT || confInt["sectionBar"] == SB_RIGHT) {
 			sectionBarRect.x = (confInt["sectionBar"] == SB_RIGHT)*(resX - skinConfInt["sectionBarSize"]);
@@ -1115,7 +1115,7 @@ void GMenu2X::main() {
 		sc[currBackdrop]->blit(s,0,0);
 
 		// SECTIONS
-		if (confInt["sectionBar"] > SB_OFF) {
+		if (confInt["sectionBar"]) {
 			s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
 
 			x = sectionBarRect.x; y = sectionBarRect.y;
@@ -1252,7 +1252,7 @@ void GMenu2X::main() {
 			input.setWakeUpInterval(1);
 		}
 
-		if (confInt["sectionBar"] > SB_OFF) {
+		if (confInt["sectionBar"]) {
 			// TRAY 0,0
 			switch(volumeMode) {
 				case VOLUME_MODE_PHONES: sc.skinRes("imgs/phones.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
@@ -1415,15 +1415,18 @@ void GMenu2X::main() {
 }
 
 bool GMenu2X::inputCommonActions() {
-	if ( input.isActive(MODIFIER) ) {
-		if (input.isActive(SECTION_NEXT)) {
+	bool wasActive = false;
+
+	while (input[MENU]) {
+		if (input[SECTION_NEXT]) {
 			// SCREENSHOT
 			if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
 			MessageBox mb(this, tr["Screenshot saved"]);
 			mb.setAutoHide(1000);
 			mb.exec();
-			return true; 
-		} else if (input.isActive(SECTION_PREV)) {
+			return true;
+
+		} else if (input[SECTION_PREV]) {
 			// VOLUME / MUTE
 			int vol = getVolume();
 			if (vol) {
@@ -1438,12 +1441,19 @@ bool GMenu2X::inputCommonActions() {
 			writeConfig();
 			return true; 
 		}
+
+		SDL_Delay(100);
+		input.update();
+		wasActive = true;
 	}
-	else if ( input[BACKLIGHT] ) {
-		// BACKLIGHT
+
+	input[MENU] = wasActive; // Key was active but no combo was pressed
+
+	if ( input[BACKLIGHT] ) {
 		setBacklight(confInt["backlight"], true);
 		return true; 
 	}
+
 	return false;
 }
 
@@ -1846,10 +1856,10 @@ void GMenu2X::contextMenu() {
 		selbox.y = box.y+4+h*sel;
 		bg.blit(s,0,0);
 
-		if (fadeAlpha<200)
-			fadeAlpha = intTransition(0,200,tickStart,500,SDL_GetTicks());
+		if (fadeAlpha < 200)
+			fadeAlpha = intTransition(0, 200, tickStart, 500, SDL_GetTicks());
 		else
-			input.setWakeUpInterval(0);
+			input.setWakeUpInterval(1000);
 		s->box(0, 0, resX, resY, 0,0,0,fadeAlpha);
 		s->box(box.x, box.y, box.w, box.h, skinConfColors[COLOR_MESSAGE_BOX_BG]);
 		s->rectangle( box.x+2, box.y+2, box.w-4, box.h-4, skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
@@ -1894,7 +1904,7 @@ void GMenu2X::contextMenu() {
 
 		if (inputCommonActions()) continue;
 
-		else if ( input[MENU] || input[CANCEL]) close = true;
+		if ( input[MENU] || input[CANCEL]) close = true;
 		else if ( input[UP] ) sel = (sel-1 < 0) ? (int)voices.size()-1 : sel - 1 ;
 		else if ( input[DOWN] ) sel = (sel+1 > (int)voices.size()-1) ? 0 : sel + 1;
 		else if ( input[LEFT] || input[PAGEUP] ) sel = 0;
@@ -2227,8 +2237,8 @@ void GMenu2X::setInputSpeed() {
 	input.setInterval(30,  VOLDOWN);
 	input.setInterval(30,  VOLUP);
 	input.setInterval(30,  CANCEL);
-	input.setInterval(500, SETTINGS);
-	input.setInterval(500, MENU);
+	input.setInterval(1000, SETTINGS);
+	input.setInterval(1000, MENU);
 	input.setInterval(300, CANCEL);
 	input.setInterval(300, MANUAL);
 	input.setInterval(200, INC);
@@ -2241,7 +2251,6 @@ void GMenu2X::setInputSpeed() {
 	input.setInterval(200, BACKLIGHT);
 	input.setInterval(500, POWER);
 }
-
 
 void GMenu2X::setClock(unsigned mhz) {
 	mhz = constrain(mhz, 250, confInt["maxClock"]);
