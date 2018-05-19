@@ -2236,19 +2236,18 @@ void GMenu2X::setInputSpeed() {
 	input.setInterval(150);
 	input.setInterval(30,  VOLDOWN);
 	input.setInterval(30,  VOLUP);
-	input.setInterval(30,  CANCEL);
 	input.setInterval(1000, SETTINGS);
 	input.setInterval(1000, MENU);
 	input.setInterval(300, CANCEL);
 	input.setInterval(300, MANUAL);
-	input.setInterval(200, INC);
-	input.setInterval(200, DEC);
+	input.setInterval(100, INC);
+	input.setInterval(100, DEC);
 	input.setInterval(1000,CONFIRM);
-	input.setInterval(150, SECTION_PREV);
-	input.setInterval(150, SECTION_NEXT);
-	input.setInterval(150, PAGEUP);
-	input.setInterval(150, PAGEDOWN);
-	input.setInterval(200, BACKLIGHT);
+	input.setInterval(500, SECTION_PREV);
+	input.setInterval(500, SECTION_NEXT);
+	input.setInterval(300, PAGEUP);
+	input.setInterval(300, PAGEDOWN);
+	input.setInterval(300, BACKLIGHT);
 	input.setInterval(500, POWER);
 }
 
