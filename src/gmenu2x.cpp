@@ -510,7 +510,7 @@ void GMenu2X::initMenu() {
 		if (menu->getSections()[i]=="applications") {
 			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Launch an application"], "skin:icons/explorer.png");
 #if !defined(TARGET_PC)
-			if (getBatteryStatus() > 5) // show only if charging
+			if (getBatteryLevel() > 5) // show only if charging
 #endif
 				menu->addActionLink(i, tr["Battery Logger"], MakeDelegate(this, &GMenu2X::batteryLogger), tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
 		}
