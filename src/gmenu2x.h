@@ -178,7 +178,7 @@ private:
 	void gp2x_deinit();
 	void gp2x_init();
 	// void toggleTvOut();
-	void setTvOut();
+	void setTVOut();
 
 public:
 	GMenu2X();

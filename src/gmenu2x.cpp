@@ -324,7 +324,7 @@ GMenu2X::GMenu2X() {
 	s->ScreenSurface = SDL_SetVideoMode(320, 480, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
 	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
 
-	// setTvOut();
+	// setTVOut();
 #else
 	s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
 #endif
@@ -1591,7 +1591,7 @@ void GMenu2X::options() {
 		setGamma(confInt["gamma"]);
 
 #elif defined(TARGET_RS97)
-		setTvOut();
+		setTVOut();
 #endif
 
 		if (curMenuClock != confInt["menuClock"]) setClock(confInt["menuClock"]);
@@ -1607,11 +1607,11 @@ void GMenu2X::options() {
 			confStr["lang"] = lang;
 		}
 
-		if (sb_sel == "Left") confInt["sectionBar"] = SB_LEFT;
+		if (sb_sel == "OFF") confInt["sectionBar"] = SB_OFF;
 		else if (sb_sel == "Right") confInt["sectionBar"] = SB_RIGHT;
 		else if (sb_sel == "Top") confInt["sectionBar"] = SB_TOP;
 		else if (sb_sel == "Bottom") confInt["sectionBar"] = SB_BOTTOM;
-		else confInt["sectionBar"]  = SB_OFF;
+		else confInt["sectionBar"] = SB_LEFT;
 
 		writeConfig();
 		if (prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) {
@@ -1721,7 +1721,6 @@ void GMenu2X::poweroffDialog() {
 	mb.setButton(CONFIRM, tr["Poweroff"]);
 	mb.setButton(CANCEL,  tr["Cancel"]);
 	int response = mb.exec();
-	// del(mb);
 	if (response == CONFIRM) {
 		MessageBox mb(this, tr["Poweroff"]);
 		mb.setAutoHide(500);
@@ -1747,7 +1746,7 @@ void GMenu2X::poweroffDialog() {
 }
 
 #if defined(TARGET_RS97)
-void GMenu2X::setTvOut() {
+void GMenu2X::setTVOut() {
 	char buf[16]={0};
 
 	// int tvout = open("/proc/jz/tvout", O_RDWR);
