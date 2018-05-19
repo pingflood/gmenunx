@@ -1460,7 +1460,7 @@ bool GMenu2X::inputCommonActions() {
 bool GMenu2X::powerManager(bool &inputAction) {
 	unsigned long tickStart = SDL_GetTicks(), tickPower = 0;
 
-	// INFO("START: %d\tSUSPEND: %d\tPOWER: %d", tickStart, tickStart - tickSuspend, tickPower);
+	INFO("START: %d\tSUSPEND: %d\tPOWER: %d", tickStart, tickStart - tickSuspend, tickPower);
 
 	if(suspendActive) {
 		// SUSPEND ACTIVE
@@ -1482,7 +1482,7 @@ bool GMenu2X::powerManager(bool &inputAction) {
 	// SUSPEND NOT ACTIVE
 	input.setWakeUpInterval(1000);
 
-	while (input.isActive(POWER)) {
+	while (input[POWER]) {
 		// HOLD POWER BUTTON
 		input.update();
 		SDL_Delay(100);
