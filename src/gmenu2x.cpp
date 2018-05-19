@@ -721,14 +721,13 @@ void GMenu2X::writeConfig() {
 	string conffile = path+"gmenu2x.conf";
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
-		ConfStrHash::iterator endS = confStr.end();
-		for(ConfStrHash::iterator curr = confStr.begin(); curr != endS; curr++) {
-			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding" || curr->first == "batteryLog" ) continue;
+		for(ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
+			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding" ) continue;
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 		}
 
-		ConfIntHash::iterator endI = confInt.end();
-		for(ConfIntHash::iterator curr = confInt.begin(); curr != endI; curr++) {
+		for(ConfIntHash::iterator curr = confInt.begin(); curr != confInt.end(); curr++) {
+			if (curr->first == "batteryLog" ) continue;
 			inf << curr->first << "=" << curr->second << endl;
 		}
 		inf.close();
@@ -742,14 +741,13 @@ void GMenu2X::writeSkinConfig() {
 	string conffile = path+"skins/"+confStr["skin"]+"/skin.conf";
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
-		ConfStrHash::iterator endS = skinConfStr.end();
-		for(ConfStrHash::iterator curr = skinConfStr.begin(); curr != endS; curr++)
+		for(ConfStrHash::iterator curr = skinConfStr.begin(); curr != skinConfStr.end(); curr++)
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 
-		ConfIntHash::iterator endI = skinConfInt.end();
-		for(ConfIntHash::iterator curr = skinConfInt.begin(); curr != endI; curr++)
+		for(ConfIntHash::iterator curr = skinConfInt.begin(); curr != skinConfInt.end(); curr++) {
 			if (curr->first == "titleFontSize" || curr->first == "sectionBarHeight" || curr->first == "linkHeight" ) continue;
 			inf << curr->first << "=" << curr->second << endl;
+		}
 
 		for (int i = 0; i < NUM_COLORS; ++i) {
 			inf << colorToString((enum color)i) << "=" << rgbatostr(skinConfColors[i]) << endl;
@@ -1562,7 +1560,7 @@ void GMenu2X::options() {
 	sd.addSetting(new MenuSettingInt(this,tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
 	sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
 	sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load of backdrops from skin pack"], &confInt["skinBackdrops"]));
-	sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &sb_sel, &sectionBar));
+	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &sb_sel, &sectionBar));
 	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &confInt["sectionBar"], &sectionBar));
 
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
