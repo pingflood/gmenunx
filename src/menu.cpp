@@ -359,7 +359,6 @@ void Menu::linkLeft() {
 	} else {
 		setLinkIndex(iLink - gmenu2x->linkRows + 1);
 	}
-
 	// if (iLink%gmenu2x->linkColumns == 0)
 	// 	setLinkIndex( sectionLinks()->size()>iLink+gmenu2x->linkColumns-1 ? iLink+gmenu2x->linkColumns-1 : sectionLinks()->size()-1 );
 	// else

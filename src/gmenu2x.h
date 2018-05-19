@@ -239,8 +239,6 @@ public:
 	unsigned short getBatteryLevel();
 	long getBatteryStatus();
 
-	// void toggleSpeaker();
-	// void reboot();
 	void skinMenu();
 	uint onChangeSkin();
 
@@ -303,15 +301,11 @@ public:
 	void deleteSection();
 
 	void initBG(const string &imagePath="");
+
 	int drawButton(Button *btn, int x=5, int y=-10);
 	int drawButton(Surface *s, const string &btn, const string &text, int x=5, int y=-10);
 	int drawButtonRight(Surface *s, const string &btn, const string &text, int x=5, int y=-10);
 	void drawScrollBar(uint pagesize, uint totalsize, uint pagepos, SDL_Rect scrollRect);
-
-	// void drawSectionBar(Surface *s=NULL);
-	// void drawTopBar(Surface *s = NULL, const string &title = NULL, const string &description = NULL, const string &icon = NULL);
-	// void drawBottomBar(Surface *s=NULL);
-	// void redrawBottomBar();
 
 	Menu* menu;
 };
