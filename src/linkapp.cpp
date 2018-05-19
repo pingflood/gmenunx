@@ -186,7 +186,7 @@ void LinkApp::setClock(int mhz) {
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	iclock = constrain(mhz,50,900);
 #elif defined(TARGET_RS97)
-	iclock = constrain(mhz,528,750);
+	iclock = constrain(mhz,528,600);
 #endif
 	// stringstream ss;
 	// sclock = "";
