@@ -179,6 +179,7 @@ private:
 	void umountSd();
 	void formatSd();
 	void setTVOut();
+	void checkUDC();
 #endif
 
 	// void toggleTvOut();
