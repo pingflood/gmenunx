@@ -608,7 +608,7 @@ void GMenu2X::about() {
 	}
 
 	split(text, temp, "\n");
-	TextDialog td(this, "GMenuNext", tr["Info about system"], "icons/about.png", &text);
+	TextDialog td(this, "GMenuNext", tr["Info about system"], "skin:icons/about.png", &text);
 	td.exec();
 }
 
@@ -624,10 +624,10 @@ void GMenu2X::viewLog() {
 		log.push_back(line);
 	inf.close();
 
-	TextDialog td(this, tr["Log Viewer"], tr["Displays last launched program's output"], "icons/ebook.png", &log);
+	TextDialog td(this, tr["Log Viewer"], tr["Displays last launched program's output"], "skin:icons/ebook.png", &log);
 	td.exec();
 
-	MessageBox mb(this, tr["Do you want to delete the log file?"], "icons/ebook.png");
+	MessageBox mb(this, tr["Do you want to delete the log file?"], "skin:icons/ebook.png");
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() == CONFIRM) {
@@ -640,17 +640,17 @@ void GMenu2X::viewLog() {
 }
 
 void GMenu2X::batteryLogger() {
-	BatteryLoggerDialog bl(this, tr["Battery Logger"], tr["Log battery power to battery.csv"], "icons/ebook.png");
+	BatteryLoggerDialog bl(this, tr["Battery Logger"], tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
 	bl.exec();
 }
 
 void GMenu2X::linkScanner() {
-	LinkScannerDialog ls(this, tr["Link scanner"], tr["Scan for applications and games"], "icons/configure.png");
+	LinkScannerDialog ls(this, tr["Link scanner"], tr["Scan for applications and games"], "skin:icons/configure.png");
 	ls.exec();
 }
 
 void GMenu2X::changeWallpaper() {
-	WallpaperDialog wp(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], "icons/wallpaper.png");
+	WallpaperDialog wp(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], "skin:icons/wallpaper.png");
 	if (wp.exec() && confStr["wallpaper"] != wp.wallpaper) {
 		confStr["wallpaper"] = wp.wallpaper;
 		initBG();
@@ -1205,7 +1205,7 @@ void GMenu2X::main() {
 					}
 				}
 				else if(curUDCStatus == UDC_CONNECT) {
-					MessageBox mb(this, tr["Which action do you want?"], "icons/usb.png");
+					MessageBox mb(this, tr["Which action do you want?"], "skin:icons/usb.png");
 					mb.setButton(CONFIRM, tr["USB disk"]);
 					mb.setButton(CANCEL,  tr["Charge only"]);
 					if (mb.exec() == CONFIRM) {
@@ -1222,7 +1222,7 @@ void GMenu2X::main() {
 							INFO("%s, connect USB disk for external SD", __func__);
 						}
 
-						MessageBox mb(this, tr["USB Disk Connected"], "icons/usb.png");
+						MessageBox mb(this, tr["USB Disk Connected"], "skin:icons/usb.png");
 						mb.setAutoHide(500);
 						mb.exec();
 
@@ -1682,7 +1682,7 @@ void GMenu2X::skinMenu() {
 
 #if defined(TARGET_RS97)
 void GMenu2X::umountSd() {
-	MessageBox mb(this, tr["Do you want to umount external sdcard?"], "icons/eject.png");
+	MessageBox mb(this, tr["Do you want to umount external sdcard?"], "skin:icons/eject.png");
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() == CONFIRM) {
@@ -1693,11 +1693,11 @@ void GMenu2X::umountSd() {
 }
 
 void GMenu2X::formatSd() {
-	MessageBox mb(this, tr["Do you want to format internal SD card?"], "icons/format.png");
+	MessageBox mb(this, tr["Do you want to format internal SD card?"], "skin:icons/format.png");
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() == CONFIRM) {
-		MessageBox mb(this, tr["Formatting internal SD card..."], "icons/format.png");
+		MessageBox mb(this, tr["Formatting internal SD card..."], "skin:icons/format.png");
 		mb.setAutoHide(100);
 		mb.exec();
 
@@ -1712,7 +1712,7 @@ void GMenu2X::formatSd() {
 #endif
 
 void GMenu2X::restartDialog() {
-	MessageBox mb(this, tr["GMenuNext will restart to apply\nthe settings. Continue?"], "icons/exit.png");
+	MessageBox mb(this, tr["GMenuNext will restart to apply\nthe settings. Continue?"], "skin:icons/exit.png");
 	mb.setButton(CONFIRM, tr["Restart"]);
 	mb.setButton(CANCEL,  tr["Cancel"]);
 	if (mb.exec() == CONFIRM) {
@@ -1724,7 +1724,7 @@ void GMenu2X::restartDialog() {
 }
 
 void GMenu2X::poweroffDialog() {
-	MessageBox mb(this, tr["   Poweroff or reboot the device?   "], "icons/exit.png");
+	MessageBox mb(this, tr["   Poweroff or reboot the device?   "], "skin:icons/exit.png");
 	mb.setButton(SECTION_NEXT, tr["Reboot"]);
 	mb.setButton(CONFIRM, tr["Poweroff"]);
 	mb.setButton(CANCEL,  tr["Cancel"]);

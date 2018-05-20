@@ -105,7 +105,7 @@ void TextDialog::exec() {
 
 	//link icon
 	if (gmenu2x->sc.skinRes(icon)==NULL)
-		drawTitleIcon("icons/ebook.png", true, gmenu2x->bg);
+		drawTitleIcon("skin:icons/ebook.png", true, gmenu2x->bg);
 	else
 		drawTitleIcon(icon, false, gmenu2x->bg);
 
