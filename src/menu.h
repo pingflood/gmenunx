@@ -76,6 +76,8 @@ public:
 	int selLinkIndex();
 	Link *selLink();
 	LinkApp *selLinkApp();
+	void pageUp();
+	void pageDown();
 	void linkLeft();
 	void linkRight();
 	void linkUp();

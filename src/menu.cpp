@@ -352,30 +352,37 @@ bool Menu::linkChangeSection(uint linkIndex, uint oldSectionIndex, uint newSecti
 	return false;
 }
 
-void Menu::linkLeft() {
+void Menu::pageUp() {
 	// PAGEUP with left
 	if ((int)(iLink - gmenu2x->linkRows - 1) < 0) {
 		setLinkIndex(0);
 	} else {
 		setLinkIndex(iLink - gmenu2x->linkRows + 1);
 	}
-	// if (iLink%gmenu2x->linkColumns == 0)
-	// 	setLinkIndex( sectionLinks()->size()>iLink+gmenu2x->linkColumns-1 ? iLink+gmenu2x->linkColumns-1 : sectionLinks()->size()-1 );
-	// else
-	// 	setLinkIndex(iLink-1);
 }
 
-void Menu::linkRight() {
+void Menu::pageDown() {
 	// PAGEDOWN with right
 	if (iLink + gmenu2x->linkRows > sectionLinks()->size()) {
 		setLinkIndex(sectionLinks()->size()-1);
 	} else {
 		setLinkIndex(iLink + gmenu2x->linkRows - 1);
 	}
-	// if (iLink%gmenu2x->linkColumns == (gmenu2x->linkColumns-1) || iLink == (int)sectionLinks()->size()-1)
-	// 	setLinkIndex(iLink-iLink%gmenu2x->linkColumns);
-	// else
-	// 	setLinkIndex(iLink+1);
+}
+
+
+void Menu::linkLeft() {
+	if (iLink%gmenu2x->linkColumns == 0)
+		setLinkIndex( sectionLinks()->size()>iLink+gmenu2x->linkColumns-1 ? iLink+gmenu2x->linkColumns-1 : sectionLinks()->size()-1 );
+	else
+		setLinkIndex(iLink-1);
+}
+
+void Menu::linkRight() {
+	if (iLink%gmenu2x->linkColumns == (gmenu2x->linkColumns-1) || iLink == (int)sectionLinks()->size()-1)
+		setLinkIndex(iLink-iLink%gmenu2x->linkColumns);
+	else
+		setLinkIndex(iLink+1);
 }
 
 void Menu::linkUp() {
