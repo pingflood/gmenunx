@@ -5,16 +5,20 @@
 
 Dialog::Dialog(GMenu2X *gmenu2x) : gmenu2x(gmenu2x) {}
 
-void Dialog::drawTitleIcon(const std::string &icon, bool skinRes, Surface *s) {
+// void Dialog::drawTitleIcon(const std::string &icon, bool skinRes, Surface *s) {
+void Dialog::drawTitleIcon(const std::string &icon, Surface *s) {
 	if (s==NULL)
 		s = gmenu2x->s;
 
 	Surface *i = NULL;
 	if (!icon.empty()) {
-		if (skinRes)
+		i = gmenu2x->sc[icon];
+		if (i==NULL)
 			i = gmenu2x->sc.skinRes(icon);
-		else
-			i = gmenu2x->sc[icon];
+
+		// if (skinRes)
+			// i = gmenu2x->sc.skinRes(icon);
+		// else
 	}
 
 	if (i==NULL)
@@ -48,7 +52,8 @@ void Dialog::drawTopBar(Surface *s = NULL, const std::string &title, const std::
 	s->box(0, 0, gmenu2x->resX, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 	if (!title.empty()) writeTitle(title, s);
 	if (!description.empty()) writeSubTitle(description, s);
-	if (!icon.empty()) drawTitleIcon(icon, true, s);
+	// if (!icon.empty()) drawTitleIcon(icon, true, s);
+	if (!icon.empty()) drawTitleIcon(icon, s);
 }
 
 void Dialog::drawBottomBar(Surface *s) {

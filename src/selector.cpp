@@ -82,7 +82,7 @@ int Selector::exec(int startSelection) {
 	uint rowHeight = gmenu2x->font->getHeight()+1; // gp2x=15+1 / pandora=19+1
 	uint numRows = rect.h/rowHeight - 1;
 
-	drawTitleIcon(link->getIconPath(), true, gmenu2x->bg);
+	drawTitleIcon(link->getIconPath(), gmenu2x->bg);
 	writeTitle(link->getTitle(), gmenu2x->bg);
 	writeSubTitle(link->getDescription(), gmenu2x->bg);
 

@@ -13,7 +13,8 @@ public:
 
 protected:
 	// static const std::string empty = std::string();
-	void drawTitleIcon(const std::string &icon, bool skinRes = false, Surface *s = NULL);
+	// void drawTitleIcon(const std::string &icon, bool skinRes = false, Surface *s = NULL);
+	void drawTitleIcon(const std::string &icon, Surface *s = NULL);
 	void writeTitle(const std::string &title, Surface *s = NULL);
 	void writeSubTitle(const std::string &subtitle, Surface *s = NULL);
 	// void drawTopBar(Surface *s = NULL, const std::string &title = std::string(), const std::string &description = std::string(), const std::string &icon = std::string());
