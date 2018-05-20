@@ -1574,6 +1574,8 @@ void GMenu2X::settings() {
 #if defined(TARGET_GP2X)
 	sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], 140, 50, 325));
 	sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], 300, 50, 325));
+//G
+//sd.addSetting(new MenuSettingInt(this, tr["Gamma"], tr["Set gp2x gamma value (default: 10)"], &confInt["gamma"], 1, 100));
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], 200, 50, 900, 10));
 	sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], 900, 50, 900, 10));
@@ -1586,17 +1588,14 @@ void GMenu2X::settings() {
 #endif
 
 	sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the output of the links. Use the Log Viewer to read them."], &confInt["outputLogs"]));
-//G
-//sd.addSetting(new MenuSettingInt(this, tr["Gamma"], tr["Set gp2x gamma value (default: 10)"], &confInt["gamma"], 1, 100));
 	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &confStr["TVOut"], &encodings));
 //sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
 
 	if (sd.exec() && sd.edited() && sd.save) {
-	//G
+//G
 #if defined(TARGET_GP2X)
 		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
-		setGamma(confInt["gamma"]);
-
+#endif
 
 		if (curMenuClock != confInt["menuClock"]) setClock(confInt["menuClock"]);
 		if (curGlobalVolume != confInt["globalVolume"]) setVolume(confInt["globalVolume"]);
@@ -1607,10 +1606,7 @@ void GMenu2X::settings() {
 		// else if (!fileExists("/mnt/root") && showRootFolder)
 			// symlink("/","/mnt/root");
 
-		if (confStr["lang"] != lang) {
-			confStr["lang"] = lang;
-		}
-
+		if (confStr["lang"] != lang) confStr["lang"] = lang;
 		if (sb_sel == "OFF") confInt["sectionBar"] = SB_OFF;
 		else if (sb_sel == "Right") confInt["sectionBar"] = SB_RIGHT;
 		else if (sb_sel == "Top") confInt["sectionBar"] = SB_TOP;
@@ -1618,11 +1614,9 @@ void GMenu2X::settings() {
 		else confInt["sectionBar"] = SB_LEFT;
 
 		writeConfig();
-		if (prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) {
-			restartDialog();
-		}
+		if (prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) restartDialog();
 
-#elif defined(TARGET_RS97)
+#if defined(TARGET_RS97)
 		setTVOut();
 #endif
 	}
