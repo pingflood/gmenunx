@@ -1597,9 +1597,6 @@ void GMenu2X::settings() {
 		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
 		setGamma(confInt["gamma"]);
 
-#elif defined(TARGET_RS97)
-		setTVOut();
-#endif
 
 		if (curMenuClock != confInt["menuClock"]) setClock(confInt["menuClock"]);
 		if (curGlobalVolume != confInt["globalVolume"]) setVolume(confInt["globalVolume"]);
@@ -1624,6 +1621,10 @@ void GMenu2X::settings() {
 		if (prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) {
 			restartDialog();
 		}
+
+#elif defined(TARGET_RS97)
+		setTVOut();
+#endif
 	}
 }
 
@@ -1769,6 +1770,14 @@ void GMenu2X::setTVOut() {
 		write(norm, buf, 1);
 	}
 	close(norm);
+
+	MessageBox mb(this, tr["TV-out enabled.\nContinue?"], "skin:icons/tv.png");
+	mb.setButton(SETTINGS, tr["Yes"]);
+	mb.setButton(CONFIRM,  tr["No"]);
+	if (mb.exec() == CONFIRM) {
+		confStr["TVOut"] = "OFF";
+		setTVOut();
+	}
 }
 #endif
 
