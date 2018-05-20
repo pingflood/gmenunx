@@ -174,11 +174,16 @@ private:
 	void gp2x_tvout_off();
 	void readCommonIni();
 	void initServices();
+
+#elif defined(TARGET_RS97)
+	void umountSd();
+	void formatSd();
+	void setTVOut();
 #endif
+
+	// void toggleTvOut();
 	void gp2x_deinit();
 	void gp2x_init();
-	// void toggleTvOut();
-	void setTVOut();
 
 public:
 	GMenu2X();
@@ -266,9 +271,6 @@ public:
 	void setGamma(int gamma);
 	void setVolumeScaler(int scaler);
 	int getVolumeScaler();
-#elif defined(TARGET_RS97)
-	void umountSd();
-	void formatSd();
 #endif
 
 	void about();

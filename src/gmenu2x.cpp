@@ -1571,6 +1571,8 @@ void GMenu2X::settings() {
 	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &confInt["sectionBar"], &sectionBar));
 
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
+	sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the output of the links. Use the Log Viewer to read them."], &confInt["outputLogs"]));
+
 #if defined(TARGET_GP2X)
 	sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], 140, 50, 325));
 	sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], 300, 50, 325));
@@ -1583,12 +1585,11 @@ void GMenu2X::settings() {
 
 #if defined(TARGET_RS97)
 	confInt["globalVolume"] = 1;
+	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &confStr["TVOut"], &encodings));
 #else
 	sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 60, 0, 100));
 #endif
 
-	sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the output of the links. Use the Log Viewer to read them."], &confInt["outputLogs"]));
-	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &confStr["TVOut"], &encodings));
 //sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
 
 	if (sd.exec() && sd.edited() && sd.save) {
@@ -1612,6 +1613,9 @@ void GMenu2X::settings() {
 		else if (sb_sel == "Top") confInt["sectionBar"] = SB_TOP;
 		else if (sb_sel == "Bottom") confInt["sectionBar"] = SB_BOTTOM;
 		else confInt["sectionBar"] = SB_LEFT;
+
+		setBacklight(confInt["backlight"], false);
+
 
 		writeConfig();
 		if (prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) restartDialog();
@@ -1674,37 +1678,6 @@ void GMenu2X::skinMenu() {
 	initBG();
 }
 
-#if defined(TARGET_RS97)
-void GMenu2X::umountSd() {
-	MessageBox mb(this, tr["Do you want to umount external sdcard?"], "skin:icons/eject.png");
-	mb.setButton(CONFIRM, tr["Yes"]);
-	mb.setButton(CANCEL,  tr["No"]);
-	if (mb.exec() == CONFIRM) {
-		system("/usr/bin/umount_ext_sd.sh");
-		MessageBox mb(this,tr["Complete!"]);
-		mb.exec();
-	}
-}
-
-void GMenu2X::formatSd() {
-	MessageBox mb(this, tr["Do you want to format internal SD card?"], "skin:icons/format.png");
-	mb.setButton(CONFIRM, tr["Yes"]);
-	mb.setButton(CANCEL,  tr["No"]);
-	if (mb.exec() == CONFIRM) {
-		MessageBox mb(this, tr["Formatting internal SD card..."], "skin:icons/format.png");
-		mb.setAutoHide(100);
-		mb.exec();
-
-		system("/usr/bin/format_int_sd.sh");
-		{ // new mb scope
-			MessageBox mb(this,tr["Complete!"]);
-			mb.setAutoHide(0);
-			mb.exec();
-		}
-	}
-}
-#endif
-
 void GMenu2X::restartDialog() {
 	MessageBox mb(this, tr["GMenuNext will restart to apply\nthe settings. Continue?"], "skin:icons/exit.png");
 	mb.setButton(CONFIRM, tr["Restart"]);
@@ -1749,12 +1722,12 @@ void GMenu2X::poweroffDialog() {
 
 #if defined(TARGET_RS97)
 void GMenu2X::setTVOut() {
-	char buf[16]={0};
+	char buf[2]={0};
 
 	// int tvout = open("/proc/jz/tvout", O_RDWR);
 	int norm = open("/proc/jz/tvselect", O_RDWR);
-	if(norm > 0){
-		if(confStr["TVOut"] == "PAL") {
+	if(norm > 0) {
+		if (confStr["TVOut"] == "PAL") {
 			sprintf(buf, "1");
 		} else if(confStr["TVOut"] == "NTSC") {
 			sprintf(buf, "2");
@@ -1765,12 +1738,43 @@ void GMenu2X::setTVOut() {
 	}
 	close(norm);
 
+	if (strcmp(buf, "0") == 0) return;
+
 	MessageBox mb(this, tr["TV-out enabled.\nContinue?"], "skin:icons/tv.png");
 	mb.setButton(SETTINGS, tr["Yes"]);
 	mb.setButton(CONFIRM,  tr["No"]);
 	if (mb.exec() == CONFIRM) {
 		confStr["TVOut"] = "OFF";
 		setTVOut();
+	}
+}
+
+void GMenu2X::umountSd() {
+	MessageBox mb(this, tr["Do you want to umount external sdcard?"], "skin:icons/eject.png");
+	mb.setButton(CONFIRM, tr["Yes"]);
+	mb.setButton(CANCEL,  tr["No"]);
+	if (mb.exec() == CONFIRM) {
+		system("/usr/bin/umount_ext_sd.sh");
+		MessageBox mb(this,tr["Complete!"]);
+		mb.exec();
+	}
+}
+
+void GMenu2X::formatSd() {
+	MessageBox mb(this, tr["Do you want to format internal SD card?"], "skin:icons/format.png");
+	mb.setButton(CONFIRM, tr["Yes"]);
+	mb.setButton(CANCEL,  tr["No"]);
+	if (mb.exec() == CONFIRM) {
+		MessageBox mb(this, tr["Formatting internal SD card..."], "skin:icons/format.png");
+		mb.setAutoHide(100);
+		mb.exec();
+
+		system("/usr/bin/format_int_sd.sh");
+		{ // new mb scope
+			MessageBox mb(this,tr["Complete!"]);
+			mb.setAutoHide(0);
+			mb.exec();
+		}
 	}
 }
 #endif
