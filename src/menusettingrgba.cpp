@@ -175,8 +175,16 @@ void MenuSettingRGBA::adjustInput() {
 
 void MenuSettingRGBA::drawSelected(int y)
 {
-	int x = 166+selPart*36;
-	gmenu2x->s->box( x, y+2, 36, gmenu2x->font->getHeight(), gmenu2x->skinConfColors[COLOR_SELECTION_BG] );
+	int x = 166 + selPart * 36;
+
+	RGBAColor color;
+	switch (selPart) {
+		case 0: color = (RGBAColor){255,   0,   0, 255}; break;
+		case 1: color = (RGBAColor){  0, 255,   0, 255}; break;
+		case 2: color = (RGBAColor){  0,   0, 255, 255}; break;
+		default: color = gmenu2x->skinConfColors[COLOR_SELECTION_BG]; break;
+	}
+	gmenu2x->s->box( x, y+2, 36, gmenu2x->font->getHeight(), color );
 	gmenu2x->s->rectangle( x, y+2, 36, gmenu2x->font->getHeight(), 0,0,0,255 );
 	MenuSetting::drawSelected(y);
 }
