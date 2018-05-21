@@ -2287,7 +2287,7 @@ if (confStr["batteryType"] == "RS-97") {
 }
 
 void GMenu2X::setInputSpeed() {
-	input.setInterval(150);
+	input.setInterval(200);
 	input.setInterval(30,  VOLDOWN);
 	input.setInterval(30,  VOLUP);
 	input.setInterval(1000, SETTINGS);
@@ -2299,9 +2299,9 @@ void GMenu2X::setInputSpeed() {
 	input.setInterval(1000,CONFIRM);
 	input.setInterval(500, SECTION_PREV);
 	input.setInterval(500, SECTION_NEXT);
-	input.setInterval(300, PAGEUP);
-	input.setInterval(300, PAGEDOWN);
-	input.setInterval(300, BACKLIGHT);
+	input.setInterval(500, PAGEUP);
+	input.setInterval(500, PAGEDOWN);
+	input.setInterval(500, BACKLIGHT);
 	input.setInterval(500, POWER);
 }
 
