@@ -398,15 +398,6 @@ GMenu2X::GMenu2X() {
 	font = NULL;
 	menu = NULL;
 
-	setSkin(confStr["skin"], false);
-
-	initBG();
-
-	initLayout();
-
-	initMenu();
-
-
 	if (!fileExists(confStr["wallpaper"])) {
 		DEBUG("Searching wallpaper");
 
@@ -418,6 +409,17 @@ GMenu2X::GMenu2X() {
 		if (fl.getFiles().size()>0)
 			confStr["wallpaper"] = fl.getPath()+"/"+fl.getFiles()[0];
 	}
+
+	sc[confStr["wallpaper"]]->blit(s,0,0);
+	s->flip();
+
+	setSkin(confStr["skin"], false);
+
+	initBG();
+
+	initLayout();
+
+	initMenu();
 
 	input.init(path+"input.conf");
 	setInputSpeed();
