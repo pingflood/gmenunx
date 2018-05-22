@@ -32,7 +32,7 @@
 #if (LOG_LEVEL >= DEBUG_L)
 # ifdef COLOR_DEBUG
 #  define DEBUG(str, ...) \
-    fprintf(stdout, COLOR_DEBUG "DEBUG: " str COLOR_END "\n", ##__VA_ARGS__)
+    fprintf(stdout, COLOR_DEBUG "[D] %s:%d %s: " str COLOR_END "\n", __FILE__, __LINE__, __func__,  ##__VA_ARGS__)
 # else
 #  define DEBUG(str, ...) \
     fprintf(stdout, "DEBUG: " str "\n", ##__VA_ARGS__)
