@@ -20,9 +20,8 @@
 #ifndef MENUSETTINGDATETIME_H
 #define MENUSETTINGDATETIME_H
 
-// #include "menusetting.h"
-#include "menusettingstringbase.h"
-
+#include "menusetting.h"
+// #include "menusettingstringbase.h"
 #include "surface.h"
 
 class GMenu2X;
@@ -33,9 +32,8 @@ class MenuSettingDateTime : public MenuSetting {
 private:
 	unsigned short selPart;
 	int y;
-	std::string month, day, year, hour, minute, *_value;
+	std::string month, day, year, hour, minute, *_value, originalValue;
 	int imonth, iday, iyear, ihour, iminute;
-	// RGBAColor originalValue;
 	// string *_value;
 
 	void dec();
@@ -44,7 +42,7 @@ private:
 	void rightComponent();
 
 public:
-	MenuSettingDateTime(GMenu2X *gmenu2x, const std::string &name, const std::string &description, std::string *_value);
+	MenuSettingDateTime(GMenu2X *gmenu2x, const std::string &name, const std::string &description, std::string *value);
 	virtual ~MenuSettingDateTime() {};
 
 	virtual void draw(int y);
@@ -53,7 +51,6 @@ public:
 	virtual void adjustInput();
 	virtual void drawSelected(int y);
 	virtual bool edited();
-	// void edit() {};
 
 	void setSelPart(unsigned short int i);
 	void setYear(short int i);

@@ -1608,12 +1608,13 @@ void GMenu2X::settings() {
 #endif
 
 
-	stringstream ss;
-		ss.clear();
-		ss << "2018-01-23 12:34";
-		ss >> confStr["datetime"];
+	// stringstream ss;
+	// 	ss.clear();
+	// 	ss << "2018-01-23 12:34";
+	// 	ss >> confStr["datetime"];
+	confStr["datetime"] = "2018-01-23 12:34";
 
-	sd.addSetting(new MenuSettingDateTime(this, tr["Date Time"], tr["Set system's date time"], &confStr["datetime"]));
+	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date time"], &confStr["datetime"]));
 
 
 //sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));

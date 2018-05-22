@@ -81,70 +81,57 @@ void MenuSettingRGBA::handleTS() {
 }
 
 uint MenuSettingRGBA::manageInput() {
-	if (gmenu2x->input[INC])
-		inc();
-	if (gmenu2x->input[DEC])
-		dec();
-	if (gmenu2x->input[LEFT])
-		leftComponent();
-	if (gmenu2x->input[RIGHT])
-		rightComponent();
+	if (gmenu2x->input[INC]) inc();
+	if (gmenu2x->input[DEC]) dec();
+	if (gmenu2x->input[LEFT]) leftComponent();
+	if (gmenu2x->input[RIGHT]) rightComponent();
 }
 
-void MenuSettingRGBA::dec()
-{
+void MenuSettingRGBA::dec() {
 	setSelPart(constrain(getSelPart()-1,0,255));
 }
 
-void MenuSettingRGBA::inc()
-{
+void MenuSettingRGBA::inc() {
 	setSelPart(constrain(getSelPart()+1,0,255));
 }
 
-void MenuSettingRGBA::leftComponent()
-{
+void MenuSettingRGBA::leftComponent() {
 	selPart = constrain(selPart-1,0,3);
 }
 
-void MenuSettingRGBA::rightComponent()
-{
+void MenuSettingRGBA::rightComponent() {
 	selPart = constrain(selPart+1,0,3);
 }
 
-void MenuSettingRGBA::setR(unsigned short int r)
-{
+void MenuSettingRGBA::setR(unsigned short int r) {
 	_value->r = r;
 	stringstream ss;
 	ss << r;
 	ss >> strR;
 }
 
-void MenuSettingRGBA::setG(unsigned short int g)
-{
+void MenuSettingRGBA::setG(unsigned short int g) {
 	_value->g = g;
 	stringstream ss;
 	ss << g;
 	ss >> strG;
 }
 
-void MenuSettingRGBA::setB(unsigned short int b)
-{
+void MenuSettingRGBA::setB(unsigned short int b) {
 	_value->b = b;
 	stringstream ss;
 	ss << b;
 	ss >> strB;
 }
 
-void MenuSettingRGBA::setA(unsigned short int a)
-{
+void MenuSettingRGBA::setA(unsigned short int a) {
 	_value->a = a;
 	stringstream ss;
 	ss << a;
 	ss >> strA;
 }
 
-void MenuSettingRGBA::setSelPart(unsigned short int value)
-{
+void MenuSettingRGBA::setSelPart(unsigned short int value) {
 	switch (selPart) {
 		default: case 0: setR(value); break;
 		case 1: setG(value); break;
@@ -153,13 +140,11 @@ void MenuSettingRGBA::setSelPart(unsigned short int value)
 	}
 }
 
-RGBAColor MenuSettingRGBA::value()
-{
+RGBAColor MenuSettingRGBA::value() {
 	return *_value;
 }
 
-unsigned short int MenuSettingRGBA::getSelPart()
-{
+unsigned short int MenuSettingRGBA::getSelPart() {
 	switch (selPart) {
 		default: case 0: return value().r;
 		case 1: return value().g;
@@ -173,8 +158,7 @@ void MenuSettingRGBA::adjustInput() {
 	gmenu2x->input.setInterval(30, DEC );
 }
 
-void MenuSettingRGBA::drawSelected(int y)
-{
+void MenuSettingRGBA::drawSelected(int y) {
 	int x = 166 + selPart * 36;
 
 	RGBAColor color;
@@ -189,7 +173,6 @@ void MenuSettingRGBA::drawSelected(int y)
 	MenuSetting::drawSelected(y);
 }
 
-bool MenuSettingRGBA::edited()
-{
+bool MenuSettingRGBA::edited() {
 	return originalValue.r != value().r || originalValue.g != value().g || originalValue.b != value().b || originalValue.a != value().a;
 }

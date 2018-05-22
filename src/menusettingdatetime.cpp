@@ -41,11 +41,12 @@ using std::string;
 using std::stringstream;
 using fastdelegate::MakeDelegate;
 
-MenuSettingDateTime::MenuSettingDateTime(GMenu2X *gmenu2x, const string &name, const string &description, string *_value)
-	: MenuSetting(gmenu2x,name,description), _value(_value) {
+MenuSettingDateTime::MenuSettingDateTime(GMenu2X *gmenu2x, const string &name, const string &description, string *value)
+	: MenuSetting(gmenu2x,name,description) {
 	IconButton *btn;
 
-// this->value = value;
+	_value = value;
+	originalValue = *value;
 
 	selPart = 0;
 
@@ -171,10 +172,14 @@ void MenuSettingDateTime::setSelPart(unsigned short int i) {
 		case 4: setMinute(i); break;
 		default: setYear(i); break;
 	}
+
+	*_value = year + "-" + month + "-" + day + " " + hour + ":" + minute;
 }
 
 string MenuSettingDateTime::value() {
-	return *_value;
+	// return *_value;
+return *_value;
+
 }
 
 unsigned short int MenuSettingDateTime::getSelPart() {
@@ -208,11 +213,5 @@ void MenuSettingDateTime::drawSelected(int y) {
 }
 
 bool MenuSettingDateTime::edited() {
-
-DEBUG("WILL SET VALUE: %s", year.c_str());
-// _value = year + "-" + month + "-" + day + " " + hour + ":" + minute;
-
-
-	return true;
-	// return originalValue.r != value().r || originalValue.g != value().g || originalValue.b != value().b || originalValue.a != value().a;
+	return false; //originalValue != *_value;
 }
