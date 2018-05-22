@@ -283,6 +283,7 @@ public:
 	bool saveScreenshot();
 
 	void setClock(unsigned mhz);
+	void setDateTime();
 
 	void setVolume(int vol);
 	int getVolume();

@@ -24,28 +24,38 @@
 #include <sstream>
 #include <iomanip>
 
+
+// struct tm {
+// 	int tm_sec;   // seconds of minutes from 0 to 61
+// 	int tm_min;   // minutes of hour from 0 to 59
+// 	int tm_hour;  // hours of day from 0 to 24
+// 	int tm_mday;  // day of month from 1 to 31
+// 	int tm_mon;   // month of year from 0 to 11
+// 	int tm_year;  // year since 1900
+// 	int tm_wday;  // days since sunday
+// 	int tm_yday;  // days since January 1st
+// 	int tm_isdst; // hours of daylight savings time
+// };
+
 using std::string;
 using std::stringstream;
 using fastdelegate::MakeDelegate;
 
-MenuSettingDateTime::MenuSettingDateTime(GMenu2X *gmenu2x, const string &name, const string &description, const string &value)
-	: MenuSetting(gmenu2x,name,description) {
+MenuSettingDateTime::MenuSettingDateTime(GMenu2X *gmenu2x, const string &name, const string &description, string *_value)
+	: MenuSetting(gmenu2x,name,description), _value(_value) {
 	IconButton *btn;
 
+// this->value = value;
+
 	selPart = 0;
-	// _value = value;
-	// originalValue = *value;
-	// this->setYYYY(this->value().r);
-	// this->setMM(this->value().g);
-	// this->setDD(this->value().b);
-	// this->setHH(this->value().a);
 
-	this->setYYYY(2018);
-	this->setMM(05);
-	this->setDD(22);
-	this->setHH(10);
-	this->setmm(54);
+	sscanf(_value->c_str(), "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
 
+	this->setYear(iyear);
+	this->setMonth(imonth);
+	this->setDay(iday);
+	this->setHour(ihour);
+	this->setMinute(iminute);
 
 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/left.png");
 	btn->setAction(MakeDelegate(this, &MenuSettingDateTime::leftComponent));
@@ -68,25 +78,8 @@ MenuSettingDateTime::MenuSettingDateTime(GMenu2X *gmenu2x, const string &name, c
 void MenuSettingDateTime::draw(int y) {
 	this->y = y;
 	MenuSetting::draw(y);
-	// gmenu2x->s->box(153, y + 2 + (gmenu2x->font->getHeight()/2) - 6, 12, 12, value() );
-	// gmenu2x->s->rectangle(153, y + 2 + (gmenu2x->font->getHeight()/2) - 6, 12, 12, 0, 0, 0, 255);
-	gmenu2x->s->write( gmenu2x->font, YYYY + "-" + MM + "-" + DD + " " + HH + ":" + mm, 153, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
+	gmenu2x->s->write( gmenu2x->font, year + "-" + month + "-" + day + " " + hour + ":" + minute, 153, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
 }
-
-// getTextWidth
-
-// void MenuSettingDateTime::handleTS() {
-// 	if (gmenu2x->ts.pressed()) {
-// 		for (int i = 0; i <= 5; i++) {
-// 			if (i != selPart && gmenu2x->ts.inRect(166+i*36, y, 36, 14)) {
-// 				selPart = i;
-// 				i = 4;
-// 			}
-// 		}
-// 	}
-
-// 	MenuSetting::handleTS();
-// }
 
 uint MenuSettingDateTime::manageInput() {
 	if (gmenu2x->input[INC]) inc();
@@ -117,101 +110,96 @@ void MenuSettingDateTime::rightComponent()
 	selPart = constrain(selPart+1,0,4);
 }
 
-void MenuSettingDateTime::setYYYY(short int i)
-{
-	i = constrain(i, 1970, 2100);
+void MenuSettingDateTime::setYear(short int i) {
+	iyear = constrain(i, 1970, 2100);
 	// _value->r = r;
 	stringstream ss;
-	ss << i;
-	ss >> YYYY;
+	ss << iyear;
+	ss >> year;
 }
 
-void MenuSettingDateTime::setMM(short int i)
-{
-	if (i < 0) i = 12;
-	else if (i > 12) i = 0;
+void MenuSettingDateTime::setMonth(short int i) {
+	imonth = i;
+	if (i < 1) imonth = 12;
+	else if (i > 12) imonth = 0;
 	// _value->g = g;
 	stringstream ss;
-	ss << std::setw(2) << std::setfill('0') << i;
-	ss >> MM;
+	ss << std::setw(2) << std::setfill('0') << imonth;
+	ss >> month;
 
   // ss << std::setw(2) << std::setfill('0') << 12 << "\n";
 
 
 }
 
-void MenuSettingDateTime::setDD(short int i)
-{
-	if (i < 0) i = 31;
-	else if (i > 31) i = 0;
+void MenuSettingDateTime::setDay(short int i) {
+	iday = i;
+	if (i < 1) iday = 31;
+	else if (i > 31) iday = 0;
 	// _value->b = b;
 	stringstream ss;
-	ss << std::setw(2) << std::setfill('0') << i;
-	ss >> DD;
+	ss << std::setw(2) << std::setfill('0') << iday;
+	ss >> day;
 }
 
-void MenuSettingDateTime::setHH(short int i)
-{
-	if (i < 0) i = 23;
-	else if (i > 23) i = 0;
+void MenuSettingDateTime::setHour(short int i) {
+	ihour = i;
+	if (i < 0) ihour = 23;
+	else if (i > 23) ihour = 0;
 	// _value->a = a;
 	stringstream ss;
-	ss << std::setw(2) << std::setfill('0') << i;
-	ss >> HH;
+	ss << std::setw(2) << std::setfill('0') << ihour;
+	ss >> hour;
 }
 
-void MenuSettingDateTime::setmm(short int i)
-{
-	if (i < 0) i = 59;
-	else if (i > 59) i = 0;
+void MenuSettingDateTime::setMinute(short int i) {
+	iminute = i;
+	if (i < 0) iminute = 59;
+	else if (i > 59) iminute = 0;
 	// _value->a = a;
 	stringstream ss;
-	ss << std::setw(2) << std::setfill('0') << i;
-	ss >> mm;
+	ss << std::setw(2) << std::setfill('0') << iminute;
+	ss >> minute;
 }
 
 
-void MenuSettingDateTime::setSelPart(unsigned short int value)
-{
+void MenuSettingDateTime::setSelPart(unsigned short int i) {
 	switch (selPart) {
-		case 1: setMM(value); break;
-		case 2: setDD(value); break;
-		case 3: setHH(value); break;
-		case 4: setmm(value); break;
-		default: setYYYY(value); break;
+		case 1: setMonth(i); break;
+		case 2: setDay(i); break;
+		case 3: setHour(i); break;
+		case 4: setMinute(i); break;
+		default: setYear(i); break;
 	}
 }
 
-// RGBAColor MenuSettingDateTime::value()
-// {
-// 	return *_value;
-// }
+string MenuSettingDateTime::value() {
+	return *_value;
+}
 
-unsigned short int MenuSettingDateTime::getSelPart()
-{
+unsigned short int MenuSettingDateTime::getSelPart() {
 	switch (selPart) {
-		default: case 0: return atoi(YYYY.c_str());
-		case 1: return atoi(MM.c_str());
-		case 2: return atoi(DD.c_str());
-		case 3: return atoi(HH.c_str());
-		case 4: return atoi(mm.c_str());
+		default: case 0: return iyear;
+		case 1: return imonth;
+		case 2: return iday;
+		case 3: return ihour;
+		case 4: return iminute;
 	}
 }
 
 void MenuSettingDateTime::adjustInput() {
-	gmenu2x->input.setInterval(30, INC );
-	gmenu2x->input.setInterval(30, DEC );
+	gmenu2x->input.setInterval(150, INC );
+	gmenu2x->input.setInterval(150, DEC );
 }
 
-void MenuSettingDateTime::drawSelected(int y)
-{
+void MenuSettingDateTime::drawSelected(int y) {
 	int x = 153, w = 40; // + selPart * 36;
 	switch (selPart) {
-		case 1: x += gmenu2x->font->getTextWidth(YYYY + "-"); w = gmenu2x->font->getTextWidth(MM); break;
-		case 2: x += gmenu2x->font->getTextWidth(YYYY + "-" + MM + "-"); w = gmenu2x->font->getTextWidth(DD); break;
-		case 3: x += gmenu2x->font->getTextWidth(YYYY + "-" + MM + "-" + DD + " "); w = gmenu2x->font->getTextWidth(HH); break;
-		case 4: x += gmenu2x->font->getTextWidth(YYYY + "-" + MM + "-" + DD + " " + HH + ":"); w = gmenu2x->font->getTextWidth(mm); break;
-		default: w = gmenu2x->font->getTextWidth(YYYY); break;
+		case 1: x += gmenu2x->font->getTextWidth(year + "-"); w = gmenu2x->font->getTextWidth(month); break;
+		case 2: x += gmenu2x->font->getTextWidth(year + "-" + month + "-"); w = gmenu2x->font->getTextWidth(day); break;
+		case 3: x += gmenu2x->font->getTextWidth(year + "-" + month + "-" + day + " "); w = gmenu2x->font->getTextWidth(hour); break;
+		case 4: x += gmenu2x->font->getTextWidth(year + "-" + month + "-" + day + " " + hour + ":"); w = gmenu2x->font->getTextWidth(minute); break;
+		default: w = gmenu2x->font->getTextWidth(year); break;
 	}
 	gmenu2x->s->box( x-2, y+2, w+3, gmenu2x->font->getHeight(), gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 	gmenu2x->s->rectangle( x-2, y+2, w+3, gmenu2x->font->getHeight(), 0,0,0,255 );
@@ -219,8 +207,12 @@ void MenuSettingDateTime::drawSelected(int y)
 	MenuSetting::drawSelected(y);
 }
 
-bool MenuSettingDateTime::edited()
-{
-	return false;
+bool MenuSettingDateTime::edited() {
+
+DEBUG("WILL SET VALUE: %s", year.c_str());
+// _value = year + "-" + month + "-" + day + " " + hour + ":" + minute;
+
+
+	return true;
 	// return originalValue.r != value().r || originalValue.g != value().g || originalValue.b != value().b || originalValue.a != value().a;
 }

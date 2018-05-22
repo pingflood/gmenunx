@@ -76,6 +76,8 @@
 
 #include <sys/mman.h>
 
+#include <ctime>
+
 const char *CARD_ROOT = "/"; //Note: Add a trailing /!
 const int CARD_ROOT_LEN = 1;
 
@@ -1605,7 +1607,13 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 60, 0, 100));
 #endif
 
-	// sd.addSetting(new MenuSettingDateTime(this, tr["Date Time"], tr["Set system's date time"], "whatever"));
+
+	stringstream ss;
+		ss.clear();
+		ss << "2018-01-23 12:34";
+		ss >> confStr["datetime"];
+
+	sd.addSetting(new MenuSettingDateTime(this, tr["Date Time"], tr["Set system's date time"], &confStr["datetime"]));
 
 
 //sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
@@ -1641,7 +1649,76 @@ void GMenu2X::settings() {
 #if defined(TARGET_RS97)
 		setTVOut();
 #endif
+
+		setDateTime();
 	}
+}
+
+
+void GMenu2X::setDateTime() {
+
+	int imonth, iday, iyear, ihour, iminute;
+	string value = confStr["datetime"]; //"2018-01-26 12:34";
+
+
+
+  sscanf(value.c_str(), "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
+
+	time_t now = time(0);
+	tm *ltm = localtime(&now);
+
+	DEBUG("NOW: %d", now);
+	DEBUG("value: %s", value.c_str());
+
+   // char* dt = ctime(&now);
+
+// int yy, mm, dd;
+
+	DEBUG("year yy: %d --", iyear);
+	DEBUG("month mm: %d --", imonth);
+
+struct tm datetime = { 0 };
+
+datetime.tm_year = iyear - 1900;
+datetime.tm_mon  = imonth - 1;
+datetime.tm_mday = iday;
+datetime.tm_hour = ihour;
+datetime.tm_min  = iminute;
+// datetime.tm_sec  = Second;
+	DEBUG("minute: %d", iminute);
+
+if (datetime.tm_year < 0) datetime.tm_year = 0;
+
+time_t t = mktime(&datetime);
+
+	DEBUG("t: %d", t);
+
+// if (t != (time_t) -1)
+    // stime(&t);
+
+	// this->setYear(1900 + datetime.tm_year);
+	// this->setMonth(datetime.tm_mon + 1);
+	// this->setDay(datetime.tm_mday);
+	// this->setHour(datetime.tm_hour);
+	// this->setMinute(datetime.tm_min);
+// settime
+// struct tm time = { 0 };
+
+// time.tm_year = Year - 1900;
+// time.tm_mon  = Month - 1;
+// time.tm_mday = Day;
+// time.tm_hour = Hour;
+// time.tm_min  = Minute;
+// time.tm_sec  = Second;
+
+// if (time.tm_year < 0) time.tm_year = 0;
+
+// time_t t = mktime(&time);
+
+// if (t != (time_t) -1)
+//     stime(&t);
+
+
 }
 
 uint GMenu2X::onChangeSkin() {

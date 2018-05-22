@@ -22,6 +22,7 @@
 #include "link.h"
 #include "menu.h"
 #include "selector.h"
+#include "debug.h"
 
 using namespace std;
 using namespace fastdelegate;
@@ -122,6 +123,15 @@ const string &Link::searchIcon() {
 
 const string &Link::getIconPath() {
 	if (iconPath.empty()) searchIcon();
+
+	DEBUG("TESTING ICON: %s",iconPath.c_str());
+
+	if (!gmenu2x->sc.getSkinFilePath(iconPath).empty()) {
+		iconPath = gmenu2x->sc.getSkinFilePath(iconPath);
+	}	else if (!fileExists(iconPath)) {
+		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
+	}
+
 	return iconPath;
 }
 
