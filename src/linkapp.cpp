@@ -129,6 +129,18 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
 	edited = false;
 }
 
+const string &LinkApp::searchManual() {
+	if (!manual.empty()) return manual;
+	string filename = exec;
+	string::size_type pos = exec.rfind(".");
+	if (pos != string::npos) filename = exec.substr(0,pos);
+	filename += ".man.txt";
+
+	if (fileExists(filename))
+		manual = filename;
+	return manual;
+}
+
 const string &LinkApp::searchBackdrop() {
 	if (!backdrop.empty() || !gmenu2x->confInt["skinBackdrops"]) return backdrop;
 	string execicon = exec;

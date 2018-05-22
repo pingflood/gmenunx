@@ -89,7 +89,10 @@ void Menu::loadIcons() {
 			sectionLinks(i)->at(x)->updateSurfaces();
 			LinkApp *linkapp = dynamic_cast<LinkApp*>(sectionLinks(i)->at(x));
 
-			if (linkapp != NULL) linkapp->searchBackdrop();
+			if (linkapp != NULL) {
+				linkapp->searchBackdrop();
+				linkapp->searchManual();
+			}
 
 			if (linkIcon.substr(0,5)=="skin:") {
 				linkIcon = gmenu2x->sc.getSkinFilePath(linkIcon.substr(5,linkIcon.length()));
