@@ -1577,6 +1577,7 @@ void GMenu2X::settings() {
 	sectionBar.push_back("Bottom");
 
 	string sb_sel = sectionBar[confInt["sectionBar"]];
+	string prevDateTime = confStr["datetime"];
 
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
@@ -1607,17 +1608,10 @@ void GMenu2X::settings() {
 #else
 	sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 60, 0, 100));
 #endif
-
-
-	// stringstream ss;
-	// 	ss.clear();
-	// 	ss << "2018-01-23 12:34";
-	// 	ss >> confStr["datetime"];
+	// sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
 
 	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date time"], &confStr["datetime"]));
 
-
-//sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
 
 	if (sd.exec() && sd.edited() && sd.save) {
 //G
@@ -1651,12 +1645,23 @@ void GMenu2X::settings() {
 		setTVOut();
 #endif
 
-		setDateTime();
+		if (prevDateTime == confStr["DateTime"]) setDateTime();
 	}
 }
 
 
 void GMenu2X::setDateTime() {
+// struct tm {
+// 	int tm_sec;   // seconds of minutes from 0 to 61
+// 	int tm_min;   // minutes of hour from 0 to 59
+// 	int tm_hour;  // hours of day from 0 to 24
+// 	int tm_mday;  // day of month from 1 to 31
+// 	int tm_mon;   // month of year from 0 to 11
+// 	int tm_year;  // year since 1900
+// 	int tm_wday;  // days since sunday
+// 	int tm_yday;  // days since January 1st
+// 	int tm_isdst; // hours of daylight savings time
+// };
 
 	int imonth, iday, iyear, ihour, iminute;
 	string value = confStr["datetime"]; //"2018-01-26 12:34";

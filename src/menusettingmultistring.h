@@ -23,15 +23,11 @@
 #include "menusettingstringbase.h"
 
 #include <vector>
-// #include <functional>
 #include "debug.h"
 
 #include "FastDelegate.h"
 using namespace fastdelegate;
 using fastdelegate::MakeDelegate;
-
-// typedef void (*callback_function)(void); // type for conciseness
-// static void doNothing() {};
 
 typedef FastDelegate0<uint> cbAction;
 
@@ -50,28 +46,11 @@ private:
 
 	cbAction onChange; // variable to store function pointer type
 
-
-	// virtual void onChange() = 0;
-
-    // std::function<void(MenuSettingMultiString&)> onChange = &MenuSettingMultiString::doNothing;
-
-	// void doNothing();
-    // std::function<void(MenuSettingMultiString&)> onChange = &MenuSettingMultiString::doNothing;
 public:
-	// MenuSettingMultiString(
-	// 		GMenu2X *gmenu2x, const std::string &name,
-	// 		const std::string &description, std::string *value,
-	// 		const std::vector<std::string> *choices);
-
 	MenuSettingMultiString(
 			GMenu2X *gmenu2x, const std::string &name,
 			const std::string &description, std::string *value,
 			const std::vector<std::string> *choices);
-
-	// MenuSettingMultiString(
-	// 		GMenu2X *gmenu2x, const std::string &name,
-	// 		const std::string &description, std::string *value,
-	// 		const std::vector<std::string> *choices, callback_function cbOnChange);
 
 	MenuSettingMultiString(
 			GMenu2X *gmenu2x, const std::string &name,

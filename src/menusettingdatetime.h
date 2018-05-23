@@ -21,20 +21,17 @@
 #define MENUSETTINGDATETIME_H
 
 #include "menusetting.h"
-// #include "menusettingstringbase.h"
 #include "surface.h"
 
 class GMenu2X;
 
 class MenuSettingDateTime : public MenuSetting {
-// class MenuSettingDateTime : public MenuSettingStringBase {
 
 private:
 	unsigned short selPart;
 	int y;
 	std::string month, day, year, hour, minute, *_value, originalValue;
 	int imonth, iday, iyear, ihour, iminute;
-	// string *_value;
 
 	void dec();
 	void inc();
@@ -46,7 +43,6 @@ public:
 	virtual ~MenuSettingDateTime() {};
 
 	virtual void draw(int y);
-	// virtual void handleTS();
 	virtual uint manageInput();
 	virtual void adjustInput();
 	virtual void drawSelected(int y);

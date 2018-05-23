@@ -69,7 +69,6 @@ uint MenuSettingMultiString::manageInput() {
 
 void MenuSettingMultiString::incSel() {
 	setSel(selected + 1);
-	// this->onChange();
 }
 
 void MenuSettingMultiString::decSel() {
@@ -85,12 +84,6 @@ void MenuSettingMultiString::setSel(int sel)
 		sel = 0;
 	}
 	selected = sel;
-
-// doNothing();
-// (onChange)();
-// _onChange();
-	// if(this->onChange > 0);
-
 
 	setValue((*choices)[sel]);
 }
