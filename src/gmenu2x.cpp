@@ -1612,8 +1612,8 @@ void GMenu2X::settings() {
 #endif
 
 #if defined(TARGET_RS97)
-	confInt["globalVolume"] = 1;
 	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &confStr["TVOut"], &encodings));
+	sd.addSetting(new MenuSettingBool(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"]));
 #else
 	sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 60, 0, 100));
 #endif
