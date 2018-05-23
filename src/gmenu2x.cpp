@@ -1440,16 +1440,15 @@ void GMenu2X::main() {
 
 bool GMenu2X::inputCommonActions() {
 	bool wasActive = false;
-
+	bool isCombo = false;
 	while (input[MENU]) {
 		if (input[SECTION_NEXT]) {
 			// SCREENSHOT
 			if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
 			MessageBox mb(this, tr["Screenshot saved"]);
-			mb.setAutoHide(1000);
+			mb.setAutoHide(500);
 			mb.exec();
-			return true;
-
+			isCombo = true;
 		} else if (input[SECTION_PREV]) {
 			// VOLUME / MUTE
 			int vol = getVolume();
@@ -1463,15 +1462,19 @@ bool GMenu2X::inputCommonActions() {
 			confInt["globalVolume"] = vol;
 			setVolume(vol);
 			writeConfig();
-			return true; 
+			isCombo = true;
 		}
 
 		SDL_Delay(100);
 		input.update();
-		wasActive = true;
+		wasActive = !isCombo;
 	}
 
 	input[MENU] = wasActive; // Key was active but no combo was pressed
+
+		// return true; 
+		// return true;
+		 // while (input[MENU]) { SDL_Delay(100); input.update(); }
 
 	if ( input[BACKLIGHT] ) {
 		setBacklight(confInt["backlight"], true);
