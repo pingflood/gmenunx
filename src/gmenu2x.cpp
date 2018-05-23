@@ -1666,38 +1666,53 @@ void GMenu2X::setDateTime() {
 	int imonth, iday, iyear, ihour, iminute;
 	string value = confStr["datetime"]; //"2018-01-26 12:34";
 
+	sscanf(value.c_str(), "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
 
+	struct tm datetime = { 0 };
 
-  sscanf(value.c_str(), "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
+	datetime.tm_year = iyear - 1900;
+	datetime.tm_mon  = imonth - 1;
+	datetime.tm_mday = iday;
+	datetime.tm_hour = ihour;
+	datetime.tm_min  = iminute;
+	datetime.tm_sec  = 0;
 
-	time_t now = time(0);
-	tm *ltm = localtime(&now);
+	if (datetime.tm_year < 0) datetime.tm_year = 0;
 
-	DEBUG("NOW: %d", now);
-	DEBUG("value: %s", value.c_str());
+	time_t t = mktime(&datetime);
 
-   // char* dt = ctime(&now);
+#if !defined(TARGET_PC)
+	if (t != (time_t) -1) stime(&t);
+#endif
 
-// int yy, mm, dd;
+// 	time_t now = time(0);
+// 	tm *ltm = localtime(&now);
 
-	DEBUG("year yy: %d --", iyear);
-	DEBUG("month mm: %d --", imonth);
+// 	DEBUG("NOW: %d", now);
+// 	DEBUG("value: %s", value.c_str());
 
-struct tm datetime = { 0 };
+//    // char* dt = ctime(&now);
 
-datetime.tm_year = iyear - 1900;
-datetime.tm_mon  = imonth - 1;
-datetime.tm_mday = iday;
-datetime.tm_hour = ihour;
-datetime.tm_min  = iminute;
-// datetime.tm_sec  = Second;
-	DEBUG("minute: %d", iminute);
+// // int yy, mm, dd;
 
-if (datetime.tm_year < 0) datetime.tm_year = 0;
+// 	DEBUG("year yy: %d --", iyear);
+// 	DEBUG("month mm: %d --", imonth);
 
-time_t t = mktime(&datetime);
+// struct tm datetime = { 0 };
 
-	DEBUG("t: %d", t);
+// datetime.tm_year = iyear - 1900;
+// datetime.tm_mon  = imonth - 1;
+// datetime.tm_mday = iday;
+// datetime.tm_hour = ihour;
+// datetime.tm_min  = iminute;
+// // datetime.tm_sec  = Second;
+// 	DEBUG("minute: %d", iminute);
+
+// if (datetime.tm_year < 0) datetime.tm_year = 0;
+
+// time_t t = mktime(&datetime);
+
+// 	DEBUG("t: %d", t);
 
 // if (t != (time_t) -1)
     // stime(&t);
@@ -1709,22 +1724,6 @@ time_t t = mktime(&datetime);
 	// this->setMinute(datetime.tm_min);
 // settime
 // struct tm time = { 0 };
-
-// time.tm_year = Year - 1900;
-// time.tm_mon  = Month - 1;
-// time.tm_mday = Day;
-// time.tm_hour = Hour;
-// time.tm_min  = Minute;
-// time.tm_sec  = Second;
-
-// if (time.tm_year < 0) time.tm_year = 0;
-
-// time_t t = mktime(&time);
-
-// if (t != (time_t) -1)
-//     stime(&t);
-
-
 }
 
 uint GMenu2X::onChangeSkin() {
