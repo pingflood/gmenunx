@@ -426,6 +426,7 @@ GMenu2X::GMenu2X() {
 
 	input.init(path+"input.conf");
 	setInputSpeed();
+	input.setWakeUpInterval(1000);
 
 #if defined(TARGET_GP2X)
 	initServices();
@@ -437,6 +438,11 @@ GMenu2X::GMenu2X() {
 	setClock(confInt["menuClock"]);
 	//recover last session
 	readTmp();
+
+	setBacklight(confInt["backlight"]);
+
+	tickSuspend = 0;
+
 	if (lastSelectorElement>-1 && menu->selLinkApp()!=NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
 		menu->selLinkApp()->selector(lastSelectorElement,lastSelectorDir);
 }
@@ -1102,14 +1108,14 @@ void GMenu2X::main() {
 	int x = 0, y = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
 	uint i;
 	unsigned long tickBattery = -4800, tickNow, tickMMC = 0; //, tickUSB = 0;
-	tickSuspend = 0;
+	// tickSuspend = 0;
 	 // tickPowerOff = 0;
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
 	string prevBackdrop = confStr["wallpaper"], currBackdrop = confStr["wallpaper"];
 
 	stringstream ss;
 
-	setBacklight(confInt["backlight"]);
+	// setBacklight(confInt["backlight"]);
 	if (pthread_create(&thread_id, NULL, mainThread, this)) {
 		ERROR("%s, failed to create main thread\n", __func__);
 	}
@@ -1121,7 +1127,7 @@ void GMenu2X::main() {
 	}
 #endif
 
-	input.setWakeUpInterval(1000);
+	// input.setWakeUpInterval(1000);
 
 	while (!quit) {
 		bool inputAction = input.update();
