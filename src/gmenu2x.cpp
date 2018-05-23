@@ -798,7 +798,7 @@ void GMenu2X::writeConfig() {
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for(ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
-			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding" ) continue;
+			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding" || curr->first == "datetime" ) continue;
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 		}
 
@@ -1610,7 +1610,7 @@ void GMenu2X::settings() {
 #endif
 	// sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
 
-	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date time"], &confStr["datetime"]));
+	// sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date time"], &confStr["datetime"]));
 
 
 	if (sd.exec() && sd.edited() && sd.save) {
@@ -1645,7 +1645,7 @@ void GMenu2X::settings() {
 		setTVOut();
 #endif
 
-		if (prevDateTime == confStr["DateTime"]) setDateTime();
+		if (prevDateTime != confStr["DateTime"]) setDateTime();
 	}
 }
 
@@ -1681,9 +1681,15 @@ void GMenu2X::setDateTime() {
 
 	time_t t = mktime(&datetime);
 
+	WARNING("NOW: %s", confStr["datetime"].c_str());
+
 #if !defined(TARGET_PC)
+
 	if (t != (time_t) -1) stime(&t);
+	ERROR("NOW: %s", confStr["datetime"].c_str());
+
 #endif
+	tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 
 // 	time_t now = time(0);
 // 	tm *ltm = localtime(&now);
