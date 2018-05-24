@@ -210,7 +210,7 @@ public:
 	InputManager input;
 	Touchscreen ts;
 
-	unsigned long tickSuspend; //, tickPowerOff;
+	long tickSuspend; //, tickPowerOff;
 
 	//Configuration hashes
 	ConfStrHash confStr, skinConfStr;
@@ -283,6 +283,7 @@ public:
 	bool saveScreenshot();
 
 	void setClock(unsigned mhz);
+	const string getDateTime();
 	void setDateTime();
 
 	void setVolume(int vol);

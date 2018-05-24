@@ -77,6 +77,7 @@
 #include <sys/mman.h>
 
 #include <ctime>
+#include <sys/time.h>   /* for settimeofday() */
 
 const char *CARD_ROOT = "/"; //Note: Add a trailing /!
 const int CARD_ROOT_LEN = 1;
@@ -373,7 +374,8 @@ GMenu2X::GMenu2X() {
 	setenv("SDL_NOMOUSE", "1", 1);
 #endif
 	//Screen
-	if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK)<0 ) {
+	if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK)<0 ) {
+		SDL_InitSubSystem(SDL_INIT_TIMER);
 		ERROR("Could not initialize SDL: %s", SDL_GetError());
 		quit();
 	}
@@ -436,6 +438,7 @@ GMenu2X::GMenu2X() {
 
 	setVolume(confInt["globalVolume"]);
 	setClock(confInt["menuClock"]);
+	// setDateTime();
 	//recover last session
 	readTmp();
 
@@ -807,7 +810,7 @@ void GMenu2X::writeConfig() {
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for(ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
-			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding" || curr->first == "datetime" ) continue;
+			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding" || curr->first == "datetime" || curr->first == "DateTime" ) continue;
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 		}
 
@@ -1046,7 +1049,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 
 		input.setWakeUpInterval(100);
 
-		unsigned long tickStart = SDL_GetTicks();
+		long tickStart = SDL_GetTicks();
 		while (!close) {
 			bg.blit(s,0,0);
 
@@ -1081,6 +1084,8 @@ int GMenu2X::setBacklight(int val, bool popup) {
 }
 
 void GMenu2X::setSuspend(bool suspend) {
+	getDateTime();
+
 	if (suspend) {
 		input.setWakeUpInterval(60e3);
 		setBacklight(0);
@@ -1110,7 +1115,7 @@ void GMenu2X::main() {
 	bool quit = false;
 	int x = 0, y = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
 	uint i;
-	unsigned long tickBattery = -4800, tickNow, tickMMC = 0; //, tickUSB = 0;
+	long tickBattery = -4800, tickNow, tickMMC = 0; //, tickUSB = 0;
 	// tickSuspend = 0;
 	 // tickPowerOff = 0;
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
@@ -1488,8 +1493,11 @@ bool GMenu2X::inputCommonActions() {
 }
 
 bool GMenu2X::powerManager(bool &inputAction) {
-	unsigned long tickStart = SDL_GetTicks(), tickPower = 0;
-	// INFO("START: %d\tSUSPEND: %d\tPOWER: %d", tickStart, tickStart - tickSuspend, tickPower);
+	long tickStart = SDL_GetTicks(), tickPower = 0;
+
+	INFO("START: %d\tSUSPEND: %d\tPOWER: %d\tsuspendActive: %d", tickStart, tickStart - tickSuspend, tickPower, suspendActive);
+	// input.setWakeUpInterval(1000); return false;
+
 	if(suspendActive) {
 		// SUSPEND ACTIVE
 		if (input[POWER]) {
@@ -1616,13 +1624,13 @@ void GMenu2X::settings() {
 
 #if defined(TARGET_RS97)
 	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &confStr["TVOut"], &encodings));
-	sd.addSetting(new MenuSettingBool(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"]));
-#else
-	sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 60, 0, 100));
+	// sd.addSetting(new MenuSettingBool(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"]));
+// #else
 #endif
+	sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 60, 0, 100));
 	// sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
 
-	// sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date time"], &confStr["datetime"]));
+	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date time"], &confStr["datetime"]));
 
 
 	if (sd.exec() && sd.edited() && sd.save) {
@@ -1657,12 +1665,22 @@ void GMenu2X::settings() {
 		setTVOut();
 #endif
 
-		if (prevDateTime != confStr["DateTime"]) setDateTime();
+		if (prevDateTime != confStr["datetime"]) setDateTime();
 	}
 }
 
 
+const string GMenu2X::getDateTime() {
+	char       buf[80];
+	time_t     now = time(0);
+	struct tm  tstruct = *localtime(&now);
+	strftime(buf, sizeof(buf), "%F %R", &tstruct);
+	confStr["datetime"] = buf;
+	return buf;
+}
+
 void GMenu2X::setDateTime() {
+	return;
 // struct tm {
 // 	int tm_sec;   // seconds of minutes from 0 to 61
 // 	int tm_min;   // minutes of hour from 0 to 59
@@ -1693,13 +1711,16 @@ void GMenu2X::setDateTime() {
 
 	time_t t = mktime(&datetime);
 
-	WARNING("NOW: %s", confStr["datetime"].c_str());
+	struct timeval newtime = { t, 0 };
 
 #if !defined(TARGET_PC)
-
-	if (t != (time_t) -1) stime(&t);
-	ERROR("NOW: %s", confStr["datetime"].c_str());
-
+    // SDL_QuitSubSystem(SDL_INIT_TIMER);
+	settimeofday(&newtime,NULL);
+	// if (t != (time_t) -1) stime(&t);
+	usleep(1e6);
+	SDL_InitSubSystem(SDL_INIT_TIMER);
+	usleep(1e6);
+WARNING("NEW TICKS: %d", SDL_GetTicks());
 #endif
 	tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 
@@ -2013,7 +2034,7 @@ void GMenu2X::contextMenu() {
 	box.y = halfY - box.h/2;
 
 	SDL_Rect selbox = {box.x+4, 0, box.w-8, h};
-	unsigned long tickStart = SDL_GetTicks();
+	long tickStart = SDL_GetTicks();
 
 	Surface bg(s);
 	input.setWakeUpInterval(40); //25FPS
@@ -2485,7 +2506,7 @@ void GMenu2X::setVolume(int vol) {
 	vol = constrain(vol,0,100);
 	unsigned long soundDev = open("/dev/mixer", O_RDWR);
 
-	vol = vol ? 100 : 0;
+	// vol = vol ? 100 : 0;
 	if (soundDev) {
 		vol = (vol << 8) | vol;
 #if defined(TARGET_RS97)
