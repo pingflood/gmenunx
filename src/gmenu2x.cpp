@@ -374,8 +374,7 @@ GMenu2X::GMenu2X() {
 	setenv("SDL_NOMOUSE", "1", 1);
 #endif
 	//Screen
-	if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK)<0 ) {
-		SDL_InitSubSystem(SDL_INIT_TIMER);
+	if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK)<0 ) {
 		ERROR("Could not initialize SDL: %s", SDL_GetError());
 		quit();
 	}
@@ -1459,17 +1458,7 @@ bool GMenu2X::inputCommonActions() {
 			isCombo = true;
 		} else if (input[SECTION_PREV]) {
 			// VOLUME / MUTE
-			int vol = getVolume();
-			if (vol) {
-				vol = 0;
-				volumeMode = VOLUME_MODE_MUTE;
-			} else {
-				vol = 100;
-				volumeMode = VOLUME_MODE_NORMAL;
-			}
-			confInt["globalVolume"] = vol;
-			setVolume(vol);
-			writeConfig();
+			setVolume(confInt["globalVolume"], true);
 			isCombo = true;
 		}
 
@@ -1479,10 +1468,6 @@ bool GMenu2X::inputCommonActions() {
 	}
 
 	input[MENU] = wasActive; // Key was active but no combo was pressed
-
-		// return true; 
-		// return true;
-		 // while (input[MENU]) { SDL_Delay(100); input.update(); }
 
 	if ( input[BACKLIGHT] ) {
 		setBacklight(confInt["backlight"], true);
@@ -1495,7 +1480,7 @@ bool GMenu2X::inputCommonActions() {
 bool GMenu2X::powerManager(bool &inputAction) {
 	long tickStart = SDL_GetTicks(), tickPower = 0;
 
-	INFO("START: %d\tSUSPEND: %d\tPOWER: %d\tsuspendActive: %d", tickStart, tickStart - tickSuspend, tickPower, suspendActive);
+	// INFO("START: %d\tSUSPEND: %d\tPOWER: %d\tsuspendActive: %d", tickStart, tickStart - tickSuspend, tickPower, suspendActive);
 	// input.setWakeUpInterval(1000); return false;
 
 	if(suspendActive) {
@@ -1624,8 +1609,6 @@ void GMenu2X::settings() {
 
 #if defined(TARGET_RS97)
 	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &confStr["TVOut"], &encodings));
-	// sd.addSetting(new MenuSettingBool(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"]));
-// #else
 #endif
 	sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 60, 0, 100));
 	// sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
@@ -2502,13 +2485,57 @@ int GMenu2X::getVolume() {
 	return vol;
 }
 
-void GMenu2X::setVolume(int vol) {
-	vol = constrain(vol,0,100);
-	unsigned long soundDev = open("/dev/mixer", O_RDWR);
+int GMenu2X::setVolume(int val, bool popup) {
+	int volumeStep = 10;
 
-	// vol = vol ? 100 : 0;
+	if (val < 0) val = 100;
+	else if (val > 100) val = 0;
+
+	if (popup) {
+		bool close = false;
+		SDL_Rect progress = {52, 32, resX-84, 8};
+		SDL_Rect box = {20, 20, resX-40, 32};
+
+		Surface bg(s);
+
+		Surface *iconVolume[3] = {
+			sc.skinRes("imgs/mute.png"),
+			sc.skinRes("imgs/phones.png"),
+			sc.skinRes("imgs/volume.png"),
+		};
+
+		input.setWakeUpInterval(100);
+
+		long tickStart = SDL_GetTicks();
+		while (!close) {
+			bg.blit(s,0,0);
+
+			s->box(box, skinConfColors[COLOR_MESSAGE_BOX_BG]);
+			s->rectangle(box.x+2, box.y+2, box.w-4, box.h-4, skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
+
+			iconVolume[val > 0 ? 2 : 0]->blit(s, 28, 28);
+
+			s->box(progress, skinConfColors[COLOR_MESSAGE_BOX_BG]);
+			s->box(progress.x + 1, progress.y + 1, val * (progress.w - 3) / 100 + 1, progress.h - 2, skinConfColors[COLOR_MESSAGE_BOX_SELECTION]);
+			s->flip();
+
+			if (input.update()) tickStart = SDL_GetTicks();
+
+			if ((SDL_GetTicks() - tickStart) >= 3000 || input[SETTINGS] || input[CONFIRM] || input[CANCEL]) close = true;
+
+			if ( input[LEFT] || input[DEC] )		val = max(0, val - volumeStep);
+			else if ( input[RIGHT] || input[INC] )	val = min(100, val + volumeStep);
+			else if ( input[SECTION_PREV] )		{
+													val += volumeStep;
+													if (val > 100) val = 0;
+												}
+		}
+		tickSuspend = SDL_GetTicks(); // prevent immediate suspend
+	}
+
+	unsigned long soundDev = open("/dev/mixer", O_RDWR);
 	if (soundDev) {
-		vol = (vol << 8) | vol;
+		int vol = (val << 8) | val;
 #if defined(TARGET_RS97)
 		ioctl(soundDev, SOUND_MIXER_WRITE_VOLUME, &vol);
 #else
@@ -2516,13 +2543,13 @@ void GMenu2X::setVolume(int vol) {
 #endif
 		close(soundDev);
 
-		if (vol) {
-			volumeMode = VOLUME_MODE_NORMAL;
-		}
-		else{
-			volumeMode = VOLUME_MODE_MUTE;
-		}
+		volumeMode = vol ? VOLUME_MODE_NORMAL : VOLUME_MODE_MUTE;
 	}
+
+	confInt["globalVolume"] = val;
+	writeConfig();
+
+	return val;
 }
 
 const string &GMenu2X::getExePath() {

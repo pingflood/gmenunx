@@ -286,7 +286,8 @@ public:
 	const string getDateTime();
 	void setDateTime();
 
-	void setVolume(int vol);
+	// void setVolume(int vol);
+	int setVolume(int val, bool popup = false);
 	int getVolume();
 
 	void setInputSpeed();
