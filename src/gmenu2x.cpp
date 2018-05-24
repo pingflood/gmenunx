@@ -45,7 +45,7 @@
 #include <linux/soundcard.h>
 
 #include "linkapp.h"
-#include "linkaction.h"
+// #include "linkaction.h"
 #include "menu.h"
 #include "fonthelper.h"
 #include "surface.h"
@@ -416,7 +416,7 @@ GMenu2X::GMenu2X() {
 	sc[confStr["wallpaper"]]->blit(s,0,0);
 	s->flip();
 
-	setSkin(confStr["skin"], false);
+	setSkin(confStr["skin"], false, false);
 
 	initBG();
 

@@ -22,7 +22,7 @@
 #include "link.h"
 #include "menu.h"
 #include "selector.h"
-#include "debug.h"
+// #include "debug.h"
 
 using namespace std;
 using namespace fastdelegate;
@@ -86,25 +86,6 @@ const string &Link::getIcon() {
 }
 
 void Link::setIcon(const string &icon) {
-	// string skinpath = gmenu2x->getExePath()+"skins/"+gmenu2x->confStr["skin"];
-
-	// if (icon.substr(0,skinpath.length()) == skinpath) {
-	// 	string tempIcon = icon.substr(skinpath.length(), icon.length());
-	// 	string::size_type pos = tempIcon.find("/");
-	// 	if (pos != string::npos)
-	// 		this->icon = "skin:"+tempIcon.substr(pos+1,icon.length());
-	// 	else
-	// 		this->icon = icon;
-	// } else {
-	// 	this->icon = icon;
-	// }
-
-	// iconPath = strreplace(this->icon,"skin:",skinpath+"/");
-	// if (iconPath.empty() || !fileExists(iconPath)) {
-	// 	iconPath = strreplace(this->icon,"skin:",gmenu2x->getExePath()+"skins/Default/");
-	// 	if (!fileExists(iconPath)) searchIcon();
-	// }
-
 	this->icon = icon;
 
 	if (icon.compare(0, 5, "skin:") == 0)
@@ -123,8 +104,6 @@ const string &Link::searchIcon() {
 
 const string &Link::getIconPath() {
 	if (iconPath.empty()) searchIcon();
-
-	DEBUG("TESTING ICON: %s",iconPath.c_str());
 
 	if (!gmenu2x->sc.getSkinFilePath(iconPath).empty()) {
 		iconPath = gmenu2x->sc.getSkinFilePath(iconPath);
