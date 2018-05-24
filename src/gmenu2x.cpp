@@ -787,6 +787,9 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["videoBpp"], 16, 8, 32 );
 	evalIntConf( &confInt["backlight"], 70, 1, 100);
 
+	evalIntConf( &confInt["minBattery"], 0, 1, 10000);
+	evalIntConf( &confInt["maxBattery"], 4500, 1, 10000);
+
 	// evalIntConf( &confInt["sectionBar"], SB_LEFT, 1, 4);
 	confInt["sectionBar"] = SB_LEFT;
 
@@ -2369,6 +2372,8 @@ if (confStr["batteryType"] == "RS-97") {
 		}
 	}
 #else
+
+	val = constrain(val, 0, 10000);
 
 	bool needWriteConfig = false;
 	long max = confInt["maxBattery"];
