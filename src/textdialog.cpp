@@ -25,13 +25,13 @@ using namespace std;
 
 // static SDL_Rect rect;
 
-TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, vector<string> *text)
-	: Dialog(gmenu2x)
+TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, vector<string> *text, const string &backdrop)
+	: Dialog(gmenu2x), text(text), title(title), description(description), icon(icon), backdrop(backdrop)
 {
-	this->text = text;
-	this->title = title;
-	this->description = description;
-	this->icon = icon;
+	// this->text = text;
+	// this->title = title;
+	// this->description = description;
+	// this->icon = icon;
 	preProcess();
 }
 
@@ -97,7 +97,7 @@ void TextDialog::drawText(vector<string> *text, uint firstRow, uint rowsPerPage)
 }
 
 void TextDialog::exec() {
-	gmenu2x->initBG();
+	gmenu2x->initBG(backdrop);
 
 	bool close = false;
 

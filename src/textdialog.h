@@ -31,13 +31,13 @@ using std::vector;
 class TextDialog : protected Dialog {
 protected:
 	vector<string> *text;
-	string title, description, icon;
+	string title, description, icon, backdrop;
 
 	void preProcess();
 	void drawText(vector<string> *text, uint firstRow, uint rowsPerPage);
 
 public:
-	TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, vector<string> *text);
+	TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, vector<string> *text, const string &backdrop = "");
 	void exec();
 };
 

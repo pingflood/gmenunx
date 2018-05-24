@@ -342,7 +342,7 @@ void LinkApp::showManual() {
 			txtman.push_back( strreplace(line, "\r", "") );
 		infile.close();
 
-		TextDialog td(gmenu2x, title, description, icon, &txtman);
+		TextDialog td(gmenu2x, title, description, icon, &txtman, backdrop);
 		td.exec();
 	}
 
