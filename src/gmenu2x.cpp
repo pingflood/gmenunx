@@ -798,6 +798,10 @@ void GMenu2X::readConfig() {
 	// evalIntConf( &confInt["sectionBar"], SB_LEFT, 1, 4);
 	confInt["sectionBar"] = SB_LEFT;
 
+	if (!confInt["saveSelection"]) {
+		confInt["section"] = 0;
+		confInt["link"] = 0;
+	}
 
 	// if (confStr["TVOut"] != "PAL") confStr["TVOut"] = "NTSC";
 	// if (confStr["TVOut"] != "PAL" || confStr["TVOut"] != "NTSC")
@@ -808,6 +812,12 @@ void GMenu2X::readConfig() {
 
 void GMenu2X::writeConfig() {
 	ledOn();
+
+	if (confInt["saveSelection"] && menu != NULL) {
+		confInt["section"] = menu->selSectionIndex();
+		confInt["link"] = menu->selLinkIndex();
+	}
+
 	string conffile = path+"gmenu2x.conf";
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
