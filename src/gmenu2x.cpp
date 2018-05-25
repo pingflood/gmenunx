@@ -1031,61 +1031,6 @@ void* mainThread(void* param) {
 	return NULL;
 }
 
-int GMenu2X::setBacklight(int val, bool popup) {
-	char buf[64];
-	int backlightStep = 10;
-
-	if (val < 0) val = 100;
-	else if (val > 100) val = backlightStep;
-
-#if defined(TARGET_RS97)
-	sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
-	system(buf);
-#endif
-
-	if (popup) {
-		bool close = false;
-		// SDL_Rect progress = {52, 32, resX-84, 8};
-		// SDL_Rect box = {20, 20, resX-40, 32};
-
-		Surface bg(s);
-
-		Surface *iconBrightness[6] = {
-			sc.skinRes("imgs/brightness/0.png"),
-			sc.skinRes("imgs/brightness/1.png"),
-			sc.skinRes("imgs/brightness/2.png"),
-			sc.skinRes("imgs/brightness/3.png"),
-			sc.skinRes("imgs/brightness/4.png"),
-			sc.skinRes("imgs/brightness.png")
-		};
-
-		input.setWakeUpInterval(100);
-
-		Uint32 tickStart = SDL_GetTicks();
-		while (!close) {
-			int backlightIcon = val/20;
-
-			if (backlightIcon > 4 || iconBrightness[backlightIcon] == NULL) backlightIcon = 5;
-
-			drawSlider(val, 0, 100, *iconBrightness[backlightIcon], bg);
-
-			if (input.update()) tickStart = SDL_GetTicks();
-
-			if ((SDL_GetTicks() - tickStart) >= 3000 || input[SETTINGS] || input[MENU] || input[CONFIRM] || input[CANCEL]) close = true;
-
-			if ( input[LEFT] || input[DEC] )			val = setBacklight(max(1, val - backlightStep), false);
-			else if ( input[RIGHT] || input[INC] )		val = setBacklight(min(100, val + backlightStep), false);
-			else if ( input[BACKLIGHT] )				val = setBacklight(val + backlightStep, false);
-		}
-		// input.setWakeUpInterval(1000);
-
-		confInt["backlight"] = val;
-		writeConfig();
-		tickSuspend = SDL_GetTicks(); // prevent immediate suspend
-	}
-	return val;
-}
-
 void GMenu2X::setSuspend(bool suspend) {
 	getDateTime();
 
@@ -2409,6 +2354,23 @@ void GMenu2X::setClock(unsigned mhz) {
 	}
 }
 
+int GMenu2X::drawSlider(int val, int min, int max, Surface &icon, Surface &bg) {
+	SDL_Rect progress = {52, 32, resX-84, 8};
+	SDL_Rect box = {20, 20, resX-40, 32};
+
+	val = constrain(val, min, max);
+
+	bg.blit(s,0,0);
+	s->box(box, skinConfColors[COLOR_MESSAGE_BOX_BG]);
+	s->rectangle(box.x+2, box.y+2, box.w-4, box.h-4, skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
+
+	icon.blit(s, 28, 28);
+
+	s->box(progress, skinConfColors[COLOR_MESSAGE_BOX_BG]);
+	s->box(progress.x + 1, progress.y + 1, val * (progress.w - 3) / max + 1, progress.h - 2, skinConfColors[COLOR_MESSAGE_BOX_SELECTION]);
+	s->flip();
+}
+
 int GMenu2X::getVolume() {
 	int vol = -1;
 	unsigned long soundDev = open("/dev/mixer", O_RDONLY);
@@ -2426,23 +2388,6 @@ int GMenu2X::getVolume() {
 		}
 	}
 	return vol;
-}
-
-int GMenu2X::drawSlider(int val, int min, int max, Surface &icon, Surface &bg) {
-	SDL_Rect progress = {52, 32, resX-84, 8};
-	SDL_Rect box = {20, 20, resX-40, 32};
-
-	val = constrain(val, min, max);
-
-	bg.blit(s,0,0);
-	s->box(box, skinConfColors[COLOR_MESSAGE_BOX_BG]);
-	s->rectangle(box.x+2, box.y+2, box.w-4, box.h-4, skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
-
-	icon.blit(s, 28, 28);
-
-	s->box(progress, skinConfColors[COLOR_MESSAGE_BOX_BG]);
-	s->box(progress.x + 1, progress.y + 1, val * (progress.w - 3) / max + 1, progress.h - 2, skinConfColors[COLOR_MESSAGE_BOX_SELECTION]);
-	s->flip();
 }
 
 int GMenu2X::setVolume(int val, bool popup) {
@@ -2503,20 +2448,6 @@ int GMenu2X::setVolume(int val, bool popup) {
 	return val;
 }
 
-const string &GMenu2X::getExePath() {
-	if (path.empty()) {
-		char buf[255];
-		memset(buf, 0, 255);
-		int l = readlink("/proc/self/exe", buf, 255);
-
-		path = buf;
-		path = path.substr(0,l);
-		l = path.rfind("/");
-		path = path.substr(0,l+1);
-	}
-	return path;
-}
-
 int GMenu2X::getBacklight() {
 #if defined(TARGET_RS97)
 	char buf[32];
@@ -2529,6 +2460,72 @@ int GMenu2X::getBacklight() {
 	}
 #endif
 	return -1;
+}
+
+int GMenu2X::setBacklight(int val, bool popup) {
+	char buf[64];
+	int backlightStep = 10;
+
+	if (val < 0) val = 100;
+	else if (val > 100) val = backlightStep;
+
+#if defined(TARGET_RS97)
+	sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
+	system(buf);
+#endif
+
+	if (popup) {
+		bool close = false;
+
+		Surface bg(s);
+
+		Surface *iconBrightness[6] = {
+			sc.skinRes("imgs/brightness/0.png"),
+			sc.skinRes("imgs/brightness/1.png"),
+			sc.skinRes("imgs/brightness/2.png"),
+			sc.skinRes("imgs/brightness/3.png"),
+			sc.skinRes("imgs/brightness/4.png"),
+			sc.skinRes("imgs/brightness.png")
+		};
+
+		input.setWakeUpInterval(100);
+
+		Uint32 tickStart = SDL_GetTicks();
+		while (!close) {
+			int backlightIcon = val/20;
+
+			if (backlightIcon > 4 || iconBrightness[backlightIcon] == NULL) backlightIcon = 5;
+
+			drawSlider(val, 0, 100, *iconBrightness[backlightIcon], bg);
+
+			if (input.update()) tickStart = SDL_GetTicks();
+
+			if ((SDL_GetTicks() - tickStart) >= 3000 || input[SETTINGS] || input[MENU] || input[CONFIRM] || input[CANCEL]) close = true;
+
+			if ( input[LEFT] || input[DEC] )			val = setBacklight(max(1, val - backlightStep), false);
+			else if ( input[RIGHT] || input[INC] )		val = setBacklight(min(100, val + backlightStep), false);
+			else if ( input[BACKLIGHT] )				val = setBacklight(val + backlightStep, false);
+		}
+
+		confInt["backlight"] = val;
+		writeConfig();
+		tickSuspend = SDL_GetTicks(); // prevent immediate suspend
+	}
+	return val;
+}
+
+const string &GMenu2X::getExePath() {
+	if (path.empty()) {
+		char buf[255];
+		memset(buf, 0, 255);
+		int l = readlink("/proc/self/exe", buf, 255);
+
+		path = buf;
+		path = path.substr(0,l);
+		l = path.rfind("/");
+		path = path.substr(0,l+1);
+	}
+	return path;
 }
 
 string GMenu2X::getDiskFree(const char *path) {
