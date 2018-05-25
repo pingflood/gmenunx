@@ -2466,8 +2466,12 @@ int GMenu2X::setBacklight(int val, bool popup) {
 	else if (val > 100) val = backlightStep;
 
 #if defined(TARGET_RS97)
-	sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
-	system(buf);
+	FILE *f = fopen("/proc/jz/lcd_backlight", "w");
+	if (f) {
+		sprintf(buf, "%d", val);
+		fputs(buf, f);
+		fclose(f);
+	}
 #endif
 
 	if (popup) {
