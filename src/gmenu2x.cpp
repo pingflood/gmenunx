@@ -1730,7 +1730,7 @@ void GMenu2X::poweroffDialog() {
 #if defined(TARGET_RS97)
 void GMenu2X::checkUDC() {
 	if(getUDCStatus() == UDC_CONNECT) {
-		MessageBox mb(this, tr["Select USB mode:"], "skin:icons/usb.png");
+		MessageBox mb(this, tr["USB connected. Select mode:"], "skin:icons/usb.png");
 		mb.setButton(CONFIRM, tr["USB Drive"]);
 		mb.setButton(CANCEL,  tr["Charge"]);
 		if (mb.exec() == CONFIRM) {
@@ -1747,6 +1747,8 @@ void GMenu2X::checkUDC() {
 				system("echo '/dev/mmcblk1p1' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 				INFO("%s, connect USB disk for external SD", __func__);
 			}
+
+			sc[confStr["wallpaper"]]->blit(s,0,0);
 
 			MessageBox mb(this, tr["USB Drive Connected"], "skin:icons/usb.png");
 			mb.setAutoHide(500);
