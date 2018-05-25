@@ -1010,17 +1010,15 @@ void GMenu2X::ledOff() {
 }
 
 long GMenu2X::getBatteryStatus() {
+	char buf[32] = "-1";
 #if defined(TARGET_RS97)
-	char buf[32]={0};
-
 	FILE *f = fopen("/proc/jz/battery", "r");
 	if (f) {
 		fgets(buf, sizeof(buf), f);
-		fclose(f);
-		return atol(buf);
 	}
+	fclose(f);
 #endif
-	return -1;
+	return atol(buf);
 }
 
 bool exitMainThread = false;
@@ -1773,21 +1771,20 @@ void GMenu2X::checkUDC() {
 }
 
 void GMenu2X::setTVOut() {
-	char buf[2] = {0};
+	char buf[2] = "0";
 
 	// int tvout = open("/proc/jz/tvout", O_RDWR);
-	int norm = open("/proc/jz/tvselect", O_RDWR);
-	if(norm > 0) {
+	FILE *f = fopen("/proc/jz/tvselect", "w");
+	if(f) {
 		if (confStr["TVOut"] == "PAL") {
 			sprintf(buf, "1");
 		} else if(confStr["TVOut"] == "NTSC") {
 			sprintf(buf, "2");
-		} else {
-			sprintf(buf, "0");
 		}
-		write(norm, buf, 1);
+		fputs(buf, f);
+
 	}
-	close(norm);
+	fclose(f);
 
 	if (strcmp(buf, "0") == 0) return;
 
@@ -2445,17 +2442,15 @@ int GMenu2X::setVolume(int val, bool popup) {
 }
 
 int GMenu2X::getBacklight() {
+	char buf[32] = "-1";
 #if defined(TARGET_RS97)
-	char buf[32];
-
 	FILE *f = fopen("/proc/jz/lcd_backlight", "r");
 	if (f) {
 		fgets(buf, sizeof(buf), f);
-		fclose(f);
-		return atoi(buf);
 	}
+	fclose(f);
 #endif
-	return -1;
+	return atoi(buf);
 }
 
 int GMenu2X::setBacklight(int val, bool popup) {
@@ -2470,8 +2465,8 @@ int GMenu2X::setBacklight(int val, bool popup) {
 	if (f) {
 		sprintf(buf, "%d", val);
 		fputs(buf, f);
-		fclose(f);
 	}
+	fclose(f);
 #endif
 
 	if (popup) {
