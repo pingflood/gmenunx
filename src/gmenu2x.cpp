@@ -418,10 +418,13 @@ GMenu2X::GMenu2X() {
 			confStr["wallpaper"] = fl.getPath()+"/"+fl.getFiles()[0];
 	}
 
-	sc[confStr["wallpaper"]]->blit(s,0,0);
-	s->flip();
-
 	setSkin(confStr["skin"], false, false);
+
+	sc[confStr["wallpaper"]]->blit(s,0,0);
+
+	MessageBox mb(this,tr["Loading..."]);
+	mb.setAutoHide(1);
+	mb.exec();
 
 	initBG();
 
