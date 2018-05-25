@@ -811,6 +811,7 @@ void GMenu2X::readConfig() {
 }
 
 void GMenu2X::writeConfig() {
+	getDateTime();
 	ledOn();
 
 	if (confInt["saveSelection"] && menu != NULL) {
@@ -1032,8 +1033,6 @@ void* mainThread(void* param) {
 }
 
 void GMenu2X::setSuspend(bool suspend) {
-	getDateTime();
-
 	if (suspend) {
 		input.setWakeUpInterval(60e3);
 		setBacklight(0);
@@ -1971,7 +1970,6 @@ void GMenu2X::contextMenu() {
 	}
 
 	tickSuspend = SDL_GetTicks(); // prevent immediate suspend
-	// input.setWakeUpInterval(1000);
 }
 
 bool GMenu2X::saveScreenshot() {
@@ -2146,17 +2144,16 @@ void GMenu2X::addSection() {
 	InputDialog id(this, ts, tr["Insert a name for the new section"], "", tr["Add section"], "skin:icons/section.png");
 	if (id.exec()) {
 		//only if a section with the same name does not exist
-		if (find(menu->getSections().begin(), menu->getSections().end(), id.getInput())
-			== menu->getSections().end()) {
+		if (find(menu->getSections().begin(), menu->getSections().end(), id.getInput()) == menu->getSections().end()) {
 			//section directory doesn't exists
-			ledOn();
-		if (menu->addSection(id.getInput())) {
-			menu->setSectionIndex( menu->getSections().size()-1 ); //switch to the new section
-			sync();
+				ledOn();
+			if (menu->addSection(id.getInput())) {
+				menu->setSectionIndex( menu->getSections().size()-1 ); //switch to the new section
+				sync();
+			}
+			ledOff();
 		}
-		ledOff();
 	}
-}
 }
 
 void GMenu2X::renameSection() {
@@ -2202,7 +2199,6 @@ void GMenu2X::deleteSection() {
 		ledOff();
 	}
 }
-
 
 unsigned short GMenu2X::getBatteryLevel() {
 	//if (batteryHandle<=0) return 6; //AC Power
@@ -2354,7 +2350,7 @@ void GMenu2X::setClock(unsigned mhz) {
 	}
 }
 
-int GMenu2X::drawSlider(int val, int min, int max, Surface &icon, Surface &bg) {
+void GMenu2X::drawSlider(int val, int min, int max, Surface &icon, Surface &bg) {
 	SDL_Rect progress = {52, 32, resX-84, 8};
 	SDL_Rect box = {20, 20, resX-40, 32};
 

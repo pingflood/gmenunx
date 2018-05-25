@@ -108,6 +108,7 @@ class Menu;
 class GMenu2X {
 private:
 	int getBacklight();
+	int getVolume();
 
 	void setSuspend(bool suspend);
 	bool suspendActive = false;
@@ -280,20 +281,17 @@ public:
 	void batteryLogger();
 	void contextMenu();
 	void changeWallpaper();
-	bool saveScreenshot();
 
 	void setClock(unsigned mhz);
 	const string getDateTime();
 	void setDateTime();
 
-	int drawSlider(int val, int min, int max, Surface &icon, Surface &bg);
-
-	// void setVolume(int vol);
+	void drawSlider(int val, int min, int max, Surface &icon, Surface &bg);
+	bool saveScreenshot();
 	int setVolume(int val, bool popup = false);
-	int getVolume();
+	int setBacklight(int val, bool popup = false);
 
 	void setInputSpeed();
-	int setBacklight(int val, bool popup = false);
 
 	void writeConfig();
 	void writeSkinConfig();
