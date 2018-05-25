@@ -1730,9 +1730,9 @@ void GMenu2X::poweroffDialog() {
 #if defined(TARGET_RS97)
 void GMenu2X::checkUDC() {
 	if(getUDCStatus() == UDC_CONNECT) {
-		MessageBox mb(this, tr["USB connected"], "skin:icons/usb.png");
-		mb.setButton(CONFIRM, tr["USB disk"]);
-		mb.setButton(CANCEL,  tr["Charge only"]);
+		MessageBox mb(this, tr["Select USB mode:"], "skin:icons/usb.png");
+		mb.setButton(CONFIRM, tr["USB Drive"]);
+		mb.setButton(CANCEL,  tr["Charge"]);
 		if (mb.exec() == CONFIRM) {
 			// needUSBUmount = 1;
 			// system("/usr/bin/usb_conn_int_sd.sh");
@@ -1748,7 +1748,7 @@ void GMenu2X::checkUDC() {
 				INFO("%s, connect USB disk for external SD", __func__);
 			}
 
-			MessageBox mb(this, tr["USB Disk Connected"], "skin:icons/usb.png");
+			MessageBox mb(this, tr["USB Drive Connected"], "skin:icons/usb.png");
 			mb.setAutoHide(500);
 			mb.exec();
 
