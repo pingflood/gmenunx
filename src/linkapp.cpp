@@ -64,8 +64,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
 	ifstream infile (linkfile, ios_base::in);
 	while (getline(infile, line, '\n')) {
 		line = trim(line);
-		if (line=="") continue;
-		if (line[0]=='#') continue;
+		if (line == "") continue;
+		if (line[0] == '#') continue;
 
 		string::size_type position = line.find("=");
 		string name = trim(line.substr(0,position));
@@ -84,9 +84,9 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
 			workdir = value;
 		} else if (name == "manual") {
 			manual = value;
-		} else if (name == "wrapper" && value=="true") {
+		} else if (name == "wrapper" && value == "true") {
 			wrapper = true;
-		} else if (name == "dontleave" && value=="true") {
+		} else if (name == "dontleave" && value == "true") {
 			dontleave = true;
 		} else if (name == "clock") {
 			setClock( atoi(value.c_str()) );
@@ -100,13 +100,13 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
 			setVolume( atoi(value.c_str()) );
 		} else if (name == "selectordir") {
 			setSelectorDir( value );
-		} else if (name == "selectorbrowser" && value=="true") {
+		} else if (name == "selectorbrowser" && value == "true") {
 			selectorbrowser = true;
-		} else if (name == "selectorbrowser" && value=="false") {
+		} else if (name == "selectorbrowser" && value == "false") {
 			selectorbrowser = false;
-		} else if (name == "useramtimings" && value=="true") {
+		} else if (name == "useramtimings" && value == "true") {
 			useRamTimings = true;
-		} else if (name == "useginge" && value=="true") {
+		} else if (name == "useginge" && value == "true") {
 			useGinge = true;
 		} else if (name == "selectorfilter") {
 			setSelectorFilter( value );
@@ -169,10 +169,10 @@ const string &LinkApp::searchIcon() {
 	string exectitle = execicon;
 	pos = execicon.rfind("/");
 	if (pos != string::npos)
-		string exectitle = execicon.substr(pos+1,execicon.length());
+		exectitle = execicon.substr(pos + 1,execicon.length());
 
-	if (!gmenu2x->sc.getSkinFilePath("icons/"+exectitle).empty())
-		iconPath = gmenu2x->sc.getSkinFilePath("icons/"+exectitle);
+	if (!gmenu2x->sc.getSkinFilePath("icons/" + exectitle).empty())
+		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + exectitle);
 	else if (fileExists(execicon))
 		iconPath = execicon;
 	else
@@ -194,11 +194,11 @@ int LinkApp::clock() {
 
 void LinkApp::setClock(int mhz) {
 #ifdef TARGET_GP2X
-	iclock = constrain(mhz,50,325);
+	iclock = constrain(mhz, 50, 325);
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	iclock = constrain(mhz,50,900);
+	iclock = constrain(mhz, 50, 900);
 #elif defined(TARGET_RS97)
-	iclock = constrain(mhz,528,600);
+	iclock = constrain(mhz, 528, 600);
 #endif
 	// stringstream ss;
 	// sclock = "";
@@ -217,7 +217,7 @@ int LinkApp::volume() {
 // }
 
 void LinkApp::setVolume(int vol) {
-	ivolume = constrain(vol,-1,100);
+	ivolume = constrain(vol, -1, 100);
 	// stringstream ss;
 	// svolume = "";
 	// if (ivolume<0)
@@ -240,7 +240,7 @@ int LinkApp::gamma() {
 // }
 
 void LinkApp::setGamma(int gamma) {
-	igamma = constrain(gamma,0,100);
+	igamma = constrain(gamma, 0, 100);
 	// stringstream ss;
 	// sgamma = "";
 	// ss << igamma;
@@ -263,7 +263,7 @@ bool LinkApp::targetExists() {
 #endif
 
 	string target = exec;
-	if (!exec.empty() && exec[0]!='/' && !workdir.empty())
+	if (!exec.empty() && exec[0] != '/' && !workdir.empty())
 		target = workdir + "/" + exec;
 
 	return fileExists(target);
@@ -274,31 +274,31 @@ bool LinkApp::save() {
 
 	ofstream f(file.c_str());
 	if (f.is_open()) {
-		if (title!=""          ) f << "title="           << title           << endl;
-		if (description!=""    ) f << "description="     << description     << endl;
-		if (icon!=""           ) f << "icon="            << icon            << endl;
-		if (exec!=""           ) f << "exec="            << exec            << endl;
-		if (params!=""         ) f << "params="          << params          << endl;
-		if (workdir!=""        ) f << "workdir="         << workdir         << endl;
-		if (manual!=""         ) f << "manual="          << manual          << endl;
-		if (iclock!=0          ) f << "clock="           << iclock          << endl;
+		if (title != ""        ) f << "title="           << title           << endl;
+		if (description != ""  ) f << "description="     << description     << endl;
+		if (icon != ""         ) f << "icon="            << icon            << endl;
+		if (exec != ""         ) f << "exec="            << exec            << endl;
+		if (params != ""       ) f << "params="          << params          << endl;
+		if (workdir != ""      ) f << "workdir="         << workdir         << endl;
+		if (manual != ""       ) f << "manual="          << manual          << endl;
+		if (iclock != 0        ) f << "clock="           << iclock          << endl;
 		if (useRamTimings      ) f << "useramtimings=true"                  << endl;
 		if (useGinge           ) f << "useginge=true"                       << endl;
-		if (ivolume>0          ) f << "volume="          << ivolume         << endl;
+		if (ivolume > 0        ) f << "volume="          << ivolume         << endl;
 
 #if defined(TARGET_GP2X)
 		//G
-		if (igamma!=0          ) f << "gamma="           << igamma          << endl;
+		if (igamma != 0        ) f << "gamma="           << igamma          << endl;
 #endif
 
-		if (selectordir!=""    ) f << "selectordir="     << selectordir     << endl;
-		if (selectorbrowser    ) f << "selectorbrowser=true"                << endl;
-		if (selectorfilter!="" ) f << "selectorfilter="  << selectorfilter  << endl;
-		if (selectorscreens!="") f << "selectorscreens=" << selectorscreens << endl;
-		if (aliasfile!=""      ) f << "selectoraliases=" << aliasfile       << endl;
-		if (backdrop!=""       ) f << "backdrop="        << backdrop        << endl;
-		if (wrapper            ) f << "wrapper=true"                        << endl;
-		if (dontleave          ) f << "dontleave=true"                      << endl;
+		if (selectordir != ""    ) f << "selectordir="     << selectordir     << endl;
+		if (selectorbrowser      ) f << "selectorbrowser=true"                << endl;
+		if (selectorfilter != "" ) f << "selectorfilter="  << selectorfilter  << endl;
+		if (selectorscreens != "") f << "selectorscreens=" << selectorscreens << endl;
+		if (aliasfile != ""      ) f << "selectoraliases=" << aliasfile       << endl;
+		if (backdrop != ""       ) f << "backdrop="        << backdrop        << endl;
+		if (wrapper              ) f << "wrapper=true"                        << endl;
+		if (dontleave            ) f << "dontleave=true"                      << endl;
 		f.close();
 		return true;
 	} else
@@ -306,15 +306,8 @@ bool LinkApp::save() {
 	return false;
 }
 
-// void LinkApp::drawRun() {
-	// return;
-	// MessageBox mb(gmenu2x, gmenu2x->tr.translate("Launching $1", getTitle().c_str()), getIconPath());
-	// mb.setAutoHide(1000);
-	// mb.exec();
-// }
-
 void LinkApp::run() {
-	if (selectordir!="") {
+	if (selectordir != "") {
 		selector();
 	} else {
 		launch();
@@ -322,10 +315,10 @@ void LinkApp::run() {
 }
 
 void LinkApp::showManual() {
-	if (manual=="" || !fileExists(manual)) return;
+	if (manual == "" || !fileExists(manual)) return;
 
 	string ext = manual.substr(manual.size()-4,4);
-	if (ext==".png" || ext==".bmp" || ext==".jpg" || ext=="jpeg") {
+	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == "jpeg") {
 
 		ImageViewerDialog im(gmenu2x, title, description, icon, manual);
 		im.exec();
@@ -352,19 +345,14 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 	//Run selector interface
 	Selector sel(gmenu2x, this, selectorDir);
 	int selection = sel.exec(startSelection);
-	if (selection!=-1) {
+	if (selection != -1) {
 		gmenu2x->writeTmp(selection, sel.getDir());
 		launch(sel.getFile(), sel.getDir());
 	}
 }
 
 void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
-	// drawRun();
 	save();
-// #if !defined(TARGET_GP2X) && !defined(TARGET_WIZ) && !defined(TARGET_CAANOO)
-// 	//delay for testing
-// 	SDL_Delay(1000);
-// #endif
   
 	//Set correct working directory
 	string wd = getRealWorkdir();
@@ -372,7 +360,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		chdir(wd.c_str());
 
 	//selectedFile
-	if (selectedFile!="") {
+	if (selectedFile != "") {
 		string selectedFileExtension;
 		string selectedFileName;
 		string dir;
@@ -382,19 +370,19 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 			selectedFileName = selectedFile.substr(0,i);
 		}
 
-		if (selectedDir=="")
+		if (selectedDir == "")
 			dir = getSelectorDir();
 		else
 			dir = selectedDir;
-		if (params=="") {
+		if (params == "") {
 			params = cmdclean(dir+"/"+selectedFile);
 		} else {
 			string origParams = params;
-			params = strreplace(params,"[selFullPath]",cmdclean(dir+"/"+selectedFile));
-			params = strreplace(params,"[selPath]",cmdclean(dir));
-			params = strreplace(params,"[selFile]",cmdclean(selectedFileName));
-			params = strreplace(params,"[selExt]",cmdclean(selectedFileExtension));
-			if (params == origParams) params += " " + cmdclean(dir+"/"+selectedFile);
+			params = strreplace(params, "[selFullPath]", cmdclean(dir + "/" + selectedFile));
+			params = strreplace(params, "[selPath]", cmdclean(dir));
+			params = strreplace(params, "[selFile]", cmdclean(selectedFileName));
+			params = strreplace(params, "[selExt]", cmdclean(selectedFileExtension));
+			if (params == origParams) params += " " + cmdclean(dir + "/" + selectedFile);
 		}
 	}
 
@@ -438,16 +426,16 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		if (gmenu2x->fwType == "open2x" && gmenu2x->savedVolumeMode != gmenu2x->volumeMode)
 			gmenu2x->writeConfigOpen2x();
 #endif
-		if (selectedFile=="")
+		if (selectedFile == "")
 			gmenu2x->writeTmp();
 		gmenu2x->quit();
 
-		if (clock()!=gmenu2x->confInt["menuClock"]) {
+		if (clock() != gmenu2x->confInt["menuClock"]) {
 			gmenu2x->setClock(clock());
 	    }
 
 #if defined(TARGET_GP2X)
-		if (gamma()!=0 && gamma()!=gmenu2x->confInt["gamma"])
+		if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"])
 			gmenu2x->setGamma(gamma());
 #endif
 
@@ -457,7 +445,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		chdir(gmenu2x->getExePath().c_str());
 		execlp("./gmenu2x", "./gmenu2x", NULL);
 	}
-
 
 	chdir(gmenu2x->getExePath().c_str());
 }
@@ -487,7 +474,7 @@ const string &LinkApp::getWorkdir() {
 const string LinkApp::getRealWorkdir() {
 	string wd = workdir;
 	if (wd.empty()) {
-		if (exec[0]!='/') {
+		if (exec[0] != '/') {
 			wd = gmenu2x->getExePath();
 		} else {
 			string::size_type pos = exec.rfind("/");
@@ -519,7 +506,7 @@ const string &LinkApp::getSelectorDir() {
 void LinkApp::setSelectorDir(const string &selectordir) {
 	this->selectordir = selectordir;
 	// if (this->selectordir!="" && this->selectordir[this->selectordir.length()-1]!='/') this->selectordir += "/";
-	if (this->selectordir!="") this->selectordir = real_path(this->selectordir);
+	if (this->selectordir != "") this->selectordir = real_path(this->selectordir);
 	edited = true;
 }
 
