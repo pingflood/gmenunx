@@ -1732,7 +1732,7 @@ void GMenu2X::poweroffDialog() {
 #if defined(TARGET_RS97)
 void GMenu2X::checkUDC() {
 	if(getUDCStatus() == UDC_CONNECT) {
-		MessageBox mb(this, tr["Which action do you want?"], "skin:icons/usb.png");
+		MessageBox mb(this, tr["USB connected"], "skin:icons/usb.png");
 		mb.setButton(CONFIRM, tr["USB disk"]);
 		mb.setButton(CANCEL,  tr["Charge only"]);
 		if (mb.exec() == CONFIRM) {
@@ -1773,7 +1773,7 @@ void GMenu2X::checkUDC() {
 }
 
 void GMenu2X::setTVOut() {
-	char buf[2]={0};
+	char buf[2] = {0};
 
 	// int tvout = open("/proc/jz/tvout", O_RDWR);
 	int norm = open("/proc/jz/tvselect", O_RDWR);
@@ -1801,7 +1801,7 @@ void GMenu2X::setTVOut() {
 }
 
 void GMenu2X::umountSd() {
-	MessageBox mb(this, tr["Do you want to umount external sdcard?"], "skin:icons/eject.png");
+	MessageBox mb(this, tr["Umount external SD card?"], "skin:icons/eject.png");
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() == CONFIRM) {
@@ -1812,7 +1812,7 @@ void GMenu2X::umountSd() {
 }
 
 void GMenu2X::formatSd() {
-	MessageBox mb(this, tr["Do you want to format internal SD card?"], "skin:icons/format.png");
+	MessageBox mb(this, tr["Format internal SD card?"], "skin:icons/format.png");
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() == CONFIRM) {
@@ -2146,7 +2146,7 @@ void GMenu2X::addSection() {
 		//only if a section with the same name does not exist
 		if (find(menu->getSections().begin(), menu->getSections().end(), id.getInput()) == menu->getSections().end()) {
 			//section directory doesn't exists
-				ledOn();
+			ledOn();
 			if (menu->addSection(id.getInput())) {
 				menu->setSectionIndex( menu->getSections().size()-1 ); //switch to the new section
 				sync();
