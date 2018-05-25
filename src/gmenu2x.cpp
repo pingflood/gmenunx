@@ -2201,7 +2201,7 @@ unsigned short GMenu2X::getBatteryLevel() {
 	//if (batteryHandle<=0) return 6; //AC Power
 	long val = getBatteryStatus();
 
-if (confStr["batteryType"] == "RS-97") {
+if (confStr["batteryType"] == "BL-5B") {
 	if ((val > 10000) || (val < 0)) return 6;
 	else if (val > 4000) return 5; // 100%
 	else if (val > 3900) return 4; // 80%
