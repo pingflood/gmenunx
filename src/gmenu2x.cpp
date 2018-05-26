@@ -398,13 +398,13 @@ GMenu2X::GMenu2X() {
 	if (!fileExists(confStr["wallpaper"])) {
 		DEBUG("Searching wallpaper");
 
-		FileLister fl("skins/"+confStr["skin"]+"/wallpapers",false,true);
+		FileLister fl("skins/" + confStr["skin"] + "/wallpapers", false, true);
 		fl.setFilter(".png,.jpg,.jpeg,.bmp");
 		fl.browse();
-		if (fl.getFiles().size()<=0 && confStr["skin"] != "Default")
-			fl.setPath("skins/Default/wallpapers",true);
-		if (fl.getFiles().size()>0)
-			confStr["wallpaper"] = fl.getPath()+"/"+fl.getFiles()[0];
+		if (fl.getFiles().size() <= 0 && confStr["skin"] != "Default")
+			fl.setPath("skins/Default/wallpapers", true);
+		if (fl.getFiles().size() > 0)
+			confStr["wallpaper"] = fl.getPath() + "/" + fl.getFiles()[0];
 	}
 
 	setSkin(confStr["skin"], false, false);
@@ -423,7 +423,7 @@ GMenu2X::GMenu2X() {
 
 	initMenu();
 
-	input.init(path+"input.conf");
+	input.init(path + "input.conf");
 	setInputSpeed();
 	input.setWakeUpInterval(1000);
 
@@ -467,11 +467,11 @@ void GMenu2X::quit() {
 	s->free();
 	SDL_Quit();
 #if defined(TARGET_GP2X)
-	if (memdev!=0) {
+	if (memdev != 0) {
 		//Fix tv-out
-		if (memregs[0x2800>>1]&0x100) {
-			memregs[0x2906>>1]=512;
-			memregs[0x28E4>>1]=memregs[0x290C>>1];
+		if (memregs[0x2800 >> 1] & 0x100) {
+			memregs[0x2906 >> 1] = 512;
+			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
 		}
 		gp2x_deinit();
 	}
@@ -486,14 +486,14 @@ void GMenu2X::initBG(const string &imagePath) {
 	if (bg != NULL) delete bg;
 
 	bg = new Surface(s);
-	bg->box(0,0,resX,resY,0,0,0);
+	bg->box(0, 0, resX, resY, 0, 0, 0);
 
 	if (!imagePath.empty() && sc.add(imagePath) != NULL) {
 		// Surface wall(imagePath, false);
 		// wall.blit(bg, 0, 0);
-		sc[imagePath]->blit(bg,0,0);
+		sc[imagePath]->blit(bg, 0, 0);
 	} else if (sc.add(confStr["wallpaper"]) != NULL) {
-		sc[confStr["wallpaper"]]->blit(bg,0,0);
+		sc[confStr["wallpaper"]]->blit(bg, 0, 0);
 		// Surface wall(confStr["wallpaper"], false);
 		// wall.blit(bg, 0, 0);
 	}
