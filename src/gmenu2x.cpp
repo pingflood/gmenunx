@@ -128,7 +128,7 @@ enum mmc_status{
 
 mmc_status getMMCStatus(void) {
 #if defined(TARGET_RS97)
-	char buf[32]={0};
+	char buf[32] = {0};
 
 	FILE *f = fopen("/proc/jz/mmc", "r");
 	if (f) {
@@ -137,8 +137,7 @@ mmc_status getMMCStatus(void) {
 
 		if (memcmp(buf, "REMOVE", 6) == 0) {
 			return MMC_REMOVE;
-		}
-		else if (memcmp(buf, "INSERT", 6) == 0) {
+		} else if (memcmp(buf, "INSERT", 6) == 0) {
 			return MMC_INSERT;
 		}
 	}
@@ -151,7 +150,7 @@ enum udc_status{
 };
 
 udc_status getUDCStatus(void) {
-	char buf[32]={0};
+	char buf[32] = {0};
 
 #if defined(TARGET_RS97)
 	FILE *f = fopen("/proc/jz/udc", "r");
@@ -161,8 +160,7 @@ udc_status getUDCStatus(void) {
 
 		if (memcmp(buf, "REMOVE", 6) == 0) {
 			return UDC_REMOVE;
-		}
-		else if (memcmp(buf, "CONNECT", 6) == 0) {
+		} else if (memcmp(buf, "CONNECT", 6) == 0) {
 			return UDC_CONNECT;
 		}
 	}
@@ -242,17 +240,17 @@ void GMenu2X::gp2x_init() {
 void GMenu2X::gp2x_deinit() {
 #if defined(TARGET_GP2X)
 	if (memdev > 0) {
-		memregs[0x28DA>>1]=0x4AB;
-		memregs[0x290C>>1]=640;
+		memregs[0x28DA >> 1] = 0x4AB;
+		memregs[0x290C >> 1] = 640;
 	}
 	if (f200) ts.deinit();
+	if (batteryHandle != 0) close(batteryHandle);
 #endif
 
 	if (memdev > 0) {
 		memregs = NULL;
 		close(memdev);
 	}
-	if (batteryHandle!=0) close(batteryHandle);
 }
 
 #if defined(TARGET_GP2X)
@@ -263,22 +261,22 @@ void GMenu2X::gp2x_tvout_on(bool pal) {
 		int TVHandle = ioctl(SDL_videofd, FBMMSP2CTRL, msg);*/
 		if (cx25874!=0) gp2x_tvout_off();
 		//if tv-out is enabled without cx25874 open, stop
-		//if (memregs[0x2800>>1]&0x100) return;
+		//if (memregs[0x2800 >> 1]&0x100) return;
 		cx25874 = open("/dev/cx25874",O_RDWR);
 		ioctl(cx25874, _IOW('v', 0x02, unsigned char), pal ? 4 : 3);
-		memregs[0x2906>>1]=512;
-		memregs[0x28E4>>1]=memregs[0x290C>>1];
-		memregs[0x28E8>>1]=239;
+		memregs[0x2906 >> 1] = 512;
+		memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
+		memregs[0x28E8 >> 1] = 239;
 	}
 }
 #endif
 
 #if defined(TARGET_GP2X)
 void GMenu2X::gp2x_tvout_off() {
-	if (memdev!=0) {
+	if (memdev != 0) {
 		close(cx25874);
 		cx25874 = 0;
-		memregs[0x2906>>1]=1024;
+		memregs[0x2906 >> 1] = 1024;
 	}
 }
 #endif
@@ -320,9 +318,9 @@ GMenu2X::GMenu2X() {
 
 	volumeMode = VOLUME_MODE_NORMAL;
 
-
 	//load config data
 	readConfig();
+
 #if defined(TARGET_GP2X)
 	if (fwType=="open2x") {
 		readConfigOpen2x();
@@ -334,6 +332,8 @@ GMenu2X::GMenu2X() {
 		}
 	}
 	readCommonIni();
+	cx25874 = 0;
+	batteryHandle = 0;
 #endif
 
 	halfX = resX/2;
@@ -343,11 +343,8 @@ GMenu2X::GMenu2X() {
 	path = "";
 	getExePath();
 
-#if defined(TARGET_GP2X)
-	cx25874 = 0;
-#endif
-	batteryHandle = 0;
 	memdev = 0;
+
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
 	gp2x_init();
 #endif
@@ -355,12 +352,12 @@ GMenu2X::GMenu2X() {
 #if defined(TARGET_GP2X)
 	//Fix tv-out
 	if (memdev > 0) {
-		if (memregs[0x2800>>1]&0x100) {
-			memregs[0x2906>>1]=512;
-			//memregs[0x290C>>1]=640;
-			memregs[0x28E4>>1]=memregs[0x290C>>1];
+		if (memregs[0x2800 >> 1] & 0x100) {
+			memregs[0x2906 >> 1] = 512;
+			//memregs[0x290C >> 1]=640;
+			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
 		}
-		memregs[0x28E8>>1]=239;
+		memregs[0x28E8 >> 1] = 239;
 	}
 #endif
 
@@ -371,8 +368,7 @@ GMenu2X::GMenu2X() {
 	setDateTime();
 
 	//Screen
-	// if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK)<0 ) {
-	if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK)<0 ) {
+	if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK) < 0 ) {
 		ERROR("Could not initialize SDL: %s", SDL_GetError());
 		quit();
 	}
@@ -390,13 +386,12 @@ GMenu2X::GMenu2X() {
 	s->ScreenSurface = SDL_SetVideoMode(320, 480, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
 	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
 
-	// setTVOut();
 #else
 	s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
 #endif
 
 	bg = NULL;
-	btnContextMenu = NULL;
+	// btnContextMenu = NULL;
 	font = NULL;
 	menu = NULL;
 
@@ -446,7 +441,7 @@ GMenu2X::GMenu2X() {
 
 	tickSuspend = 0;
 
-	if (lastSelectorElement>-1 && menu->selLinkApp()!=NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
+	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
 		menu->selLinkApp()->selector(lastSelectorElement,lastSelectorDir);
 }
 
@@ -865,8 +860,7 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 //clear collection and change the skin path
 	if (clearSC) sc.clear();
 	sc.setSkin(skin);
-	if (btnContextMenu != NULL)
-		btnContextMenu->setIcon( btnContextMenu->getIcon() );
+	// if (btnContextMenu != NULL) btnContextMenu->setIcon( btnContextMenu->getIcon() );
 
 //reset colors to the default values
 	skinConfColors[COLOR_TOP_BAR_BG] = (RGBAColor){255,255,255,130};
@@ -1377,8 +1371,8 @@ void GMenu2X::main() {
 
 	exitMainThread = true;
 	pthread_join(thread_id, NULL);
-	delete btnContextMenu;
-	btnContextMenu = NULL;
+	// delete btnContextMenu;
+	// btnContextMenu = NULL;
 }
 
 bool GMenu2X::inputCommonActions() {

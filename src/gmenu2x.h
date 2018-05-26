@@ -161,7 +161,7 @@ private:
 	void initMenu();
 	void initLayout();
 
-	IconButton *btnContextMenu;
+	// IconButton *btnContextMenu;
 
 	unsigned int memdev;
 #ifdef TARGET_RS97
