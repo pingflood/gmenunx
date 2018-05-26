@@ -426,6 +426,8 @@ GMenu2X::GMenu2X() {
 	mb.setAutoHide(1);
 	mb.exec();
 
+	setBacklight(confInt["backlight"]);
+
 	initBG();
 
 	initLayout();
@@ -442,12 +444,10 @@ GMenu2X::GMenu2X() {
 	applyDefaultTimings();
 #endif
 
-	setVolume(confInt["globalVolume"]);
+	// setVolume(confInt["globalVolume"]);
 	setClock(confInt["menuClock"]);
 	//recover last session
 	readTmp();
-
-	setBacklight(confInt["backlight"]);
 
 	tickSuspend = 0;
 
@@ -456,6 +456,8 @@ GMenu2X::GMenu2X() {
 }
 
 GMenu2X::~GMenu2X() {
+	confStr["datetime"] = getDateTime();
+
 	writeConfig();
 
 #if defined(TARGET_GP2X)
@@ -467,7 +469,6 @@ GMenu2X::~GMenu2X() {
 	delete s;
 	delete font;
 	delete titlefont;
-	// delete bottombarfont;
 }
 
 void GMenu2X::quit() {
@@ -806,17 +807,13 @@ void GMenu2X::readConfig() {
 		confInt["link"] = 0;
 	}
 
-	// if (confStr["TVOut"] != "PAL") confStr["TVOut"] = "NTSC";
-	// if (confStr["TVOut"] != "PAL" || confStr["TVOut"] != "NTSC")
 	confStr["TVOut"] = "OFF";
 	resX = constrain( confInt["resolutionX"], 320, 1920 );
 	resY = constrain( confInt["resolutionY"], 240, 1200 );
 }
 
 void GMenu2X::writeConfig() {
-	getDateTime();
 	ledOn();
-
 	if (confInt["saveSelection"] && menu != NULL) {
 		confInt["section"] = menu->selSectionIndex();
 		confInt["link"] = menu->selLinkIndex();
@@ -826,7 +823,7 @@ void GMenu2X::writeConfig() {
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for(ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
-			if (curr->first == "sectionBarPosition" || curr->first == "sectionBar" || curr->first == "tvoutEncoding"  || curr->first == "datetime" ) continue;
+			if (curr->first == "sectionBarPosition" || curr->first == "sectionBar" || curr->first == "tvoutEncoding" ) continue;
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 		}
 
@@ -1387,7 +1384,7 @@ void GMenu2X::main() {
 		// tickSuspend = tickPowerOff = SDL_GetTicks();
 		// tickSuspend = SDL_GetTicks();
 	}
-	
+
 	exitMainThread = true;
 	pthread_join(thread_id, NULL);
 	delete btnContextMenu;
@@ -1531,11 +1528,12 @@ void GMenu2X::settings() {
 	sectionBar.push_back("Bottom");
 
 	string sb_sel = sectionBar[confInt["sectionBar"]];
-	string prevDateTime = confStr["datetime"];
+	string prevDateTime = confStr["datetime"] = getDateTime();
+	string prevTVOut = confStr["TVOut"];
 
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
-	// sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date time"], &confStr["datetime"]));
+	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date time"], &confStr["datetime"]));
 	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Seconds to turn display off if inactive"], &confInt["backlightTimeout"], 30, 10, 300));
 	sd.addSetting(new MenuSettingInt(this,tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
 	sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
@@ -1562,8 +1560,6 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this,tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
 	sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 60, 0, 100));
 	// sd.addSetting(new MenuSettingBool(this,tr["Show root"],tr["Show root folder in the file selection dialogs"],&showRootFolder));
-
-
 
 	if (sd.exec() && sd.edited() && sd.save) {
 //G
@@ -1592,21 +1588,20 @@ void GMenu2X::settings() {
 		writeConfig();
 
 #if defined(TARGET_RS97)
-		setTVOut();
+		if (prevTVOut != confStr["TVOut"]) setTVOut();
 #endif
+
 		// if ((prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) || (prevDateTime != confStr["datetime"])) restartDialog();
-		// if (prevSkinBackdrops != confInt["skinBackdrops"] || prevDateTime != confStr["datetime"]) restartDialog();
-		if (prevSkinBackdrops != confInt["skinBackdrops"]) restartDialog();
+		if (prevSkinBackdrops != confInt["skinBackdrops"] || prevDateTime != confStr["datetime"]) restartDialog();
+		// if (prevSkinBackdrops != confInt["skinBackdrops"]) restartDialog();
 	}
 }
-
 
 const string GMenu2X::getDateTime() {
 	char       buf[80];
 	time_t     now = time(0);
 	struct tm  tstruct = *localtime(&now);
 	strftime(buf, sizeof(buf), "%F %R", &tstruct);
-	confStr["datetime"] = buf;
 	return buf;
 }
 
