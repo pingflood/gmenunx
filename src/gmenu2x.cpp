@@ -86,12 +86,6 @@ static GMenu2X *app;
 
 using std::ifstream;
 using std::ofstream;
-// using std::endl;
-// using std::setw;
-// using std::setfill;
-// using std::right;
-// using std::hex;
-// using std::ios_base;
 using std::stringstream;
 using namespace fastdelegate;
 
@@ -1053,22 +1047,17 @@ void GMenu2X::main() {
 
 	mmc_status curMMCStatus = MMC_REMOVE;
 	mmc_status preMMCStatus = MMC_REMOVE;
-	// udc_status curUDCStatus = UDC_REMOVE;
-	// udc_status preUDCStatus = UDC_REMOVE;
-	// int needUSBUmount = 0;
 
 	bool quit = false;
 	int x = 0, y = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
 	uint i;
 	Uint32 tickBattery = -4800, tickNow, tickMMC = 0; //, tickUSB = 0;
-	// tickSuspend = 0;
-	 // tickPowerOff = 0;
+
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
 	string prevBackdrop = confStr["wallpaper"], currBackdrop = confStr["wallpaper"];
 
 	stringstream ss;
 
-	// setBacklight(confInt["backlight"]);
 	if (pthread_create(&thread_id, NULL, mainThread, this)) {
 		ERROR("%s, failed to create main thread\n", __func__);
 	}
@@ -1079,8 +1068,6 @@ void GMenu2X::main() {
 		checkUDC();
 	}
 #endif
-
-	// input.setWakeUpInterval(1000);
 
 	while (!quit) {
 		bool inputAction = input.update();
@@ -1591,9 +1578,7 @@ void GMenu2X::settings() {
 		if (prevTVOut != confStr["TVOut"]) setTVOut();
 #endif
 
-		// if ((prevSkinBackdrops != confInt["skinBackdrops"] && menu != NULL) || (prevDateTime != confStr["datetime"])) restartDialog();
 		if (prevSkinBackdrops != confInt["skinBackdrops"] || prevDateTime != confStr["datetime"]) restartDialog();
-		// if (prevSkinBackdrops != confInt["skinBackdrops"]) restartDialog();
 	}
 }
 
