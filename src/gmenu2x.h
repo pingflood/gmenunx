@@ -103,11 +103,6 @@ typedef unordered_map<string, string, hash<string> > ConfStrHash;
 typedef unordered_map<string, int, hash<string> > ConfIntHash;
 // typedef unordered_map<string, RGBAColor, hash<string> > ConfColorHash;
 
-typedef struct {
-	unsigned short batt;
-	unsigned short remocon;
-} MMSP2ADC;
-
 struct MenuOption {
 	string text;
 	MenuAction action;
@@ -153,7 +148,6 @@ private:
 	string lastSelectorDir;
 	int lastSelectorElement;
 	void readConfig();
-
 	void readTmp();
 	// void writeCommonIni();
 
@@ -171,6 +165,11 @@ private:
 #endif
 
 #ifdef TARGET_GP2X
+	typedef struct {
+		unsigned short batt;
+		unsigned short remocon;
+	} MMSP2ADC;
+
 	int batteryHandle;
 	string ip, defaultgw;
 	
@@ -180,8 +179,6 @@ private:
 		web;
 	volatile unsigned short *MEM_REG;
 	int cx25874; //tv-out
-
-
 	void gp2x_tvout_on(bool pal);
 	void gp2x_tvout_off();
 	void readCommonIni();
