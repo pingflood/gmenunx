@@ -49,9 +49,21 @@ const int BATTERY_READS = 10;
 // const int LOOP_DELAY = 50000;
 
 #if defined(TARGET_GP2X)
-	#define DEFAULT_CPU_CLK 200
+	#define CPU_CLK_MIN 50
+	#define CPU_CLK_MAX 325
+	#define CPU_CLK_DEFAULT 200
+#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+	#define CPU_CLK_MIN 50
+	#define CPU_CLK_MAX 900
+	#define CPU_CLK_DEFAULT 200
+#elif defined(TARGET_RS97)
+	#define CPU_CLK_MIN 210
+	#define CPU_CLK_MAX 642
+	#define CPU_CLK_DEFAULT 528
 #else
-	#define DEFAULT_CPU_CLK 528
+	#define CPU_CLK_MIN 200
+	#define CPU_CLK_MAX 1200
+	#define CPU_CLK_DEFAULT 528
 #endif
 
 extern const char *CARD_ROOT;
@@ -120,12 +132,9 @@ private:
 	*/
 	string getDiskFree(const char *path);
 	// unsigned short cpuX; //!< Offset for displaying cpu clock information
-	unsigned short volumeX; //!< Offset for displaying volume level
+	// unsigned short volumeX; //!< Offset for displaying volume level
 	// unsigned short manualX; //!< Offset for displaying the manual indicator in the taskbar
-
-
-	int batteryHandle;
-	void browsePath(const string &path, vector<string>* directories, vector<string>* files);
+	// void browsePath(const string &path, vector<string>* directories, vector<string>* files);
 	/*!
 	Starts the scanning of the nand and sd filesystems, searching for gpe and gpu files and creating the links in 2 dedicated sections.
 	*/
@@ -134,7 +143,7 @@ private:
 	Performs the actual scan in the given path and populates the files vector with the results. The creation of the links is not performed here.
 	@see scanner
 	*/
-	void scanPath(string path, vector<string> *files);
+	// void scanPath(string path, vector<string> *files);
 
 	/*!
 	Displays a selector and launches the specified executable file
@@ -162,6 +171,7 @@ private:
 #endif
 
 #ifdef TARGET_GP2X
+	int batteryHandle;
 	string ip, defaultgw;
 	
 	bool inet, //!< Represents the configuration of the basic network services. @see readCommonIni @see usbnet @see samba @see web

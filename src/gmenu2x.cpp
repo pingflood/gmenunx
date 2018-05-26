@@ -439,7 +439,8 @@ GMenu2X::GMenu2X() {
 #endif
 
 	// setVolume(confInt["globalVolume"]);
-	setClock(confInt["menuClock"]);
+	// setClock(confInt["menuClock"]);
+	setClock(CPU_CLK_DEFAULT);
 	//recover last session
 	readTmp();
 
@@ -780,10 +781,10 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["menuClock"], 140, 50, 300 );
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	evalIntConf( &confInt["maxClock"], 900, 200, 900 );
-	evalIntConf( &confInt["menuClock"], DEFAULT_CPU_CLK, 250, 300 );
+	evalIntConf( &confInt["menuClock"], CPU_CLK_DEFAULT, 250, 300 );
 #elif defined(TARGET_RS97)
-	evalIntConf( &confInt["maxClock"], 750, 750, 750 );
-	evalIntConf( &confInt["menuClock"], DEFAULT_CPU_CLK, 528, 600 );
+	evalIntConf( &confInt["maxClock"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX );
+	evalIntConf( &confInt["menuClock"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX );
 #endif
 	evalIntConf( &confInt["globalVolume"], 60, 1, 100 );
 	evalIntConf( &confInt["gamma"], 10, 1, 100 );
@@ -1026,11 +1027,13 @@ void* mainThread(void* param) {
 
 void GMenu2X::setSuspend(bool suspend) {
 	if (suspend) {
+		setClock(CPU_CLK_MIN);
 		input.setWakeUpInterval(60e3);
 		setBacklight(0);
 		INFO("Enter suspend mode. Current backlight: %d", getBacklight());
 	} else {
-		setClock(DEFAULT_CPU_CLK);
+		// setClock(confInt["menuClock"]);
+		setClock(CPU_CLK_DEFAULT);
 		setBacklight(max(10, confInt["backlight"]));
 		INFO("Exit from suspend mode. Restore backlight to: %d", confInt["backlight"]);
 	}
@@ -1341,7 +1344,7 @@ void GMenu2X::main() {
 		// 			menu->selLinkApp()->setClock( constrain(menu->selLinkApp()->clock()-10,50,confInt["maxClock"]) );
 		// 		if ( input[VOLUP] && !input.isActive(VOLDOWN) )
 		// 			menu->selLinkApp()->setClock( constrain(menu->selLinkApp()->clock()+10,50,confInt["maxClock"]) );
-		// 		if ( input.isActive(VOLUP) && input.isActive(VOLDOWN) ) menu->selLinkApp()->setClock(DEFAULT_CPU_CLK);
+		// 		if ( input.isActive(VOLUP) && input.isActive(VOLDOWN) ) menu->selLinkApp()->setClock(CPU_CLK_DEFAULT);
 		// 	}
 		}
 
@@ -1473,7 +1476,7 @@ void GMenu2X::explorer() {
 		string command = cmdclean(fd.getPath()+"/"+fd.getFile());
 		chdir(fd.getPath().c_str());
 		quit();
-		setClock(DEFAULT_CPU_CLK);
+		setClock(CPU_CLK_DEFAULT);
 		execlp("/bin/sh","/bin/sh","-c",command.c_str(),NULL);
 
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
@@ -1533,16 +1536,16 @@ void GMenu2X::settings() {
 
 #if defined(TARGET_GP2X)
 	sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], 140, 50, 325));
-	sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], 300, 50, 325));
+	// sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX));
 //G
 //sd.addSetting(new MenuSettingInt(this, tr["Gamma"], tr["Set gp2x gamma value (default: 10)"], &confInt["gamma"], 1, 100));
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], 200, 50, 900, 10));
-	sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], 900, 50, 900, 10));
-#endif
-
-#if defined(TARGET_RS97)
+	// sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX, 10));
+#elif defined(TARGET_RS97)
+	// sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["maxClock"], 528, 528, 642, 6));
 	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &confStr["TVOut"], &encodings));
+	// sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["menuClock"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX, 6));
 #endif
 	sd.addSetting(new MenuSettingInt(this,tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
 	sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 60, 0, 100));
@@ -2017,7 +2020,7 @@ void GMenu2X::editLink() {
 
 	string strClock;
 	stringstream ss;
-	ss << DEFAULT_CPU_CLK;
+	ss << CPU_CLK_DEFAULT;
 	ss >> strClock;
 
 	SettingsDialog sd(this, ts, diagTitle, diagIcon);
@@ -2027,8 +2030,8 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingImage(       this, tr["Icon"],                 tr["Select an icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg", dir_name(linkIcon) ));
 	sd.addSetting(new MenuSettingFile(        this, tr["Manual"],               tr["Select a manual or README file"], &linkManual, ".man.png,.txt", dir_name(linkManual)));
 
-	//sd.addSetting(new MenuSettingInt(         this, tr.translate("Clock (default: $1)","528", NULL), tr["Cpu clock frequency to set when launching this link"], &linkClock, 50, confInt["maxClock"] ));
-	sd.addSetting(new MenuSettingInt(         this, tr["CPU Clock"], tr["CPU clock frequency to set when launching this link"], &linkClock, DEFAULT_CPU_CLK, 528, 600));
+	// sd.addSetting(new MenuSettingInt(         this, tr.translate("Clock (default: $1)","528", NULL), tr["Cpu clock frequency to set when launching this link"], &linkClock, 50, confInt["maxClock"] ));
+	sd.addSetting(new MenuSettingInt(         this, tr["CPU Clock"], tr["CPU clock frequency when launching this link"], &linkClock, CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX, 6));
 	//sd.addSetting(new MenuSettingBool(        this, tr["Tweak RAM Timings"],    tr["This usually speeds up the application at the cost of stability"], &linkUseRamTimings ));
 	//sd.addSetting(new MenuSettingInt(         this, tr["Volume"],               tr["Volume to set for this link"], &linkVolume, 0, 1 ));
 	sd.addSetting(new MenuSettingString(      this, tr["Parameters"],           tr["Parameters to pass to the application"], &linkParams, diagTitle, diagIcon ));
@@ -2183,7 +2186,6 @@ void GMenu2X::deleteSection() {
 }
 
 unsigned short GMenu2X::getBatteryLevel() {
-	//if (batteryHandle<=0) return 6; //AC Power
 	long val = getBatteryStatus();
 
 if (confStr["batteryType"] == "BL-5B") {
@@ -2197,6 +2199,7 @@ if (confStr["batteryType"] == "BL-5B") {
 }
 
 #if defined(TARGET_GP2X)
+	//if (batteryHandle<=0) return 6; //AC Power
 	if (f200) {
 		MMSP2ADC val;
 		read(batteryHandle, &val, sizeof(MMSP2ADC));
@@ -2290,7 +2293,7 @@ void GMenu2X::setInputSpeed() {
 }
 
 void GMenu2X::setClock(unsigned mhz) {
-	mhz = constrain(mhz, 250, confInt["maxClock"]);
+	mhz = constrain(mhz, CPU_CLK_MIN, CPU_CLK_MAX);
 	if (memdev > 0) {
 		DEBUG("Setting clock to %d", mhz);
 

@@ -27,11 +27,11 @@ void LinkScannerDialog::exec() {
 	uint lineY = 42;
 #endif
 
-	if (gmenu2x->confInt["menuClock"] < DEFAULT_CPU_CLK) {
-		gmenu2x->setClock(DEFAULT_CPU_CLK);
+	if (gmenu2x->confInt["menuClock"] < CPU_CLK_DEFAULT) {
+		gmenu2x->setClock(CPU_CLK_DEFAULT);
 		string strClock;
 		stringstream ss;
-		ss << DEFAULT_CPU_CLK;
+		ss << CPU_CLK_DEFAULT;
 		ss >> strClock;
 		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("Raising cpu clock to $1Mhz",  strClock.c_str(),  NULL), 5, lineY);
 		gmenu2x->s->flip();
@@ -85,7 +85,7 @@ void LinkScannerDialog::exec() {
 	gmenu2x->s->flip();
 	lineY += 26;
 
-	if (gmenu2x->confInt["menuClock"] < DEFAULT_CPU_CLK) {
+	if (gmenu2x->confInt["menuClock"] < CPU_CLK_DEFAULT) {
 		gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
 		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Decreasing CPU clock"], 5, lineY);
 		gmenu2x->s->flip();
