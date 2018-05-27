@@ -889,15 +889,23 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 				string name = trim(line.substr(0,pos));
 				string value = trim(line.substr(pos+1,line.length()));
 
-				if (value.length()>0) {
-					if (value.length()>1 && value.at(0)=='"' && value.at(value.length()-1)=='"')
-						skinConfStr[name] = value.substr(1,value.length()-2);
-					else if (value.at(0) == '#') {
+				if (value.length() > 0) {
+					if (value.length() > 1 && value.at(0) == '"' && value.at(value.length() - 1) == '"') {
+							skinConfStr[name] = value.substr(1, value.length() - 2);
+					} else if (value.at(0) == '#') {
 						// skinConfColor[name] = strtorgba( value.substr(1,value.length()) );
 						skinConfColors[stringToColor(name)] = strtorgba(value);
-					}
-					else
+					} else if (name.length() > 6 && name.substr( name.length() - 6, 5 ) == "Color") {
+						value += name.substr(name.length() - 1);
+						name = name.substr(0, name.length() - 6);
+						if (name == "selection" || name == "topBar" || name == "bottomBar" || name == "messageBox") name += "Bg";
+						if (value.substr(value.length() - 1) == "R") skinConfColors[stringToColor(name)].r = atoi(value.c_str());
+						if (value.substr(value.length() - 1) == "G") skinConfColors[stringToColor(name)].g = atoi(value.c_str());
+						if (value.substr(value.length() - 1) == "B") skinConfColors[stringToColor(name)].b = atoi(value.c_str());
+						if (value.substr(value.length() - 1) == "A") skinConfColors[stringToColor(name)].a = atoi(value.c_str());
+					} else {
 						skinConfInt[name] = atoi(value.c_str());
+					}
 				}
 			}
 			skinconf.close();
