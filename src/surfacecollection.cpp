@@ -42,8 +42,8 @@ string SurfaceCollection::getSkinFilePath(const string &file) {
 		return "skins/"+skin+"/"+file;
 	else if (fileExists("skins/Default/"+file))
 		return "skins/Default/"+file;
-	else
-		return "";
+
+	return "";
 }
 
 void SurfaceCollection::debug() {
@@ -121,8 +121,8 @@ Surface *SurfaceCollection::operator[](const string &key) {
 	SurfaceHash::iterator i = surfaces.find(key);
 	if (i == surfaces.end())
 		return add(key, defaultAlpha);
-	else
-		return i->second;
+
+	return i->second;
 }
 
 Surface *SurfaceCollection::skinRes(const string &key) {
@@ -131,6 +131,6 @@ Surface *SurfaceCollection::skinRes(const string &key) {
 	SurfaceHash::iterator i = surfaces.find(key);
 	if (i == surfaces.end())
 		return addSkinRes(key, defaultAlpha);
-	else
-		return i->second;
+
+	return i->second;
 }
