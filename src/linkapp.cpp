@@ -164,15 +164,15 @@ const string &LinkApp::searchBackdrop() {
 const string &LinkApp::searchIcon() {
 	string execicon = exec;
 	string::size_type pos = exec.rfind(".");
-	if (pos != string::npos) execicon = exec.substr(0,pos);
+	if (pos != string::npos) execicon = exec.substr(0, pos);
 	execicon += ".png";
-	string exectitle = execicon;
-	pos = execicon.rfind("/");
-	if (pos != string::npos)
-		exectitle = execicon.substr(pos + 1,execicon.length());
+	string exectitle = base_name(execicon);
+	string dirtitle = base_name(dir_name(exec)) + ".png";
 
 	if (!gmenu2x->sc.getSkinFilePath("icons/" + exectitle).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + exectitle);
+	else if (!gmenu2x->sc.getSkinFilePath("icons/" + dirtitle).empty())
+		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + dirtitle);
 	else if (fileExists(execicon))
 		iconPath = execicon;
 	else

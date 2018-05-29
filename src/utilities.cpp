@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <strings.h>
 #include <math.h>
+#include <errno.h>
 
 #include <SDL.h>
 
@@ -217,15 +218,19 @@ string real_path(const string &path) {
 	char real_path[PATH_MAX];
 	string outpath;
 	realpath(path.c_str(), real_path);
+	if (errno == ENOENT) return path;
 	outpath = (string)real_path;
-	// if (outpath[outpath.length()-1]!='/')
-	// 	outpath += "/";
 	return outpath;
 }
 
 string dir_name(const string &path) {
 	string::size_type p = path.rfind("/");
-	if (p == path.size() - 1)
-		p = path.rfind("/", p - 1);
-	return real_path("/"+path.substr(0, p));
+	if (p == path.size() - 1) p = path.rfind("/", p - 1);
+	return real_path("/" + path.substr(0, p));
+}
+
+string base_name(const string &path) {
+	string::size_type p = path.rfind("/");
+	if (p == path.size() - 1) p = path.rfind("/", p - 1);
+	return path.substr(p + 1, path.length());
 }

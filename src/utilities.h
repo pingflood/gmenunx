@@ -66,5 +66,6 @@ int intTransition(int from, int to, long int tickStart, long duration=500, long 
 string exec(const char* cmd);
 string real_path(const string &path);
 string dir_name(const string &path);
+string base_name(const string &path);
 
 #endif
