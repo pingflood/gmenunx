@@ -136,8 +136,13 @@ const string &LinkApp::searchManual() {
 	if (pos != string::npos) filename = exec.substr(0,pos);
 	filename += ".man.txt";
 
+	string dirtitle = base_name(dir_name(exec)) + ".man.txt";
+
 	if (fileExists(filename))
 		manual = filename;
+	else if (fileExists(dirtitle))
+		manual = dirtitle;
+	
 	return manual;
 }
 
