@@ -52,10 +52,12 @@ bool SettingsDialog::exec() {
 	uint i, sel = 0, iY, firstElement = 0, action;
 	voices[sel]->adjustInput();
 
-	uint rowHeight = gmenu2x->font->getHeight();
-	uint numRows = gmenu2x->listRect.h/rowHeight;
-
 	while (!close) {
+		gmenu2x->initLayout();
+		gmenu2x->font->setColor(gmenu2x->skinConfColors[COLOR_FONT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_OUTLINE]);
+		uint rowHeight = gmenu2x->font->getHeight();
+		uint numRows = gmenu2x->listRect.h/rowHeight;
+
 		bool inputAction = gmenu2x->input.update();
 		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
 

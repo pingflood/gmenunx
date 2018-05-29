@@ -153,7 +153,6 @@ private:
 
 	void initFont();
 	void initMenu();
-	void initLayout();
 
 	// IconButton *btnContextMenu;
 
@@ -256,6 +255,7 @@ public:
 
 	void skinMenu();
 	uint onChangeSkin();
+	void initLayout();
 
 	bool inputCommonActions();
 	bool powerManager(bool &inputAction);
