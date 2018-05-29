@@ -525,10 +525,7 @@ void GMenu2X::initLayout() {
 		}
 	}
 
-		ERROR("lisrrect bottomBarHeight: %d", skinConfInt["bottomBarHeight"]);
-
 	listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
-
 
 	// Surface *bgmain = new Surface(bg);
 	// sc.add(bgmain,"bgmain");
