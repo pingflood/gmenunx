@@ -2,33 +2,12 @@
 #include "utilities.h"
 #include "debug.h"
 
-FontHelper::FontHelper(const string &font, int size, RGBAColor textColor, RGBAColor outlineColor)
-	: textColor(textColor),
+FontHelper::FontHelper(const string &fontName, int fontSize, RGBAColor textColor, RGBAColor outlineColor)
+	: fontName(fontName),
+	  fontSize(fontSize),
+	  textColor(textColor),
 	  outlineColor(outlineColor) {
-	if (!TTF_WasInit()) {
-		DEBUG("Initializing font");
-		if (TTF_Init() == -1) {
-			ERROR("TTF_Init: %s", TTF_GetError());
-			exit(2);
-		}
-	}
-	this->font = TTF_OpenFont(font.c_str(), size);
-	if (!this->font) {
-		ERROR("TTF_OpenFont %s: %s", font.c_str(), TTF_GetError());
-		exit(2);
-	}
-	fontOutline = TTF_OpenFont(font.c_str(), size);
-	if (!fontOutline) {
-		ERROR("TTF_OpenFont %s: %s", font.c_str(), TTF_GetError());
-		exit(2);
-	}
-	TTF_SetFontHinting(this->font, TTF_HINTING_NORMAL);
-	TTF_SetFontHinting(fontOutline, TTF_HINTING_NORMAL);
-	TTF_SetFontOutline(fontOutline, 1);
-	height = 0;
-	// Get maximum line height with a sample text
-	TTF_SizeUTF8(fontOutline, "AZ0987654321", NULL, &height);
-	halfHeight = height/2;
+	loadFont(fontName, fontSize, textColor, outlineColor);
 }
 
 FontHelper::~FontHelper() {
@@ -36,8 +15,47 @@ FontHelper::~FontHelper() {
 	TTF_CloseFont(fontOutline);
 }
 
+void FontHelper::loadFont(const string &fontName, int fontSize, RGBAColor textColor, RGBAColor outlineColor) {
+	// if (this->font != NULL) TTF_CloseFont(this->font);
+	// if (this->fontOutline != NULL) TTF_CloseFont(this->fontOutline);
+
+	if (!TTF_WasInit()) {
+		DEBUG("Initializing font");
+		if (TTF_Init() == -1) {
+			ERROR("TTF_Init: %s", TTF_GetError());
+			exit(2);
+		}
+	}
+	this->font = TTF_OpenFont(fontName.c_str(), fontSize);
+	if (!this->font) {
+		ERROR("TTF_OpenFont %s: %s", fontName.c_str(), TTF_GetError());
+		exit(2);
+	}
+	this->fontOutline = TTF_OpenFont(fontName.c_str(), fontSize);
+	if (!this->fontOutline) {
+		ERROR("TTF_OpenFont %s: %s", fontName.c_str(), TTF_GetError());
+		exit(2);
+	}
+	TTF_SetFontHinting(this->font, TTF_HINTING_NORMAL);
+	TTF_SetFontHinting(this->fontOutline, TTF_HINTING_NORMAL);
+	TTF_SetFontOutline(this->fontOutline, 1);
+	height = 0;
+	// Get maximum line height with a sample text
+	TTF_SizeUTF8(this->fontOutline, "AZ0987654321", NULL, &height);
+	halfHeight = height/2;
+}
+
+
 bool FontHelper::utf8Code(unsigned char c) {
 	return (c>=194 && c<=198) || c==208 || c==209;
+}
+
+FontHelper *FontHelper::setSize(const int size) {
+	TTF_CloseFont(font);
+	TTF_CloseFont(fontOutline);
+	fontSize = size;
+	loadFont(this->fontName, this->fontSize, this->textColor, this->outlineColor);
+	return this;
 }
 
 FontHelper *FontHelper::setColor(RGBAColor color) {

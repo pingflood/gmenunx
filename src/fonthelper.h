@@ -38,12 +38,13 @@ class Surface;
 class FontHelper {
 private:
 
-	int height, halfHeight;
+	int height, halfHeight, fontSize;
 	TTF_Font *font, *fontOutline;
 	RGBAColor textColor, outlineColor;
+	string fontName;
 
 public:
-	FontHelper(const string &font, int size, RGBAColor textColor = (RGBAColor){255,255,255}, RGBAColor outlineColor = (RGBAColor){5,5,5});
+	FontHelper(const string &fontName, int size, RGBAColor textColor = (RGBAColor){255,255,255}, RGBAColor outlineColor = (RGBAColor){5,5,5});
 	~FontHelper();
 
 	bool utf8Code(unsigned char c);
@@ -68,6 +69,11 @@ public:
 	uint getHeight() { return height; };
 	uint getHalfHeight() { return halfHeight; };
 	
+
+	void loadFont(const string &fontName, int fontSize, RGBAColor textColor, RGBAColor outlineColor);
+
+
+	FontHelper *setSize(const int size);
 	FontHelper *setColor(RGBAColor color);
 	FontHelper *setOutlineColor(RGBAColor color);
 };
