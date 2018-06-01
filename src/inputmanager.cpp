@@ -284,11 +284,6 @@ void InputManager::setWakeUpInterval(int ms) {
 	if (wakeUpTimer != NULL)
 		SDL_RemoveTimer(wakeUpTimer);
 
-DEBUG("NEW WAKE UP INTERVAL: %d", ms);
-
-// #if defined(TARGET_RS97)
-//   ms = 0;
-// #endif
 	if (ms > 0)
 		wakeUpTimer = SDL_AddTimer(ms, wakeUp, NULL);
 }

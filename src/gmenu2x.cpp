@@ -1889,7 +1889,7 @@ void GMenu2X::contextMenu() {
 	Uint32 tickStart = SDL_GetTicks();
 
 	Surface bg(s);
-	input.setWakeUpInterval(40); //25FPS
+	input.setWakeUpInterval(20); //25FPS
 
 	while (!close) {
 		selbox.y = box.y + 4 + h * sel;
@@ -2264,24 +2264,23 @@ if (confStr["batteryType"] == "BL-5B") {
 	// return 5 - 5*(100-val)/(100);
 	return -5*(max-val)/(max-min)+5;
 #endif
-
 }
 
 void GMenu2X::setInputSpeed() {
-	input.setInterval(200);
-	input.setInterval(30,  VOLDOWN);
-	input.setInterval(30,  VOLUP);
+	input.setInterval(150);
+	// input.setInterval(30,  VOLDOWN);
+	// input.setInterval(30,  VOLUP);
 	input.setInterval(1000, SETTINGS);
 	input.setInterval(1000, MENU);
-	input.setInterval(300, CANCEL);
-	input.setInterval(300, MANUAL);
-	input.setInterval(100, INC);
-	input.setInterval(100, DEC);
-	input.setInterval(1000,CONFIRM);
-	input.setInterval(500, SECTION_PREV);
-	input.setInterval(500, SECTION_NEXT);
-	input.setInterval(500, PAGEUP);
-	input.setInterval(500, PAGEDOWN);
+	// input.setInterval(300, CANCEL);
+	// input.setInterval(300, MANUAL);
+	// input.setInterval(100, INC);
+	// input.setInterval(100, DEC);
+	input.setInterval(1000, CONFIRM);
+	// input.setInterval(500, SECTION_PREV);
+	// input.setInterval(500, SECTION_NEXT);
+	// input.setInterval(500, PAGEUP);
+	// input.setInterval(500, PAGEDOWN);
 	input.setInterval(500, BACKLIGHT);
 	input.setInterval(500, POWER);
 }
@@ -2448,7 +2447,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 			sc.skinRes("imgs/brightness.png")
 		};
 
-		input.setWakeUpInterval(100);
+		// input.setWakeUpInterval(100);
 
 		Uint32 tickStart = SDL_GetTicks();
 		while (!close) {
