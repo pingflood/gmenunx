@@ -1448,7 +1448,7 @@ bool GMenu2X::powerManager(bool &inputAction) {
 		}
 	}
 
-	if (tickPower >= 200 || tickStart - tickSuspend >= confInt["backlightTimeout"] * 1000) {
+	if (tickPower || tickStart - tickSuspend >= confInt["backlightTimeout"] * 1000) {
 		MessageBox mb(this, tr["Suspend"]);
 		mb.setAutoHide(500);
 		mb.exec();
