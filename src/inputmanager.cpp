@@ -175,11 +175,15 @@ bool InputManager::update(bool wait) {
 
 	long now = SDL_GetTicks();
 	for (uint x = 0; x < actions.size(); x++) {
-		bool prevstate = actions[x].active;
-		bool state = isActive(x);
+		// bool prevstate = actions[x].active;
+		// bool state = isActive(x);
+
+		actions[x].active = isActive(x);
+
 // DEBUG("state: %x: %d", x, actions[x].active);
 		// if (state != prevstate) {
-			if (state) {
+			// if (state) {
+			if (actions[x].active) {
 
 				// setWakeUpInterval(actions[x].interval);
 
@@ -190,7 +194,7 @@ bool InputManager::update(bool wait) {
 	// if (wakeUpTimer != NULL) SDL_RemoveTimer(wakeUpTimer);
 
 				// if (now - actions[x].last >= actions[x].interval) {
-					actions[x].active = true;
+					// actions[x].active = true;
 					anyactions = true;
 					actions[x].last = now;
 
@@ -203,7 +207,7 @@ bool InputManager::update(bool wait) {
 					// }
 				// }
 			} else {
-				actions[x].active = false;
+				// actions[x].active = false;
 				if (actions[x].timer != NULL) {
 					SDL_RemoveTimer(actions[x].timer);
 					actions[x].timer = NULL;
@@ -313,14 +317,14 @@ bool InputManager::isActive(int action) {
 			case InputManager::MAPPING_TYPE_AXIS:
 				if (map.num < joysticks.size()) {
 					int axyspos = SDL_JoystickGetAxis(joysticks[map.num], map.value);
-					if (map.treshold<0 && axyspos < map.treshold) return true;
-					if (map.treshold>0 && axyspos > map.treshold) return true;
+					if (map.treshold < 0 && axyspos < map.treshold) return true;
+					if (map.treshold > 0 && axyspos > map.treshold) return true;
 				}
 			break;
 			case InputManager::MAPPING_TYPE_KEYPRESS:
 				Uint8 *keystate = SDL_GetKeyState(NULL);
-				if (keystate[map.value])
-					return true;
+				// if (keystate[map.value]) return true;
+				return keystate[map.value];
 			break;
 		}
 	}
