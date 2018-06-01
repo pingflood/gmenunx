@@ -277,8 +277,8 @@ int InputManager::count() {
 }
 
 void InputManager::setInterval(int ms, int action) {
-	if (action<0)
-		for (uint x=0; x<actions.size(); x++)
+	if (action < 0)
+		for (uint x = 0; x < actions.size(); x++)
 			actions[x].interval = ms;
 	else if ((uint)action < actions.size())
 		actions[action].interval = ms;
