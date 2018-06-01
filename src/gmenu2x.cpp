@@ -2286,7 +2286,7 @@ void GMenu2X::setInputSpeed() {
 }
 
 void GMenu2X::setClock(unsigned mhz) {
-	mhz = constrain(mhz, CPU_CLK_MIN, CPU_CLK_MAX);
+	// mhz = constrain(mhz, CPU_CLK_MIN, CPU_CLK_MAX);
 	if (memdev > 0) {
 		DEBUG("Setting clock to %d", mhz);
 
