@@ -178,21 +178,30 @@ bool InputManager::update(bool wait) {
 		bool prevstate = actions[x].active;
 		bool state = isActive(x);
 // DEBUG("state: %x: %d", x, actions[x].active);
-		if (state != prevstate) {
+		// if (state != prevstate) {
 			if (state) {
-				if (now - actions[x].last >= actions[x].interval) {
+
+				// setWakeUpInterval(actions[x].interval);
+
+				if (actions[x].timer != NULL) SDL_RemoveTimer(actions[x].timer);
+
+				actions[x].timer = SDL_AddTimer(actions[x].interval, wakeUp, NULL);
+
+	// if (wakeUpTimer != NULL) SDL_RemoveTimer(wakeUpTimer);
+
+				// if (now - actions[x].last >= actions[x].interval) {
 					actions[x].active = true;
 					anyactions = true;
 					actions[x].last = now;
 
-					if (actions[x].timer == NULL) {
-						// Set a timer to repeat the event in actions[x].interval milliseconds
-						RepeatEventData *data = new RepeatEventData();
-						data->im = this;
-						data->action = x;
-						actions[x].timer = SDL_AddTimer(actions[x].interval, checkRepeat, data);
-					}
-				}
+					// if (actions[x].timer == NULL) {
+					// 	// Set a timer to repeat the event in actions[x].interval milliseconds
+					// 	RepeatEventData *data = new RepeatEventData();
+					// 	data->im = this;
+					// 	data->action = x;
+					// 	actions[x].timer = SDL_AddTimer(actions[x].interval, checkRepeat, data);
+					// }
+				// }
 			} else {
 				actions[x].active = false;
 				if (actions[x].timer != NULL) {
@@ -201,7 +210,7 @@ bool InputManager::update(bool wait) {
 				}
 				actions[x].last = 0;
 			}
-		}
+		// }
 	}
 
 	return anyactions;
@@ -274,6 +283,8 @@ void InputManager::setInterval(int ms, int action) {
 void InputManager::setWakeUpInterval(int ms) {
 	if (wakeUpTimer != NULL)
 		SDL_RemoveTimer(wakeUpTimer);
+
+DEBUG("NEW WAKE UP INTERVAL: %d", ms);
 
 // #if defined(TARGET_RS97)
 //   ms = 0;
