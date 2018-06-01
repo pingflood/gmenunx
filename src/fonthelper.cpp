@@ -51,6 +51,7 @@ bool FontHelper::utf8Code(unsigned char c) {
 }
 
 FontHelper *FontHelper::setSize(const int size) {
+	if (this->fontSize == size) return this;
 	TTF_CloseFont(font);
 	TTF_CloseFont(fontOutline);
 	fontSize = size;
