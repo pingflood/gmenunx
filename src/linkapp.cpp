@@ -139,12 +139,12 @@ const string &LinkApp::searchManual() {
 	string dirtitle = base_name(dir_name(exec)) + ".man.txt";
 	string linktitle = base_name(file);
 
-	if (fileExists(filename))
+	if (fileExists(linktitle))
+		manual = linktitle;
+	else if (fileExists(filename))
 		manual = filename;
 	else if (fileExists(dirtitle))
 		manual = dirtitle;
-	else if (fileExists(linktitle))
-		manual = linktitle;
 
 	return manual;
 }
@@ -159,14 +159,14 @@ const string &LinkApp::searchBackdrop() {
 	string linktitle = base_name(file);
 
 // auto backdrop
-	if (!gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png").empty())
-		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png");
-	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg").empty())
-		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg");
-	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png").empty())
+	if (!gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png").empty())
 		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png");
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".jpg").empty())
 		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".jpg");
+	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png").empty())
+		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png");
+	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg").empty())
+		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg");
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".png").empty())
 		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".png");
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".jpg").empty())
@@ -184,10 +184,10 @@ const string &LinkApp::searchIcon() {
 	string dirtitle = base_name(dir_name(exec)) + ".png";
 	string linktitle = base_name(file) + ".png";
 
-	if (!gmenu2x->sc.getSkinFilePath("icons/" + exectitle).empty())
-		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + exectitle);
-	else if (!gmenu2x->sc.getSkinFilePath("icons/" + linktitle).empty())
+	if (!gmenu2x->sc.getSkinFilePath("icons/" + linktitle).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + linktitle);
+	else if (!gmenu2x->sc.getSkinFilePath("icons/" + exectitle).empty())
+		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + exectitle);
 	else if (!gmenu2x->sc.getSkinFilePath("icons/" + dirtitle).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + dirtitle);
 	else if (fileExists(execicon))
