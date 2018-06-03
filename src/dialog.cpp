@@ -22,13 +22,13 @@ void Dialog::drawTitleIcon(const std::string &icon, Surface *s) {
 
 void Dialog::writeTitle(const std::string &title, Surface *s) {
 	if (s == NULL) s = gmenu2x->s;
-	s->write(gmenu2x->titlefont, title, 40, 16, HAlignLeft, VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+	s->write(gmenu2x->titlefont, title, 40, gmenu2x->titlefont->getHeight()/2, HAlignLeft, VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 	// s->box(40, 16 - gmenu2x->titlefont->getHalfHeight(), 15, gmenu2x->titlefont->getHeight(), strtorgba("ff00ffff"));
 }
 
 void Dialog::writeSubTitle(const std::string &subtitle, Surface *s) {
 	if (s == NULL) s = gmenu2x->s;
-	s->write(gmenu2x->font, subtitle, 40, 32, HAlignLeft, VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+	s->write(gmenu2x->font, subtitle, 40, 38, HAlignLeft, VAlignBottom, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 	// s->box(40, 32 - gmenu2x->font->getHalfHeight(), 15, gmenu2x->font->getHeight(), strtorgba("00ffffff"));
 }
 
