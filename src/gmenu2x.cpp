@@ -2268,7 +2268,7 @@ if (confStr["batteryType"] == "BL-5B") {
 }
 
 void GMenu2X::setInputSpeed() {
-	input.setInterval(150);
+	input.setInterval(180);
 	// input.setInterval(30,  VOLDOWN);
 	// input.setInterval(30,  VOLUP);
 	input.setInterval(1000, SETTINGS);
