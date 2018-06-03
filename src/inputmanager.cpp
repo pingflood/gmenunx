@@ -31,7 +31,7 @@ InputManager::InputManager()
 	: wakeUpTimer(NULL) {}
 
 InputManager::~InputManager() {
-	for (uint x=0; x<joysticks.size(); x++)
+	for (uint x = 0; x < joysticks.size(); x++)
 		if(SDL_JoystickOpened(x))
 			SDL_JoystickClose(joysticks[x]);
 }
@@ -47,7 +47,7 @@ void InputManager::initJoysticks() {
 
 	int numJoy = SDL_NumJoysticks();
 	INFO("%d joysticks found", numJoy);
-	for (int x=0; x<numJoy; x++) {
+	for (int x = 0; x < numJoy; x++) {
 		SDL_Joystick *joy = SDL_JoystickOpen(x);
 		if (joy) {
 			INFO("Initialized joystick: '%s'", SDL_JoystickName(x));
@@ -80,29 +80,29 @@ bool InputManager::readConfFile(const string &conffile) {
 		linenum++;
 		pos = line.find("=");
 		name = trim(line.substr(0,pos));
-		value = trim(line.substr(pos+1,line.length()));
+		value = trim(line.substr(pos + 1,line.length()));
 
-		if (name=="up")                action = UP;
-		else if (name=="down")         action = DOWN;
-		else if (name=="left")         action = LEFT;
-		else if (name=="right")        action = RIGHT;
-		else if (name=="modifier")     action = MODIFIER;
-		else if (name=="confirm")      action = CONFIRM;
-		else if (name=="cancel")       action = CANCEL;
-		else if (name=="manual")       action = MANUAL;
-		else if (name=="dec")          action = DEC;
-		else if (name=="inc")          action = INC;
-		else if (name=="section_prev") action = SECTION_PREV;
-		else if (name=="section_next") action = SECTION_NEXT;
-		else if (name=="pageup")       action = PAGEUP;
-		else if (name=="pagedown")     action = PAGEDOWN;
-		else if (name=="settings")     action = SETTINGS;
-		else if (name=="menu")         action = MENU;
-		else if (name=="volup")        action = VOLUP;
-		else if (name=="voldown")      action = VOLDOWN;
-		else if (name=="backlight")    action = BACKLIGHT;
-		else if (name=="power")        action = POWER;
-		else if (name=="speaker") {}
+		if (name == "up")                action = UP;
+		else if (name == "down")         action = DOWN;
+		else if (name == "left")         action = LEFT;
+		else if (name == "right")        action = RIGHT;
+		else if (name == "modifier")     action = MODIFIER;
+		else if (name == "confirm")      action = CONFIRM;
+		else if (name == "cancel")       action = CANCEL;
+		else if (name == "manual")       action = MANUAL;
+		else if (name == "dec")          action = DEC;
+		else if (name == "inc")          action = INC;
+		else if (name == "section_prev") action = SECTION_PREV;
+		else if (name == "section_next") action = SECTION_NEXT;
+		else if (name == "pageup")       action = PAGEUP;
+		else if (name == "pagedown")     action = PAGEDOWN;
+		else if (name == "settings")     action = SETTINGS;
+		else if (name == "menu")         action = MENU;
+		else if (name == "volup")        action = VOLUP;
+		else if (name == "voldown")      action = VOLDOWN;
+		else if (name == "backlight")    action = BACKLIGHT;
+		else if (name == "power")        action = POWER;
+		else if (name == "speaker") {}
 		else {
 			ERROR("%s:%d Unknown action '%s'.", conffile.c_str(), linenum, name.c_str());
 			return false;
@@ -111,14 +111,14 @@ bool InputManager::readConfFile(const string &conffile) {
 		split(values, value, ",");
 		if (values.size() >= 2) {
 
-			if (values[0] == "joystickbutton" && values.size()==3) {
+			if (values[0] == "joystickbutton" && values.size() == 3) {
 				InputMap map;
 				map.type = InputManager::MAPPING_TYPE_BUTTON;
 				map.num = atoi(values[1].c_str());
 				map.value = atoi(values[2].c_str());
 				map.treshold = 0;
 				actions[action].maplist.push_back(map);
-			} else if (values[0] == "joystickaxis" && values.size()==4) {
+			} else if (values[0] == "joystickaxis" && values.size() == 4) {
 				InputMap map;
 				map.type = InputManager::MAPPING_TYPE_AXIS;
 				map.num = atoi(values[1].c_str());
@@ -146,7 +146,7 @@ bool InputManager::readConfFile(const string &conffile) {
 
 void InputManager::setActionsCount(int count) {
 	actions.clear();
-	for (int x=0; x<count; x++) {
+	for (int x = 0; x < count; x++) {
 		InputManagerAction action;
 		action.active = false;
 		action.interval = 0;
@@ -295,7 +295,6 @@ bool InputManager::isActive(int action) {
 			break;
 			case InputManager::MAPPING_TYPE_KEYPRESS:
 				Uint8 *keystate = SDL_GetKeyState(NULL);
-				// if (keystate[map.value]) return true;
 				return keystate[map.value];
 			break;
 		}
