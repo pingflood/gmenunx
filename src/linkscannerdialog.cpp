@@ -27,16 +27,16 @@ void LinkScannerDialog::exec() {
 	uint lineY = 42;
 #endif
 
-	if (gmenu2x->confInt["menuClock"] < CPU_CLK_DEFAULT) {
-		gmenu2x->setClock(CPU_CLK_DEFAULT);
+	// if (gmenu2x->confInt["menuClock"] < CPU_CLK_DEFAULT) {
 		string strClock;
 		stringstream ss;
-		ss << CPU_CLK_DEFAULT;
+		ss << gmenu2x->confInt["maxClock"];
 		ss >> strClock;
 		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("Raising cpu clock to $1Mhz",  strClock.c_str(),  NULL), 5, lineY);
 		gmenu2x->s->flip();
 		lineY += 26;
-	}
+		gmenu2x->setClock(gmenu2x->confInt["maxClock"]);
+	// }
 
 	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Scanning SD filesystem..."], 5, lineY);
 	gmenu2x->s->flip();
@@ -53,7 +53,7 @@ void LinkScannerDialog::exec() {
 		scanPath("/mnt/nand", &files);
 	}
 
-	stringstream ss;
+	// stringstream ss;
 	ss << files.size();
 	string str = "";
 	ss >> str;
@@ -85,12 +85,12 @@ void LinkScannerDialog::exec() {
 	gmenu2x->s->flip();
 	lineY += 26;
 
-	if (gmenu2x->confInt["menuClock"] < CPU_CLK_DEFAULT) {
-		gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
+	// if (gmenu2x->confInt["menuClock"] < CPU_CLK_DEFAULT) {
 		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Decreasing CPU clock"], 5, lineY);
 		gmenu2x->s->flip();
 		lineY += 26;
-	}
+		gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
+	// }
 
 	sync();
 	// ledOff();

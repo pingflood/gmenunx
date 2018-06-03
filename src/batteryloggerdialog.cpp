@@ -26,7 +26,7 @@ void BatteryLoggerDialog::exec() {
 	gmenu2x->bg->blit(gmenu2x->s,0,0);
 
 	gmenu2x->setBacklight(100);
-	gmenu2x->setClock(CPU_CLK_MAX);
+	gmenu2x->setClock(gmenu2x->confInt["maxClock"]);
 
 // // skinConfColor
 // 	int i = 0, j = 0;
@@ -132,5 +132,6 @@ void BatteryLoggerDialog::exec() {
 			}
 		}
 	}
+	gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
 	gmenu2x->setBacklight(gmenu2x->confInt["backlight"]);
 }

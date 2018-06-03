@@ -48,23 +48,23 @@ const int BATTERY_READS = 10;
 
 // const int LOOP_DELAY = 50000;
 
-#if defined(TARGET_GP2X)
-	#define CPU_CLK_MIN 50
-	#define CPU_CLK_MAX 325
-	#define CPU_CLK_DEFAULT 200
-#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	#define CPU_CLK_MIN 50
-	#define CPU_CLK_MAX 900
-	#define CPU_CLK_DEFAULT 200
-#elif defined(TARGET_RS97)
-	#define CPU_CLK_MIN 210
-	#define CPU_CLK_MAX 642
-	#define CPU_CLK_DEFAULT 528
-#else
-	#define CPU_CLK_MIN 200
-	#define CPU_CLK_MAX 1200
-	#define CPU_CLK_DEFAULT 528
-#endif
+// #if defined(TARGET_GP2X)
+// 	#define CPU_CLK_MIN 50
+// 	#define CPU_CLK_MAX 325
+// 	#define CPU_CLK_DEFAULT 200
+// #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+// 	#define CPU_CLK_MIN 50
+// 	#define CPU_CLK_MAX 900
+// 	#define CPU_CLK_DEFAULT 200
+// #elif defined(TARGET_RS97)
+// 	#define CPU_CLK_MIN 210
+// 	#define CPU_CLK_MAX 642
+// 	#define CPU_CLK_DEFAULT 528
+// #else
+// 	#define CPU_CLK_MIN 200
+// 	#define CPU_CLK_MAX 1200
+// 	#define CPU_CLK_DEFAULT 528
+// #endif
 
 extern const char *CARD_ROOT;
 extern const int CARD_ROOT_LEN;
