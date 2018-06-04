@@ -1070,7 +1070,7 @@ void GMenu2X::main() {
 	}
 #endif
 
-	powerManager = new PowerManager(this, 5, 5);
+	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();
@@ -2430,27 +2430,27 @@ int GMenu2X::setBacklight(int val, bool popup) {
 			sc.skinRes("imgs/brightness.png")
 		};
 
-		input.setWakeUpInterval(100);
-		Uint32 tickStart = SDL_GetTicks();
 		while (!close) {
+			input.setWakeUpInterval(3000);
 			int backlightIcon = val/20;
 
 			if (backlightIcon > 4 || iconBrightness[backlightIcon] == NULL) backlightIcon = 5;
 
 			drawSlider(val, 0, 100, *iconBrightness[backlightIcon], bg);
 
-			if (input.update()) tickStart = SDL_GetTicks();
+			close = !input.update();
 
-			if ((SDL_GetTicks() - tickStart) >= 3000 || input[SETTINGS] || input[MENU] || input[CONFIRM] || input[CANCEL]) close = true;
-
+			if ( input[SETTINGS] || input[MENU] || input[CONFIRM] || input[CANCEL] ) close = true;
 			if ( input[LEFT] || input[DEC] )			val = setBacklight(max(1, val - backlightStep), false);
 			else if ( input[RIGHT] || input[INC] )		val = setBacklight(min(100, val + backlightStep), false);
 			else if ( input[BACKLIGHT] )				val = setBacklight(val + backlightStep, false);
+			powerManager->resetSuspendTimeout();
+
 		}
+		input.setWakeUpInterval(0);
+
 		confInt["backlight"] = val;
 		writeConfig();
-		powerManager->resetSuspendTimeout();
-		// tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 	}
 
 #if defined(TARGET_RS97)
