@@ -2347,8 +2347,6 @@ int GMenu2X::setVolume(int val, bool popup) {
 
 	if (popup) {
 		bool close = false;
-		SDL_Rect progress = {52, 32, resX-84, 8};
-		SDL_Rect box = {20, 20, resX-40, 32};
 
 		Surface bg(s);
 
@@ -2358,27 +2356,25 @@ int GMenu2X::setVolume(int val, bool popup) {
 			sc.skinRes("imgs/volume.png"),
 		};
 
-		input.setWakeUpInterval(100);
 
-		Uint32 tickStart = SDL_GetTicks();
 		while (!close) {
+			input.setWakeUpInterval(3000);
 			drawSlider(val, 0, 100, *iconVolume[val > 0 ? 2 : 0], bg);
 
-			if (input.update()) tickStart = SDL_GetTicks();
+			close = !input.update();
 
-			if ((SDL_GetTicks() - tickStart) >= 3000 || input[SETTINGS] || input[CONFIRM] || input[CANCEL]) close = true;
-
+			if (input[SETTINGS] || input[CONFIRM] || input[CANCEL]) close = true;
 			if ( input[LEFT] || input[DEC] )		val = max(0, val - volumeStep);
 			else if ( input[RIGHT] || input[INC] )	val = min(100, val + volumeStep);
 			else if ( input[SECTION_PREV] )		{
 													val += volumeStep;
 													if (val > 100) val = 0;
 												}
+			powerManager->resetSuspendTimeout();
 		}
+		input.setWakeUpInterval(0);
 		confInt["globalVolume"] = val;
 		writeConfig();
-		powerManager->resetSuspendTimeout();
-		// tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 	}
 
 	unsigned long soundDev = open("/dev/mixer", O_RDWR);
@@ -2410,7 +2406,6 @@ int GMenu2X::getBacklight() {
 }
 
 int GMenu2X::setBacklight(int val, bool popup) {
-	char buf[64];
 	int backlightStep = 10;
 
 	if (val < 0) val = 100;
@@ -2448,7 +2443,6 @@ int GMenu2X::setBacklight(int val, bool popup) {
 
 		}
 		input.setWakeUpInterval(0);
-
 		confInt["backlight"] = val;
 		writeConfig();
 	}
