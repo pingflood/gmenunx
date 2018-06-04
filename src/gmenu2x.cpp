@@ -1381,7 +1381,7 @@ void GMenu2X::main() {
 
 bool GMenu2X::inputCommonActions(bool &inputAction) {
 	bool wasActive = false;
-	bool isCombo = false;
+	// bool isCombo = false;
 	Uint32 tickStart = SDL_GetTicks(), tickPower = 0;
 
 	INFO("START: %d\tSUSPEND: %d\tPOWER: %d\tsuspendActive: %d", tickStart, tickStart - tickSuspend, tickPower, suspendActive);
@@ -1403,11 +1403,9 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	while (input[POWER]) {
 		// HOLD POWER BUTTON
 		input.update();
-		SDL_Delay(100);
 		tickPower = SDL_GetTicks() - tickStart;
 		if (tickPower >= 1500) {
 			powerManager->doPowerOff(0, NULL);
-			// poweroffDialog();
 			return true;
 		}
 	}
@@ -1425,14 +1423,12 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 			MessageBox mb(this, tr["Screenshot saved"]);
 			mb.setAutoHide(500);
 			mb.exec();
-			isCombo = true;
+			wasActive = false;
 		} else if (input[SECTION_PREV]) {
 			// VOLUME / MUTE
 			setVolume(confInt["globalVolume"], true);
-			isCombo = true;
+			wasActive = false;
 		}
-
-		wasActive = !isCombo;
 	}
 
 	input[MENU] = wasActive; // Key was active but no combo was pressed
