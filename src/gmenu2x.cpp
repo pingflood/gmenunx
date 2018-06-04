@@ -1380,18 +1380,12 @@ void GMenu2X::main() {
 }
 
 bool GMenu2X::inputCommonActions(bool &inputAction) {
-	bool wasActive = false;
-	// bool isCombo = false;
-	Uint32 tickStart = SDL_GetTicks(), tickPower = 0;
-
-	INFO("START: %d\tSUSPEND: %d\tPOWER: %d\tsuspendActive: %d", tickStart, tickStart - tickSuspend, tickPower, suspendActive);
-	// input.setWakeUpInterval(1000); return false;
-
+	INFO("SDL_GetTicks(): %d\tsuspendActive: %d", SDL_GetTicks(), powerManager->suspendActive);
 
 	if (powerManager->suspendActive) {
 		// SUSPEND ACTIVE
 		while (!input[POWER]) {
-			ERROR("SUSPEND ACTIVE");
+			WARNING("SUSPEND ACTIVE");
 			input.update();
 		}
 		powerManager->doSuspend(0, NULL);
@@ -1400,20 +1394,28 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 
 	if (inputAction) powerManager->resetSuspendTimeout();
 
+	bool wasActive = false;
 	while (input[POWER]) {
-		// HOLD POWER BUTTON
+		WARNING("POWER HOLD");
+
+		wasActive = true;
+
 		input.update();
-		tickPower = SDL_GetTicks() - tickStart;
-		if (tickPower >= 1500) {
+
+		// HOLD POWER BUTTON
+		if (input[POWER]) {
 			powerManager->doPowerOff(0, NULL);
 			return true;
 		}
 	}
-	if (tickPower) {
+
+	if (wasActive) {
 		powerManager->doSuspend(1, NULL);
 		return true;
 	}
 
+
+	wasActive = false;
 	while (input[MENU]) {
 		input.update();
 
@@ -2267,7 +2269,7 @@ void GMenu2X::setInputSpeed() {
 	// input.setInterval(500, PAGEUP);
 	// input.setInterval(500, PAGEDOWN);
 	input.setInterval(500, BACKLIGHT);
-	input.setInterval(500, POWER);
+	input.setInterval(1500, POWER);
 }
 
 void GMenu2X::setCPU(unsigned mhz) {
