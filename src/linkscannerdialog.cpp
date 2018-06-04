@@ -1,4 +1,5 @@
 #include "linkscannerdialog.h"
+#include "debug.h"
 
 LinkScannerDialog::LinkScannerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
 	: Dialog(gmenu2x)
@@ -12,6 +13,10 @@ void LinkScannerDialog::exec() {
 	gmenu2x->initBG();
 
 	bool close = false;
+	string str = "";
+	stringstream ss;
+	uint lineY = gmenu2x->listRect.y;
+	vector<string> files;
 
 	drawTopBar(gmenu2x->bg, title, description, icon);
 	drawBottomBar(gmenu2x->bg);
@@ -21,84 +26,80 @@ void LinkScannerDialog::exec() {
 
 	gmenu2x->bg->blit(gmenu2x->s,0,0);
 
-#if defined(TARGET_RS97)
-	uint lineY = 80;
-#else
-	uint lineY = 42;
-#endif
+	// ss << gmenu2x->confInt["maxClock"];
+	// ss >> str;
+	// gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("Set CPU clock to $1MHz",  str.c_str(),  NULL), gmenu2x->listRect.x + 4, lineY);
+	// gmenu2x->s->flip();
+	// gmenu2x->setClock(gmenu2x->confInt["maxClock"]);
+	// lineY += gmenu2x->font->getHeight();
 
-	// if (gmenu2x->confInt["menuClock"] < CPU_CLK_DEFAULT) {
-		string strClock;
-		stringstream ss;
-		ss << gmenu2x->confInt["maxClock"];
-		ss >> strClock;
-		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("Raising cpu clock to $1Mhz",  strClock.c_str(),  NULL), 5, lineY);
-		gmenu2x->s->flip();
-		lineY += 26;
-		gmenu2x->setClock(gmenu2x->confInt["maxClock"]);
-	// }
+	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Scanning..."], gmenu2x->listRect.x + 4, lineY);
 
-	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Scanning SD filesystem..."], 5, lineY);
+	lineY += gmenu2x->font->getHeight();
+	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["/mnt/int_sd"], gmenu2x->listRect.x + 4, lineY);
 	gmenu2x->s->flip();
-	lineY += 26;
 
-	vector<string> files;
-	scanPath("/mnt/sd", &files);
+	scanPath("/mnt/int_sd", &files);
 
-	//Onyl gph firmware has nand
-	if (gmenu2x->fwType == "gph" && !gmenu2x->f200) {
-		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Scanning NAND filesystem..."], 5, lineY);
-		gmenu2x->s->flip();
-		lineY += 26;
-		scanPath("/mnt/nand", &files);
-	}
+	lineY += gmenu2x->font->getHeight();
+	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["/mnt/ext_sd"], gmenu2x->listRect.x + 4, lineY);
+	gmenu2x->s->flip();
 
-	// stringstream ss;
+	scanPath("/mnt/ext_sd", &files);
+
 	ss << files.size();
-	string str = "";
 	ss >> str;
-	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("$1 files found.", str.c_str(), NULL), 5, lineY);
-	lineY += 26;
-	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Creating links..."], 5, lineY);
+
+	lineY += gmenu2x->font->getHeight();
+	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("$1 files found.", str.c_str(), NULL), gmenu2x->listRect.x + 4, lineY);
 	gmenu2x->s->flip();
-	lineY += 26;
 
-	string path, file;
-	string::size_type pos;
-	uint linkCount = 0;
+	if (files.size() > 0) {
 
-	// ledOn();
-	for (uint i = 0; i < files.size(); i++) {
-		pos = files[i].rfind("/");
-		if (pos != string::npos && pos > 0) {
-			path = files[i].substr(0, pos + 1);
-			file = files[i].substr(pos + 1, files[i].length());
-			if (gmenu2x->menu->addLink(path, file, "found " + file.substr(file.length()-3, 3)))
-				linkCount++;
+		lineY += gmenu2x->font->getHeight();
+		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Creating links..."], gmenu2x->listRect.x + 4, lineY);
+		gmenu2x->s->flip();
+
+		string path, file;
+		string::size_type pos;
+		uint linkCount = 0;
+
+		// ledOn();
+		for (size_t i = 0; i < files.size(); ++i) {
+			pos = files[i].rfind("/");
+
+			if (pos != string::npos && pos > 0) {
+				path = files[i].substr(0, pos + 1);
+				file = files[i].substr(pos + 1, files[i].length());
+				if (gmenu2x->menu->addLink(path, file, "linkscanner"))
+					linkCount++;
+			}
 		}
+
+		ss.clear();
+		ss << linkCount;
+		ss >> str;
+
+		lineY += gmenu2x->font->getHeight();
+
+		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("$1 links created.", str.c_str(), NULL), gmenu2x->listRect.x + 4, lineY);
+		gmenu2x->s->flip();
 	}
 
-	ss.clear();
-	ss << linkCount;
-	ss >> str;
-	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("$1 links created.", str.c_str(), NULL), 5, lineY);
-	gmenu2x->s->flip();
-	lineY += 26;
+	// ss << gmenu2x->confInt["menuClock"];
+	// ss >> str;
 
-	// if (gmenu2x->confInt["menuClock"] < CPU_CLK_DEFAULT) {
-		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Decreasing CPU clock"], 5, lineY);
-		gmenu2x->s->flip();
-		lineY += 26;
-		gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
-	// }
+	// lineY += gmenu2x->font->getHeight();
+	// gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("Set CPU clock to $1MHz",  str.c_str(),  NULL), gmenu2x->listRect.x + 4, lineY);
+	// gmenu2x->s->flip();
+	// gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
 
 	sync();
-	// ledOff();
 
 	while (!close) {
 		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
-		else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
+		// if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
+		if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
 	}
 }
 
@@ -113,17 +114,17 @@ void LinkScannerDialog::scanPath(string path, vector<string> *files) {
 	if ((dirp = opendir(path.c_str())) == NULL) return;
 
 	while ((dptr = readdir(dirp))) {
-		if (dptr->d_name[0]=='.')
+		if (dptr->d_name[0] == '.')
 			continue;
-		filepath = path+dptr->d_name;
+		filepath = path + dptr->d_name;
 		int statRet = stat(filepath.c_str(), &st);
 		if (S_ISDIR(st.st_mode))
 			scanPath(filepath, files);
+
 		if (statRet != -1) {
 			ext = filepath.substr(filepath.length()-4,4);
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-			if (ext==".gpu" || ext==".gpe")
-#endif
+
+			if (ext == ".gpu" || ext == ".gpe" || filepath.substr(filepath.length()-3,3) == ".sh")
 				files->push_back(filepath);
 		}
 	}
