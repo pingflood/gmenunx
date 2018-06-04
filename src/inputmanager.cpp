@@ -165,10 +165,12 @@ bool InputManager::update(bool wait) {
 
 	if (wait) {
 		SDL_WaitEvent(&event);
+		if (event.type == SDL_KEYUP) anyactions = true;
 		SDL_Event evcopy = event;
 		events.push_back(evcopy);
 	}
 	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_KEYUP) anyactions = true;
 		SDL_Event evcopy = event;
 		events.push_back(evcopy);
 	}
