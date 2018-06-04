@@ -156,7 +156,7 @@ bool InputDialog::exec() {
 
 	while (!close) {
 		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
+		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 		bg->blit(gmenu2x->s,0,0);
 

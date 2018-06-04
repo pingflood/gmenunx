@@ -26,11 +26,11 @@ void LinkScannerDialog::exec() {
 
 	gmenu2x->bg->blit(gmenu2x->s,0,0);
 
-	// ss << gmenu2x->confInt["maxClock"];
+	// ss << gmenu2x->confInt["cpuMax"];
 	// ss >> str;
 	// gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("Set CPU clock to $1MHz",  str.c_str(),  NULL), gmenu2x->listRect.x + 4, lineY);
 	// gmenu2x->s->flip();
-	// gmenu2x->setClock(gmenu2x->confInt["maxClock"]);
+	// gmenu2x->setCPU(gmenu2x->confInt["cpuMax"]);
 	// lineY += gmenu2x->font->getHeight();
 
 	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Scanning..."], gmenu2x->listRect.x + 4, lineY);
@@ -86,13 +86,13 @@ void LinkScannerDialog::exec() {
 		gmenu2x->s->flip();
 	}
 
-	// ss << gmenu2x->confInt["menuClock"];
+	// ss << gmenu2x->confInt["cpuMenu"];
 	// ss >> str;
 
 	// lineY += gmenu2x->font->getHeight();
 	// gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("Set CPU clock to $1MHz",  str.c_str(),  NULL), gmenu2x->listRect.x + 4, lineY);
 	// gmenu2x->s->flip();
-	// gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
+	// gmenu2x->setCPU(gmenu2x->confInt["cpuMenu"]);
 
 	sync();
 

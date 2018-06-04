@@ -114,7 +114,7 @@ bool BrowseDialog::exec() {
 BrowseDialog::Action BrowseDialog::getAction() {
 	BrowseDialog::Action action = BrowseDialog::ACT_NONE;
 
-	if (gmenu2x->inputCommonActions()) return action;
+	// if (gmenu2x->inputCommonActions()) return action;
 
 	if (gmenu2x->input[MENU])
 		action = BrowseDialog::ACT_CLOSE;
@@ -140,7 +140,8 @@ void BrowseDialog::handleInput() {
 	BrowseDialog::Action action;
 
 	bool inputAction = gmenu2x->input.update();
-	if (gmenu2x->powerManager(inputAction)) return;
+	// if (gmenu2x->powerManager(inputAction)) return;
+	if (gmenu2x->inputCommonActions(inputAction)) return;
 
 	if (ts_pressed && !gmenu2x->ts.pressed()) {
 		action = BrowseDialog::ACT_SELECT;

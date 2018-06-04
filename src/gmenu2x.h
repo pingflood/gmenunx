@@ -21,6 +21,10 @@
 #ifndef GMENU2X_H
 #define GMENU2X_H
 
+// #include "powermanager.h"
+class PowerManager;
+
+
 #include "surfacecollection.h"
 #include "iconbutton.h"
 #include "translator.h"
@@ -30,6 +34,7 @@
 #include "inputmanager.h"
 #include "surface.h"
 #include "fonthelper.h"
+
 
 #include <iostream>
 #include <string>
@@ -257,8 +262,9 @@ public:
 	uint onChangeSkin();
 	void initLayout();
 
-	bool inputCommonActions();
-	bool powerManager(bool &inputAction);
+	bool inputCommonActions(bool &inputAction);
+
+	PowerManager *powerManager;
 
 #if defined(TARGET_GP2X)
 	void writeConfigOpen2x();
@@ -289,7 +295,7 @@ public:
 	void contextMenu();
 	void changeWallpaper();
 
-	void setClock(unsigned mhz);
+	void setCPU(unsigned mhz);
 	const string getDateTime();
 	void setDateTime();
 

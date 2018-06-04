@@ -61,7 +61,7 @@ bool SettingsDialog::exec() {
 		uint numRows = gmenu2x->listRect.h/rowHeight;
 
 		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
+		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
 

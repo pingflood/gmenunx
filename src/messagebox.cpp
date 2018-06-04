@@ -132,7 +132,7 @@ int MessageBox::exec() {
 	while (result < 0) {
 		//touchscreen
 		if (gmenu2x->f200 && gmenu2x->ts.poll()) {
-			for (uint i=0; i < buttons.size(); i++) {
+			for (uint i = 0; i < buttons.size(); i++) {
 				if (buttons[i] != "" && gmenu2x->ts.inRect(buttonPositions[i])) {
 					result = i;
 					break;
@@ -140,11 +140,12 @@ int MessageBox::exec() {
 			}
 		}
 
-		if (gmenu2x->input.update()) {
-			if (gmenu2x->inputCommonActions()) continue;
+		bool inputAction = gmenu2x->input.update();
+		if (inputAction) {
+			if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-			for (uint i=0; i < buttons.size(); i++) {
-				if (buttons[i] !="" && gmenu2x->input[i]) {
+			for (uint i = 0; i < buttons.size(); i++) {
+				if (buttons[i] != "" && gmenu2x->input[i]) {
 					result = i;
 					break;
 				}

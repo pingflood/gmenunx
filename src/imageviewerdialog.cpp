@@ -34,7 +34,7 @@ void ImageViewerDialog::exec() {
 
 	while (!close) {
 		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) { repaint = true; continue; };
+		if (gmenu2x->inputCommonActions(inputAction)) { repaint = true; continue; };
 
 		if (repaint) {
 			gmenu2x->bg->blit(gmenu2x->s, 0, 0);

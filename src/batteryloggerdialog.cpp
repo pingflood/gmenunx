@@ -26,7 +26,7 @@ void BatteryLoggerDialog::exec() {
 	gmenu2x->bg->blit(gmenu2x->s,0,0);
 
 	gmenu2x->setBacklight(100);
-	gmenu2x->setClock(gmenu2x->confInt["maxClock"]);
+	gmenu2x->setCPU(gmenu2x->confInt["cpuMax"]);
 
 // // skinConfColor
 // 	int i = 0, j = 0;
@@ -103,9 +103,9 @@ void BatteryLoggerDialog::exec() {
 
 		gmenu2x->s->flip();
 
-		gmenu2x->input.update(false);
+		bool inputAction = gmenu2x->input.update(false);
 
-		if (gmenu2x->inputCommonActions()) continue;
+		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 		if ( gmenu2x->input[UP  ] && firstRow > 0 ) firstRow--;
 		else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < log.size() ) firstRow++;
@@ -132,6 +132,6 @@ void BatteryLoggerDialog::exec() {
 			}
 		}
 	}
-	gmenu2x->setClock(gmenu2x->confInt["menuClock"]);
+	gmenu2x->setCPU(gmenu2x->confInt["cpuMenu"]);
 	gmenu2x->setBacklight(gmenu2x->confInt["backlight"]);
 }

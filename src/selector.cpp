@@ -113,7 +113,7 @@ int Selector::exec(int startSelection) {
 	// gmenu2x->input.setWakeUpInterval(40); //25FPS
 	while (!close) {
 		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
+		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 		gmenu2x->bg->blit(gmenu2x->s,0,0);
 

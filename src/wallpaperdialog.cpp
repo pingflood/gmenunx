@@ -63,7 +63,7 @@ bool WallpaperDialog::exec()
 
 	while (!close) {
 		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
+		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 		if (selected>firstElement+numRows) firstElement=selected-numRows;
 		if (selected<firstElement) firstElement=selected;

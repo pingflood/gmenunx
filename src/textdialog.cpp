@@ -123,7 +123,7 @@ void TextDialog::exec() {
 		gmenu2x->s->flip();
 
 		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
+		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 		if ( gmenu2x->input[UP  ] && firstRow > 0 ) firstRow--;
 		else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < text->size() ) firstRow++;

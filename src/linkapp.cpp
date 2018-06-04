@@ -43,7 +43,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
 	file = linkfile;
 	wrapper = false;
 	dontleave = false;
-	setClock(gmenu2x->confInt["menuClock"]);
+	setCPU(gmenu2x->confInt["cpuMenu"]);
 	setVolume(-1);
 
 #if defined(TARGET_GP2X)
@@ -89,7 +89,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_,
 		} else if (name == "dontleave" && value == "true") {
 			dontleave = true;
 		} else if (name == "clock") {
-			setClock( atoi(value.c_str()) );
+			setCPU( atoi(value.c_str()) );
 
 #if defined(TARGET_GP2X)
 		//G
@@ -211,13 +211,13 @@ int LinkApp::clock() {
 
 // const string &LinkApp::clockStr(int maxClock) {
 // 	if (iclock > maxClock){
-//     setClock(maxClock);
+//     setCPU(maxClock);
 //   }
 // 	return sclock;
 // }
 
-void LinkApp::setClock(int mhz) {
-	iclock = constrain(mhz, gmenu2x->confInt["minClock"], gmenu2x->confInt["maxClock"]);
+void LinkApp::setCPU(int mhz) {
+	iclock = constrain(mhz, gmenu2x->confInt["cpuMin"], gmenu2x->confInt["cpuMax"]);
 	// stringstream ss;
 	// sclock = "";
 	// ss << iclock << "Mhz";
@@ -448,8 +448,8 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 			gmenu2x->writeTmp();
 		gmenu2x->quit();
 
-		if (clock() != gmenu2x->confInt["menuClock"]) {
-			gmenu2x->setClock(clock());
+		if (clock() != gmenu2x->confInt["cpuMenu"]) {
+			gmenu2x->setCPU(clock());
 	    }
 
 #if defined(TARGET_GP2X)
