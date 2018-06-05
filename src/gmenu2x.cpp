@@ -744,8 +744,7 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["minBattery"], 0, 1, 10000);
 	evalIntConf( &confInt["maxBattery"], 4500, 1, 10000);
 
-	// evalIntConf( &confInt["sectionBar"], SB_LEFT, 1, 4);
-	confInt["sectionBar"] = SB_LEFT;
+	evalIntConf( &confInt["sectionBar"], SB_LEFT, 1, 4);
 
 	if (!confInt["saveSelection"]) {
 		confInt["section"] = 0;
@@ -768,7 +767,7 @@ void GMenu2X::writeConfig() {
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
-			if (curr->first == "sectionBarPosition" || curr->first == "sectionBar" || curr->first == "tvoutEncoding" ) continue;
+			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding" ) continue;
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 		}
 
@@ -1418,14 +1417,14 @@ void GMenu2X::settings() {
 
 	int prevSkinBackdrops = confInt["skinBackdrops"];
 
-	vector<string> sectionBar;
-	sectionBar.push_back("OFF");
-	sectionBar.push_back("Left");
-	sectionBar.push_back("Right");
-	sectionBar.push_back("Top");
-	sectionBar.push_back("Bottom");
+	vector<string> sbStr;
+	sbStr.push_back("OFF");
+	sbStr.push_back("Left");
+	sbStr.push_back("Bottom");
+	sbStr.push_back("Right");
+	sbStr.push_back("Top");
 
-	string sb_sel = sectionBar[confInt["sectionBar"]];
+	string sectionBar = sbStr[confInt["sectionBar"]];
 	string prevDateTime = confStr["datetime"] = getDateTime();
 	string prevTVOut = confStr["TVOut"];
 
@@ -1436,7 +1435,7 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this,tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
 	sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
 	sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &confInt["skinBackdrops"]));
-	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &sb_sel, &sectionBar));
+	sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &sectionBar, &sbStr));
 	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &confInt["sectionBar"], &sectionBar));
 
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
@@ -1475,10 +1474,10 @@ void GMenu2X::settings() {
 			// symlink("/","/mnt/root");
 
 		if (confStr["lang"] != lang) confStr["lang"] = lang;
-		if (sb_sel == "OFF") confInt["sectionBar"] = SB_OFF;
-		else if (sb_sel == "Right") confInt["sectionBar"] = SB_RIGHT;
-		else if (sb_sel == "Top") confInt["sectionBar"] = SB_TOP;
-		else if (sb_sel == "Bottom") confInt["sectionBar"] = SB_BOTTOM;
+		if (sectionBar == "OFF") confInt["sectionBar"] = SB_OFF;
+		else if (sectionBar == "Right") confInt["sectionBar"] = SB_RIGHT;
+		else if (sectionBar == "Top") confInt["sectionBar"] = SB_TOP;
+		else if (sectionBar == "Bottom") confInt["sectionBar"] = SB_BOTTOM;
 		else confInt["sectionBar"] = SB_LEFT;
 
 		setBacklight(confInt["backlight"], false);
