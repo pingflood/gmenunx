@@ -80,14 +80,14 @@ void TextDialog::preProcess() {
 void TextDialog::drawText(vector<string> *text, uint firstRow, uint rowsPerPage) {
 	gmenu2x->s->setClipRect(gmenu2x->listRect);
 
-	for (uint i=firstRow; i<firstRow+rowsPerPage && i<text->size(); i++) {
+	for (uint i = firstRow; i < firstRow + rowsPerPage && i < text->size(); i++) {
 		int rowY;
 		if (text->at(i)=="----") { //draw a line
-			rowY = 42+(int)((i-firstRow+0.5)*gmenu2x->font->getHeight());
-			gmenu2x->s->hline(5,rowY,gmenu2x->resX-16,255,255,255,130);
-			gmenu2x->s->hline(5,rowY+1,gmenu2x->resX-16,0,0,0,130);
+			rowY = gmenu2x->listRect.y + (int)((i - firstRow + 0.5) * gmenu2x->font->getHeight());
+			gmenu2x->s->hline(5, rowY, gmenu2x->resX - 16, 255,255,255,130);
+			gmenu2x->s->hline(5, rowY + 1,gmenu2x->resX - 16,0,0,0,130);
 		} else {
-			rowY = 42+(i-firstRow)*gmenu2x->font->getHeight();
+			rowY = gmenu2x->listRect.y + (i - firstRow) * gmenu2x->font->getHeight();
 			gmenu2x->font->write(gmenu2x->s, text->at(i), 5, rowY);
 		}
 	}
