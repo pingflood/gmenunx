@@ -1860,13 +1860,13 @@ void GMenu2X::contextMenu() {
 	voices.push_back((MenuOption){tr["Link scanner"],	MakeDelegate(this, &GMenu2X::linkScanner)});
 
 	bool close = false;
-	uint i, fadeAlpha=0;
-	int sel=0;
+	uint i, fadeAlpha = 0;
+	int sel = 0;
 
 	int h = font->getHeight();
 	int h2 = font->getHalfHeight();
 	SDL_Rect box;
-	box.h = h*voices.size()+8;
+	box.h = h * voices.size() + 8;
 	box.w = 0;
 	for (i = 0; i < voices.size(); i++) {
 		int w = font->getTextWidth(voices[i].text);
@@ -1876,18 +1876,15 @@ void GMenu2X::contextMenu() {
 	box.x = halfX - box.w/2;
 	box.y = halfY - box.h/2;
 
-	SDL_Rect selbox = {box.x+4, 0, box.w-8, h};
+	SDL_Rect selbox = {box.x + 4, 0, box.w - 8, h};
 	Uint32 tickStart = SDL_GetTicks();
 
 	Surface bg(s);
-	input.setWakeUpInterval(20); //25FPS
+	input.setWakeUpInterval(45); //25FPS
 
 	while (!close) {
 		selbox.y = box.y + 4 + h * sel;
 		bg.blit(s, 0, 0);
-
-		if (fadeAlpha < 200) fadeAlpha = intTransition(0, 200, tickStart, 500, SDL_GetTicks());
-		else input.setWakeUpInterval(0);
 
 		s->box(0, 0, resX, resY, 0,0,0,fadeAlpha);
 		s->box(box.x, box.y, box.w, box.h, skinConfColors[COLOR_MESSAGE_BOX_BG]);
@@ -1929,6 +1926,14 @@ void GMenu2X::contextMenu() {
 			}
 		}
 #endif
+
+		if (fadeAlpha < 200) {
+			fadeAlpha = intTransition(0, 200, tickStart, 200);
+			continue; 
+		}
+
+		input.setWakeUpInterval(0);
+
 		bool inputAction = input.update();
 
 		if (inputCommonActions(inputAction)) continue;
@@ -1940,7 +1945,7 @@ void GMenu2X::contextMenu() {
 		else if ( input[RIGHT] || input[PAGEDOWN] ) sel = (int)voices.size() - 1;
 		else if ( input[SETTINGS] || input[CONFIRM] ) { voices[sel].action(); close = true; }
 	}
-	input.setWakeUpInterval(0);
+	// input.setWakeUpInterval(0);
 	// tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 	// powerManager->resetSuspendTimer();
 }

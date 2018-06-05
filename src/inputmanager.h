@@ -52,7 +52,7 @@ typedef vector<SDL_Event> SDLEventList;
 typedef struct {
 	bool active;
 	int interval;
-	long last;
+	// long last;
 	MappingList maplist;
 	SDL_TimerID timer;
 } InputManagerAction;
