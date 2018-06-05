@@ -423,8 +423,6 @@ GMenu2X::GMenu2X() {
 
 	initBG();
 
-	initLayout();
-
 	initMenu();
 
 	input.init(path + "input.conf");
@@ -587,6 +585,8 @@ void GMenu2X::initFont() {
 }
 
 void GMenu2X::initMenu() {
+	initLayout();
+
 	//Menu structure handler
 	menu = new Menu(this);
 	for (uint i=0; i < menu->getSections().size(); i++) {
@@ -1291,19 +1291,15 @@ void GMenu2X::main() {
 		if (input.combo()) {
 			confInt["sectionBar"] = ((confInt["sectionBar"] + 1) % 5);
 			if (!confInt["sectionBar"]) confInt["sectionBar"]++;
-			initLayout();
 			initMenu();
-
 			MessageBox mb(this,tr["CHEATER! ;)"]);
 			mb.setBgAlpha(0);
 			mb.setAutoHide(200);
 			mb.exec();
-
-			input.setWakeUpInterval(1); //25FPS
-
+			input.setWakeUpInterval(1);
 			continue;
 		}
-		input.setWakeUpInterval(0); //25FPS
+		input.setWakeUpInterval(0);
 
 		if (inputCommonActions(inputAction)) continue;
 
@@ -1574,12 +1570,12 @@ void GMenu2X::settings() {
 		else confInt["sectionBar"] = SB_LEFT;
 
 		setBacklight(confInt["backlight"], false);
-
+		initMenu();
 		writeConfig();
 
+		powerManager->resetSuspendTimer();
 		powerManager->setSuspendTimeout(confInt["backlightTimeout"]);
 		powerManager->setPowerTimeout(confInt["powerTimeout"]);
-		powerManager->resetSuspendTimer();
 
 #if defined(TARGET_RS97)
 		if (prevTVOut != confStr["TVOut"]) setTVOut();
