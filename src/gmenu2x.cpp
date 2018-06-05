@@ -437,7 +437,7 @@ GMenu2X::GMenu2X() {
 	//recover last session
 	readTmp();
 
-	tickSuspend = 0;
+	// tickSuspend = 0;
 
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
 		menu->selLinkApp()->selector(lastSelectorElement,lastSelectorDir);
@@ -1594,7 +1594,7 @@ void GMenu2X::restartDialog() {
 }
 
 void GMenu2X::poweroffDialog() {
-	MessageBox mb(this, tr["   Poweroff or reboot the device?   "], "skin:icons/exit.png");
+	MessageBox mb(this, tr["Poweroff or reboot the device?"], "skin:icons/exit.png");
 	mb.setButton(SECTION_NEXT, tr["Reboot"]);
 	mb.setButton(CONFIRM, tr["Poweroff"]);
 	mb.setButton(CANCEL,  tr["Cancel"]);
@@ -1603,8 +1603,6 @@ void GMenu2X::poweroffDialog() {
 		MessageBox mb(this, tr["Poweroff"]);
 		mb.setAutoHide(500);
 		mb.exec();
-		// setSuspend(true);
-		// SDL_Delay(500);
 
 #if !defined(TARGET_PC)
 		system("poweroff");
@@ -1614,8 +1612,6 @@ void GMenu2X::poweroffDialog() {
 		MessageBox mb(this, tr["Rebooting"]);
 		mb.setAutoHide(500);
 		mb.exec();
-		// setSuspend(true);
-		// SDL_Delay(500);
 
 #if !defined(TARGET_PC)
 		system("reboot");
@@ -1664,7 +1660,6 @@ void GMenu2X::checkUDC() {
 				INFO("%s, disconnect USB disk for external SD", __func__);
 			}
 			powerManager->resetSuspendTimer();
-			// tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 		}
 	}
 }
@@ -2125,7 +2120,7 @@ if (confStr["batteryType"] == "BL-5B") {
 		return 0;
 
 	// return 5 - 5*(100-val)/(100);
-	return -5*(max-val)/(max-min)+5;
+	return 5 - 5 * (max - val) / (max - min);
 #endif
 }
 
@@ -2366,34 +2361,39 @@ string GMenu2X::getDiskFree(const char *path) {
 }
 
 int GMenu2X::drawButton(Button *btn, int x, int y) {
-	if (y<0) y = resY+y;
-	btn->setPosition(x, y-7);
+	if (y < 0) y = resY + y;
+	// y = resY - 8 - skinConfInt["bottomBarHeight"] / 2;
+	btn->setPosition(x, y - 7);
 	btn->paint();
-	return x+btn->getRect().w+6;
+	return x + btn->getRect().w + 6;
 }
 
 int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x, int y) {
-	if (y<0) y = resY+y;
-	SDL_Rect re = {x, y-7, 0, 16};
+	if (y < 0) y = resY + y;
+	// y = resY - skinConfInt["bottomBarHeight"] / 2;
+	SDL_Rect re = {x, y, 0, 16};
+
 	if (sc.skinRes("imgs/buttons/"+btn+".png") != NULL) {
-		sc["imgs/buttons/"+btn+".png"]->blit(s, x, y-7);
-		re.w = sc["imgs/buttons/"+btn+".png"]->raw->w+3;
-		s->write(font, text, x+re.w, y, HAlignLeft, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+		sc["imgs/buttons/"+btn+".png"]->blitCenter(s, re.x + 8, re.y + 2);
+		re.w = sc["imgs/buttons/"+btn+".png"]->raw->w + 3;
+
+		s->write(font, text, re.x + re.w, re.y, HAlignLeft, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 		re.w += font->getTextWidth(text);
 	}
-	return x+re.w+6;
+	return x + re.w + 6;
 }
 
 int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, int x, int y) {
-	if (y<0) y = resY+y;
-	if (sc.skinRes("imgs/buttons/"+btn+".png") != NULL) {
+	if (y < 0) y = resY + y;
+	// y = resY - skinConfInt["bottomBarHeight"] / 2;
+	if (sc.skinRes("imgs/buttons/" + btn + ".png") != NULL) {
 		x -= 16;
-		sc["imgs/buttons/"+btn+".png"]->blit(s, x, y-7);
+		sc["imgs/buttons/" + btn + ".png"]->blitCenter(s, x + 8, y + 2);
 		x -= 3;
 		s->write(font, text, x, y, HAlignRight, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-		return x-6-font->getTextWidth(text);
+		return x - 6 - font->getTextWidth(text);
 	}
-	return x-6;
+	return x - 6;
 }
 
 void GMenu2X::drawScrollBar(uint pagesize, uint totalsize, uint pagepos, SDL_Rect scrollRect) {
