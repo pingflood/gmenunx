@@ -80,6 +80,9 @@ private:
 	static Uint32 wakeUp(Uint32 interval, void *_data);
 	SDL_Event *fakeEventForAction(int action);
 
+	const char konami[10] = {UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, CANCEL, CONFIRM}; // eegg
+	char input_combo[10];// = {POWER}; // eegg
+
 public:
 	static const int MAPPING_TYPE_UNDEFINED = -1;
 	static const int MAPPING_TYPE_BUTTON = 0;
@@ -95,6 +98,7 @@ public:
 	bool readConfFile(const string &conffile = "input.conf");
 
 	bool update(bool wait=true);
+	bool combo();
 	void dropEvents();
 	int count();
 	void setActionsCount(int count);

@@ -1288,6 +1288,23 @@ void GMenu2X::main() {
 		s->flip();
 
 		bool inputAction = input.update();
+		if (input.combo()) {
+			confInt["sectionBar"] = ((confInt["sectionBar"] + 1) % 5);
+			if (!confInt["sectionBar"]) confInt["sectionBar"]++;
+			initLayout();
+			initMenu();
+
+			MessageBox mb(this,tr["CHEATER! ;)"]);
+			mb.setBgAlpha(0);
+			mb.setAutoHide(200);
+			mb.exec();
+
+			input.setWakeUpInterval(1); //25FPS
+
+			continue;
+		}
+		input.setWakeUpInterval(0); //25FPS
+
 		if (inputCommonActions(inputAction)) continue;
 
 		if ( input[CONFIRM] && menu->selLink() != NULL ) {

@@ -37,6 +37,7 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	this->text = text;
 	this->icon = icon;
 	this->autohide = 0;
+	this->bgalpha = 200;
 
 	buttons.resize(19);
 	buttonLabels.resize(19);
@@ -84,6 +85,10 @@ void MessageBox::setAutoHide(int autohide) {
 	this->autohide = autohide;
 }
 
+void MessageBox::setBgAlpha(bool bgalpha) {
+	this->bgalpha = bgalpha;
+}
+
 int MessageBox::exec() {
 	int result = -1;
 
@@ -91,7 +96,7 @@ int MessageBox::exec() {
 
 	// Surface bg(gmenu2x->s);
 	//Darken background
-	gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0,200);
+	gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0,bgalpha);
 
 	SDL_Rect box;
 	box.h = gmenu2x->font->getTextHeight(text) * gmenu2x->font->getHeight() + gmenu2x->font->getHeight();

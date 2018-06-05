@@ -94,9 +94,9 @@ enum color {
 enum sb {
 	SB_OFF,
 	SB_LEFT,
+	SB_BOTTOM,
 	SB_RIGHT,
 	SB_TOP,
-	SB_BOTTOM,
 };
 
 using std::string;

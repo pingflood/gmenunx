@@ -35,7 +35,7 @@ using std::vector;
 class MessageBox {
 private:
 	string text, icon;
-	int autohide;
+	int autohide, bgalpha;
 	GMenu2X *gmenu2x;
 	vector<string> buttons;
 	vector<string> buttonLabels;
@@ -46,6 +46,7 @@ public:
 	void setButton(int action, const string &btn);
 	int exec();
 	void setAutoHide(int delay);
+	void setBgAlpha(bool bgalpha);
 };
 
 #endif /*MESSAGEBOX_H_*/
