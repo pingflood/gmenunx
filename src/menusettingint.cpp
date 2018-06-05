@@ -62,17 +62,19 @@ void MenuSettingInt::draw(int y) {
 }
 
 uint MenuSettingInt::manageInput() {
-	if ( gmenu2x->input[LEFT ] || gmenu2x->input[DEC] ) dec();
-	if ( gmenu2x->input[RIGHT] || gmenu2x->input[INC] ) inc();
+	if ( gmenu2x->input[LEFT ] ) dec();
+	if ( gmenu2x->input[RIGHT] ) inc();
+	if ( gmenu2x->input[DEC] ) setValue(value() - 10 * delta);
+	if ( gmenu2x->input[INC] ) setValue(value() + 10 * delta);
 	if ( gmenu2x->input[MENU] ) setDefault();
 }
 
 void MenuSettingInt::inc() {
-	setValue(value()+delta);
+	setValue(value() + delta);
 }
 
 void MenuSettingInt::dec() {
-	setValue(value()-delta);
+	setValue(value() - delta);
 }
 
 void MenuSettingInt::setValue(int value) {
@@ -87,16 +89,15 @@ void MenuSettingInt::setDefault() {
 	setValue(def);
 }
 
-
 int MenuSettingInt::value() {
 	return *_value;
 }
 
 void MenuSettingInt::adjustInput() {
-	gmenu2x->input.setInterval(30, LEFT );
-	gmenu2x->input.setInterval(30, RIGHT );
-	gmenu2x->input.setInterval(30, DEC );
-	gmenu2x->input.setInterval(30, INC );
+	gmenu2x->input.setInterval(100, LEFT);
+	gmenu2x->input.setInterval(100, RIGHT);
+	gmenu2x->input.setInterval(100, DEC);
+	gmenu2x->input.setInterval(100, INC);
 }
 
 bool MenuSettingInt::edited() {
