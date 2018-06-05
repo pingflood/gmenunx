@@ -1419,7 +1419,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	wasActive = false;
 	while (input[MENU]) {
 		input.update();
-
+		wasActive = true;
 		if (input[SECTION_NEXT]) {
 			// SCREENSHOT
 			if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
