@@ -2273,7 +2273,7 @@ void GMenu2X::setInputSpeed() {
 	// input.setInterval(500, SECTION_NEXT);
 	// input.setInterval(500, PAGEUP);
 	// input.setInterval(500, PAGEDOWN);
-	input.setInterval(500, BACKLIGHT);
+	// input.setInterval(200, BACKLIGHT);
 	input.setInterval(1500, POWER);
 }
 
