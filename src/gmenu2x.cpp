@@ -1393,7 +1393,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		return true;
 	}
 
-	if (inputAction) powerManager->resetSuspendTimeout();
+	if (inputAction) powerManager->resetSuspendTimer();
 
 	bool wasActive = false;
 	while (input[POWER]) {
@@ -1559,6 +1559,10 @@ void GMenu2X::settings() {
 		setBacklight(confInt["backlight"], false);
 
 		writeConfig();
+
+		powerManager->setSuspendTimeout(confInt["backlightTimeout"]);
+		powerManager->setPowerTimeout(confInt["powerTimeout"]);
+		powerManager->resetSuspendTimer();
 
 #if defined(TARGET_RS97)
 		if (prevTVOut != confStr["TVOut"]) setTVOut();
@@ -1736,7 +1740,7 @@ void GMenu2X::checkUDC() {
 				system("mount /dev/mmcblk1p1 /mnt/ext_sd -t vfat -o rw,utf8 -t vfat -o rw,utf8");
 				INFO("%s, disconnect USB disk for external SD", __func__);
 			}
-			powerManager->resetSuspendTimeout();
+			powerManager->resetSuspendTimer();
 			// tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 		}
 	}
@@ -1938,7 +1942,7 @@ void GMenu2X::contextMenu() {
 	}
 	input.setWakeUpInterval(0);
 	// tickSuspend = SDL_GetTicks(); // prevent immediate suspend
-	// powerManager->resetSuspendTimeout();
+	// powerManager->resetSuspendTimer();
 }
 
 bool GMenu2X::saveScreenshot() {
@@ -2352,7 +2356,7 @@ int GMenu2X::setVolume(int val, bool popup) {
 			sc.skinRes("imgs/volume.png"),
 		};
 
-
+		powerManager->clearTimer();
 		while (!close) {
 			input.setWakeUpInterval(3000);
 			drawSlider(val, 0, 100, *iconVolume[val > 0 ? 2 : 0], bg);
@@ -2366,8 +2370,8 @@ int GMenu2X::setVolume(int val, bool popup) {
 													val += volumeStep;
 													if (val > 100) val = 0;
 												}
-			powerManager->resetSuspendTimeout();
 		}
+		powerManager->resetSuspendTimer();
 		input.setWakeUpInterval(0);
 		confInt["globalVolume"] = val;
 		writeConfig();
@@ -2421,6 +2425,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 			sc.skinRes("imgs/brightness.png")
 		};
 
+		powerManager->clearTimer();
 		while (!close) {
 			input.setWakeUpInterval(3000);
 			int backlightIcon = val/20;
@@ -2435,9 +2440,8 @@ int GMenu2X::setBacklight(int val, bool popup) {
 			if ( input[LEFT] || input[DEC] )			val = setBacklight(max(1, val - backlightStep), false);
 			else if ( input[RIGHT] || input[INC] )		val = setBacklight(min(100, val + backlightStep), false);
 			else if ( input[BACKLIGHT] )				val = setBacklight(val + backlightStep, false);
-			powerManager->resetSuspendTimeout();
-
 		}
+		powerManager->resetSuspendTimer();
 		input.setWakeUpInterval(0);
 		confInt["backlight"] = val;
 		writeConfig();

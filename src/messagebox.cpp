@@ -87,7 +87,7 @@ void MessageBox::setAutoHide(int autohide) {
 int MessageBox::exec() {
 	int result = -1;
 
-	gmenu2x->powerManager->clearTimeout();
+	gmenu2x->powerManager->clearTimer();
 
 	// Surface bg(gmenu2x->s);
 	//Darken background
@@ -115,7 +115,7 @@ int MessageBox::exec() {
 	if (this->autohide) {
 		gmenu2x->s->flip();
 		SDL_Delay(this->autohide);
-		gmenu2x->powerManager->resetSuspendTimeout(); // = SDL_GetTicks(); // prevent immediate suspend
+		gmenu2x->powerManager->resetSuspendTimer(); // = SDL_GetTicks(); // prevent immediate suspend
 		return -1;
 	}
 	//draw buttons rectangle
@@ -160,7 +160,7 @@ int MessageBox::exec() {
 	}
 
 	gmenu2x->input.dropEvents(); // prevent passing input away
-	gmenu2x->powerManager->resetSuspendTimeout();
+	gmenu2x->powerManager->resetSuspendTimer();
 	// gmenu2x->tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 	return result;
 }
