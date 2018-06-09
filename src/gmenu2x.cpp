@@ -421,24 +421,26 @@ GMenu2X::GMenu2X() {
 
 	initMenu();
 
+	readTmp();
+
 	input.init(path + "input.conf");
 	setInputSpeed();
-	// input.setWakeUpInterval(1000);
+	setCPU(confInt["cpuMenu"]);
 
 #if defined(TARGET_GP2X)
 	initServices();
 	setGamma(confInt["gamma"]);
 	applyDefaultTimings();
+#elif defined(TARGET_RS97)
+	setTVOut(TVOut);
 #endif
 
+	// input.setWakeUpInterval(1000);
 	// setVolume(confInt["globalVolume"]);
-	setCPU(confInt["cpuMenu"]);
 	// setCPU(CPU_CLK_DEFAULT);
-	//recover last session
-	readTmp();
-
 	// tickSuspend = 0;
 
+	//recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
 		menu->selLinkApp()->selector(lastSelectorElement,lastSelectorDir);
 }
@@ -751,7 +753,6 @@ void GMenu2X::readConfig() {
 		confInt["link"] = 0;
 	}
 
-	confStr["TVOut"] = "OFF";
 	resX = constrain( confInt["resolutionX"], 320, 1920 );
 	resY = constrain( confInt["resolutionY"], 240, 1200 );
 }
@@ -767,7 +768,7 @@ void GMenu2X::writeConfig() {
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
-			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding" ) continue;
+			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding"  || curr->first == "TVOut") continue;
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 		}
 
@@ -912,6 +913,7 @@ void GMenu2X::readTmp() {
 	if (!inf.is_open()) return;
 	string line;
 	string section = "";
+
 	while (getline(inf, line, '\n')) {
 		string::size_type pos = line.find("=");
 		string name = trim(line.substr(0,pos));
@@ -921,7 +923,10 @@ void GMenu2X::readTmp() {
 		else if (name == "link") menu->setLinkIndex(atoi(value.c_str()));
 		else if (name == "selectorelem") lastSelectorElement = atoi(value.c_str());
 		else if (name == "selectordir") lastSelectorDir = value;
+		else if (name == "TVOut") TVOut = value;
 	}
+	if (TVOut != "NTSC" && TVOut != "PAL") TVOut = "OFF";
+
 	inf.close();
 	unlink("/tmp/gmenu2x.tmp");
 }
@@ -934,6 +939,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 		inf << "link=" << menu->selLinkIndex() << endl;
 		if (selelem >- 1) inf << "selectorelem=" << selelem << endl;
 		if (selectordir != "") inf << "selectordir=" << selectordir << endl;
+		inf << "TVOut=" << TVOut << endl;
 		inf.close();
 	}
 }
@@ -1426,7 +1432,6 @@ void GMenu2X::settings() {
 
 	string sectionBar = sbStr[confInt["sectionBar"]];
 	string prevDateTime = confStr["datetime"] = getDateTime();
-	string prevTVOut = confStr["TVOut"];
 
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
@@ -1448,8 +1453,9 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["cpuMenu"], 200, 50, 900, 10));
 	// sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["cpuMax"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX, 10));
 #elif defined(TARGET_RS97)
+	string prevTVOut = TVOut;
+	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &TVOut, &encodings));
 	// sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["cpuMax"], 528, 528, 642, 6));
-	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &confStr["TVOut"], &encodings));
 	// sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["cpuMenu"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX, 6));
 #endif
 	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Seconds to turn display off if inactive"], &confInt["backlightTimeout"], 30, 10, 300));
@@ -1488,8 +1494,24 @@ void GMenu2X::settings() {
 		powerManager->setSuspendTimeout(confInt["backlightTimeout"]);
 		powerManager->setPowerTimeout(confInt["powerTimeout"]);
 
-#if defined(TARGET_RS97)
-		if (prevTVOut != confStr["TVOut"]) setTVOut();
+#if defined(TARGET_GP2X)
+//G
+		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
+		// if (fileExists("/mnt/root") && !showRootFolder)
+			// unlink("/mnt/root");
+		// else if (!fileExists("/mnt/root") && showRootFolder)
+			// symlink("/","/mnt/root");
+#elif defined(TARGET_RS97)
+		if (prevTVOut != TVOut) setTVOut(TVOut);
+		if (TVOut != "OFF") {
+			MessageBox mb(this, tr["TV-out enabled.\nContinue?"], "skin:icons/tv.png");
+			mb.setButton(SETTINGS, tr["Yes"]);
+			mb.setButton(CONFIRM,  tr["No"]);
+			if (mb.exec() == CONFIRM) {
+				TVOut = "OFF";
+				setTVOut(TVOut);
+			}
+		}
 #endif
 
 		if (prevSkinBackdrops != confInt["skinBackdrops"] || prevDateTime != confStr["datetime"]) restartDialog();
@@ -1619,6 +1641,14 @@ void GMenu2X::poweroffDialog() {
 	}
 }
 
+void GMenu2X::setTVOut(string TVOut) {
+#if defined(TARGET_RS97)
+	system("echo 0 > /proc/jz/tvselect"); // always reset tv out
+	if (TVOut == "NTSC")		system("echo 2 > /proc/jz/tvselect");
+	else if (TVOut == "PAL")	system("echo 1 > /proc/jz/tvselect");
+#endif
+}
+
 #if defined(TARGET_RS97)
 void GMenu2X::checkUDC() {
 	if (getUDCStatus() == UDC_CONNECT) {
@@ -1661,33 +1691,6 @@ void GMenu2X::checkUDC() {
 			}
 			powerManager->resetSuspendTimer();
 		}
-	}
-}
-
-void GMenu2X::setTVOut() {
-	char buf[2] = "0";
-
-	// int tvout = open("/proc/jz/tvout", O_RDWR);
-	FILE *f = fopen("/proc/jz/tvselect", "w");
-	if (f) {
-		if (confStr["TVOut"] == "PAL") {
-			sprintf(buf, "1");
-		} else if (confStr["TVOut"] == "NTSC") {
-			sprintf(buf, "2");
-		}
-		fputs(buf, f);
-
-	}
-	fclose(f);
-
-	if (strcmp(buf, "0") == 0) return;
-
-	MessageBox mb(this, tr["TV-out enabled.\nContinue?"], "skin:icons/tv.png");
-	mb.setButton(SETTINGS, tr["Yes"]);
-	mb.setButton(CONFIRM,  tr["No"]);
-	if (mb.exec() == CONFIRM) {
-		confStr["TVOut"] = "OFF";
-		setTVOut();
 	}
 }
 

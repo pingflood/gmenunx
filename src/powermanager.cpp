@@ -51,6 +51,7 @@ Uint32 PowerManager::doSuspend(unsigned int interval, void *param) {
 		mb.setAutoHide(500);
 		mb.exec();
 
+		PowerManager::instance->gmenu2x->setTVOut("OFF");
 		PowerManager::instance->gmenu2x->setBacklight(0);
 		PowerManager::instance->gmenu2x->setCPU(PowerManager::instance->gmenu2x->confInt["cpuMin"]);
 		PowerManager::instance->resetPowerTimer();
@@ -61,6 +62,7 @@ Uint32 PowerManager::doSuspend(unsigned int interval, void *param) {
 	}
 
 	PowerManager::instance->gmenu2x->setCPU(PowerManager::instance->gmenu2x->confInt["cpuMenu"]);
+	PowerManager::instance->gmenu2x->setTVOut(PowerManager::instance->gmenu2x->TVOut);
 	PowerManager::instance->gmenu2x->setBacklight(max(10, PowerManager::instance->gmenu2x->confInt["backlight"]));
 	PowerManager::instance->suspendActive = false;
 	PowerManager::instance->resetSuspendTimer();
