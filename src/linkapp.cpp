@@ -413,7 +413,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"])
 			gmenu2x->setGamma(gamma());
 #elif defined(TARGET_RS97)
-		gmenu2x->setTVOut("OFF");
 		gmenu2x->setTVOut(gmenu2x->TVOut);
 #endif
 

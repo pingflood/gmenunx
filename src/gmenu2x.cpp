@@ -1390,7 +1390,8 @@ void GMenu2X::explorer() {
 		chdir(fd.getPath().c_str());
 		quit();
 		setCPU(confInt["cpuMenu"]);
-		execlp("/bin/sh","/bin/sh","-c",command.c_str(),NULL);
+		setTVOut(TVOut);
+		execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 	//try relaunching gmenu2x
