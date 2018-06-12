@@ -12,6 +12,9 @@ public:
 	Dialog(GMenu2X *gmenu2x);
 
 protected:
+	~Dialog();
+
+	Surface *bg;
 	// static const std::string empty = std::string();
 	// void drawTitleIcon(const std::string &icon, bool skinRes = false, Surface *s = NULL);
 	void drawTitleIcon(const std::string &icon, Surface *s = NULL);

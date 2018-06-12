@@ -36,7 +36,7 @@ WallpaperDialog::WallpaperDialog(GMenu2X *gmenu2x, const string &title, const st
 
 bool WallpaperDialog::exec()
 {
-	gmenu2x->initBG();
+	// gmenu2x->initBG();
 
 	bool close = false, result = true;
 

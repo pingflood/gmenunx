@@ -52,7 +52,9 @@ Dialog(gmenu2x)
 }
 
 int Selector::exec(int startSelection) {
-	gmenu2x->initBG(link->getBackdrop());
+	// gmenu2x->initBG(link->getBackdrop());
+	gmenu2x->sc[link->getBackdrop()]->blit(this->bg,0,0);
+
 
 	bool close = false, result = true;
 	vector<string> screens, titles;
@@ -64,17 +66,17 @@ int Selector::exec(int startSelection) {
 	fl.setFilter(link->getSelectorFilter());
 	fl.browse();
 
-	// Surface bg(gmenu2x->bg);
+	// Surface bg(this->bg);
 	screendir = link->getSelectorScreens();
 
 	SDL_Rect rect;
 
 	if (screendir == "") {
-		drawTopBar(gmenu2x->bg);
+		drawTopBar(this->bg);
 		rect = gmenu2x->listRect; //{0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
 	} else {
-		gmenu2x->bg->box(0, 0, gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-		gmenu2x->bg->setClipRect(0, 0, gmenu2x->skinConfInt["selectorX"] - 4, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]);
+		this->bg->box(0, 0, gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+		this->bg->setClipRect(0, 0, gmenu2x->skinConfInt["selectorX"] - 4, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]);
 		rect = (SDL_Rect){gmenu2x->skinConfInt["selectorX"], 0, gmenu2x->resX - gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]};
 	}
 
@@ -82,22 +84,22 @@ int Selector::exec(int startSelection) {
 	uint rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
 	uint numRows = rect.h / rowHeight - 1;
 
-	drawTitleIcon(link->getIconPath(), gmenu2x->bg);
-	writeTitle(link->getTitle(), gmenu2x->bg);
-	writeSubTitle(link->getDescription(), gmenu2x->bg);
+	drawTitleIcon(link->getIconPath(), this->bg);
+	writeTitle(link->getTitle(), this->bg);
+	writeSubTitle(link->getDescription(), this->bg);
 
-	gmenu2x->bg->clearClipRect();
+	this->bg->clearClipRect();
 
-	gmenu2x->bg->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-	drawBottomBar(gmenu2x->bg);
+	this->bg->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	drawBottomBar(this->bg);
 
 	if (link->getSelectorBrowser()) {
-		gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Select"],
-			gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Folder up"],
-				gmenu2x->drawButton(gmenu2x->bg, "start", gmenu2x->tr["Exit"], 5)));
+		gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
+			gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Folder up"],
+				gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5)));
 	} else {
-		gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Exit"],
-			gmenu2x->drawButton(gmenu2x->bg, "a", gmenu2x->tr["Select"], 5));
+		gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
+			gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"], 5));
 	}
 
 	prepare(&fl, &screens, &titles);
@@ -112,7 +114,7 @@ int Selector::exec(int startSelection) {
 	gmenu2x->sc.defaultAlpha = false;
 	// gmenu2x->input.setWakeUpInterval(1); // refresh on load
 	while (!close) {
-		gmenu2x->bg->blit(gmenu2x->s, 0, 0);
+		this->bg->blit(gmenu2x->s, 0, 0);
 
 		if (selected > firstElement + numRows) firstElement = selected - numRows;
 		if (selected < firstElement) firstElement = selected;
@@ -160,30 +162,28 @@ int Selector::exec(int startSelection) {
 
 		if ( gmenu2x->input[SETTINGS] ) {
 			close = true; result = false;
+		} else if ( gmenu2x->input[MENU] ) {
+			gmenu2x->editLink();
 		} else if ( gmenu2x->input[UP] ) {
 			if (selected == 0)
 				selected = fl.size()-1;
 			else
 				selected -= 1;
-			// selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
 			if (selected < numRows)
 				selected = 0;
 			else
 				selected -= numRows;
-			// selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[DOWN] ) {
 			if (selected + 1 >= fl.size())
 				selected = 0;
 			else
 				selected += 1;
-			// selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
 			if (selected + numRows >= fl.size())
 				selected = fl.size() - 1;
 			else
 				selected += numRows;
-			// selTick = SDL_GetTicks();
 		} else if ( gmenu2x->input[CANCEL] ) {
 			if (link->getSelectorBrowser()) {
 				string::size_type p = dir.rfind("/", dir.size() - 2);

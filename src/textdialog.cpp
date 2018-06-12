@@ -97,28 +97,29 @@ void TextDialog::drawText(vector<string> *text, uint firstRow, uint rowsPerPage)
 }
 
 void TextDialog::exec() {
-	gmenu2x->initBG(backdrop);
+	// gmenu2x->initBG(backdrop);
+	gmenu2x->sc[backdrop]->blit(this->bg,0,0);
 
 	bool close = false;
 
-	drawTopBar(gmenu2x->bg, title, description);
+	drawTopBar(this->bg, title, description);
 
 	//link icon
 	if (gmenu2x->sc.skinRes(icon)==NULL)
-		drawTitleIcon("icons/ebook.png", gmenu2x->bg);
+		drawTitleIcon("icons/ebook.png", this->bg);
 	else
-		drawTitleIcon(icon, gmenu2x->bg);
+		drawTitleIcon(icon, this->bg);
 
-	drawBottomBar(gmenu2x->bg);
-	gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Exit"],
-	gmenu2x->drawButton(gmenu2x->bg, "down", gmenu2x->tr["Scroll"],
-	gmenu2x->drawButton(gmenu2x->bg, "up", "", 5)-10));
+	drawBottomBar(this->bg);
+	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
+	gmenu2x->drawButton(this->bg, "down", gmenu2x->tr["Scroll"],
+	gmenu2x->drawButton(this->bg, "up", "", 5)-10));
 
-	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	uint firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 	while (!close) {
-		gmenu2x->bg->blit(gmenu2x->s,0,0);
+		this->bg->blit(gmenu2x->s,0,0);
 		drawText(text, firstRow, rowsPerPage);
 		gmenu2x->s->flip();
 

@@ -33,7 +33,7 @@ BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &
 BrowseDialog::~BrowseDialog() {}
 
 bool BrowseDialog::exec() {
-	gmenu2x->initBG();
+	// gmenu2x->initBG();
 
 	// moved out of the loop to fix weird scroll behavior
 	unsigned int i, iY;
@@ -55,18 +55,18 @@ bool BrowseDialog::exec() {
 	selected = 0;
 	close = false;
 
-	drawTopBar(gmenu2x->bg, title, subtitle, "icons/explorer.png");
-	drawBottomBar(gmenu2x->bg);
-	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	drawTopBar(this->bg, title, subtitle, "icons/explorer.png");
+	drawBottomBar(this->bg);
+	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	// gmenu2x->bg->setClipRect(gmenu2x->listRect);
+	// this->bg->setClipRect(gmenu2x->listRect);
 
 	while (!close) {
 		handleInput();
 
 		if (gmenu2x->f200) gmenu2x->ts.poll();
 
-		gmenu2x->bg->blit(gmenu2x->s, 0, 0);
+		this->bg->blit(gmenu2x->s, 0, 0);
 
 		buttonBox.paint(5);
 

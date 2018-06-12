@@ -46,7 +46,7 @@ SettingsDialog::~SettingsDialog() {
 }
 
 bool SettingsDialog::exec() {
-	gmenu2x->initBG();
+	// gmenu2x->initBG();
 
 	bool close = false, ts_pressed = false;
 	uint i, sel = 0, iY, firstElement = 0, action;
@@ -63,7 +63,7 @@ bool SettingsDialog::exec() {
 		bool inputAction = gmenu2x->input.update();
 		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-		gmenu2x->bg->blit(gmenu2x->s,0,0);
+		this->bg->blit(gmenu2x->s,0,0);
 
 		// redraw to due to realtime skin
 		drawTopBar(gmenu2x->s, text, voices[sel]->getDescription(), icon);

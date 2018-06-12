@@ -10,7 +10,7 @@ LinkScannerDialog::LinkScannerDialog(GMenu2X *gmenu2x, const string &title, cons
 }
 
 void LinkScannerDialog::exec() {
-	gmenu2x->initBG();
+	// gmenu2x->initBG();
 
 	bool close = false;
 	string str = "";
@@ -18,13 +18,13 @@ void LinkScannerDialog::exec() {
 	uint lineY = gmenu2x->listRect.y;
 	vector<string> files;
 
-	drawTopBar(gmenu2x->bg, title, description, icon);
-	drawBottomBar(gmenu2x->bg);
-	gmenu2x->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	drawTopBar(this->bg, title, description, icon);
+	drawBottomBar(this->bg);
+	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	gmenu2x->drawButton(gmenu2x->bg, "b", gmenu2x->tr["Back"]);
+	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Back"]);
 
-	gmenu2x->bg->blit(gmenu2x->s,0,0);
+	this->bg->blit(gmenu2x->s,0,0);
 
 	// ss << gmenu2x->confInt["cpuMax"];
 	// ss >> str;

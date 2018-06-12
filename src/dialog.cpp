@@ -3,7 +3,13 @@
 #include "dialog.h"
 #include "gmenu2x.h"
 
-Dialog::Dialog(GMenu2X *gmenu2x) : gmenu2x(gmenu2x) {}
+Dialog::Dialog(GMenu2X *gmenu2x) : gmenu2x(gmenu2x) {
+	bg = new Surface(gmenu2x->bg);
+}
+
+Dialog::~Dialog() {
+	delete bg;
+}
 
 void Dialog::drawTitleIcon(const std::string &icon, Surface *s) {
 	if (s == NULL) s = gmenu2x->s;
