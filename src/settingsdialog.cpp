@@ -60,9 +60,6 @@ bool SettingsDialog::exec() {
 		uint rowHeight = gmenu2x->font->getHeight();
 		uint numRows = gmenu2x->listRect.h/rowHeight;
 
-		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->inputCommonActions(inputAction)) continue;
-
 		this->bg->blit(gmenu2x->s,0,0);
 
 		// redraw to due to realtime skin
@@ -98,6 +95,9 @@ bool SettingsDialog::exec() {
 		gmenu2x->drawScrollBar(numRows, voices.size(), firstElement, gmenu2x->listRect);
 
 		gmenu2x->s->flip();
+
+		bool inputAction = gmenu2x->input.update();
+		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 		action = SD_NO_ACTION;
 		if ( gmenu2x->input[SETTINGS] ) action = SD_ACTION_SAVE;

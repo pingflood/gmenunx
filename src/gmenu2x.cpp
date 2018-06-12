@@ -1431,6 +1431,7 @@ void GMenu2X::settings() {
 	sbStr.push_back("Right");
 	sbStr.push_back("Top");
 
+	int prevSb = confInt["sectionBar"];
 	string sectionBar = sbStr[confInt["sectionBar"]];
 	string prevDateTime = confStr["datetime"] = getDateTime();
 
@@ -1466,29 +1467,25 @@ void GMenu2X::settings() {
 	// sd.addSetting(new MenuSettingBool(this,tr["Show root"], tr["Show root folder in the file selection dialogs"],&showRootFolder));
 
 	if (sd.exec() && sd.edited() && sd.save) {
-//G
-#if defined(TARGET_GP2X)
-		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
-#endif
 
 		if (curMenuClock != confInt["cpuMenu"]) setCPU(confInt["cpuMenu"]);
 		if (curGlobalVolume != confInt["globalVolume"]) setVolume(confInt["globalVolume"]);
-		if (lang == "English") lang = "";
-		if (lang != tr.lang()) tr.setLang(lang);
-		// if (fileExists("/mnt/root") && !showRootFolder)
-			// unlink("/mnt/root");
-		// else if (!fileExists("/mnt/root") && showRootFolder)
-			// symlink("/","/mnt/root");
 
-		if (confStr["lang"] != lang) confStr["lang"] = lang;
+		if (lang == "English") lang = "";
+		// if (lang != tr.lang()) tr.setLang(lang);
+		if (confStr["lang"] != lang) {
+			confStr["lang"] = lang;
+			tr.setLang(lang);
+		}
+
 		if (sectionBar == "OFF") confInt["sectionBar"] = SB_OFF;
 		else if (sectionBar == "Right") confInt["sectionBar"] = SB_RIGHT;
 		else if (sectionBar == "Top") confInt["sectionBar"] = SB_TOP;
 		else if (sectionBar == "Bottom") confInt["sectionBar"] = SB_BOTTOM;
 		else confInt["sectionBar"] = SB_LEFT;
+		if (prevSb != confInt["sectionBar"]) initMenu();
 
 		setBacklight(confInt["backlight"], false);
-		initMenu();
 		writeConfig();
 
 		powerManager->resetSuspendTimer();
