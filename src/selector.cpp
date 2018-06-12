@@ -52,21 +52,17 @@ Dialog(gmenu2x)
 }
 
 int Selector::exec(int startSelection) {
-	// gmenu2x->initBG(link->getBackdrop());
-	gmenu2x->sc[link->getBackdrop()]->blit(this->bg,0,0);
-
+	if (gmenu2x->sc[link->getBackdrop()] != NULL) gmenu2x->sc[link->getBackdrop()]->blit(this->bg,0,0);
 
 	bool close = false, result = true;
 	vector<string> screens, titles;
 
-	// Uint32 selTick = SDL_GetTicks(), curTick;
 	uint i, firstElement = 0, iY;
 
 	FileLister fl(dir, link->getSelectorBrowser());
 	fl.setFilter(link->getSelectorFilter());
 	fl.browse();
 
-	// Surface bg(this->bg);
 	screendir = link->getSelectorScreens();
 
 	SDL_Rect rect;
