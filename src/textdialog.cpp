@@ -97,8 +97,7 @@ void TextDialog::drawText(vector<string> *text, uint firstRow, uint rowsPerPage)
 }
 
 void TextDialog::exec() {
-	// gmenu2x->initBG(backdrop);
-	gmenu2x->sc[backdrop]->blit(this->bg,0,0);
+	if (gmenu2x->sc[backdrop] != NULL) gmenu2x->sc[backdrop]->blit(this->bg,0,0);
 
 	bool close = false;
 
