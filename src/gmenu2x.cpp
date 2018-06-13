@@ -735,7 +735,7 @@ void GMenu2X::readConfig() {
 // 	evalIntConf( &confInt["cpuMenu"], CPU_CLK_DEFAULT, 250, 300 );
 // #elif defined(TARGET_RS97)
 	evalIntConf( &confInt["cpuMax"], 642, 200, 1200 );
-	evalIntConf( &confInt["cpuMin"], 252, 200, 1200 );
+	evalIntConf( &confInt["cpuMin"], 312, 200, 1200 );
 	evalIntConf( &confInt["cpuMenu"], 528, 200, 1200 );
 // #endif
 	evalIntConf( &confInt["globalVolume"], 60, 1, 100 );
