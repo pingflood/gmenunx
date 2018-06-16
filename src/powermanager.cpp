@@ -51,8 +51,8 @@ Uint32 PowerManager::doSuspend(unsigned int interval, void *param) {
 		mb.setAutoHide(500);
 		mb.exec();
 
-		PowerManager::instance->gmenu2x->setTVOut("OFF");
 		PowerManager::instance->gmenu2x->setBacklight(0);
+		PowerManager::instance->gmenu2x->setTVOut("OFF");
 		PowerManager::instance->gmenu2x->setCPU(PowerManager::instance->gmenu2x->confInt["cpuMin"]);
 		PowerManager::instance->resetPowerTimer();
 
