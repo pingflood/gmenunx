@@ -13,8 +13,8 @@ public:
 	void clearTimer();
 	void resetSuspendTimer();
 	void resetPowerTimer();
-	static Uint32 doSuspend(unsigned int interval, void * param);
-	static Uint32 doPowerOff(unsigned int interval, void * param);
+	static Uint32 doSuspend(unsigned int interval, void *param = NULL);
+	static Uint32 doPowerOff(unsigned int interval, void *param = NULL);
 	bool suspendActive;
 	SDL_TimerID powerTimer; // = NULL;
 
