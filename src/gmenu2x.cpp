@@ -978,7 +978,6 @@ void* mainThread(void* param) {
 }
 
 void GMenu2X::main() {
-	unsigned short battlevel = 0; //getBatteryLevel();
 	pthread_t thread_id;
 	// uint linksPerPage = linkColumns*linkRows;
 	// int linkSpacingX = (resX-10 - linkColumns*(resX - skinConfInt["sectionBarX"]))/linkColumns;
@@ -1164,7 +1163,7 @@ void GMenu2X::main() {
 			// TRAY 1,0
 			if (tickNow - tickBattery >= 5000) {
 				tickBattery = tickNow;
-				battlevel = getBatteryLevel();
+				unsigned short battlevel = getBatteryLevel();
 				if (battlevel > 5) {
 					batteryIcon = "imgs/battery/ac.png";
 				} else {
