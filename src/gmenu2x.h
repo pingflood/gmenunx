@@ -192,6 +192,8 @@ private:
 	// void toggleTvOut();
 	void gp2x_deinit();
 	void gp2x_init();
+	static Uint32 hwCheck(unsigned int interval, void *param);
+	static GMenu2X *instance;
 
 public:
 	GMenu2X();

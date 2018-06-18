@@ -182,6 +182,7 @@ udc_status getUDCStatus(void) {
 
 int udcConnectedOnBoot;
 
+short int tvOutPrev, tvOutConnected, tvOutToggle = 0;
 
 int main(int /*argc*/, char * /*argv*/[]) {
 	INFO("GMenu2X starting: If you read this message in the logs, check http://mtorromeo.github.com/gmenu2x/troubleshooting.html for a solution");
@@ -214,7 +215,8 @@ void GMenu2X::gp2x_init() {
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 		memregs = (unsigned short*)mmap(0, 0x20000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
 #elif defined(TARGET_RS97)
-		memregs = (unsigned long*)mmap(0, 1024, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
+		// memregs = (unsigned long*)mmap(0, 1024, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
+		memregs = (unsigned long*)mmap(0, 2048, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10010000);
 #endif
 		if (memregs == MAP_FAILED) {
 			ERROR("Could not mmap hardware registers!");
@@ -279,7 +281,11 @@ void GMenu2X::gp2x_tvout_off() {
 }
 #endif
 
+
+GMenu2X *GMenu2X::instance = NULL;
+
 GMenu2X::GMenu2X() {
+	instance = this;
 	//Detect firmware version and type
 	if (fileExists("/etc/open2x")) {
 		fwType = "open2x";
@@ -411,7 +417,7 @@ GMenu2X::GMenu2X() {
 
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
 
-	MessageBox mb(this,tr["Loading..."]);
+	MessageBox mb(this,tr["Loading"]);
 	mb.setAutoHide(1);
 	mb.exec();
 
@@ -437,6 +443,9 @@ GMenu2X::GMenu2X() {
 	// setVolume(confInt["globalVolume"]);
 	// setCPU(CPU_CLK_DEFAULT);
 	// tickSuspend = 0;
+
+	tvOutPrev = tvOutConnected = !(GMenu2X::instance->memregs[0x300 >> 2] >> 25 & 0b1);
+	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
 	//recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
@@ -717,6 +726,7 @@ void GMenu2X::readConfig() {
 		}
 	}
 
+	if (confStr["TVOut"] != "PAL") confStr["TVOut"] = "NTSC";
 	if (!confStr["lang"].empty()) tr.setLang(confStr["lang"]);
 	if (!confStr["wallpaper"].empty() && !fileExists(confStr["wallpaper"])) confStr["wallpaper"] = "";
 	if (confStr["skin"].empty() || !dirExists("skins/"+confStr["skin"])) confStr["skin"] = "Default";
@@ -766,7 +776,7 @@ void GMenu2X::writeConfig() {
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
-			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding"  || curr->first == "TVOut") continue;
+			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding") continue;
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 		}
 
@@ -977,6 +987,46 @@ void* mainThread(void* param) {
 	return NULL;
 }
 
+Uint32 GMenu2X::hwCheck(unsigned int interval, void *param) {
+	if (GMenu2X::instance->memdev > 0) {
+		INFO("A: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x",
+			GMenu2X::instance->memregs[0x000 >> 2], GMenu2X::instance->memregs[0x010 >> 2],
+			GMenu2X::instance->memregs[0x100 >> 2], GMenu2X::instance->memregs[0x110 >> 2],
+			GMenu2X::instance->memregs[0x200 >> 2], GMenu2X::instance->memregs[0x210 >> 2],
+			GMenu2X::instance->memregs[0x300 >> 2], GMenu2X::instance->memregs[0x310 >> 2],
+			GMenu2X::instance->memregs[0x400 >> 2], GMenu2X::instance->memregs[0x410 >> 2],
+			GMenu2X::instance->memregs[0x500 >> 2], GMenu2X::instance->memregs[0x510 >> 2]
+		);
+
+		// DEBUG("D: 0x%x 8>0x%x 16>0x%x 24>0x%x 32>0x%x 40>0x%x 48>0x%x",
+		// 	GMenu2X::instance->memregs[0x300 >> 2],
+		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 8 & 0xf,
+		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 16 & 0xf,
+		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 24 & 0xf,
+		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 32 & 0xf,
+		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 40 & 0xf,
+		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 28 & 0xf
+		// );
+
+		// DEBUG("TV: 0b%d",
+		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 25 & 0b1
+		// );
+
+		tvOutConnected = !(GMenu2X::instance->memregs[0x300 >> 2] >> 25 & 0b1);
+		if (tvOutPrev != tvOutConnected) {
+			tvOutPrev = tvOutConnected;
+			tvOutToggle = 1;
+
+			// Default Usage:
+			SDL_Event sdlevent;
+			sdlevent.type = SDL_KEYDOWN;
+			sdlevent.key.keysym.sym = SDLK_UNKNOWN;
+			SDL_PushEvent(&sdlevent);
+		}
+	}
+	return interval;
+}
+
 void GMenu2X::main() {
 	pthread_t thread_id;
 	// uint linksPerPage = linkColumns*linkRows;
@@ -1006,7 +1056,6 @@ void GMenu2X::main() {
 		checkUDC();
 	}
 #endif
-
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();
@@ -1067,7 +1116,10 @@ void GMenu2X::main() {
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38 + 1 * 20, sectionBarRect.y + sectionBarRect.h - 18,16,16, strtorgba("00ff00ff"));
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("0000ffff"));
 		// s->box(sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("ff00ffff"));
+
+
 		if (tickNow - tickMMC >= 1000) {
+			// TODO: move to hwCheck
 			tickMMC = tickNow;
 			curMMCStatus = getMMCStatus();
 			if (preMMCStatus != curMMCStatus) {
@@ -1162,6 +1214,7 @@ void GMenu2X::main() {
 
 			// TRAY 1,0
 			if (tickNow - tickBattery >= 5000) {
+				// TODO: move to hwCheck
 				tickBattery = tickNow;
 				unsigned short battlevel = getBatteryLevel();
 				if (battlevel > 5) {
@@ -1178,6 +1231,7 @@ void GMenu2X::main() {
 			// TRAY iconTrayShift,1
 			int iconTrayShift = 0;
 			if (preMMCStatus == MMC_INSERT) {
+				// TODO: move to hwCheck
 				sc.skinRes("imgs/sd1.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 				iconTrayShift++;
 			}
@@ -1309,7 +1363,7 @@ void GMenu2X::main() {
 }
 
 bool GMenu2X::inputCommonActions(bool &inputAction) {
-	// INFO("SDL_GetTicks(): %d\tsuspendActive: %d", SDL_GetTicks(), powerManager->suspendActive);
+	INFO("SDL_GetTicks(): %d\tsuspendActive: %d", SDL_GetTicks(), powerManager->suspendActive);
 
 	if (powerManager->suspendActive) {
 		// SUSPEND ACTIVE
@@ -1321,6 +1375,22 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	}
 
 	if (inputAction) powerManager->resetSuspendTimer();
+
+	if (tvOutToggle) {
+		tvOutToggle = 0;
+		TVOut = "OFF";
+
+		if (tvOutConnected) {
+			MessageBox mb(this, tr["TV-out connected.\nContinue?"], "skin:icons/tv.png");
+			mb.setButton(SETTINGS, tr["Yes"]);
+			mb.setButton(CONFIRM,  tr["No"]);
+
+			if (mb.exec() == SETTINGS) {
+				TVOut = confStr["TVOut"];
+			}
+		}
+		setTVOut(TVOut);
+	}
 
 	bool wasActive = false;
 	while (input[POWER]) {
@@ -1404,7 +1474,7 @@ void GMenu2X::settings() {
 	string lang = tr.lang();
 
 	vector<string> encodings;
-	encodings.push_back("OFF");
+	// encodings.push_back("OFF");
 	encodings.push_back("NTSC");
 	encodings.push_back("PAL");
 
@@ -1445,8 +1515,8 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["cpuMenu"], 200, 50, 900, 10));
 	// sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["cpuMax"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX, 10));
 #elif defined(TARGET_RS97)
-	string prevTVOut = TVOut;
-	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal"], &TVOut, &encodings));
+	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal encoding"], &confStr["TVOut"], &encodings));
+	// string tvOutPrev = TVOut;
 	// sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["cpuMax"], 528, 528, 642, 6));
 	// sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["cpuMenu"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX, 6));
 #endif
@@ -1489,17 +1559,6 @@ void GMenu2X::settings() {
 			// unlink("/mnt/root");
 		// else if (!fileExists("/mnt/root") && showRootFolder)
 			// symlink("/","/mnt/root");
-#elif defined(TARGET_RS97)
-		if (prevTVOut != TVOut) setTVOut(TVOut);
-		if (TVOut != "OFF") {
-			MessageBox mb(this, tr["TV-out enabled.\nContinue?"], "skin:icons/tv.png");
-			mb.setButton(SETTINGS, tr["Yes"]);
-			mb.setButton(CONFIRM,  tr["No"]);
-			if (mb.exec() == CONFIRM) {
-				TVOut = "OFF";
-				setTVOut(TVOut);
-			}
-		}
 #endif
 
 		if (prevSkinBackdrops != confInt["skinBackdrops"] || prevDateTime != confStr["datetime"]) restartDialog();
