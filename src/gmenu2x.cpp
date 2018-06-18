@@ -444,15 +444,14 @@ GMenu2X::GMenu2X() {
 	initServices();
 	setGamma(confInt["gamma"]);
 	applyDefaultTimings();
+#elif defined(TARGET_RS97)
+	if (memdev > 0) tvOutPrev = tvOutConnected = !(memregs[0x300 >> 2] >> 25 & 0b1);
 #endif
-
-	// input.setWakeUpInterval(1000);
 	// setVolume(confInt["globalVolume"]);
 	// setCPU(CPU_CLK_DEFAULT);
 	// tickSuspend = 0;
-
-	tvOutPrev = tvOutConnected = !(memregs[0x300 >> 2] >> 25 & 0b1);
-	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
+	// SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
+	input.setWakeUpInterval(1000);
 
 	//recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
@@ -994,7 +993,8 @@ void* mainThread(void* param) {
 	return NULL;
 }
 
-Uint32 GMenu2X::hwCheck(unsigned int interval, void *param) {
+Uint32 GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
+	INFO("HWCHECK");
 	if (memdev > 0) {
 		INFO("A: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x",
 			memregs[0x000 >> 2], memregs[0x010 >> 2],
@@ -1023,11 +1023,6 @@ Uint32 GMenu2X::hwCheck(unsigned int interval, void *param) {
 		if (tvOutPrev != tvOutConnected) {
 			tvOutPrev = tvOutConnected;
 			tvOutToggle = 1;
-
-			SDL_Event event;
-			event.type = SDL_KEYDOWN;
-			event.key.keysym.sym = SDLK_UNKNOWN;
-			SDL_PushEvent(&event);
 		}
 	}
 	return interval;
@@ -1294,7 +1289,7 @@ void GMenu2X::main() {
 			input.setWakeUpInterval(1);
 			continue;
 		}
-		input.setWakeUpInterval(0);
+		// input.setWakeUpInterval(0);
 
 		if (inputCommonActions(inputAction)) continue;
 
@@ -1380,9 +1375,16 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		return true;
 	}
 
+	input.setWakeUpInterval(1000);
 	if (inputAction) powerManager->resetSuspendTimer();
 
+
+	hwCheck();
+	WARNING("NOT SUSPENDED");
+
+
 	if (tvOutToggle) {
+		WARNING("TV OUT TOGGLE");
 		tvOutToggle = 0;
 		TVOut = "OFF";
 
@@ -1829,37 +1831,7 @@ void GMenu2X::contextMenu() {
 			continue; 
 		}
 
-#if defined(TARGET_GP2X)
-		//touchscreen
-		if (f200) {
-			ts.poll();
-			if (ts.released()) {
-				if (!ts.inRect(box))
-					close = true;
-				else if (ts.getX() >= selbox.x
-					&& ts.getX() <= selbox.x + selbox.w)
-					for (i=0; i<voices.size(); i++) {
-						selbox.y = box.y+4+h*i;
-						if (ts.getY() >= selbox.y
-							&& ts.getY() <= selbox.y + selbox.h) {
-							voices[i].action();
-						close = true;
-						i = voices.size();
-					}
-				}
-			} else if (ts.pressed() && ts.inRect(box)) {
-				for (i=0; i<voices.size(); i++) {
-					selbox.y = box.y+4+h*i;
-					if (ts.getY() >= selbox.y
-						&& ts.getY() <= selbox.y + selbox.h) {
-						sel = i;
-					i = voices.size();
-					}
-				}
-			}
-		}
-#endif
-		input.setWakeUpInterval(0);
+		// input.setWakeUpInterval(0);
 
 		bool inputAction = input.update();
 
@@ -2294,7 +2266,7 @@ int GMenu2X::setVolume(int val, bool popup) {
 			}
 		}
 		powerManager->resetSuspendTimer();
-		input.setWakeUpInterval(0);
+		// input.setWakeUpInterval(0);
 		confInt["globalVolume"] = val;
 		writeConfig();
 	}
@@ -2364,7 +2336,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 			else if ( input[BACKLIGHT] )				val = setBacklight(val + backlightStep, false);
 		}
 		powerManager->resetSuspendTimer();
-		input.setWakeUpInterval(0);
+		// input.setWakeUpInterval(0);
 		confInt["backlight"] = val;
 		writeConfig();
 	}

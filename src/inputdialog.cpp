@@ -157,7 +157,7 @@ bool InputDialog::exec() {
 	while (!close) {
 		bool inputAction = gmenu2x->input.update();
 		if (gmenu2x->inputCommonActions(inputAction)) continue;
-		gmenu2x->input.setWakeUpInterval(300);
+		gmenu2x->input.setWakeUpInterval(500);
 
 		bg->blit(gmenu2x->s,0,0);
 
@@ -227,7 +227,7 @@ bool InputDialog::exec() {
 				break;
 		}
 	}
-	gmenu2x->input.setWakeUpInterval(0);
+	// gmenu2x->input.setWakeUpInterval(0);
 
 	return ok;
 }
