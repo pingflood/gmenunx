@@ -182,6 +182,13 @@ udc_status getUDCStatus(void) {
 
 int udcConnectedOnBoot;
 
+unsigned int memdev;
+#ifdef TARGET_RS97
+	volatile unsigned long *memregs;
+#else
+	volatile unsigned short *memregs;
+#endif
+
 short int tvOutPrev, tvOutConnected, tvOutToggle = 0;
 
 int main(int /*argc*/, char * /*argv*/[]) {
@@ -444,7 +451,7 @@ GMenu2X::GMenu2X() {
 	// setCPU(CPU_CLK_DEFAULT);
 	// tickSuspend = 0;
 
-	tvOutPrev = tvOutConnected = !(GMenu2X::instance->memregs[0x300 >> 2] >> 25 & 0b1);
+	tvOutPrev = tvOutConnected = !(memregs[0x300 >> 2] >> 25 & 0b1);
 	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
 	//recover last session
@@ -988,40 +995,39 @@ void* mainThread(void* param) {
 }
 
 Uint32 GMenu2X::hwCheck(unsigned int interval, void *param) {
-	if (GMenu2X::instance->memdev > 0) {
+	if (memdev > 0) {
 		INFO("A: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x",
-			GMenu2X::instance->memregs[0x000 >> 2], GMenu2X::instance->memregs[0x010 >> 2],
-			GMenu2X::instance->memregs[0x100 >> 2], GMenu2X::instance->memregs[0x110 >> 2],
-			GMenu2X::instance->memregs[0x200 >> 2], GMenu2X::instance->memregs[0x210 >> 2],
-			GMenu2X::instance->memregs[0x300 >> 2], GMenu2X::instance->memregs[0x310 >> 2],
-			GMenu2X::instance->memregs[0x400 >> 2], GMenu2X::instance->memregs[0x410 >> 2],
-			GMenu2X::instance->memregs[0x500 >> 2], GMenu2X::instance->memregs[0x510 >> 2]
+			memregs[0x000 >> 2], memregs[0x010 >> 2],
+			memregs[0x100 >> 2], memregs[0x110 >> 2],
+			memregs[0x200 >> 2], memregs[0x210 >> 2],
+			memregs[0x300 >> 2], memregs[0x310 >> 2],
+			memregs[0x400 >> 2], memregs[0x410 >> 2],
+			memregs[0x500 >> 2], memregs[0x510 >> 2]
 		);
 
 		// DEBUG("D: 0x%x 8>0x%x 16>0x%x 24>0x%x 32>0x%x 40>0x%x 48>0x%x",
-		// 	GMenu2X::instance->memregs[0x300 >> 2],
-		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 8 & 0xf,
-		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 16 & 0xf,
-		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 24 & 0xf,
-		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 32 & 0xf,
-		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 40 & 0xf,
-		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 28 & 0xf
+		// 	memregs[0x300 >> 2],
+		// 	memregs[0x300 >> 2] >> 8 & 0xf,
+		// 	memregs[0x300 >> 2] >> 16 & 0xf,
+		// 	memregs[0x300 >> 2] >> 24 & 0xf,
+		// 	memregs[0x300 >> 2] >> 32 & 0xf,
+		// 	memregs[0x300 >> 2] >> 40 & 0xf,
+		// 	memregs[0x300 >> 2] >> 28 & 0xf
 		// );
 
 		// DEBUG("TV: 0b%d",
-		// 	GMenu2X::instance->memregs[0x300 >> 2] >> 25 & 0b1
+		// 	memregs[0x300 >> 2] >> 25 & 0b1
 		// );
 
-		tvOutConnected = !(GMenu2X::instance->memregs[0x300 >> 2] >> 25 & 0b1);
+		tvOutConnected = !(memregs[0x300 >> 2] >> 25 & 0b1);
 		if (tvOutPrev != tvOutConnected) {
 			tvOutPrev = tvOutConnected;
 			tvOutToggle = 1;
 
-			// Default Usage:
-			SDL_Event sdlevent;
-			sdlevent.type = SDL_KEYDOWN;
-			sdlevent.key.keysym.sym = SDLK_UNKNOWN;
-			SDL_PushEvent(&sdlevent);
+			SDL_Event event;
+			event.type = SDL_KEYDOWN;
+			event.key.keysym.sym = SDLK_UNKNOWN;
+			SDL_PushEvent(&event);
 		}
 	}
 	return interval;
