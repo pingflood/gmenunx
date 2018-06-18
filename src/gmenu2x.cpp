@@ -182,6 +182,7 @@ udc_status getUDCStatus(void) {
 
 int udcConnectedOnBoot;
 
+short int tvOutPrev, tvOutConnected, tvOutToggle = 0;
 unsigned int memdev;
 #ifdef TARGET_RS97
 	volatile unsigned long *memregs;
@@ -189,7 +190,10 @@ unsigned int memdev;
 	volatile unsigned short *memregs;
 #endif
 
-short int tvOutPrev, tvOutConnected, tvOutToggle = 0;
+bool getTVOutStatus() {
+	if (memdev > 0) return memregs[0x300 >> 2] >> 25 ^ 0b1;
+	return false;
+}
 
 int main(int /*argc*/, char * /*argv*/[]) {
 	INFO("GMenu2X starting: If you read this message in the logs, check http://mtorromeo.github.com/gmenu2x/troubleshooting.html for a solution");
@@ -445,7 +449,7 @@ GMenu2X::GMenu2X() {
 	setGamma(confInt["gamma"]);
 	applyDefaultTimings();
 #elif defined(TARGET_RS97)
-	if (memdev > 0) tvOutPrev = tvOutConnected = !(memregs[0x300 >> 2] >> 25 & 0b1);
+	tvOutPrev = tvOutConnected = getTVOutStatus();
 #endif
 	// setVolume(confInt["globalVolume"]);
 	// setCPU(CPU_CLK_DEFAULT);
@@ -1019,7 +1023,8 @@ Uint32 GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
 		// 	memregs[0x300 >> 2] >> 25 & 0b1
 		// );
 
-		tvOutConnected = !(memregs[0x300 >> 2] >> 25 & 0b1);
+		// tvOutConnected = !(memregs[0x300 >> 2] >> 25 & 0b1);
+		tvOutConnected = getTVOutStatus();
 		if (tvOutPrev != tvOutConnected) {
 			tvOutPrev = tvOutConnected;
 			tvOutToggle = 1;
