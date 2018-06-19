@@ -1666,16 +1666,18 @@ void GMenu2X::skinMenu() {
 	initBG();
 }
 
-void GMenu2X::restartDialog() {
-	MessageBox mb(this, tr["GMenuNext will restart to apply\nthe settings. Continue?"], "skin:icons/exit.png");
-	mb.setButton(CONFIRM, tr["Restart"]);
-	mb.setButton(CANCEL,  tr["Cancel"]);
-	if (mb.exec() == CONFIRM) {
-		quit();
-		WARNING("Re-launching gmenu2x");
-		chdir(getExePath().c_str());
-		execlp("./gmenu2x", "./gmenu2x", NULL);
+void GMenu2X::restartDialog(bool showDialog) {
+	if (showDialog) {
+		MessageBox mb(this, tr["GMenuNext will restart to apply\nthe settings. Continue?"], "skin:icons/exit.png");
+		mb.setButton(CONFIRM, tr["Restart"]);
+		mb.setButton(CANCEL,  tr["Cancel"]);
+		if (mb.exec() == CANCEL) return;
 	}
+
+	quit();
+	WARNING("Re-launching gmenu2x");
+	chdir(getExePath().c_str());
+	execlp("./gmenu2x", "./gmenu2x", NULL);
 }
 
 void GMenu2X::poweroffDialog() {
