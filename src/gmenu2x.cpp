@@ -215,20 +215,17 @@ int main(int /*argc*/, char * /*argv*/[]) {
 void GMenu2X::hwInit() {
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
 	memdev = open("/dev/mem", O_RDWR);
-	if (memdev < 0) {
-		WARNING("Could not open /dev/mem");
-	}
+	if (memdev < 0) WARNING("Could not open /dev/mem");
 #endif
 
 	if (memdev > 0) {
 #if defined(TARGET_GP2X)
 		memregs = (unsigned short*)mmap(0, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
-		MEM_REG=&memregs[0];
+		MEM_REG = &memregs[0];
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 		memregs = (unsigned short*)mmap(0, 0x20000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
 #elif defined(TARGET_RS97)
-		// memregs = (unsigned long*)mmap(0, 1024, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
-		memregs = (unsigned long*)mmap(0, 2048, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10010000);
+		memregs = (unsigned long*)mmap(0, 0x800, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10010000);
 #endif
 		if (memregs == MAP_FAILED) {
 			ERROR("Could not mmap hardware registers!");
@@ -238,10 +235,8 @@ void GMenu2X::hwInit() {
 
 #if defined(TARGET_GP2X)
 	batteryHandle = open(f200 ? "/dev/mmsp2adc" : "/dev/batt", O_RDONLY);
-	if (f200) {
-		//if wm97xx fails to open, set f200 to false to prevent any further access to the touchscreen
-		f200 = ts.init();
-	}
+	//if wm97xx fails to open, set f200 to false to prevent any further access to the touchscreen
+	if (f200) f200 = ts.init();
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	/* get access to battery device */
 	batteryHandle = open("/dev/pollux_batt", O_RDONLY);
@@ -281,9 +276,7 @@ void GMenu2X::gp2x_tvout_on(bool pal) {
 		memregs[0x28E8 >> 1] = 239;
 	}
 }
-#endif
 
-#if defined(TARGET_GP2X)
 void GMenu2X::gp2x_tvout_off() {
 	if (memdev != 0) {
 		close(cx25874);
@@ -292,7 +285,6 @@ void GMenu2X::gp2x_tvout_off() {
 	}
 }
 #endif
-
 
 // GMenu2X *GMenu2X::instance = NULL;
 GMenu2X::GMenu2X() {
