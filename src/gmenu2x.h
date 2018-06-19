@@ -183,8 +183,8 @@ private:
 #endif
 
 	// void toggleTvOut();
-	void gp2x_deinit();
-	void gp2x_init();
+	void hwDeinit();
+	void hwInit();
 	void hwCheck();
 	// static GMenu2X *instance;
 

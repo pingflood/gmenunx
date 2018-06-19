@@ -212,8 +212,8 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	return 0;
 }
 
-void GMenu2X::gp2x_init() {
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || (TARGET_RS97)
+void GMenu2X::hwInit() {
+#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
 	memdev = open("/dev/mem", O_RDWR);
 	if (memdev < 0){
 		WARNING("Could not open /dev/mem");
@@ -249,7 +249,7 @@ void GMenu2X::gp2x_init() {
 	INFO("System Init Done!");
 }
 
-void GMenu2X::gp2x_deinit() {
+void GMenu2X::hwDeinit() {
 #if defined(TARGET_GP2X)
 	if (memdev > 0) {
 		memregs[0x28DA >> 1] = 0x4AB;
@@ -361,7 +361,7 @@ GMenu2X::GMenu2X() {
 	memdev = 0;
 
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
-	gp2x_init();
+	hwInit();
 #endif
 
 #if defined(TARGET_GP2X)
@@ -492,7 +492,7 @@ void GMenu2X::quit() {
 		}
 	}
 #endif
-	gp2x_deinit();
+	hwDeinit();
 }
 
 void GMenu2X::initBG(const string &imagePath) {
