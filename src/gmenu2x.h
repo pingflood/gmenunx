@@ -153,7 +153,7 @@ private:
 
 	void initFont();
 	void initMenu();
-
+	void showManual();
 	// IconButton *btnContextMenu;
 
 #ifdef TARGET_GP2X

@@ -103,7 +103,7 @@ public:
 
 	bool save();
 	void run();
-	void showManual();
+	// void showManual();
 	void selector(int startSelection=0, const string &selectorDir="");
 	void launch(const string &selectedFile="", const string &selectedDir="");
 	bool targetExists();
