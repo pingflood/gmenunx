@@ -184,7 +184,7 @@ udc_status getUDCStatus(void) {
 int udcConnectedOnBoot;
 
 short int tvOutPrev, tvOutConnected, tvOutToggle = 0;
-unsigned int memdev = 0;
+int memdev = 0;
 #ifdef TARGET_RS97
 	volatile unsigned long *memregs;
 #else
@@ -215,7 +215,7 @@ int main(int /*argc*/, char * /*argv*/[]) {
 void GMenu2X::hwInit() {
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
 	memdev = open("/dev/mem", O_RDWR);
-	if (memdev < 0){
+	if (memdev < 0) {
 		WARNING("Could not open /dev/mem");
 	}
 #endif
