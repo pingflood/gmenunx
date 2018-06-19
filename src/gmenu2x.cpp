@@ -222,6 +222,15 @@ void GMenu2X::hwInit() {
 #if defined(TARGET_GP2X)
 		memregs = (unsigned short*)mmap(0, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
 		MEM_REG = &memregs[0];
+
+		//Fix tv-out
+		if (memregs[0x2800 >> 1] & 0x100) {
+			memregs[0x2906 >> 1] = 512;
+			//memregs[0x290C >> 1]=640;
+			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
+		}
+		memregs[0x28E8 >> 1] = 239;
+
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 		memregs = (unsigned short*)mmap(0, 0x20000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
 #elif defined(TARGET_RS97)
@@ -259,32 +268,6 @@ void GMenu2X::hwDeinit() {
 		close(memdev);
 	}
 }
-
-#if defined(TARGET_GP2X)
-void GMenu2X::gp2x_tvout_on(bool pal) {
-	if (memdev!=0) {
-		/*Ioctl_Dummy_t *msg;
-		#define FBMMSP2CTRL 0x4619
-		int TVHandle = ioctl(SDL_videofd, FBMMSP2CTRL, msg);*/
-		if (cx25874!=0) gp2x_tvout_off();
-		//if tv-out is enabled without cx25874 open, stop
-		//if (memregs[0x2800 >> 1]&0x100) return;
-		cx25874 = open("/dev/cx25874",O_RDWR);
-		ioctl(cx25874, _IOW('v', 0x02, unsigned char), pal ? 4 : 3);
-		memregs[0x2906 >> 1] = 512;
-		memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
-		memregs[0x28E8 >> 1] = 239;
-	}
-}
-
-void GMenu2X::gp2x_tvout_off() {
-	if (memdev != 0) {
-		close(cx25874);
-		cx25874 = 0;
-		memregs[0x2906 >> 1] = 1024;
-	}
-}
-#endif
 
 // GMenu2X *GMenu2X::instance = NULL;
 GMenu2X::GMenu2X() {
@@ -352,18 +335,6 @@ GMenu2X::GMenu2X() {
 
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
 	hwInit();
-#endif
-
-#if defined(TARGET_GP2X)
-	//Fix tv-out
-	if (memdev > 0) {
-		if (memregs[0x2800 >> 1] & 0x100) {
-			memregs[0x2906 >> 1] = 512;
-			//memregs[0x290C >> 1]=640;
-			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
-		}
-		memregs[0x28E8 >> 1] = 239;
-	}
 #endif
 
 #if !defined(TARGET_PC)
@@ -2488,6 +2459,30 @@ void GMenu2X::drawSlider(int val, int min, int max, Surface &icon, Surface &bg) 
 }
 
 #if defined(TARGET_GP2X)
+void GMenu2X::gp2x_tvout_on(bool pal) {
+	if (memdev != 0) {
+		/*Ioctl_Dummy_t *msg;
+		#define FBMMSP2CTRL 0x4619
+		int TVHandle = ioctl(SDL_videofd, FBMMSP2CTRL, msg);*/
+		if (cx25874!=0) gp2x_tvout_off();
+		//if tv-out is enabled without cx25874 open, stop
+		//if (memregs[0x2800 >> 1]&0x100) return;
+		cx25874 = open("/dev/cx25874",O_RDWR);
+		ioctl(cx25874, _IOW('v', 0x02, unsigned char), pal ? 4 : 3);
+		memregs[0x2906 >> 1] = 512;
+		memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
+		memregs[0x28E8 >> 1] = 239;
+	}
+}
+
+void GMenu2X::gp2x_tvout_off() {
+	if (memdev != 0) {
+		close(cx25874);
+		cx25874 = 0;
+		memregs[0x2906 >> 1] = 1024;
+	}
+}
+
 void GMenu2X::settingsOpen2x() {
 	SettingsDialog sd(this, ts, tr["Open2x Settings"]);
 	sd.addSetting(new MenuSettingBool(this, tr["USB net on boot"], tr["Allow USB networking to be started at boot time"],&o2x_usb_net_on_boot));
