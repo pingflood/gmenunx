@@ -40,7 +40,7 @@ private:
 	// string svolume, sclock, svolume;
 	int iclock, ivolume;
 
-	string exec, params, workdir, manual, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath;
+	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath;
 	bool selectorbrowser, useRamTimings, useGinge;
 	// void drawRun();
 
@@ -64,6 +64,7 @@ public:
 	const string getRealWorkdir();
 	void setWorkdir(const string &workdir);
 	const string &getManual();
+	const string &getManualPath() { return manualPath; }
 	void setManual(const string &manual);
 	const string &getSelectorDir();
 	void setSelectorDir(const string &selectordir);

@@ -1227,7 +1227,7 @@ void GMenu2X::main() {
 
 			if (menu->selLink() != NULL) {
 				if (menu->selLinkApp() != NULL) {
-					if (!menu->selLinkApp()->getManual().empty() && iconTrayShift < 2) {
+					if (!menu->selLinkApp()->getManualPath().empty() && iconTrayShift < 2) {
 						// Manual indicator
 						sc.skinRes("imgs/manual.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 						iconTrayShift++;
@@ -1355,8 +1355,8 @@ void GMenu2X::showManual() {
 	string linkTitle = menu->selLinkApp()->getTitle();
 	string linkDescription = menu->selLinkApp()->getDescription();
 	string linkIcon = menu->selLinkApp()->getIcon();
-	string linkManual = menu->selLinkApp()->getManual();
-	string linkBackdrop = menu->selLinkApp()->getBackdrop();
+	string linkManual = menu->selLinkApp()->getManualPath();
+	string linkBackdrop = menu->selLinkApp()->getBackdropPath();
 
 	if (linkManual == "" || !fileExists(linkManual)) return;
 

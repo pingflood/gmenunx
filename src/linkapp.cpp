@@ -37,7 +37,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	Link(gmenu2x_),
 	inputMgr(inputMgr_)
 {
-	manual = "";
+	manual = manualPath = "";
 	file = linkfile;
 	wrapper = false;
 	dontleave = false;
@@ -81,7 +81,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 		} else if (name == "workdir") {
 			workdir = value;
 		} else if (name == "manual") {
-			manual = value;
+			setManual(value);
 		} else if (name == "wrapper" && value == "true") {
 			wrapper = true;
 		} else if (name == "dontleave" && value == "true") {
@@ -128,26 +128,28 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 }
 
 const string &LinkApp::searchManual() {
-	if (!manual.empty()) return manual;
+	if (!manualPath.empty()) return manualPath;
 	string filename = exec;
 	string::size_type pos = exec.rfind(".");
 	if (pos != string::npos) filename = exec.substr(0, pos);
 	filename += ".man.txt";
 
-	string dirtitle = base_name(dir_name(exec)) + ".man.txt";
+	string dname = dir_name(exec) + "/";
+
+	string dirtitle = dname + base_name(dir_name(exec)) + ".man.txt";
 	string linktitle = base_name(file);
 	pos = linktitle.rfind(".");
 	if (pos != string::npos) linktitle = linktitle.substr(0, pos);
-	linktitle += ".man.txt";
+	linktitle = dname + linktitle + ".man.txt";
 
 	if (fileExists(linktitle))
-		manual = linktitle;
+		manualPath = linktitle;
 	else if (fileExists(filename))
-		manual = filename;
+		manualPath = filename;
 	else if (fileExists(dirtitle))
-		manual = dirtitle;
+		manualPath = dirtitle;
 
-	return manual;
+	return manualPath;
 }
 
 const string &LinkApp::searchBackdrop() {
@@ -469,7 +471,7 @@ const string &LinkApp::getManual() {
 }
 
 void LinkApp::setManual(const string &manual) {
-	this->manual = manual;
+	this->manual = manualPath = manual;
 	edited = true;
 }
 
