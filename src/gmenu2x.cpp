@@ -294,10 +294,9 @@ void GMenu2X::gp2x_tvout_off() {
 #endif
 
 
-GMenu2X *GMenu2X::instance = NULL;
-
+// GMenu2X *GMenu2X::instance = NULL;
 GMenu2X::GMenu2X() {
-	instance = this;
+	// instance = this;
 	//Detect firmware version and type
 	if (fileExists("/etc/open2x")) {
 		fwType = "open2x";
@@ -998,7 +997,7 @@ void* mainThread(void* param) {
 	return NULL;
 }
 
-Uint32 GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
+void GMenu2X::hwCheck() {
 	INFO("HWCHECK");
 	if (memdev > 0) {
 		INFO("A: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x",
@@ -1031,7 +1030,6 @@ Uint32 GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
 			tvOutToggle = 1;
 		}
 	}
-	return interval;
 }
 
 void GMenu2X::main() {
