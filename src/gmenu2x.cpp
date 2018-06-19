@@ -490,11 +490,9 @@ void GMenu2X::quit() {
 			memregs[0x2906 >> 1] = 512;
 			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
 		}
-		gp2x_deinit();
 	}
-#elif defined(TARGET_RETROGMAE)
-	gp2x_deinit();
 #endif
+	gp2x_deinit();
 }
 
 void GMenu2X::initBG(const string &imagePath) {
