@@ -256,6 +256,12 @@ void GMenu2X::hwInit() {
 void GMenu2X::hwDeinit() {
 #if defined(TARGET_GP2X)
 	if (memdev > 0) {
+		//Fix tv-out
+		if (memregs[0x2800 >> 1] & 0x100) {
+			memregs[0x2906 >> 1] = 512;
+			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
+		}
+
 		memregs[0x28DA >> 1] = 0x4AB;
 		memregs[0x290C >> 1] = 640;
 	}
@@ -440,15 +446,6 @@ void GMenu2X::quit() {
 	sc.clear();
 	s->free();
 	SDL_Quit();
-#if defined(TARGET_GP2X)
-	if (memdev != 0) {
-		//Fix tv-out
-		if (memregs[0x2800 >> 1] & 0x100) {
-			memregs[0x2906 >> 1] = 512;
-			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
-		}
-	}
-#endif
 	hwDeinit();
 }
 
