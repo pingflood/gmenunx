@@ -37,12 +37,10 @@ class InputManager;
 class LinkApp : public Link {
 private:
 	InputManager &inputMgr;
-	// string svolume;
-	// string sclock, svolume;
+	// string svolume, sclock, svolume;
 	int iclock, ivolume;
 
-
-	string exec, params, workdir, manual, selectordir, selectorfilter, selectorscreens, backdrop;
+	string exec, params, workdir, manual, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath;
 	bool selectorbrowser, useRamTimings, useGinge;
 	// void drawRun();
 
@@ -112,6 +110,7 @@ public:
 
 	const string &getFile() { return file; }
 	const string &getBackdrop() { return backdrop; }
+	const string &getBackdropPath() { return backdropPath; }
 	void setBackdrop(const string selectedFile="");
 
 	void renameFile(const string &name);

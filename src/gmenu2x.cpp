@@ -1198,8 +1198,8 @@ void GMenu2X::main() {
 		}
 
 		currBackdrop = confStr["wallpaper"];
-		if (menu->selLink() != NULL && menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdrop().empty() && sc.add(menu->selLinkApp()->getBackdrop()) != NULL) {
-			currBackdrop = menu->selLinkApp()->getBackdrop();
+		if (menu->selLink() != NULL && menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdropPath().empty() && sc.add(menu->selLinkApp()->getBackdropPath()) != NULL) {
+			currBackdrop = menu->selLinkApp()->getBackdropPath();
 		}
 		//Background
 		if (prevBackdrop != currBackdrop) {

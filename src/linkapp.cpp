@@ -56,7 +56,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	useRamTimings = false;
 	useGinge = false;
 	workdir = "";
-	backdrop = "";
+	backdrop = backdropPath = "";
 
 	string line;
 	ifstream infile (linkfile, ios_base::in);
@@ -113,7 +113,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 		} else if (name == "selectoraliases") {
 			setAliasFile( value );
 		} else if (name == "backdrop") {
-			backdrop = value;
+			setBackdrop(value);
 			// WARNING("BACKDROP: '%s'", backdrop.c_str());
 		} else {
 			WARNING("Unrecognized option: '%s'", name.c_str());
@@ -151,7 +151,7 @@ const string &LinkApp::searchManual() {
 }
 
 const string &LinkApp::searchBackdrop() {
-	if (!backdrop.empty() || !gmenu2x->confInt["skinBackdrops"]) return backdrop;
+	if (!backdropPath.empty() || !gmenu2x->confInt["skinBackdrops"]) return backdropPath;
 	string execicon = exec;
 	string::size_type pos = exec.rfind(".");
 	if (pos != string::npos) execicon = exec.substr(0, pos);
@@ -163,19 +163,19 @@ const string &LinkApp::searchBackdrop() {
 
 // auto backdrop
 	if (!gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png").empty())
-		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png");
+		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png");
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".jpg").empty())
-		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".jpg");
+		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".jpg");
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png").empty())
-		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png");
+		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png");
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg").empty())
-		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg");
+		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg");
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".png").empty())
-		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".png");
+		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".png");
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".jpg").empty())
-		backdrop = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".jpg");
+		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".jpg");
 
-	return backdrop;
+	return backdropPath;
 }
 
 const string &LinkApp::searchIcon() {
@@ -234,7 +234,7 @@ void LinkApp::setGamma(int gamma) {
 #endif
 
 void LinkApp::setBackdrop(const string selectedFile) {
-	backdrop = selectedFile;
+	backdrop = backdropPath = selectedFile;
 	edited = true;
 }
 
