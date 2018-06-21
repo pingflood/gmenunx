@@ -192,7 +192,7 @@ int memdev = 0;
 #endif
 
 bool getTVOutStatus() {
-	if (memdev > 0) return memregs[0x300 >> 2] >> 25 ^ 0b1;
+	if (memdev > 0) return !(memregs[0x300 >> 2] >> 25 & 0b1);//	memregs[0x300 >> 2] >> 25 ^ 0b1;
 	return false;
 }
 
@@ -734,7 +734,7 @@ void GMenu2X::writeConfig() {
 		confInt["link"] = menu->selLinkIndex();
 	}
 
-	string conffile = path+"gmenu2x.conf";
+	string conffile = path + "gmenu2x.conf";
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
@@ -743,7 +743,7 @@ void GMenu2X::writeConfig() {
 		}
 
 		for (ConfIntHash::iterator curr = confInt.begin(); curr != confInt.end(); curr++) {
-			if (curr->first == "batteryLog" || curr->first == "sectionBar" || curr->first == "maxClock" || curr->first == "minClock" || curr->first == "menuClock") continue;
+			if (curr->first == "batteryLog" || curr->first == "maxClock" || curr->first == "minClock" || curr->first == "menuClock") continue;
 			inf << curr->first << "=" << curr->second << endl;
 		}
 		inf.close();
@@ -961,37 +961,32 @@ void printbin(int n) {
 
 void GMenu2X::hwCheck() {
 	if (memdev > 0) {
-		INFO("A: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x",
-			memregs[0x000 >> 2], memregs[0x010 >> 2],
-			memregs[0x100 >> 2], memregs[0x110 >> 2],
-			memregs[0x200 >> 2], memregs[0x210 >> 2],
-			memregs[0x300 >> 2], memregs[0x310 >> 2],
-			memregs[0x400 >> 2], memregs[0x410 >> 2],
-			memregs[0x500 >> 2], memregs[0x510 >> 2]
-		);
+		// INFO("A: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x",
+		// 	memregs[0x000 >> 2], memregs[0x010 >> 2],
+		// 	memregs[0x100 >> 2], memregs[0x110 >> 2],
+		// 	memregs[0x200 >> 2], memregs[0x210 >> 2],
+		// 	memregs[0x300 >> 2], memregs[0x310 >> 2],
+		// 	memregs[0x400 >> 2], memregs[0x410 >> 2],
+		// 	memregs[0x500 >> 2], memregs[0x510 >> 2]
+		// );
 
-		printf("A: ");
-		printbin(memregs[0x000 >> 2]);
+		// printf("A: ");
+		// printbin(memregs[0x000 >> 2]);
 
-		printf("B: ");
-		printbin(memregs[0x100 >> 2]);
+		// printf("B: ");
+		// printbin(memregs[0x100 >> 2]);
 
-		printf("C: ");
-		printbin(memregs[0x200 >> 2]);
+		// printf("C: ");
+		// printbin(memregs[0x200 >> 2]);
 
-		printf("D: ");
-		printbin(memregs[0x300 >> 2]);
+		// printf("D: ");
+		// printbin(memregs[0x300 >> 2]);
 
-		printf("E: ");
-		printbin(memregs[0x400 >> 2]);
+		// printf("E: ");
+		// printbin(memregs[0x400 >> 2]);
 
-		printf("F: ");
-		printbin(memregs[0x500 >> 2]);
-
-
-// test: http://codepad.org/rPm067Xv
-
-
+		// printf("F: ");
+		// printbin(memregs[0x500 >> 2]);
 
 		// DEBUG("D: 0x%x 8>0x%x 16>0x%x 24>0x%x 32>0x%x 40>0x%x 48>0x%x",
 		// 	memregs[0x300 >> 2],
