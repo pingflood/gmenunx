@@ -33,8 +33,8 @@ void FontHelper::loadFont(const string &fontName, int fontSize, RGBAColor textCo
 		ERROR("TTF_OpenFont %s: %s", fontName.c_str(), TTF_GetError());
 		exit(2);
 	}
-	TTF_SetFontHinting(this->font, TTF_HINTING_NORMAL);
-	TTF_SetFontHinting(this->fontOutline, TTF_HINTING_NORMAL);
+	TTF_SetFontHinting(this->font, TTF_HINTING_LIGHT);
+	TTF_SetFontHinting(this->fontOutline, TTF_HINTING_LIGHT);
 	TTF_SetFontOutline(this->fontOutline, 1);
 	height = 0;
 	// Get maximum line height with a sample text
