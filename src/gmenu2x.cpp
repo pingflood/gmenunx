@@ -124,12 +124,24 @@ static void quit_all(int err) {
 	exit(err);
 }
 
+int memdev = 0;
+#ifdef TARGET_RS97
+	volatile unsigned long *memregs;
+#else
+	volatile unsigned short *memregs;
+#endif
+
 enum mmc_status{
 	MMC_REMOVE, MMC_INSERT, MMC_ERROR
 };
 
-mmc_status getMMCStatus(void) {
-#if defined(TARGET_RS97)
+short int getMMCStatus(void) {
+	if (memdev > 0) return !(memregs[0x500 >> 2] >> 0 & 0b1);//	memregs[0x300 >> 2] >> 25 ^ 0b1;
+	return 3; //false;
+
+
+#if 0
+: defined(TARGET_RS97)
 	char buf[32] = {0};
 
 	FILE *f = fopen("/proc/jz/mmc", "r");
@@ -184,12 +196,8 @@ udc_status getUDCStatus(void) {
 int udcConnectedOnBoot;
 
 short int tvOutPrev, tvOutConnected, tvOutToggle = 0;
-int memdev = 0;
-#ifdef TARGET_RS97
-	volatile unsigned long *memregs;
-#else
-	volatile unsigned short *memregs;
-#endif
+short int curMMCStatus, preMMCStatus, MMCToggle = MMC_REMOVE;
+
 
 bool getTVOutStatus() {
 	if (memdev > 0) return !(memregs[0x300 >> 2] >> 25 & 0b1);//	memregs[0x300 >> 2] >> 25 ^ 0b1;
@@ -413,6 +421,7 @@ GMenu2X::GMenu2X() {
 	applyDefaultTimings();
 #elif defined(TARGET_RS97)
 	tvOutPrev = tvOutConnected = getTVOutStatus();
+	preMMCStatus = curMMCStatus = getMMCStatus();
 #endif
 	// setVolume(confInt["globalVolume"]);
 	// setCPU(CPU_CLK_DEFAULT);
@@ -1003,6 +1012,19 @@ void GMenu2X::hwCheck() {
 		// );
 
 		// tvOutConnected = !(memregs[0x300 >> 2] >> 25 & 0b1);
+
+
+
+
+
+		curMMCStatus = getMMCStatus();
+		if (preMMCStatus != curMMCStatus) {
+			preMMCStatus = curMMCStatus;
+			MMCToggle = 1;
+		}
+
+
+
 		tvOutConnected = getTVOutStatus();
 		if (tvOutPrev != tvOutConnected) {
 			tvOutPrev = tvOutConnected;
@@ -1017,9 +1039,6 @@ void GMenu2X::main() {
 	// int linkSpacingX = (resX-10 - linkColumns*(resX - skinConfInt["sectionBarX"]))/linkColumns;
 	// int linkSpacingY = (resY-35 - skinConfInt["sectionBarY"] - linkRows*skinConfInt["sectionBarHeight"])/linkRows;
 	uint sectionLinkPadding = 4; //max(skinConfInt["sectionBarHeight"] - 32 - font->getHeight(), 0) / 3;
-
-	mmc_status curMMCStatus = MMC_REMOVE;
-	mmc_status preMMCStatus = MMC_REMOVE;
 
 	bool quit = false;
 	int x = 0, y = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
@@ -1101,84 +1120,11 @@ void GMenu2X::main() {
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("0000ffff"));
 		// s->box(sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("ff00ffff"));
 
-
-		if (tickNow - tickMMC >= 1000) {
-			// TODO: move to hwCheck
-			tickMMC = tickNow;
-			curMMCStatus = getMMCStatus();
-			if (preMMCStatus != curMMCStatus) {
-				if (curMMCStatus == MMC_REMOVE) {
-					system("/usr/bin/umount_ext_sd.sh");
-					INFO("%s: umount external SD from /mnt/ext_sd", __func__);
-				}
-				else if (curMMCStatus == MMC_INSERT) {
-					system("/usr/bin/mount_ext_sd.sh");
-					INFO("%s: mount external SD on /mnt/ext_sd", __func__);
-				}
-				else {
-					WARNING("%s: unexpected MMC status!", __func__);
-				}
-				preMMCStatus = curMMCStatus;
-			}
-
-			// curUDCStatus = getUDCStatus();
-			// if (preUDCStatus != curUDCStatus) {
-			// 	if (curUDCStatus == UDC_REMOVE) {
-			// 		if (needUSBUmount) {
-			// 			// system("/usr/bin/usb_disconn_int_sd.sh");
-			// 			// system("mount -o remount,rw /dev/mmcblk0p4");
-			// 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
-			// 			system("mount /dev/mmcblk0p4 /mnt/int_sd -t vfat -o rw,utf8");
-			// 			INFO("%s, disconnect usbdisk for internal sd", __func__);
-			// 			if (curMMCStatus == MMC_INSERT) {
-			// 				// system("/usr/bin/usb_disconn_ext_sd.sh");
-			// 				system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
-			// 				system("mount /dev/mmcblk1p1 /mnt/ext_sd -t vfat -o rw,utf8 -t vfat -o rw,utf8");
-			// 				INFO("%s, disconnect USB disk for external SD", __func__);
-			// 			}
-			// 			needUSBUmount = 0;
-			// 		}
-			// 	}
-			// 	else if (curUDCStatus == UDC_CONNECT) {
-			// 		MessageBox mb(this, tr["Which action do you want?"], "skin:icons/usb.png");
-			// 		mb.setButton(CONFIRM, tr["USB disk"]);
-			// 		mb.setButton(CANCEL,  tr["Charge only"]);
-			// 		if (mb.exec() == CONFIRM) {
-			// 			needUSBUmount = 1;
-			// 			// system("/usr/bin/usb_conn_int_sd.sh");
-			// 			// system("mount -o remount,ro /dev/mmcblk0p4");
-			// 			system("umount -fl /dev/mmcblk0p4");
-			// 			system("echo '/dev/mmcblk0p4' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
-			// 			INFO("%s, connect USB disk for internal SD", __func__);
-			// 			if (curMMCStatus == MMC_INSERT) {
-			// 				// system("/usr/bin/usb_conn_ext_sd.sh");
-			// 				system("umount -fl /mnt/ext_sd");
-			// 				system("echo '/dev/mmcblk1p1' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
-			// 				INFO("%s, connect USB disk for external SD", __func__);
-			// 			}
-
-			// 			MessageBox mb(this, tr["USB Disk Connected"], "skin:icons/usb.png");
-			// 			mb.setAutoHide(500);
-			// 			mb.exec();
-
-			// 			while (getUDCStatus() == UDC_CONNECT) {
-			// 				SDL_Delay(200);
-			// 			}
-			// 		}
-			// 	}
-			// 	else {
-			// 		WARNING("%s, unexpected USB status!", __func__);
-			// 	}
-			// 	preUDCStatus = curUDCStatus;
-			// 	tickSuspend = SDL_GetTicks(); // prevent immediate suspend
-			// 	continue;
-			// }
-		}
-
 		currBackdrop = confStr["wallpaper"];
 		if (menu->selLink() != NULL && menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdropPath().empty() && sc.add(menu->selLinkApp()->getBackdropPath()) != NULL) {
 			currBackdrop = menu->selLinkApp()->getBackdropPath();
 		}
+
 		//Background
 		if (prevBackdrop != currBackdrop) {
 			INFO("New backdrop: %s", currBackdrop.c_str());
@@ -1214,7 +1160,7 @@ void GMenu2X::main() {
 
 			// TRAY iconTrayShift,1
 			int iconTrayShift = 0;
-			if (preMMCStatus == MMC_INSERT) {
+			if (curMMCStatus == MMC_INSERT) {
 				// TODO: move to hwCheck
 				sc.skinRes("imgs/sd1.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 				iconTrayShift++;
@@ -1395,6 +1341,25 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	input.setWakeUpInterval(1000);
 
 	hwCheck();
+
+	if (MMCToggle) {
+		MMCToggle = 0;
+		string msg, command;
+
+		if (curMMCStatus == MMC_INSERT) {
+			msg = tr["SD card connected"];
+			command = "mount /dev/mmcblk1p1 /mnt/ext_sd -t vfat -o rw,utf8";
+		// } else		if (curMMCStatus == MMC_REMOVE) {
+		} else {
+			msg = tr["SD card removed"];
+			command = "umount -fl /mnt/ext_sd";
+		}
+
+		MessageBox mb(this, msg, "skin:icons/sd.png");
+		mb.setAutoHide(1000);
+		mb.exec();
+		system(command.c_str());
+	}
 
 	if (tvOutToggle) {
 		tvOutToggle = 0;
