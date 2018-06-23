@@ -275,12 +275,12 @@ void GMenu2X::hwDeinit() {
 	}
 	if (f200) ts.deinit();
 	if (batteryHandle != 0) close(batteryHandle);
-#endif
 
 	if (memdev > 0) {
 		memregs = NULL;
 		close(memdev);
 	}
+#endif
 }
 
 // GMenu2X *GMenu2X::instance = NULL;
