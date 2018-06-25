@@ -33,8 +33,13 @@
 
 using namespace std;
 
+// #include "FastDelegate.h"
+// using namespace fastdelegate;
+// using fastdelegate::FastDelegate0;
+// typedef FastDelegate0<> Action;
+
 LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfile):
-	Link(gmenu2x_),
+	Link(gmenu2x_, MakeDelegate(this, &LinkApp::run)),
 	inputMgr(inputMgr_)
 {
 	manual = manualPath = "";
@@ -296,33 +301,6 @@ void LinkApp::run() {
 		launch();
 	}
 }
-
-// void LinkApp::showManual() {
-// 	if (manual == "" || !fileExists(manual)) return;
-
-// 	string ext = manual.substr(manual.size() - 4, 4);
-// 	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == "jpeg") {
-
-// 		ImageViewerDialog im(gmenu2x, title, description, icon, manual);
-// 		im.exec();
-// 		return;
-// 	}
-
-// 	// Txt manuals and readmes
-// 	vector<string> txtman;
-
-// 	string line;
-// 	ifstream infile(manual.c_str(), ios_base::in);
-// 	if (infile.is_open()) {
-// 		while (getline(infile, line, '\n'))
-// 			txtman.push_back( strreplace(line, "\r", "") );
-// 		infile.close();
-
-// 		TextDialog td(gmenu2x, title, description, icon, &txtman, backdrop);
-// 		td.exec();
-// 	}
-
-// }
 
 void LinkApp::selector(int startSelection, const string &selectorDir) {
 	//Run selector interface

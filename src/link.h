@@ -26,6 +26,11 @@
 #include "button.h"
 #include "surface.h"
 
+// linkaction
+#include "FastDelegate.h"
+using namespace fastdelegate;
+typedef FastDelegate0<> LinkAction;
+
 using std::string;
 
 class GMenu2X;
@@ -38,6 +43,7 @@ Base class that represents a link on screen.
 class Link : public Button {
 private:
 	uint padding;
+	LinkAction action;
 
 protected:
 	GMenu2X *gmenu2x;
@@ -47,7 +53,10 @@ protected:
 	Surface *iconSurface;
 
 public:
-	Link(GMenu2X *gmenu2x);
+	// linkaction
+	// Link(GMenu2X *gmenu2x);
+	Link(GMenu2X *gmenu2x, LinkAction action);
+
 	virtual ~Link() {};
 	void updateSurfaces();
 

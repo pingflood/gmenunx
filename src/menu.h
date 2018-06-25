@@ -22,7 +22,7 @@
 
 #include <string>
 #include <vector>
-#include "linkaction.h"
+#include "link.h"
 
 using std::string;
 using std::vector;
@@ -64,7 +64,7 @@ public:
 	uint firstDispSection();
 	uint firstDispRow();
 
-	bool addActionLink(uint section, const string &title, LinkRunAction action, const string &description="", const string &icon="");
+	bool addActionLink(uint section, const string &title, fastdelegate::FastDelegate0<> action, const string &description="", const string &icon="");
 	bool addLink(string path, string file, string section="");
 	bool addSection(const string &sectionName);
 	void deleteSelectedLink();
