@@ -1171,7 +1171,6 @@ void GMenu2X::main() {
 			setVolume(confInt["globalVolume"]);
 
 			if (menu->selLinkApp() != NULL && menu->selLinkApp()->getSelectorDir().empty()) {
-				// MessageBox mb(this, tr.translate("Launching $1", menu->selLink()->getTitle().c_str(), NULL), menu->selLinkApp()->getIconPath());
 				MessageBox mb(this, tr["Launching "] + menu->selLink()->getTitle().c_str(), menu->selLink()->getIconPath());
 				mb.setAutoHide(500);
 				mb.exec();

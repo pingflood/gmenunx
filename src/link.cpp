@@ -33,6 +33,7 @@ Link::Link(GMenu2X *gmenu2x_, LinkAction action)
 	, gmenu2x(gmenu2x_)
 {
 	// action = MakeDelegate(this, &Link::run);
+	this->action = action;
 	edited = false;
 	iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
 	// iconX = 0;
@@ -41,9 +42,9 @@ Link::Link(GMenu2X *gmenu2x_, LinkAction action)
 	updateSurfaces();
 }
 
-void Link::run() {}
-
-
+void Link::run() {
+	this->action();
+}
 
 void Link::paint() {
 	iconSurface->blit(gmenu2x->s, rect.x + padding, rect.y + padding, rect.w - 2 * padding, rect.h - 2 * padding);
