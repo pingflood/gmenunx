@@ -131,73 +131,27 @@ int memdev = 0;
 	volatile unsigned short *memregs;
 #endif
 
-enum mmc_status{
+enum mmc_status {
 	MMC_REMOVE, MMC_INSERT, MMC_ERROR
 };
 
 short int getMMCStatus(void) {
 	if (memdev > 0) return !(memregs[0x10500 >> 2] >> 0 & 0b1);
-	return 3; //false;
-
-
-#if 0
-: defined(TARGET_RS97)
-	char buf[32] = {0};
-
-	FILE *f = fopen("/proc/jz/mmc", "r");
-	if (f) {
-		fgets(buf, sizeof(buf), f);
-		fclose(f);
-
-		if (memcmp(buf, "REMOVE", 6) == 0) {
-			return MMC_REMOVE;
-		} else if (memcmp(buf, "INSERT", 6) == 0) {
-			return MMC_INSERT;
-		}
-	}
-#endif
 	return MMC_ERROR;
 }
 
-enum udc_status{
+enum udc_status {
 	UDC_REMOVE, UDC_CONNECT, UDC_ERROR
 };
 
-udc_status getUDCStatus(void) {
-	char buf[32] = {0};
-
-#if defined(TARGET_RS97)
-	FILE *f = fopen("/proc/jz/udc", "r");
-	if (f) {
-		fgets(buf, sizeof(buf), f);
-		fclose(f);
-
-		if (memcmp(buf, "REMOVE", 6) == 0) {
-			return UDC_REMOVE;
-		} else if (memcmp(buf, "CONNECT", 6) == 0) {
-			return UDC_CONNECT;
-		}
-	}
-// #else
-//   FILE *f = fopen("/sys/devices/platform/musb_hdrc.0/uh_cable", "r");
-//   fgets(buf, sizeof(buf), f);
-//   fclose(f);
-
-//   if (memcmp(buf, "offline", 7) == 0) {
-// 	return UDC_REMOVE;
-//   }
-//   else if (memcmp(buf, "usb", 3) == 0) {
-// 	return UDC_CONNECT;
-//   }
-#endif
+int udcConnectedOnBoot;
+short int getUDCStatus(void) {
+	if (memdev > 0) return (memregs[0x10300 >> 2] >> 7 & 0b1);
 	return UDC_ERROR;
 }
 
-int udcConnectedOnBoot;
-
 short int tvOutPrev, tvOutConnected, tvOutToggle = 0;
 short int curMMCStatus, preMMCStatus, MMCToggle = MMC_REMOVE;
-
 
 bool getTVOutStatus() {
 	if (memdev > 0) return !(memregs[0x10300 >> 2] >> 25 & 0b1);
@@ -210,8 +164,6 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	signal(SIGINT, &quit_all);
 	signal(SIGSEGV,&quit_all);
 	signal(SIGTERM,&quit_all);
-
-	udcConnectedOnBoot = getUDCStatus();
 
 	app = new GMenu2X();
 	DEBUG("Starting main()");
@@ -422,11 +374,9 @@ GMenu2X::GMenu2X() {
 #elif defined(TARGET_RS97)
 	tvOutPrev = tvOutConnected = getTVOutStatus();
 	preMMCStatus = curMMCStatus = getMMCStatus();
+	udcConnectedOnBoot = getUDCStatus();
 #endif
-	// setVolume(confInt["globalVolume"]);
-	// setCPU(CPU_CLK_DEFAULT);
-	// tickSuspend = 0;
-	// SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
+
 	input.setWakeUpInterval(1000);
 
 	//recover last session
@@ -964,13 +914,12 @@ void printbin(int n) {
 		printf("%d", !!(n & 1 << i));
 		if (!(i % 8)) printf(" ");
 	}
-	printf("\n");
+	printf("\e[0K\n");
 }
-
 
 void GMenu2X::hwCheck() {
 	if (memdev > 0) {
-		// INFO("A: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x",
+		// INFO("\e[1;0fA: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x\e[0K",
 		// 	memregs[0x10000 >> 2], memregs[0x10010 >> 2],
 		// 	memregs[0x10100 >> 2], memregs[0x10110 >> 2],
 		// 	memregs[0x10200 >> 2], memregs[0x10210 >> 2],
@@ -997,18 +946,18 @@ void GMenu2X::hwCheck() {
 		// printf("F: ");
 		// printbin(memregs[0x10500 >> 2]);
 
-		// DEBUG("D: 0x%x 8>0x%x 16>0x%x 24>0x%x 32>0x%x 40>0x%x 48>0x%x",
+		// INFO("D: 0x%x 8>0x%x 16>0x%x 24>0x%x 32>0x%x 40>0x%x 48>0x%x",
 		// 	memregs[0x10300 >> 2],
-		// 	memregs[0x10300 >> 2] >> 8 & 0xf,
-		// 	memregs[0x10300 >> 2] >> 16 & 0xf,
-		// 	memregs[0x10300 >> 2] >> 24 & 0xf,
-		// 	memregs[0x10300 >> 2] >> 32 & 0xf,
-		// 	memregs[0x10300 >> 2] >> 40 & 0xf,
-		// 	memregs[0x10300 >> 2] >> 28 & 0xf
+		// 	memregs[0x10300 >> 2] >> 8 & 0b1,
+		// 	memregs[0x10300 >> 2] >> 16 & 0b1,
+		// 	memregs[0x10300 >> 2] >> 24 & 0b1,
+		// 	memregs[0x10300 >> 2] >> 32 & 0b1,
+		// 	memregs[0x10300 >> 2] >> 40 & 0b1,
+		// 	memregs[0x10300 >> 2] >> 28 & 0b1
 		// );
 
-		// DEBUG("TV: 0b%d",
-		// 	memregs[0x10300 >> 2] >> 25 & 0b1
+		// INFO("UDC: 0b%d",
+		// 	memregs[0x10300 >> 2] >> 7 & 0b1
 		// );
 
 		// tvOutConnected = !(memregs[0x10300 >> 2] >> 25 & 0b1);
