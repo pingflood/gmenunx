@@ -288,7 +288,7 @@ public:
 	void contextMenu();
 	void changeWallpaper();
 
-	void setCPU(unsigned mhz);
+	void setCPU(unsigned int mhz);
 	const string getDateTime();
 	void setDateTime();
 

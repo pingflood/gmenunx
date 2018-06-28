@@ -136,7 +136,7 @@ enum mmc_status{
 };
 
 short int getMMCStatus(void) {
-	if (memdev > 0) return !(memregs[0x500 >> 2] >> 0 & 0b1);//	memregs[0x300 >> 2] >> 25 ^ 0b1;
+	if (memdev > 0) return !(memregs[0x10500 >> 2] >> 0 & 0b1);
 	return 3; //false;
 
 
@@ -200,7 +200,7 @@ short int curMMCStatus, preMMCStatus, MMCToggle = MMC_REMOVE;
 
 
 bool getTVOutStatus() {
-	if (memdev > 0) return !(memregs[0x300 >> 2] >> 25 & 0b1);//	memregs[0x300 >> 2] >> 25 ^ 0b1;
+	if (memdev > 0) return !(memregs[0x10300 >> 2] >> 25 & 0b1);
 	return false;
 }
 
@@ -242,7 +242,7 @@ void GMenu2X::hwInit() {
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 		memregs = (unsigned short*)mmap(0, 0x20000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
 #elif defined(TARGET_RS97)
-		memregs = (unsigned long*)mmap(0, 0x800, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10010000);
+		memregs = (unsigned long*)mmap(0, 0x20000, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
 #endif
 		if (memregs == MAP_FAILED) {
 			ERROR("Could not mmap hardware registers!");
@@ -971,59 +971,53 @@ void printbin(int n) {
 void GMenu2X::hwCheck() {
 	if (memdev > 0) {
 		// INFO("A: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x",
-		// 	memregs[0x000 >> 2], memregs[0x010 >> 2],
-		// 	memregs[0x100 >> 2], memregs[0x110 >> 2],
-		// 	memregs[0x200 >> 2], memregs[0x210 >> 2],
-		// 	memregs[0x300 >> 2], memregs[0x310 >> 2],
-		// 	memregs[0x400 >> 2], memregs[0x410 >> 2],
-		// 	memregs[0x500 >> 2], memregs[0x510 >> 2]
+		// 	memregs[0x10000 >> 2], memregs[0x10010 >> 2],
+		// 	memregs[0x10100 >> 2], memregs[0x10110 >> 2],
+		// 	memregs[0x10200 >> 2], memregs[0x10210 >> 2],
+		// 	memregs[0x10300 >> 2], memregs[0x10310 >> 2],
+		// 	memregs[0x10400 >> 2], memregs[0x10410 >> 2],
+		// 	memregs[0x10500 >> 2], memregs[0x10510 >> 2]
 		// );
 
 		// printf("A: ");
-		// printbin(memregs[0x000 >> 2]);
+		// printbin(memregs[0x10000 >> 2]);
 
 		// printf("B: ");
-		// printbin(memregs[0x100 >> 2]);
+		// printbin(memregs[0x10100 >> 2]);
 
 		// printf("C: ");
-		// printbin(memregs[0x200 >> 2]);
+		// printbin(memregs[0x10200 >> 2]);
 
 		// printf("D: ");
-		// printbin(memregs[0x300 >> 2]);
+		// printbin(memregs[0x10300 >> 2]);
 
 		// printf("E: ");
-		// printbin(memregs[0x400 >> 2]);
+		// printbin(memregs[0x10400 >> 2]);
 
 		// printf("F: ");
-		// printbin(memregs[0x500 >> 2]);
+		// printbin(memregs[0x10500 >> 2]);
 
 		// DEBUG("D: 0x%x 8>0x%x 16>0x%x 24>0x%x 32>0x%x 40>0x%x 48>0x%x",
-		// 	memregs[0x300 >> 2],
-		// 	memregs[0x300 >> 2] >> 8 & 0xf,
-		// 	memregs[0x300 >> 2] >> 16 & 0xf,
-		// 	memregs[0x300 >> 2] >> 24 & 0xf,
-		// 	memregs[0x300 >> 2] >> 32 & 0xf,
-		// 	memregs[0x300 >> 2] >> 40 & 0xf,
-		// 	memregs[0x300 >> 2] >> 28 & 0xf
+		// 	memregs[0x10300 >> 2],
+		// 	memregs[0x10300 >> 2] >> 8 & 0xf,
+		// 	memregs[0x10300 >> 2] >> 16 & 0xf,
+		// 	memregs[0x10300 >> 2] >> 24 & 0xf,
+		// 	memregs[0x10300 >> 2] >> 32 & 0xf,
+		// 	memregs[0x10300 >> 2] >> 40 & 0xf,
+		// 	memregs[0x10300 >> 2] >> 28 & 0xf
 		// );
 
 		// DEBUG("TV: 0b%d",
-		// 	memregs[0x300 >> 2] >> 25 & 0b1
+		// 	memregs[0x10300 >> 2] >> 25 & 0b1
 		// );
 
-		// tvOutConnected = !(memregs[0x300 >> 2] >> 25 & 0b1);
-
-
-
-
+		// tvOutConnected = !(memregs[0x10300 >> 2] >> 25 & 0b1);
 
 		curMMCStatus = getMMCStatus();
 		if (preMMCStatus != curMMCStatus) {
 			preMMCStatus = curMMCStatus;
 			MMCToggle = 1;
 		}
-
-
 
 		tvOutConnected = getTVOutStatus();
 		if (tvOutPrev != tvOutConnected) {
@@ -1685,7 +1679,7 @@ void GMenu2X::setTVOut(string TVOut) {
 }
 
 void GMenu2X::mountSd() {
-	system("sleep 1; mount -t vfat -o rw,utf8 /dev/mmcblk1p1 /mnt/ext_sd");
+	system("sleep 1; mount -t vfat -o rw,utf8 /dev/mmcblk$(( $(readlink /dev/root | head -c -3 | tail -c1) ^ 1 ))p1 /mnt/ext_sd");
 }
 
 void GMenu2X::umountSd() {
@@ -1710,16 +1704,13 @@ void GMenu2X::checkUDC() {
 		mb.setButton(CONFIRM, tr["USB Drive"]);
 		mb.setButton(CANCEL,  tr["Charger"]);
 		if (mb.exec() == CONFIRM) {
-			// needUSBUmount = 1;
-			// system("/usr/bin/usb_conn_int_sd.sh");
-			// system("mount -o remount,ro /dev/mmcblk0p4");
-			system("umount -fl /dev/mmcblk0p4");
-			system("echo '/dev/mmcblk0p4' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
+			system("umount -fl /dev/mmcblk$(readlink /dev/root | head -c -3 | tail -c 1)p4");
+			system("echo \"/dev/mmcblk$(readlink /dev/root | head -c -3 | tail -c 1)p4\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
 			INFO("%s, connect USB disk for internal SD", __func__);
 
 			if (getMMCStatus() == MMC_INSERT) {
 				umountSd();
-				system("echo '/dev/mmcblk1p1' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
+				system("echo '/dev/mmcblk$(( $(readlink /dev/root | head -c -3 | tail -c1) ^ 1 ))p1' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 				INFO("%s, connect USB disk for external SD", __func__);
 			}
 
@@ -1729,12 +1720,14 @@ void GMenu2X::checkUDC() {
 			mb.setAutoHide(500);
 			mb.exec();
 
+			powerManager->clearTimer();
+
 			while (udcConnectedOnBoot = getUDCStatus() == UDC_CONNECT) {
 				SDL_Delay(200);
 			}
 
 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
-			system("mount /dev/mmcblk0p4 /mnt/int_sd -t vfat -o rw,utf8");
+			system("mount /dev/mmcblk$(readlink /dev/root | head -c -3 | tail -c 1)p4 /mnt/int_sd -t vfat -o rw,utf8");
 			INFO("%s, disconnect usbdisk for internal sd", __func__);
 			if (getMMCStatus() == MMC_INSERT) {
 				system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
@@ -2157,7 +2150,7 @@ void GMenu2X::setInputSpeed() {
 	input.setInterval(1500, POWER);
 }
 
-void GMenu2X::setCPU(unsigned mhz) {
+void GMenu2X::setCPU(unsigned int mhz) {
 	// mhz = constrain(mhz, CPU_CLK_MIN, CPU_CLK_MAX);
 	if (memdev > 0) {
 		DEBUG("Setting clock to %d", mhz);
