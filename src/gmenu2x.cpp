@@ -469,6 +469,12 @@ void GMenu2X::initMenu() {
 
 	//Menu structure handler
 	menu = new Menu(this);
+
+int iii = menu->getSectionIndex("settings");
+ERROR("SECTION INDEX: %d", iii);
+		menu->addActionLink(iii, tr["Umount Test"], MakeDelegate(this, &GMenu2X::explorer), tr["Umount external SD"], "skin:icons/eject.png");
+
+
 	for (uint i = 0; i < menu->getSections().size(); i++) {
 		//Add virtual links in the applications section
 		if (menu->getSections()[i] == "applications") {

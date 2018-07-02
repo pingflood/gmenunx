@@ -177,7 +177,7 @@ string Menu::sectionPath(int section) {
    LINKS MANAGEMENT
   ====================================*/
 bool Menu::addActionLink(uint section, const string &title, fastdelegate::FastDelegate0<> action, const string &description, const string &icon) {
-	if (section>=sections.size()) return false;
+	if (section >= sections.size()) return false;
 
 	Link *linkact = new Link(gmenu2x, action);
 	// linkact->setSize(gmenu2x->resX - gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]);
@@ -193,7 +193,7 @@ bool Menu::addActionLink(uint section, const string &title, fastdelegate::FastDe
 }
 
 bool Menu::addLink(string path, string file, string section) {
-	if (section=="")
+	if (section == "")
 		section = selSection();
 	else if (find(sections.begin(), sections.end(), section) == sections.end()) {
 		//section directory doesn't exists
@@ -215,7 +215,7 @@ bool Menu::addLink(string path, string file, string section) {
 	}
 
 	string linkpath = "sections/" + section + "/" + title;
-	int x=2;
+	int x = 2;
 	while (fileExists(linkpath)) {
 		stringstream ss;
 		linkpath = "";
@@ -227,7 +227,7 @@ bool Menu::addLink(string path, string file, string section) {
 
 	INFO("Adding link: '%s'", linkpath.c_str());
 
-	if (path[path.length()-1]!='/') path += "/";
+	if (path[path.length()-1] != '/') path += "/";
 	//search for a manual
 	pos = file.rfind(".");
 	string exename = path + file.substr(0,pos);
@@ -372,7 +372,6 @@ void Menu::pageDown() {
 	}
 }
 
-
 void Menu::linkLeft() {
 	if (iLink % gmenu2x->linkColumns == 0)
 		setLinkIndex(sectionLinks()->size() > iLink + gmenu2x->linkColumns - 1 ? iLink + gmenu2x->linkColumns - 1 : sectionLinks()->size() - 1 );
@@ -482,4 +481,8 @@ void Menu::readLinks() {
 
 void Menu::renameSection(int index, const string &name) {
 	sections[index] = name;
+}
+
+int Menu::getSectionIndex(const string &name) {
+	return distance(sections.begin(), find(sections.begin(), sections.end(), name));
 }
