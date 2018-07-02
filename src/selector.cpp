@@ -32,7 +32,7 @@
 #include "linkapp.h"
 #include "selector.h"
 #include "filelister.h"
-#include "debug.h"
+// #include "debug.h"
 
 using namespace std;
 
@@ -57,7 +57,7 @@ int Selector::exec(int startSelection) {
 	bool close = false, result = true;
 	vector<string> screens, titles;
 
-	uint i, firstElement = 0, iY, animation = 0;
+	uint i, firstElement = 0, iY;
 
 	FileLister fl(dir, link->getSelectorBrowser());
 	fl.setFilter(link->getSelectorFilter());
@@ -65,34 +65,29 @@ int Selector::exec(int startSelection) {
 
 	screendir = link->getSelectorScreens();
 
-	// SDL_Rect rect;
+	SDL_Rect rect;
 
-	// if (screendir == "") {
-		// drawTopBar(this->bg);
-		// rect = gmenu2x->listRect; //{0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
-	// } else {
-		// this->bg->box(0, 0, gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-		// this->bg->setClipRect(0, 0, gmenu2x->skinConfInt["selectorX"] - 4, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]);
-		// rect = (SDL_Rect){gmenu2x->skinConfInt["selectorX"], 0, gmenu2x->resX - gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]};
-	// }
+	if (screendir == "") {
+		drawTopBar(this->bg);
+		rect = gmenu2x->listRect; //{0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
+	} else {
+		this->bg->box(0, 0, gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+		this->bg->setClipRect(0, 0, gmenu2x->skinConfInt["selectorX"] - 4, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]);
+		rect = (SDL_Rect){gmenu2x->skinConfInt["selectorX"], 0, gmenu2x->resX - gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]};
+	}
 
 	// dc: adjust rowHeight with font
 	uint rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
-	uint numRows = gmenu2x->listRect.h / rowHeight - 1;
+	uint numRows = rect.h / rowHeight - 1;
 
-	// drawTitleIcon(link->getIconPath(), this->bg);
-	// writeTitle(link->getTitle(), this->bg);
-	// writeSubTitle(link->getDescription(), this->bg);
+	drawTitleIcon(link->getIconPath(), this->bg);
+	writeTitle(link->getTitle(), this->bg);
+	writeSubTitle(link->getDescription(), this->bg);
 
-	// this->bg->clearClipRect();
+	this->bg->clearClipRect();
 
-	// this->bg->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-	// drawBottomBar(this->bg);
-
-
-	drawTopBar(this->bg, link->getTitle(), link->getDescription(), link->getIconPath());
+	this->bg->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 	drawBottomBar(this->bg);
-	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	if (link->getSelectorBrowser()) {
 		gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
@@ -104,7 +99,7 @@ int Selector::exec(int startSelection) {
 	}
 
 	prepare(&fl, &screens, &titles);
-	int selected = constrain(startSelection, 0, fl.size() - 1);
+	uint selected = constrain(startSelection, 0, fl.size() - 1);
 
 	// moved surfaces out to prevent reloading on loop
 	Surface *iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
@@ -114,99 +109,77 @@ int Selector::exec(int startSelection) {
 
 	gmenu2x->sc.defaultAlpha = false;
 	// gmenu2x->input.setWakeUpInterval(1); // refresh on load
-	Uint32 tickStart = SDL_GetTicks();
-
 	while (!close) {
 		this->bg->blit(gmenu2x->s, 0, 0);
 
 		if (selected > firstElement + numRows) firstElement = selected - numRows;
 		if (selected < firstElement) firstElement = selected;
 
-		iY = selected - firstElement;
-		iY = gmenu2x->listRect.y + (iY * rowHeight);
+		iY = selected-firstElement;
+		iY = rect.y + (iY * rowHeight);
 
-		// if (selected < fl.size()) {
-			gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-		// }
+		if(selected < fl.size()){
+			gmenu2x->s->box(rect.x, iY, rect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		}
 
+		//Screenshot
+		if (screendir != "") {
+			if (selected - fl.dirCount() < screens.size() && screens[selected - fl.dirCount()] != "") {
+				gmenu2x->sc[screens[selected - fl.dirCount()]]->blitCenter(gmenu2x->s, gmenu2x->skinConfInt["selectorPreviewX"] + gmenu2x->skinConfInt["selectorPreviewWidth"]/2, gmenu2x->skinConfInt["selectorPreviewY"] + gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
+			} else {
+				if (gmenu2x->sc.skinRes("imgs/preview.png") != NULL)
+					iconPreview->blitCenter(gmenu2x->s, gmenu2x->skinConfInt["selectorPreviewX"] + gmenu2x->skinConfInt["selectorPreviewWidth"]/2, gmenu2x->skinConfInt["selectorPreviewY"] + gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
+			}
+		}
 
 		//Files & Dirs
-		iY = gmenu2x->listRect.y + 1;
+		iY = rect.y + 1;
 
 		for (i = firstElement; i < fl.size() && i <= firstElement + numRows; i++) {
-			if (fl.isDirectory(i)) {
+			if(fl.isDirectory(i)){
 				if (fl[i] == "..")
-					iconGoUp->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2);
+					iconGoUp->blitCenter(gmenu2x->s, rect.x + 10, iY + rowHeight/2);
 				else
-					iconFolder->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2);
-			} else {
-				iconFile->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2);
+					iconFolder->blitCenter(gmenu2x->s, rect.x + 10, iY + rowHeight/2);
+			} else{
+				iconFile->blitCenter(gmenu2x->s, rect.x + 10, iY + rowHeight/2);
 			}
-			gmenu2x->s->write(gmenu2x->font, fl[i], gmenu2x->listRect.x + 21, iY + 4, HAlignLeft, VAlignMiddle);
+			gmenu2x->s->write(gmenu2x->font, fl[i], rect.x + 21, iY+4, HAlignLeft, VAlignMiddle);
 
 			iY += rowHeight;
 		}
 
-		//Screenshot
-		if (selected - fl.dirCount() < screens.size() && screens[selected - fl.dirCount()] != "") {
-			gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-			gmenu2x->sc[screens[selected - fl.dirCount()]]->blitCenter(gmenu2x->s, 320 - animation + (gmenu2x->skinConfInt["selectorPreviewX"] + gmenu2x->skinConfInt["selectorPreviewWidth"]/2), gmenu2x->skinConfInt["selectorPreviewY"] + gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
-
-			if (animation < gmenu2x->skinConfInt["selectorX"]) {
-				animation = intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 100);
-				gmenu2x->s->flip();
-				gmenu2x->input.setWakeUpInterval(10);
-				continue;
-			}
-		} else {
-			if (animation > 0) {
-				gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-				animation = gmenu2x->skinConfInt["selectorX"] - intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 100);
-				gmenu2x->s->flip();
-				gmenu2x->input.setWakeUpInterval(10);
-				continue;
-			}
-			// animation = 0;
-		}
-		gmenu2x->input.setWakeUpInterval(1000);
-
-		// if (screendir != "") {
-		// 	if (selected - fl.dirCount() < screens.size() && screens[selected - fl.dirCount()] != "") {
-		// 		gmenu2x->sc[screens[selected - fl.dirCount()]]->blitCenter(gmenu2x->s, gmenu2x->skinConfInt["selectorPreviewX"] + gmenu2x->skinConfInt["selectorPreviewWidth"]/2, gmenu2x->skinConfInt["selectorPreviewY"] + gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
-		// 	} else {
-		// 		if (gmenu2x->sc.skinRes("imgs/preview.png") != NULL)
-		// 			iconPreview->blitCenter(gmenu2x->s, gmenu2x->skinConfInt["selectorPreviewX"] + gmenu2x->skinConfInt["selectorPreviewWidth"]/2, gmenu2x->skinConfInt["selectorPreviewY"] + gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
-		// 	}
-		// }
-
-
 		gmenu2x->s->clearClipRect();
-		gmenu2x->drawScrollBar(numRows, fl.size(), firstElement, gmenu2x->listRect);
+		gmenu2x->drawScrollBar(numRows, fl.size(), firstElement, rect);
 		gmenu2x->s->flip();
 		
 		bool inputAction = gmenu2x->input.update();
 		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-		if ( gmenu2x->input[UP] ) {
-			tickStart = SDL_GetTicks();
-			selected -= 1;
-			if (selected < 0) selected = fl.size()-1;
-		} else if ( gmenu2x->input[DOWN] ) {
-			tickStart = SDL_GetTicks();
-			selected += 1;
-			if (selected >= fl.size()) selected = 0;
-		} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
-			tickStart = SDL_GetTicks();
-			selected -= numRows;
-			if (selected < 0) selected = 0;
-		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
-			tickStart = SDL_GetTicks();
-			selected += numRows;
-			if (selected > fl.size()) selected = fl.size() - 1;
-		} else if ( gmenu2x->input[SETTINGS] ) {
+		if ( gmenu2x->input[SETTINGS] ) {
 			close = true; result = false;
 		} else if ( gmenu2x->input[MENU] ) {
 			gmenu2x->editLink();
+		} else if ( gmenu2x->input[UP] ) {
+			if (selected == 0)
+				selected = fl.size()-1;
+			else
+				selected -= 1;
+		} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
+			if (selected < numRows)
+				selected = 0;
+			else
+				selected -= numRows;
+		} else if ( gmenu2x->input[DOWN] ) {
+			if (selected + 1 >= fl.size())
+				selected = 0;
+			else
+				selected += 1;
+		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
+			if (selected + numRows >= fl.size())
+				selected = fl.size() - 1;
+			else
+				selected += numRows;
 		} else if ( gmenu2x->input[CANCEL] ) {
 			if (link->getSelectorBrowser()) {
 				string::size_type p = dir.rfind("/", dir.size() - 2);
