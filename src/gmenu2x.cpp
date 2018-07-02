@@ -1356,6 +1356,10 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 			// VOLUME / MUTE
 			setVolume(confInt["globalVolume"], true);
 			return true;
+		} else if (input[POWER]) {
+			udcConnectedOnBoot = UDC_CONNECT;
+			checkUDC();
+			return true;
 		}
 	}
 	
@@ -1676,8 +1680,9 @@ void GMenu2X::checkUDC() {
 
 			powerManager->clearTimer();
 
-			while (udcConnectedOnBoot = getUDCStatus() == UDC_CONNECT) {
-				SDL_Delay(200);
+			while (udcConnectedOnBoot == UDC_CONNECT && getUDCStatus() == UDC_CONNECT) {
+				input.update();
+				if ( input[MENU] && input[POWER]) udcConnectedOnBoot = UDC_REMOVE;
 			}
 
 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
