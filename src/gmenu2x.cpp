@@ -1023,8 +1023,9 @@ void GMenu2X::main() {
 			x = sectionBarRect.x; y = sectionBarRect.y;
 			for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
 				string sectionIcon = "skin:sections/" + menu->getSections()[i] + ".png";
-				if (!sc.exists(sectionIcon))
+				if (!sc.exists(sectionIcon)) {
 					sectionIcon = "skin:icons/section.png";
+				}
 
 				if (confInt["sectionBar"] == SB_LEFT || confInt["sectionBar"] == SB_RIGHT) {
 					y = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
@@ -1058,8 +1059,14 @@ void GMenu2X::main() {
 			menu->sectionLinks()->at(i)->setPosition(x,y);
 
 			if (i == (uint)menu->selLinkIndex())
-				menu->sectionLinks()->at(i)->paintHover();
-			menu->sectionLinks()->at(i)->paint();
+				s->box(x, y, linksRect.w, skinConfInt["linkItemHeight"], skinConfColors[COLOR_SELECTION_BG]);
+// gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]
+				// menu->sectionLinks()->at(i)->paintHover();
+
+			sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, x + sectionLinkPadding, y + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding);
+			s->write(titlefont, tr.translate(menu->sectionLinks()->at(i)->getTitle()), x + sectionLinkPadding + 36, y + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
+			s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), x + sectionLinkPadding + 36, y + skinConfInt["linkItemHeight"] - sectionLinkPadding/2, HAlignLeft, VAlignBottom);
+			// menu->sectionLinks()->at(i)->paint();
 		}
 		s->clearClipRect();
 
@@ -1356,10 +1363,12 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 			// VOLUME / MUTE
 			setVolume(confInt["globalVolume"], true);
 			return true;
+#ifdef TARGET_RS97
 		} else if (input[POWER]) {
 			udcConnectedOnBoot = UDC_CONNECT;
 			checkUDC();
 			return true;
+#endif
 		}
 	}
 	
