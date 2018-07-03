@@ -57,7 +57,7 @@ int Selector::exec(int startSelection) {
 	bool close = false, result = true;
 	vector<string> screens, titles;
 
-	uint i, firstElement = 0, iY, animation = 0;
+	uint i, firstElement = 0, iY, animation = 0, padding = 6;
 
 	FileLister fl(dir, link->getSelectorBrowser());
 	fl.setFilter(link->getSelectorFilter());
@@ -150,20 +150,24 @@ int Selector::exec(int startSelection) {
 		//Screenshot
 		if (selected - fl.dirCount() < screens.size() && screens[selected - fl.dirCount()] != "") {
 			gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-			gmenu2x->sc[screens[selected - fl.dirCount()]]->blitCenter(gmenu2x->s, 320 - animation + (gmenu2x->skinConfInt["selectorPreviewX"] + gmenu2x->skinConfInt["selectorPreviewWidth"]/2), gmenu2x->skinConfInt["selectorPreviewY"] + gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
+			// gmenu2x->sc[screens[selected - fl.dirCount()]]->blitCenter(gmenu2x->s, 320 - animation + (gmenu2x->skinConfInt["selectorPreviewX"] + gmenu2x->skinConfInt["selectorPreviewWidth"]/2), gmenu2x->skinConfInt["selectorPreviewY"] + gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
+
+			gmenu2x->s->setClipRect(320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["selectorX"] - 2 * padding, gmenu2x->listRect.h - 2 * padding);
+			gmenu2x->sc[screens[selected - fl.dirCount()]]->blitCenter(gmenu2x->s, 320 - animation + (gmenu2x->skinConfInt["selectorX"]/2), gmenu2x->listRect.y + gmenu2x->listRect.h/2, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, 220);
+			gmenu2x->s->clearClipRect();
 
 			if (animation < gmenu2x->skinConfInt["selectorX"]) {
-				animation = intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 100);
+				animation = intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 150);
 				gmenu2x->s->flip();
-				gmenu2x->input.setWakeUpInterval(10);
+				gmenu2x->input.setWakeUpInterval(25);
 				continue;
 			}
 		} else {
 			if (animation > 0) {
 				gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-				animation = gmenu2x->skinConfInt["selectorX"] - intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 100);
+				animation = gmenu2x->skinConfInt["selectorX"] - intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 80);
 				gmenu2x->s->flip();
-				gmenu2x->input.setWakeUpInterval(10);
+				gmenu2x->input.setWakeUpInterval(25);
 				continue;
 			}
 			// animation = 0;
