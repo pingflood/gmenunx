@@ -354,11 +354,8 @@ GMenu2X::GMenu2X() {
 
 	initMenu();
 
-	readTmp();
-
 	input.init(path + "input.conf");
 	setInputSpeed();
-	setCPU(confInt["cpuMenu"]);
 
 #if defined(TARGET_GP2X)
 	initServices();
@@ -369,6 +366,9 @@ GMenu2X::GMenu2X() {
 	preMMCStatus = curMMCStatus = getMMCStatus();
 	udcConnectedOnBoot = getUDCStatus();
 #endif
+
+	readTmp();
+	setCPU(confInt["cpuMenu"]);
 
 	input.setWakeUpInterval(1000);
 
@@ -892,10 +892,9 @@ void GMenu2X::initMenu() {
 	//Menu structure handler
 	menu = new Menu(this);
 
-int iii = menu->getSectionIndex("settings");
-ERROR("SECTION INDEX: %d", iii);
-		menu->addActionLink(iii, tr["Umount Test"], MakeDelegate(this, &GMenu2X::explorer), tr["Umount external SD"], "skin:icons/eject.png");
-
+	// int iii = menu->getSectionIndex("settings");
+	// ERROR("SECTION INDEX: %d", iii);
+	// menu->addActionLink(iii, tr["Umount Test"], MakeDelegate(this, &GMenu2X::explorer), tr["Umount external SD"], "skin:icons/eject.png");
 
 	for (uint i = 0; i < menu->getSections().size(); i++) {
 		//Add virtual links in the applications section
@@ -1043,7 +1042,6 @@ void GMenu2X::settings() {
 	}
 }
 
-
 void GMenu2X::readTmp() {
 	lastSelectorElement = -1;
 	if (!fileExists("/tmp/gmenu2x.tmp")) return;
@@ -1062,6 +1060,7 @@ void GMenu2X::readTmp() {
 		else if (name == "selectorelem") lastSelectorElement = atoi(value.c_str());
 		else if (name == "selectordir") lastSelectorDir = value;
 		else if (name == "TVOut") TVOut = value;
+		else if (name == "udcConnectedOnBoot") udcConnectedOnBoot = false;
 	}
 	if (TVOut != "NTSC" && TVOut != "PAL") TVOut = "OFF";
 
@@ -1078,6 +1077,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 		if (selelem >- 1) inf << "selectorelem=" << selelem << endl;
 		if (selectordir != "") inf << "selectordir=" << selectordir << endl;
 		inf << "TVOut=" << TVOut << endl;
+		inf << "udcConnectedOnBoot=false" << endl;
 		inf.close();
 	}
 }
