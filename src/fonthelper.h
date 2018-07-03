@@ -25,14 +25,6 @@ using std::string;
 // 	VAlignMiddle
 // };
 
-
-const int	HAlignLeft		= 1,
-			HAlignRight		= 2,
-			HAlignCenter	= 4,
-			VAlignTop		= 8,
-			VAlignBottom	= 16,
-			VAlignMiddle	= 32;
-
 class Surface;
 
 class FontHelper {
@@ -49,17 +41,17 @@ public:
 
 	bool utf8Code(unsigned char c);
 
-	void write(SDL_Surface *s, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor);
-	void write(SDL_Surface *s, const string &text, int x, int y);
+	void write(Surface *s, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor);
+	void write(Surface *s, const string &text, int x, int y);
 
-	void write(SDL_Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
-	void write(SDL_Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign = 0);
+	// void write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign = 0);
+	// void write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
 
-	void write(SDL_Surface* surface, vector<string> *text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
-	void write(SDL_Surface* surface, vector<string> *text, int x, int y, const unsigned short halign = 0, const unsigned short valign = 0);
+	void write(Surface* surface, vector<string> *text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
+	void write(Surface* surface, vector<string> *text, int x, int y, const unsigned short halign = 0, const unsigned short valign = 0);
 	
 	void write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
-	void write(Surface* surface, const string& text, int x, int y, const unsigned short halign = 0, const unsigned short valign = 0);
+	void write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign);
 
 	uint getLineWidth(const string& text);
 	uint getTextWidth(const string& text);

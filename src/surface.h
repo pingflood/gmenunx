@@ -26,6 +26,15 @@
 
 using std::string;
 
+const int	HAlignLeft		= 1,
+			HAlignRight		= 2,
+			HAlignCenter	= 4,
+			VAlignTop		= 8,
+			VAlignBottom	= 16,
+			VAlignMiddle	= 32;
+
+
+
 class FontHelper;
 
 struct RGBAColor {
@@ -81,13 +90,17 @@ public:
 	void setClipRect(int x, int y, int w, int h);
 	void setClipRect(SDL_Rect rect);
 
-	bool blit(Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
-	bool blit(Surface *destination, SDL_Rect container, const unsigned short halign=0, const unsigned short valign=0);
-	bool blit(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
-	bool blitCenter(Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
-	bool blitCenter(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
-	bool blitRight(Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
-	bool blitRight(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
+	// bool blit(Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
+	// bool blit(Surface *destination, SDL_Rect container, const unsigned short halign=0, const unsigned short valign=0);
+	// bool blit(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
+	// bool blitCenter(Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
+	// bool blitCenter(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
+	// bool blitRight(Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
+	// bool blitRight(SDL_Surface *destination, int x, int y, int w=0, int h=0, int a=-1);
+
+
+	bool blit(Surface *destination, int x, int y, const unsigned short align = HAlignLeft | VAlignTop, int alpha=-1);
+	bool blit(Surface *destination, SDL_Rect destrect, const unsigned short align = HAlignLeft | VAlignTop, int alpha=-1);
 
 	void write(FontHelper *font, const string &text, int x, int y, const unsigned short halign=0, const unsigned short valign=0);
 	void write(FontHelper *font, const string &text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);

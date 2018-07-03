@@ -433,7 +433,7 @@ void GMenu2X::main() {
 				if (menu->selSectionIndex() == (int)i)
 					s->box(x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
 
-				sc[sectionIcon]->blitCenter(s, x + skinConfInt["sectionBarSize"]/2, y + skinConfInt["sectionBarSize"]/2, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"]);
+				sc[sectionIcon]->blit(s, {x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"]}, HAlignCenter | VAlignMiddle);
 			}
 		}
 
@@ -446,8 +446,8 @@ void GMenu2X::main() {
 
 		if (linkColumns == 1) {
 			// LIST
-			linkRows = linksRect.h / skinConfInt["linkItemHeight"];
 			linkHeight = skinConfInt["linkItemHeight"];
+			linkRows = linksRect.h / linkHeight;
 
 			ix = linksRect.x;
 			for (y = 0; y < linkRows && i < menu->sectionLinks()->size(); y++, i++) {
@@ -458,7 +458,8 @@ void GMenu2X::main() {
 				if (i == (uint)menu->selLinkIndex())
 					s->box(ix, iy, linksRect.w, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 
-				sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, ix + sectionLinkPadding, iy + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, linkHeight - 2 * sectionLinkPadding);
+				// sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, ix + sectionLinkPadding, iy + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, linkHeight - 2 * sectionLinkPadding);
+				sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix + sectionLinkPadding, iy + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, linkHeight - 2 * sectionLinkPadding}, HAlignLeft | VAlignMiddle);
 				s->write(titlefont, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + sectionLinkPadding + 36, iy + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
 				s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + sectionLinkPadding + 36, iy + linkHeight - sectionLinkPadding/2, HAlignLeft, VAlignBottom);
 			}
@@ -478,7 +479,9 @@ void GMenu2X::main() {
 					if (i == (uint)menu->selLinkIndex())
 						s->box(ix, iy, linkWidth, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 		
-					sc[menu->sectionLinks()->at(i)->getIconPath()]->blitCenter(s, ix + linkWidth/2, iy + linkHeight/2, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding);
+					// sc[menu->sectionLinks()->at(i)->getIconPath()]->blitCenter(s, ix + linkWidth/2, iy + linkHeight/2, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding);
+					sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix, iy, linkWidth, linkHeight}, HAlignCenter | VAlignMiddle);
+
 					s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - sectionLinkPadding, HAlignCenter, VAlignBottom);
 					// s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + sectionLinkPadding + 36, iy + skinConfInt["linkItemHeight"] - sectionLinkPadding/2, HAlignLeft, VAlignBottom);
 				}
@@ -1287,7 +1290,7 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 	// linkRows = resY / skinConfInt["linkItemHeight"];
 
 	// WIP
-	linkColumns = 1;
+	linkColumns = 4;
 	linkRows = 4;
 
 	if (menu != NULL && clearSC) menu->loadIcons();
@@ -2370,7 +2373,7 @@ int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x
 	SDL_Rect re = {x, y, 0, 16};
 
 	if (sc.skinRes("imgs/buttons/"+btn+".png") != NULL) {
-		sc["imgs/buttons/"+btn+".png"]->blitCenter(s, re.x + 8, re.y + 2);
+		sc["imgs/buttons/"+btn+".png"]->blit(s, re.x + 8, re.y + 2, HAlignCenter | VAlignMiddle);
 		re.w = sc["imgs/buttons/"+btn+".png"]->raw->w + 3;
 
 		s->write(font, text, re.x + re.w, re.y, HAlignLeft, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
@@ -2384,7 +2387,7 @@ int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, 
 	// y = resY - skinConfInt["bottomBarHeight"] / 2;
 	if (sc.skinRes("imgs/buttons/" + btn + ".png") != NULL) {
 		x -= 16;
-		sc["imgs/buttons/" + btn + ".png"]->blitCenter(s, x + 8, y + 2);
+		sc["imgs/buttons/" + btn + ".png"]->blit(s, x + 8, y + 2, HAlignCenter | VAlignMiddle);
 		x -= 3;
 		s->write(font, text, x, y, HAlignRight, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 		return x - 6 - font->getTextWidth(text);

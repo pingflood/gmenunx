@@ -87,11 +87,11 @@ bool BrowseDialog::exec() {
 		for (i = firstElement; i < fl->size() && i <= firstElement + numRows; i++) {
 			if (fl->isDirectory(i)) {
 				if ((*fl)[i] == "..")
-						iconGoUp->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2);
+						iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2, HAlignCenter | VAlignMiddle);
 					else
-						iconFolder->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2);
+						iconFolder->blit(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2, HAlignCenter | VAlignMiddle);
 				} else{
-					iconFile->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2);
+					iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2, HAlignCenter | VAlignMiddle);
 				}
 				gmenu2x->s->write(gmenu2x->font, (*fl)[i], gmenu2x->listRect.x + 21, offsetY+4, HAlignLeft, VAlignMiddle);
 

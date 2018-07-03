@@ -136,11 +136,12 @@ int Selector::exec(int startSelection) {
 		for (i = firstElement; i < fl.size() && i <= firstElement + numRows; i++) {
 			if (fl.isDirectory(i)) {
 				if (fl[i] == "..")
-					iconGoUp->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2);
+					iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 				else
-					iconFolder->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2);
+					// iconFolder->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2);
+					iconFolder->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 			} else {
-				iconFile->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2);
+				iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 			}
 			gmenu2x->s->write(gmenu2x->font, fl[i], gmenu2x->listRect.x + 21, iY + 4, HAlignLeft, VAlignMiddle);
 
@@ -152,9 +153,10 @@ int Selector::exec(int startSelection) {
 			gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 			// gmenu2x->sc[screens[selected - fl.dirCount()]]->blitCenter(gmenu2x->s, 320 - animation + (gmenu2x->skinConfInt["selectorPreviewX"] + gmenu2x->skinConfInt["selectorPreviewWidth"]/2), gmenu2x->skinConfInt["selectorPreviewY"] + gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
 
-			gmenu2x->s->setClipRect(320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["selectorX"] - 2 * padding, gmenu2x->listRect.h - 2 * padding);
-			gmenu2x->sc[screens[selected - fl.dirCount()]]->blitCenter(gmenu2x->s, 320 - animation + (gmenu2x->skinConfInt["selectorX"]/2), gmenu2x->listRect.y + gmenu2x->listRect.h/2, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, 220);
-			gmenu2x->s->clearClipRect();
+			// gmenu2x->s->setClipRect(320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["selectorX"] - 2 * padding, gmenu2x->listRect.h - 2 * padding);
+			// gmenu2x->sc[screens[selected - fl.dirCount()]]->blitCenter(gmenu2x->s, 320 - animation + (gmenu2x->skinConfInt["selectorX"]/2), gmenu2x->listRect.y + gmenu2x->listRect.h/2, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, 220);
+			gmenu2x->sc[screens[selected - fl.dirCount()]]->blit(gmenu2x->s, {320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["selectorX"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
+			// gmenu2x->s->clearClipRect();
 
 			if (animation < gmenu2x->skinConfInt["selectorX"]) {
 				animation = intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 110);

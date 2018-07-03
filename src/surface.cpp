@@ -172,10 +172,11 @@ void Surface::unlock() {
 }
 
 void Surface::flip() {
-	if (dblbuffer!=NULL) {
-		this->blit(dblbuffer,0,0);
-		SDL_Flip(dblbuffer);
-	} else {
+	// if (dblbuffer != NULL) {
+		// this->blit(dblbuffer,0,0);
+		// SDL_Flip(dblbuffer);
+	// } else 
+	{
 #if defined(TARGET_RS97)
     SDL_SoftStretch(raw, NULL, ScreenSurface, NULL);
 		SDL_Flip(ScreenSurface);
@@ -183,40 +184,6 @@ void Surface::flip() {
 		SDL_Flip(raw);
 #endif
 	}
-}
-
-bool Surface::blit(SDL_Surface *destination, int x, int y, int w, int h, int a) {
-	if (destination == NULL || a==0) return false;
-
-	SDL_Rect src = {0,0,w,h};
-	SDL_Rect dest;
-	dest.x = x;
-	dest.y = y;
-	if (a>0 && a!=raw->format->alpha)
-		SDL_SetAlpha(raw, SDL_SRCALPHA|SDL_RLEACCEL, a);
-	return SDL_BlitSurface(raw, (w==0 || h==0) ? NULL : &src, destination, &dest);
-}
-bool Surface::blit(Surface *destination, int x, int y, int w, int h, int a) {
-	return blit(destination->raw,x,y,w,h,a);
-}
-
-bool Surface::blitCenter(SDL_Surface *destination, int x, int y, int w, int h, int a) {
-	int oh, ow;
-	if (w==0) ow = halfW; else ow = min(halfW,w/2);
-	if (h==0) oh = halfH; else oh = min(halfH,h/2);
-	return blit(destination,x-ow,y-oh,w,h,a);
-}
-bool Surface::blitCenter(Surface *destination, int x, int y, int w, int h, int a) {
-	return blitCenter(destination->raw,x,y,w,h,a);
-}
-
-bool Surface::blitRight(SDL_Surface *destination, int x, int y, int w, int h, int a) {
-	if (!w) w = raw->w;
-	return blit(destination,x-min(raw->w,w),y,w,h,a);
-}
-bool Surface::blitRight(Surface *destination, int x, int y, int w, int h, int a) {
-	if (!w) w = raw->w;
-	return blitRight(destination->raw,x,y,w,h,a);
 }
 
 void Surface::putPixel(int x, int y, RGBAColor color) {
@@ -363,27 +330,105 @@ void Surface::setClipRect(int x, int y, int w, int h) {
 }
 
 void Surface::setClipRect(SDL_Rect rect) {
-	SDL_SetClipRect(raw,&rect);
+	SDL_SetClipRect(raw, &rect);
 }
 
-bool Surface::blit(Surface *destination, SDL_Rect container, const unsigned short halign, const unsigned short valign) {
-	switch (halign) {
-	case HAlignCenter:
-		container.x += container.w/2-halfW;
-		break;
-	case HAlignRight:
-		container.x += container.w-raw->w;
-		break;
+
+// bool Surface::blitCenter(SDL_Surface *destination, int x, int y, int w, int h, int a) {
+// 	int oh, ow;
+// 	if (w==0) ow = halfW; else ow = min(halfW,w/2);
+// 	if (h==0) oh = halfH; else oh = min(halfH,h/2);
+// 	return blit(destination,x-ow,y-oh,w,h,a);
+// }
+// bool Surface::blitCenter(Surface *destination, int x, int y, int w, int h, int a) {
+// 	return blitCenter(destination->raw,x,y,w,h,a);
+// }
+
+// bool Surface::blitRight(SDL_Surface *destination, int x, int y, int w, int h, int a) {
+// 	if (!w) w = raw->w;
+// 	return blit(destination,x-min(raw->w,w),y,w,h,a);
+// }
+// bool Surface::blitRight(Surface *destination, int x, int y, int w, int h, int a) {
+// 	if (!w) w = raw->w;
+// 	return blitRight(destination->raw,x,y,w,h,a);
+// }
+
+
+// bool Surface::blit(Surface *destination, SDL_Rect container, const unsigned short halign, const unsigned short valign) {
+// 	switch (halign) {
+// 	case HAlignCenter:
+// 		container.x += container.w/2-halfW;
+// 		break;
+// 	case HAlignRight:
+// 		container.x += container.w-raw->w;
+// 		break;
+// 	}
+
+// 	switch (valign) {
+// 	case VAlignMiddle:
+// 		container.y += container.h/2-halfH;
+// 		break;
+// 	case VAlignBottom:
+// 		container.y += container.h-raw->h;
+// 		break;
+// 	}
+
+// 	return blit(destination,container.x,container.y);
+// }
+
+// bool Surface::blit(Surface *destination, int x, int y, int w, int h, int a) {
+// 	return blit(destination->raw,x,y,w,h,a);
+// }
+
+// bool Surface::blit(SDL_Surface *destination, int x, int y, int w, int h, int a) {
+// 	if (destination == NULL || a==0) return false;
+
+// 	SDL_Rect src = {0,0,w,h};
+// 	SDL_Rect dest;
+// 	dest.x = x;
+// 	dest.y = y;
+// 	if (a>0 && a!=raw->format->alpha)
+// 		SDL_SetAlpha(raw, SDL_SRCALPHA|SDL_RLEACCEL, a);
+// 	return SDL_BlitSurface(raw, (w==0 || h==0) ? NULL : &src, destination, &dest);
+// }
+
+
+bool Surface::blit(Surface *destination, int x, int y, const unsigned short align, int alpha) {
+	if (align & HAlignCenter) {
+		x -= raw->w / 2;
+	} else if (align & HAlignRight) {
+		x = raw->w;
 	}
 
-	switch (valign) {
-	case VAlignMiddle:
-		container.y += container.h/2-halfH;
-		break;
-	case VAlignBottom:
-		container.y += container.h-raw->h;
-		break;
+	if (align & VAlignMiddle) {
+		y -= raw->h / 2;
+	} else if (align & VAlignBottom) {
+		y = raw->h;
 	}
 
-	return blit(destination,container.x,container.y);
+	return blit(destination, {x, y, raw->w, raw->h}, HAlignLeft | VAlignTop, alpha);
 }
+
+bool Surface::blit(Surface *destination, SDL_Rect destrect, const unsigned short align, int alpha) {
+	if (destination->raw == NULL || alpha == 0) return false;
+
+	SDL_Rect srcrect = {0, 0, destrect.w, destrect.h};
+
+	if (align & HAlignCenter) {
+		srcrect.x = (raw->w - srcrect.w) / 2;
+	} else if (align & HAlignRight) {
+		srcrect.x = raw->w - srcrect.w;
+	}
+
+	if (align & VAlignMiddle) {
+		srcrect.y = (raw->h - srcrect.h) / 2;
+	} else if (align & VAlignBottom) {
+		srcrect.y = raw->h - srcrect.h;
+	}
+
+	if (alpha > 0 && alpha != raw->format->alpha)
+		SDL_SetAlpha(raw, SDL_SRCALPHA | SDL_RLEACCEL, alpha);
+
+	return SDL_BlitSurface(raw, &srcrect, destination->raw, &destrect);
+}
+

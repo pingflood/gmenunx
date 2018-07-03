@@ -47,7 +47,7 @@ void Link::run() {
 }
 
 void Link::paint() {
-	iconSurface->blit(gmenu2x->s, rect.x + padding, rect.y + padding, rect.w - 2 * padding, rect.h - 2 * padding);
+	iconSurface->blit(gmenu2x->s, {rect.x + padding, rect.y + padding, rect.w - 2 * padding, rect.h - 2 * padding});
 	gmenu2x->s->write(gmenu2x->titlefont, gmenu2x->tr.translate(getTitle()), rect.x + padding + 36, rect.y + gmenu2x->titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
 	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate(getDescription()), rect.x + padding + 36, rect.y + rect.h - padding/2, HAlignLeft, VAlignBottom);
 }

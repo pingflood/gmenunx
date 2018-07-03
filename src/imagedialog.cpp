@@ -50,7 +50,7 @@ ImageDialog::~ImageDialog() {
 
 void ImageDialog::beforeFileList() {
 	if (fl->isFile(selected) && fileExists(getPath()+"/"+(*fl)[selected])) {
-		previews[getPath()+"/"+(*fl)[selected]]->blitCenter(gmenu2x->s, gmenu2x->halfX, gmenu2x->halfY);
+		previews[getPath()+"/"+(*fl)[selected]]->blit(gmenu2x->s, gmenu2x->halfX, gmenu2x->halfY, HAlignCenter | VAlignMiddle);
 	}
 }
 

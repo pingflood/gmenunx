@@ -41,7 +41,7 @@ bool WallpaperDialog::exec()
 	bool close = false, result = true;
 
 	// dc: adjust rowheight with font
-	uint rowHeight = gmenu2x->font->getHeight()+1; // gp2x=15+1 / pandora=19+1
+	uint rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
 	uint numRows = gmenu2x->listRect.h/rowHeight - 1;
 
 	FileLister fl("skins/"+gmenu2x->confStr["skin"]+"/wallpapers");
@@ -65,14 +65,14 @@ bool WallpaperDialog::exec()
 		bool inputAction = gmenu2x->input.update();
 		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-		if (selected>firstElement+numRows) firstElement=selected-numRows;
-		if (selected<firstElement) firstElement=selected;
+		if (selected > firstElement + numRows) firstElement = selected - numRows;
+		if (selected < firstElement) firstElement = selected;
 
 		//Wallpaper
 		if (selected<wallpapers.size()-fl.getFiles().size())
-			gmenu2x->sc["skins/"+gmenu2x->confStr["skin"]+"/wallpapers/"+wallpapers[selected]]->blit(gmenu2x->s,0,0);
+			gmenu2x->sc["skins/"+gmenu2x->confStr["skin"] + "/wallpapers/" + wallpapers[selected]]->blit(gmenu2x->s,0,0);
 		else
-			gmenu2x->sc["skins/Default/wallpapers/"+wallpapers[selected]]->blit(gmenu2x->s,0,0);
+			gmenu2x->sc["skins/Default/wallpapers/" + wallpapers[selected]]->blit(gmenu2x->s,0,0);
 
 		drawTopBar(gmenu2x->s, title, description, icon);
 		drawBottomBar(gmenu2x->s);
@@ -83,14 +83,14 @@ bool WallpaperDialog::exec()
 		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 		//Selection
 		iY = selected-firstElement;
-		iY = gmenu2x->listRect.y+(iY*rowHeight);
+		iY = gmenu2x->listRect.y + (iY * rowHeight);
 
-		gmenu2x->s->box(0, iY + 3, gmenu2x->resX, rowHeight-1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		gmenu2x->s->box(0, iY + 3, gmenu2x->resX, rowHeight - 1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//Files & Directories
-		for (i=firstElement; i<wallpapers.size() && i<=firstElement+numRows; i++) {
-			iY = i-firstElement;
-			iY = iY*rowHeight + 3 + gmenu2x->listRect.y + rowHeight/3;
+		for (i = firstElement; i < wallpapers.size() && i <= firstElement+numRows; i++) {
+			iY = i - firstElement;
+			iY = iY * rowHeight + 3 + gmenu2x->listRect.y + rowHeight/3;
 
 			gmenu2x->s->write(gmenu2x->font, wallpapers[i], 5, iY, HAlignLeft, VAlignMiddle);
 		}
@@ -101,7 +101,7 @@ bool WallpaperDialog::exec()
 
 		if ( gmenu2x->input[UP] ) {
 			if (selected == 0)
-				selected = wallpapers.size()-1;
+				selected = wallpapers.size() - 1;
 			else
 				selected -= 1;
 		} else if ( gmenu2x->input[DOWN] ) {
@@ -116,7 +116,7 @@ bool WallpaperDialog::exec()
 				selected -= numRows;
 		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
 			if (selected + numRows >= wallpapers.size())
-				selected = wallpapers.size()-1;
+				selected = wallpapers.size() - 1;
 			else
 				selected += numRows;
 		} else if ( gmenu2x->input[MENU] || gmenu2x->input[CANCEL] ) {
@@ -124,11 +124,11 @@ bool WallpaperDialog::exec()
 			result = false;
 		} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) {
 			close = true;
-			if (wallpapers.size()>0) {
+			if (wallpapers.size() > 0) {
 				if (selected<wallpapers.size()-fl.getFiles().size())
-					wallpaper = "skins/"+gmenu2x->confStr["skin"]+"/wallpapers/"+wallpapers[selected];
+					wallpaper = "skins/" + gmenu2x->confStr["skin"] + "/wallpapers/" + wallpapers[selected];
 				else
-					wallpaper = "skins/Default/wallpapers/"+wallpapers[selected];
+					wallpaper = "skins/Default/wallpapers/" + wallpapers[selected];
 			} else {
 				result = false;
 			}
@@ -137,9 +137,9 @@ bool WallpaperDialog::exec()
 
 	for (uint i = 0; i < wallpapers.size(); i++)
 		if (i < wallpapers.size() - fl.getFiles().size())
-			gmenu2x->sc.del("skins/"+gmenu2x->confStr["skin"]+"/wallpapers/"+wallpapers[i]);
+			gmenu2x->sc.del("skins/" + gmenu2x->confStr["skin"] + "/wallpapers/" + wallpapers[i]);
 		else
-			gmenu2x->sc.del("skins/Default/wallpapers/"+wallpapers[i]);
+			gmenu2x->sc.del("skins/Default/wallpapers/" + wallpapers[i]);
 
 	return result;
 }

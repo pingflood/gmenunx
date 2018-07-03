@@ -113,7 +113,7 @@ int MessageBox::exec() {
 
 	//icon+text
 	if (gmenu2x->sc[icon] != NULL)
-		gmenu2x->sc[icon]->blitCenter( gmenu2x->s, box.x + 24, box.y + 24 );
+		gmenu2x->sc[icon]->blit( gmenu2x->s, box.x + 24, box.y + 24 , HAlignCenter | VAlignMiddle);
 
 	gmenu2x->s->write(gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 11), gmenu2x->halfY - gmenu2x->font->getHeight()/5, HAlignLeft, VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 

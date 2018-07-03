@@ -22,7 +22,7 @@ void Dialog::drawTitleIcon(const std::string &icon, Surface *s) {
 
 	if (i == NULL) i = gmenu2x->sc.skinRes("icons/generic.png");
 
-	i->blit(s, 4, 4, gmenu2x->resX - 8, gmenu2x->skinConfInt["topBarHeight"] - 8);
+	i->blit(s, {4, 4, gmenu2x->resX - 8, gmenu2x->skinConfInt["topBarHeight"] - 8}, VAlignMiddle);
 	// s->box(4, 4, 32, 32, strtorgba("ffff00ff"));
 }
 
