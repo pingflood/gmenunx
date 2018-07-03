@@ -119,6 +119,29 @@ static const char *colorToString(enum color c) {
 	return colorNames[c];
 }
 
+char *ms2hms(unsigned long t, bool mm = true, bool ss = true) {
+	static char buf[10];
+
+	t = t / 1000;
+	int s = (t % 60);
+	int m = (t % 3600) / 60;
+	int h = (t % 86400) / 3600;
+	// int d = (t % (86400 * 30)) / 86400;
+
+	if (!ss) sprintf(buf, "%02d:%02d", h, m);
+	else if (!mm) sprintf(buf, "%02d", h);
+	else sprintf(buf, "%02d:%02d:%02d", h, m, s);
+	return buf;
+};
+
+void printbin(int n) {
+	for(int i = 31; i >= 0; i--) {
+		printf("%d", !!(n & 1 << i));
+		if (!(i % 8)) printf(" ");
+	}
+	printf("\e[0K\n");
+}
+
 static void quit_all(int err) {
 	delete app;
 	exit(err);
@@ -158,6 +181,30 @@ bool getTVOutStatus() {
 	return false;
 }
 
+GMenu2X::~GMenu2X() {
+	confStr["datetime"] = getDateTime();
+
+	writeConfig();
+
+#if defined(TARGET_GP2X)
+	if (fwType=="open2x") writeConfigOpen2x();
+#endif
+	quit();
+
+	delete menu;
+	delete s;
+	delete font;
+	delete titlefont;
+}
+
+void GMenu2X::quit() {
+	fflush(NULL);
+	sc.clear();
+	s->free();
+	SDL_Quit();
+	hwDeinit();
+}
+
 int main(int /*argc*/, char * /*argv*/[]) {
 	INFO("GMenu2X starting: If you read this message in the logs, check http://mtorromeo.github.com/gmenu2x/troubleshooting.html for a solution");
 
@@ -172,67 +219,13 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	return 0;
 }
 
-void GMenu2X::hwInit() {
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
-	memdev = open("/dev/mem", O_RDWR);
-	if (memdev < 0) WARNING("Could not open /dev/mem");
-#endif
-
-	if (memdev > 0) {
-#if defined(TARGET_GP2X)
-		memregs = (unsigned short*)mmap(0, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
-		MEM_REG = &memregs[0];
-
-		//Fix tv-out
-		if (memregs[0x2800 >> 1] & 0x100) {
-			memregs[0x2906 >> 1] = 512;
-			//memregs[0x290C >> 1]=640;
-			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
-		}
-		memregs[0x28E8 >> 1] = 239;
-
-#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-		memregs = (unsigned short*)mmap(0, 0x20000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
-#elif defined(TARGET_RS97)
-		memregs = (unsigned long*)mmap(0, 0x20000, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
-#endif
-		if (memregs == MAP_FAILED) {
-			ERROR("Could not mmap hardware registers!");
-			close(memdev);
-		}
+bool exitMainThread = false;
+void* mainThread(void* param) {
+	GMenu2X *menu = (GMenu2X*)param;
+	while(!exitMainThread) {
+		sleep(1);
 	}
-
-#if defined(TARGET_GP2X)
-	batteryHandle = open(f200 ? "/dev/mmsp2adc" : "/dev/batt", O_RDONLY);
-	//if wm97xx fails to open, set f200 to false to prevent any further access to the touchscreen
-	if (f200) f200 = ts.init();
-#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	/* get access to battery device */
-	batteryHandle = open("/dev/pollux_batt", O_RDONLY);
-#endif
-	INFO("System Init Done!");
-}
-
-void GMenu2X::hwDeinit() {
-#if defined(TARGET_GP2X)
-	if (memdev > 0) {
-		//Fix tv-out
-		if (memregs[0x2800 >> 1] & 0x100) {
-			memregs[0x2906 >> 1] = 512;
-			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
-		}
-
-		memregs[0x28DA >> 1] = 0x4AB;
-		memregs[0x290C >> 1] = 640;
-	}
-	if (f200) ts.deinit();
-	if (batteryHandle != 0) close(batteryHandle);
-
-	if (memdev > 0) {
-		memregs = NULL;
-		close(memdev);
-	}
-#endif
+	return NULL;
 }
 
 // GMenu2X *GMenu2X::instance = NULL;
@@ -382,610 +375,6 @@ GMenu2X::GMenu2X() {
 	//recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
 		menu->selLinkApp()->selector(lastSelectorElement,lastSelectorDir);
-}
-
-GMenu2X::~GMenu2X() {
-	confStr["datetime"] = getDateTime();
-
-	writeConfig();
-
-#if defined(TARGET_GP2X)
-	if (fwType=="open2x") writeConfigOpen2x();
-#endif
-	quit();
-
-	delete menu;
-	delete s;
-	delete font;
-	delete titlefont;
-}
-
-void GMenu2X::quit() {
-	fflush(NULL);
-	sc.clear();
-	s->free();
-	SDL_Quit();
-	hwDeinit();
-}
-
-void GMenu2X::initBG(const string &imagePath) {
-	if (bg != NULL) delete bg;
-
-	bg = new Surface(s);
-	bg->box(0, 0, resX, resY, 0, 0, 0);
-
-	if (!imagePath.empty() && sc.add(imagePath) != NULL) {
-		sc[imagePath]->blit(bg, 0, 0);
-	} else if (sc.add(confStr["wallpaper"]) != NULL) {
-		sc[confStr["wallpaper"]]->blit(bg, 0, 0);
-	}
-}
-
-void GMenu2X::initLayout() {
-	// LINKS rect
-	linksRect = (SDL_Rect){0, 0, resX, resY};
-	sectionBarRect = (SDL_Rect){0, 0, resX, resY};
-
-	if (confInt["sectionBar"]) {
-		// x = 0; y = 0;
-		if (confInt["sectionBar"] == SB_LEFT || confInt["sectionBar"] == SB_RIGHT) {
-			sectionBarRect.x = (confInt["sectionBar"] == SB_RIGHT)*(resX - skinConfInt["sectionBarSize"]);
-			sectionBarRect.w = skinConfInt["sectionBarSize"];
-			linksRect.w = resX - skinConfInt["sectionBarSize"];
-
-			if (confInt["sectionBar"] == SB_LEFT) {
-				linksRect.x = skinConfInt["sectionBarSize"];
-			}
-		} else {
-			sectionBarRect.y = (confInt["sectionBar"] == SB_BOTTOM)*(resY - skinConfInt["sectionBarSize"]);
-			sectionBarRect.h = skinConfInt["sectionBarSize"];
-			linksRect.h = resY - skinConfInt["sectionBarSize"];
-
-			if (confInt["sectionBar"] == SB_TOP) {
-				linksRect.y = skinConfInt["sectionBarSize"];
-			}
-		}
-	}
-
-	listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
-}
-
-void GMenu2X::initFont() {
-	if (font != NULL) {
-		delete font;
-		font = NULL;
-	}
-	if (titlefont != NULL) {
-		delete titlefont;
-		titlefont = NULL;
-	}
-
-	font = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
-	titlefont = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSizeTitle"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
-}
-
-void GMenu2X::initMenu() {
-	initLayout();
-
-	//Menu structure handler
-	menu = new Menu(this);
-
-int iii = menu->getSectionIndex("settings");
-ERROR("SECTION INDEX: %d", iii);
-		menu->addActionLink(iii, tr["Umount Test"], MakeDelegate(this, &GMenu2X::explorer), tr["Umount external SD"], "skin:icons/eject.png");
-
-
-	for (uint i = 0; i < menu->getSections().size(); i++) {
-		//Add virtual links in the applications section
-		if (menu->getSections()[i] == "applications") {
-			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Launch an application"], "skin:icons/explorer.png");
-#if !defined(TARGET_PC)
-			if (getBatteryLevel() > 5) // show only if charging
-#endif
-				menu->addActionLink(i, tr["Battery Logger"], MakeDelegate(this, &GMenu2X::batteryLogger), tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
-		}
-
-		//Add virtual links in the setting section
-		else if (menu->getSections()[i] == "settings") {
-			menu->addActionLink(i, tr["Settings"], MakeDelegate(this, &GMenu2X::settings), tr["Configure settings"], "skin:icons/configure.png");
-			menu->addActionLink(i, tr["Skin"], MakeDelegate(this, &GMenu2X::skinMenu), tr["Configure skin"], "skin:icons/skin.png");
-			menu->addActionLink(i, tr["Wallpaper"], MakeDelegate(this, &GMenu2X::changeWallpaper), tr["Set background image"], "skin:icons/wallpaper.png");
-#if defined(TARGET_GP2X)
-			if (fwType == "open2x")
-				menu->addActionLink(i, "Open2x", MakeDelegate(this, &GMenu2X::settingsOpen2x), tr["Configure Open2x system settings"], "skin:icons/o2xconfigure.png");
-			// menu->addActionLink(i, "TV", MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
-			menu->addActionLink(i, "USB SD", MakeDelegate(this, &GMenu2X::activateSdUsb), tr["Activate USB on SD"], "skin:icons/usb.png");
-			if (fwType == "gph" && !f200)
-				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "skin:icons/usb.png");
-			//menu->addActionLink(i, "USB Root", MakeDelegate(this, &GMenu2X::activateRootUsb), tr["Activate USB on the root of the Gp2x Filesystem"], "skin:icons/usb.png");
-			//menu->addActionLink(i, "Speaker", MakeDelegate(this, &GMenu2X::toggleSpeaker), tr["Activate/deactivate Speaker"], "skin:icons/speaker.png");
-#elif defined(TARGET_RS97)
-			// menu->addActionLink(i, tr["TV"], MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
-			//menu->addActionLink(i, "Format", MakeDelegate(this, &GMenu2X::formatSd), tr["Format internal SD"], "skin:icons/format.png");
-			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
-#endif
-
-			if (fileExists(path + "log.txt"))
-				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "skin:icons/ebook.png");
-
-
-			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "skin:icons/about.png");
-			// menu->addActionLink(i, "Reboot", MakeDelegate(this, &GMenu2X::reboot), tr["Reboot device"], "skin:icons/reboot.png");
-			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroffDialog), tr["Power menu"], "skin:icons/exit.png");
-		}
-	}
-	menu->setSectionIndex(confInt["section"]);
-	menu->setLinkIndex(confInt["link"]);
-	menu->loadIcons();
-}
-
-char *ms2hms(unsigned long t, bool mm = true, bool ss = true) {
-	static char buf[10];
-
-	t = t / 1000;
-	int s = (t % 60);
-	int m = (t % 3600) / 60;
-	int h = (t % 86400) / 3600;
-	// int d = (t % (86400 * 30)) / 86400;
-
-	if (!ss) sprintf(buf, "%02d:%02d", h, m);
-	else if (!mm) sprintf(buf, "%02d", h);
-	else sprintf(buf, "%02d:%02d:%02d", h, m, s);
-	return buf;
-};
-
-void GMenu2X::about() {
-	vector<string> text;
-	string temp, batt;
-
-	char *hms = ms2hms(SDL_GetTicks());
-	long battlevel = getBatteryStatus();
-
-	stringstream ss; ss << battlevel; ss >> batt;
-
-	temp = tr["Build date: "] + __DATE__ + "\n";
-	temp += tr["Uptime: "] + hms + "\n";
-	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : batt);// + "\n";
-	// temp += tr["Storage:"];
-	// temp += "\n    " + tr["Root: "] + getDiskFree("/");
-	// temp += "\n    " + tr["Internal: "] + getDiskFree("/mnt/int_sd");
-	// temp += "\n    " + tr["External: "] + getDiskFree("/mnt/ext_sd");
-	temp += "\n----\n";
-
-#if defined(TARGET_CAANOO)
-	string versionFile = "";
-	if (fileExists("/usr/gp2x/version"))
-		versionFile = "/usr/gp2x/version";
-	else if (fileExists("/tmp/gp2x/version"))
-		versionFile = "/tmp/gp2x/version";
-	if (!versionFile.empty()) {
-		ifstream f(versionFile.c_str(), ios_base::in);
-		if (f.is_open()) {
-			string line;
-			if (getline(f, line, '\n'))
-				temp += "\nFirmware version: " + line + "\n" + exec("uname -srm");
-			f.close();
-		}
-	}
-#endif
-
-	ifstream f("about.txt", ios_base::in);
-	if (f.is_open()) {
-		string line;
-		while (getline(f, line, '\n'))
-			temp += line + "\n"; // + exec("uname -srm");
-		f.close();
-	}
-
-	split(text, temp, "\n");
-	TextDialog td(this, "GMenuNext", tr["Info about system"], "skin:icons/about.png", &text);
-	td.exec();
-}
-
-void GMenu2X::viewLog() {
-	string logfile = path + "log.txt";
-	if (!fileExists(logfile)) return;
-	ifstream inf(logfile.c_str(), ios_base::in);
-	if (!inf.is_open()) return;
-	vector<string> log;
-
-	string line;
-	while (getline(inf, line, '\n'))
-		log.push_back(line);
-	inf.close();
-
-	TextDialog td(this, tr["Log Viewer"], tr["Displays last launched program's output"], "skin:icons/ebook.png", &log);
-	td.exec();
-
-	MessageBox mb(this, tr["Do you want to delete the log file?"], "skin:icons/ebook.png");
-	mb.setButton(CONFIRM, tr["Yes"]);
-	mb.setButton(CANCEL,  tr["No"]);
-	if (mb.exec() == CONFIRM) {
-		ledOn();
-		unlink(logfile.c_str());
-		sync();
-		menu->deleteSelectedLink();
-		ledOff();
-	}
-}
-
-void GMenu2X::batteryLogger() {
-	BatteryLoggerDialog bl(this, tr["Battery Logger"], tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
-	bl.exec();
-}
-
-void GMenu2X::linkScanner() {
-	LinkScannerDialog ls(this, tr["Link scanner"], tr["Scan for applications and games"], "skin:icons/configure.png");
-	ls.exec();
-}
-
-void GMenu2X::changeWallpaper() {
-	WallpaperDialog wp(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], "skin:icons/wallpaper.png");
-	if (wp.exec() && confStr["wallpaper"] != wp.wallpaper) {
-		confStr["wallpaper"] = wp.wallpaper;
-		initBG();
-		writeConfig();
-	}
-}
-
-void GMenu2X::readConfig() {
-	string conffile = path+"gmenu2x.conf";
-
-	// Defaults
-	confStr["batteryType"] = "BL-5B";
-	confStr["datetime"] = __BUILDTIME__;
-
-	if (fileExists(conffile)) {
-		ifstream inf(conffile.c_str(), ios_base::in);
-		if (inf.is_open()) {
-			string line;
-			while (getline(inf, line, '\n')) {
-				string::size_type pos = line.find("=");
-				string name = trim(line.substr(0,pos));
-				string value = trim(line.substr(pos+1,line.length()));
-
-				if (value.length()>1 && value.at(0)=='"' && value.at(value.length()-1)=='"')
-					confStr[name] = value.substr(1,value.length()-2);
-				else
-					confInt[name] = atoi(value.c_str());
-			}
-			inf.close();
-		}
-	}
-
-	if (confStr["TVOut"] != "PAL") confStr["TVOut"] = "NTSC";
-	if (!confStr["lang"].empty()) tr.setLang(confStr["lang"]);
-	if (!confStr["wallpaper"].empty() && !fileExists(confStr["wallpaper"])) confStr["wallpaper"] = "";
-	if (confStr["skin"].empty() || !dirExists("skins/"+confStr["skin"])) confStr["skin"] = "Default";
-
-	// evalIntConf( &confInt["batteryLog"], 0, 0, 1 );
-	evalIntConf( &confInt["backlightTimeout"], 30, 10, 300);
-	evalIntConf( &confInt["powerTimeout"], 10, 1, 300);
-	evalIntConf( &confInt["outputLogs"], 0, 0, 1 );
-// #if defined(TARGET_GP2X)
-// 	evalIntConf( &confInt["cpuMax"], 300, 200, 300 );
-// 	evalIntConf( &confInt["cpuMenu"], 140, 50, 300 );
-// #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-// 	evalIntConf( &confInt["cpuMax"], 900, 200, 900 );
-// 	evalIntConf( &confInt["cpuMenu"], CPU_CLK_DEFAULT, 250, 300 );
-// #elif defined(TARGET_RS97)
-	evalIntConf( &confInt["cpuMax"], 642, 200, 1200 );
-	evalIntConf( &confInt["cpuMin"], 312, 200, 1200 );
-	evalIntConf( &confInt["cpuMenu"], 528, 200, 1200 );
-// #endif
-	evalIntConf( &confInt["globalVolume"], 60, 1, 100 );
-	evalIntConf( &confInt["gamma"], 10, 1, 100 );
-	evalIntConf( &confInt["videoBpp"], 16, 8, 32 );
-	evalIntConf( &confInt["backlight"], 70, 1, 100);
-
-	evalIntConf( &confInt["minBattery"], 0, 1, 10000);
-	evalIntConf( &confInt["maxBattery"], 4500, 1, 10000);
-
-	evalIntConf( &confInt["sectionBar"], SB_LEFT, 1, 4);
-
-	if (!confInt["saveSelection"]) {
-		confInt["section"] = 0;
-		confInt["link"] = 0;
-	}
-
-	resX = constrain( confInt["resolutionX"], 320, 1920 );
-	resY = constrain( confInt["resolutionY"], 240, 1200 );
-}
-
-void GMenu2X::writeConfig() {
-	ledOn();
-	if (confInt["saveSelection"] && menu != NULL) {
-		confInt["section"] = menu->selSectionIndex();
-		confInt["link"] = menu->selLinkIndex();
-	}
-
-	string conffile = path + "gmenu2x.conf";
-	ofstream inf(conffile.c_str());
-	if (inf.is_open()) {
-		for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
-			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding") continue;
-			inf << curr->first << "=\"" << curr->second << "\"" << endl;
-		}
-
-		for (ConfIntHash::iterator curr = confInt.begin(); curr != confInt.end(); curr++) {
-			if (curr->first == "batteryLog" || curr->first == "maxClock" || curr->first == "minClock" || curr->first == "menuClock") continue;
-			inf << curr->first << "=" << curr->second << endl;
-		}
-		inf.close();
-		sync();
-	}
-	ledOff();
-}
-
-void GMenu2X::writeSkinConfig() {
-	ledOn();
-	string conffile = path+"skins/"+confStr["skin"]+"/skin.conf";
-	ofstream inf(conffile.c_str());
-	if (inf.is_open()) {
-		for (ConfStrHash::iterator curr = skinConfStr.begin(); curr != skinConfStr.end(); curr++)
-			inf << curr->first << "=\"" << curr->second << "\"" << endl;
-
-		for (ConfIntHash::iterator curr = skinConfInt.begin(); curr != skinConfInt.end(); curr++) {
-			if (curr->first == "titleFontSize" || curr->first == "sectionBarHeight" || curr->first == "linkHeight" ) continue;
-			inf << curr->first << "=" << curr->second << endl;
-		}
-
-		for (int i = 0; i < NUM_COLORS; ++i) {
-			inf << colorToString((enum color)i) << "=" << rgbatostr(skinConfColors[i]) << endl;
-		}
-
-		inf.close();
-		sync();
-	}
-	ledOff();
-}
-
-void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
-	confStr["skin"] = skin;
-
-//Clear previous skin settings
-	skinConfStr.clear();
-	skinConfInt.clear();
-
-//clear collection and change the skin path
-	if (clearSC) sc.clear();
-	sc.setSkin(skin);
-	// if (btnContextMenu != NULL) btnContextMenu->setIcon( btnContextMenu->getIcon() );
-
-//reset colors to the default values
-	skinConfColors[COLOR_TOP_BAR_BG] = (RGBAColor){255,255,255,130};
-	skinConfColors[COLOR_LIST_BG] = (RGBAColor){255,255,255,0};
-	skinConfColors[COLOR_BOTTOM_BAR_BG] = (RGBAColor){255,255,255,130};
-	skinConfColors[COLOR_SELECTION_BG] = (RGBAColor){255,255,255,130};
-	skinConfColors[COLOR_MESSAGE_BOX_BG] = (RGBAColor){255,255,255,255};
-	skinConfColors[COLOR_MESSAGE_BOX_BORDER] = (RGBAColor){80,80,80,255};
-	skinConfColors[COLOR_MESSAGE_BOX_SELECTION] = (RGBAColor){160,160,160,255};
-	skinConfColors[COLOR_FONT] = (RGBAColor){255,255,255,255};
-	skinConfColors[COLOR_FONT_OUTLINE] = (RGBAColor){0,0,0,200};
-
-	skinConfColors[COLOR_FONT_ALT] = (RGBAColor){253,1,252,0};
-	skinConfColors[COLOR_FONT_ALT_OUTLINE] = (RGBAColor){253,1,252,0};
-
-//load skin settings
-	string skinconfname = "skins/"+skin+"/skin.conf";
-	if (fileExists(skinconfname)) {
-		ifstream skinconf(skinconfname.c_str(), ios_base::in);
-		if (skinconf.is_open()) {
-			string line;
-			while (getline(skinconf, line, '\n')) {
-				line = trim(line);
-				// DEBUG("skinconf: '%s'", line.c_str());
-				string::size_type pos = line.find("=");
-				string name = trim(line.substr(0,pos));
-				string value = trim(line.substr(pos+1,line.length()));
-
-				if (value.length() > 0) {
-					if (value.length() > 1 && value.at(0) == '"' && value.at(value.length() - 1) == '"') {
-							skinConfStr[name] = value.substr(1, value.length() - 2);
-					} else if (value.at(0) == '#') {
-						// skinConfColor[name] = strtorgba( value.substr(1,value.length()) );
-						skinConfColors[stringToColor(name)] = strtorgba(value);
-					} else if (name.length() > 6 && name.substr( name.length() - 6, 5 ) == "Color") {
-						value += name.substr(name.length() - 1);
-						name = name.substr(0, name.length() - 6);
-						if (name == "selection" || name == "topBar" || name == "bottomBar" || name == "messageBox") name += "Bg";
-						if (value.substr(value.length() - 1) == "R") skinConfColors[stringToColor(name)].r = atoi(value.c_str());
-						if (value.substr(value.length() - 1) == "G") skinConfColors[stringToColor(name)].g = atoi(value.c_str());
-						if (value.substr(value.length() - 1) == "B") skinConfColors[stringToColor(name)].b = atoi(value.c_str());
-						if (value.substr(value.length() - 1) == "A") skinConfColors[stringToColor(name)].a = atoi(value.c_str());
-					} else {
-						skinConfInt[name] = atoi(value.c_str());
-					}
-				}
-			}
-			skinconf.close();
-
-			if (setWallpaper && !skinConfStr["wallpaper"].empty() && fileExists("skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"])) {
-				confStr["wallpaper"] = "skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"];
-				sc[confStr["wallpaper"]]->blit(bg,0,0);
-			}
-		}
-	}
-
-// (poor) HACK: ensure font alt colors have a default value
-	if (skinConfColors[COLOR_FONT_ALT].r == 253 && skinConfColors[COLOR_FONT_ALT].g == 1 && skinConfColors[COLOR_FONT_ALT].b == 252 && skinConfColors[COLOR_FONT_ALT].a == 0) skinConfColors[COLOR_FONT_ALT] = skinConfColors[COLOR_FONT];
-	if (skinConfColors[COLOR_FONT_ALT_OUTLINE].r == 253 && skinConfColors[COLOR_FONT_ALT_OUTLINE].g == 1 && skinConfColors[COLOR_FONT_ALT_OUTLINE].b == 252 && skinConfColors[COLOR_FONT_ALT_OUTLINE].a == 0) skinConfColors[COLOR_FONT_ALT_OUTLINE] = skinConfColors[COLOR_FONT_OUTLINE];
-
-// prevents breaking current skin until they are updated
-	if (!skinConfInt["fontSizeTitle"] && skinConfInt["titleFontSize"] > 0) skinConfInt["fontSizeTitle"] = skinConfInt["titleFontSize"];
-
-	evalIntConf( &skinConfInt["topBarHeight"], 40, 1, resY);
-	// evalIntConf( &skinConfInt["sectionBarHeight"], 200, 32, resY);
-	evalIntConf( &skinConfInt["sectionBarSize"], 40, 1, resX);
-	// evalIntConf( &skinConfInt["linkHeight"], 40, 16, resY);
-	evalIntConf( &skinConfInt["linkItemHeight"], 40, 32, resY);
-	evalIntConf( &skinConfInt["bottomBarHeight"], 16, 1, resY);
-	evalIntConf( &skinConfInt["selectorX"], 142, 1, resX);
-	evalIntConf( &skinConfInt["selectorPreviewX"], 7, 1, resX);
-	evalIntConf( &skinConfInt["selectorPreviewY"], 56, 1, resY);
-	evalIntConf( &skinConfInt["selectorPreviewWidth"], 128, 32, resY);
-	evalIntConf( &skinConfInt["selectorPreviewHeight"], 128, 32, resX);
-	evalIntConf( &skinConfInt["fontSize"], 9, 6, 60);
-	evalIntConf( &skinConfInt["fontSizeTitle"], 14, 6, 60);
-
-//recalculate some coordinates based on the new element sizes
-	// linkRows = resY/skinConfInt["linkItemHeight"];
-	// needed until refactor menu.cpp
-	// linkRows = linksRect.h / skinConfInt["linkItemHeight"];
-	// linkColumns = 4;//(resX-10)/skinConfInt["linkWidth"];
-
-	// LIST
-	// linkColumns = 1;
-	// linkRows = resY / skinConfInt["linkItemHeight"];
-
-	// WIP
-	linkColumns = 1;
-	linkRows = 4;
-
-	if (menu != NULL && clearSC) menu->loadIcons();
-
-//font
-	initFont();
-}
-
-void GMenu2X::readTmp() {
-	lastSelectorElement = -1;
-	if (!fileExists("/tmp/gmenu2x.tmp")) return;
-	ifstream inf("/tmp/gmenu2x.tmp", ios_base::in);
-	if (!inf.is_open()) return;
-	string line;
-	string section = "";
-
-	while (getline(inf, line, '\n')) {
-		string::size_type pos = line.find("=");
-		string name = trim(line.substr(0,pos));
-		string value = trim(line.substr(pos+1,line.length()));
-
-		if (name == "section") menu->setSectionIndex(atoi(value.c_str()));
-		else if (name == "link") menu->setLinkIndex(atoi(value.c_str()));
-		else if (name == "selectorelem") lastSelectorElement = atoi(value.c_str());
-		else if (name == "selectordir") lastSelectorDir = value;
-		else if (name == "TVOut") TVOut = value;
-	}
-	if (TVOut != "NTSC" && TVOut != "PAL") TVOut = "OFF";
-
-	inf.close();
-	unlink("/tmp/gmenu2x.tmp");
-}
-
-void GMenu2X::writeTmp(int selelem, const string &selectordir) {
-	string conffile = "/tmp/gmenu2x.tmp";
-	ofstream inf(conffile.c_str());
-	if (inf.is_open()) {
-		inf << "section=" << menu->selSectionIndex() << endl;
-		inf << "link=" << menu->selLinkIndex() << endl;
-		if (selelem >- 1) inf << "selectorelem=" << selelem << endl;
-		if (selectordir != "") inf << "selectordir=" << selectordir << endl;
-		inf << "TVOut=" << TVOut << endl;
-		inf.close();
-	}
-}
-
-void GMenu2X::ledOn() {
-#if defined(TARGET_GP2X)
-	if (memdev != 0 && !f200) memregs[0x106E >> 1] ^= 16;
-	//SDL_SYS_JoystickGp2xSys(joy.joystick, BATT_LED_ON);
-#endif
-}
-
-void GMenu2X::ledOff() {
-#if defined(TARGET_GP2X)
-	if (memdev != 0 && !f200) memregs[0x106E >> 1] ^= 16;
-	//SDL_SYS_JoystickGp2xSys(joy.joystick, BATT_LED_OFF);
-#endif
-}
-
-long GMenu2X::getBatteryStatus() {
-	char buf[32] = "-1";
-#if defined(TARGET_RS97)
-	FILE *f = fopen("/proc/jz/battery", "r");
-	if (f) {
-		fgets(buf, sizeof(buf), f);
-	}
-	fclose(f);
-#endif
-	return atol(buf);
-}
-
-bool exitMainThread = false;
-void* mainThread(void* param) {
-	GMenu2X *menu = (GMenu2X*)param;
-	while(!exitMainThread) {
-		sleep(1);
-	}
-	return NULL;
-}
-
-void printbin(int n) {
-	for(int i = 31; i >= 0; i--) {
-		printf("%d", !!(n & 1 << i));
-		if (!(i % 8)) printf(" ");
-	}
-	printf("\e[0K\n");
-}
-
-void GMenu2X::hwCheck() {
-	if (memdev > 0) {
-		// INFO("\e[1;0fA: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x\e[0K",
-		// 	memregs[0x10000 >> 2], memregs[0x10010 >> 2],
-		// 	memregs[0x10100 >> 2], memregs[0x10110 >> 2],
-		// 	memregs[0x10200 >> 2], memregs[0x10210 >> 2],
-		// 	memregs[0x10300 >> 2], memregs[0x10310 >> 2],
-		// 	memregs[0x10400 >> 2], memregs[0x10410 >> 2],
-		// 	memregs[0x10500 >> 2], memregs[0x10510 >> 2]
-		// );
-
-		// printf("A: ");
-		// printbin(memregs[0x10000 >> 2]);
-
-		// printf("B: ");
-		// printbin(memregs[0x10100 >> 2]);
-
-		// printf("C: ");
-		// printbin(memregs[0x10200 >> 2]);
-
-		// printf("D: ");
-		// printbin(memregs[0x10300 >> 2]);
-
-		// printf("E: ");
-		// printbin(memregs[0x10400 >> 2]);
-
-		// printf("F: ");
-		// printbin(memregs[0x10500 >> 2]);
-
-		// INFO("D: 0x%x 8>0x%x 16>0x%x 24>0x%x 32>0x%x 40>0x%x 48>0x%x",
-		// 	memregs[0x10300 >> 2],
-		// 	memregs[0x10300 >> 2] >> 8 & 0b1,
-		// 	memregs[0x10300 >> 2] >> 16 & 0b1,
-		// 	memregs[0x10300 >> 2] >> 24 & 0b1,
-		// 	memregs[0x10300 >> 2] >> 32 & 0b1,
-		// 	memregs[0x10300 >> 2] >> 40 & 0b1,
-		// 	memregs[0x10300 >> 2] >> 28 & 0b1
-		// );
-
-		// INFO("UDC: 0b%d",
-		// 	memregs[0x10300 >> 2] >> 7 & 0b1
-		// );
-
-		// tvOutConnected = !(memregs[0x10300 >> 2] >> 25 & 0b1);
-
-		curMMCStatus = getMMCStatus();
-		if (preMMCStatus != curMMCStatus) {
-			preMMCStatus = curMMCStatus;
-			MMCToggle = 1;
-		}
-
-		tvOutConnected = getTVOutStatus();
-		if (tvOutPrev != tvOutConnected) {
-			tvOutPrev = tvOutConnected;
-			tvOutToggle = 1;
-		}
-	}
 }
 
 void GMenu2X::main() {
@@ -1278,40 +667,7 @@ void GMenu2X::main() {
 	// btnContextMenu = NULL;
 }
 
-void GMenu2X::showManual() {
-	string linkTitle = menu->selLinkApp()->getTitle();
-	string linkDescription = menu->selLinkApp()->getDescription();
-	string linkIcon = menu->selLinkApp()->getIcon();
-	string linkManual = menu->selLinkApp()->getManualPath();
-	string linkBackdrop = menu->selLinkApp()->getBackdropPath();
-
-	if (linkManual == "" || !fileExists(linkManual)) return;
-
-	string ext = linkManual.substr(linkManual.size() - 4, 4);
-	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == "jpeg") {
-		ImageViewerDialog im(this, linkTitle, linkDescription, linkIcon, linkManual);
-		im.exec();
-		return;
-	}
-
-	// Txt manuals and readmes
-	vector<string> txtman;
-
-	string line;
-	ifstream infile(linkManual.c_str(), ios_base::in);
-	if (infile.is_open()) {
-		while (getline(infile, line, '\n'))
-			txtman.push_back( strreplace(line, "\r", "") );
-		infile.close();
-
-		TextDialog td(this, linkTitle, linkDescription, linkIcon, &txtman, linkBackdrop);
-		td.exec();
-	}
-}
-
 bool GMenu2X::inputCommonActions(bool &inputAction) {
-	// INFO("SDL_GetTicks(): %d\tsuspendActive: %d", SDL_GetTicks(), powerManager->suspendActive);
-
 	if (powerManager->suspendActive) {
 		// SUSPEND ACTIVE
 		input.setWakeUpInterval(0);
@@ -1411,30 +767,177 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	return false;
 }
 
-void GMenu2X::explorer() {
-	FileDialog fd(this, tr["Select an application"], ".gpu,.gpe,.sh,", "", tr["Explorer"]);
-	if (fd.exec()) {
-		if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
-			writeConfig();
-
-#if defined(TARGET_GP2X)
-		if (fwType == "open2x" && savedVolumeMode != volumeMode)
-			writeConfigOpen2x();
+void GMenu2X::hwInit() {
+#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
+	memdev = open("/dev/mem", O_RDWR);
+	if (memdev < 0) WARNING("Could not open /dev/mem");
 #endif
 
-	//string command = cmdclean(fd.path()+"/"+fd.file) + "; sync & cd "+cmdclean(getExePath())+"; exec ./gmenu2x";
-		string command = cmdclean(fd.getPath() + "/" + fd.getFile());
-		chdir(fd.getPath().c_str());
-		quit();
-		setCPU(confInt["cpuMenu"]);
-		execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
+	if (memdev > 0) {
+#if defined(TARGET_GP2X)
+		memregs = (unsigned short*)mmap(0, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
+		MEM_REG = &memregs[0];
 
-	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
-	//try relaunching gmenu2x
-		WARNING("Error executing selected application, re-launching gmenu2x");
-		chdir(getExePath().c_str());
-		execlp("./gmenu2x", "./gmenu2x", NULL);
+		//Fix tv-out
+		if (memregs[0x2800 >> 1] & 0x100) {
+			memregs[0x2906 >> 1] = 512;
+			//memregs[0x290C >> 1]=640;
+			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
+		}
+		memregs[0x28E8 >> 1] = 239;
+
+#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+		memregs = (unsigned short*)mmap(0, 0x20000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
+#elif defined(TARGET_RS97)
+		memregs = (unsigned long*)mmap(0, 0x20000, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
+#endif
+		if (memregs == MAP_FAILED) {
+			ERROR("Could not mmap hardware registers!");
+			close(memdev);
+		}
 	}
+
+#if defined(TARGET_GP2X)
+	batteryHandle = open(f200 ? "/dev/mmsp2adc" : "/dev/batt", O_RDONLY);
+	//if wm97xx fails to open, set f200 to false to prevent any further access to the touchscreen
+	if (f200) f200 = ts.init();
+#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+	/* get access to battery device */
+	batteryHandle = open("/dev/pollux_batt", O_RDONLY);
+#endif
+	INFO("System Init Done!");
+}
+
+void GMenu2X::hwDeinit() {
+#if defined(TARGET_GP2X)
+	if (memdev > 0) {
+		//Fix tv-out
+		if (memregs[0x2800 >> 1] & 0x100) {
+			memregs[0x2906 >> 1] = 512;
+			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
+		}
+
+		memregs[0x28DA >> 1] = 0x4AB;
+		memregs[0x290C >> 1] = 640;
+	}
+	if (f200) ts.deinit();
+	if (batteryHandle != 0) close(batteryHandle);
+
+	if (memdev > 0) {
+		memregs = NULL;
+		close(memdev);
+	}
+#endif
+}
+
+void GMenu2X::initBG(const string &imagePath) {
+	if (bg != NULL) delete bg;
+
+	bg = new Surface(s);
+	bg->box(0, 0, resX, resY, 0, 0, 0);
+
+	if (!imagePath.empty() && sc.add(imagePath) != NULL) {
+		sc[imagePath]->blit(bg, 0, 0);
+	} else if (sc.add(confStr["wallpaper"]) != NULL) {
+		sc[confStr["wallpaper"]]->blit(bg, 0, 0);
+	}
+}
+
+void GMenu2X::initLayout() {
+	// LINKS rect
+	linksRect = (SDL_Rect){0, 0, resX, resY};
+	sectionBarRect = (SDL_Rect){0, 0, resX, resY};
+
+	if (confInt["sectionBar"]) {
+		// x = 0; y = 0;
+		if (confInt["sectionBar"] == SB_LEFT || confInt["sectionBar"] == SB_RIGHT) {
+			sectionBarRect.x = (confInt["sectionBar"] == SB_RIGHT)*(resX - skinConfInt["sectionBarSize"]);
+			sectionBarRect.w = skinConfInt["sectionBarSize"];
+			linksRect.w = resX - skinConfInt["sectionBarSize"];
+
+			if (confInt["sectionBar"] == SB_LEFT) {
+				linksRect.x = skinConfInt["sectionBarSize"];
+			}
+		} else {
+			sectionBarRect.y = (confInt["sectionBar"] == SB_BOTTOM)*(resY - skinConfInt["sectionBarSize"]);
+			sectionBarRect.h = skinConfInt["sectionBarSize"];
+			linksRect.h = resY - skinConfInt["sectionBarSize"];
+
+			if (confInt["sectionBar"] == SB_TOP) {
+				linksRect.y = skinConfInt["sectionBarSize"];
+			}
+		}
+	}
+
+	listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
+}
+
+void GMenu2X::initFont() {
+	if (font != NULL) {
+		delete font;
+		font = NULL;
+	}
+	if (titlefont != NULL) {
+		delete titlefont;
+		titlefont = NULL;
+	}
+
+	font = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
+	titlefont = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSizeTitle"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
+}
+
+void GMenu2X::initMenu() {
+	initLayout();
+
+	//Menu structure handler
+	menu = new Menu(this);
+
+int iii = menu->getSectionIndex("settings");
+ERROR("SECTION INDEX: %d", iii);
+		menu->addActionLink(iii, tr["Umount Test"], MakeDelegate(this, &GMenu2X::explorer), tr["Umount external SD"], "skin:icons/eject.png");
+
+
+	for (uint i = 0; i < menu->getSections().size(); i++) {
+		//Add virtual links in the applications section
+		if (menu->getSections()[i] == "applications") {
+			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Launch an application"], "skin:icons/explorer.png");
+#if !defined(TARGET_PC)
+			if (getBatteryLevel() > 5) // show only if charging
+#endif
+				menu->addActionLink(i, tr["Battery Logger"], MakeDelegate(this, &GMenu2X::batteryLogger), tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
+		}
+
+		//Add virtual links in the setting section
+		else if (menu->getSections()[i] == "settings") {
+			menu->addActionLink(i, tr["Settings"], MakeDelegate(this, &GMenu2X::settings), tr["Configure settings"], "skin:icons/configure.png");
+			menu->addActionLink(i, tr["Skin"], MakeDelegate(this, &GMenu2X::skinMenu), tr["Configure skin"], "skin:icons/skin.png");
+			menu->addActionLink(i, tr["Wallpaper"], MakeDelegate(this, &GMenu2X::changeWallpaper), tr["Set background image"], "skin:icons/wallpaper.png");
+#if defined(TARGET_GP2X)
+			if (fwType == "open2x")
+				menu->addActionLink(i, "Open2x", MakeDelegate(this, &GMenu2X::settingsOpen2x), tr["Configure Open2x system settings"], "skin:icons/o2xconfigure.png");
+			// menu->addActionLink(i, "TV", MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
+			menu->addActionLink(i, "USB SD", MakeDelegate(this, &GMenu2X::activateSdUsb), tr["Activate USB on SD"], "skin:icons/usb.png");
+			if (fwType == "gph" && !f200)
+				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "skin:icons/usb.png");
+			//menu->addActionLink(i, "USB Root", MakeDelegate(this, &GMenu2X::activateRootUsb), tr["Activate USB on the root of the Gp2x Filesystem"], "skin:icons/usb.png");
+			//menu->addActionLink(i, "Speaker", MakeDelegate(this, &GMenu2X::toggleSpeaker), tr["Activate/deactivate Speaker"], "skin:icons/speaker.png");
+#elif defined(TARGET_RS97)
+			//menu->addActionLink(i, "Format", MakeDelegate(this, &GMenu2X::formatSd), tr["Format internal SD"], "skin:icons/format.png");
+			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
+#endif
+
+			if (fileExists(path + "log.txt"))
+				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "skin:icons/ebook.png");
+
+
+			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "skin:icons/about.png");
+			// menu->addActionLink(i, "Reboot", MakeDelegate(this, &GMenu2X::reboot), tr["Reboot device"], "skin:icons/reboot.png");
+			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroffDialog), tr["Power menu"], "skin:icons/exit.png");
+		}
+	}
+	menu->setSectionIndex(confInt["section"]);
+	menu->setLinkIndex(confInt["link"]);
+	menu->loadIcons();
 }
 
 void GMenu2X::settings() {
@@ -1508,7 +1011,6 @@ void GMenu2X::settings() {
 		if (curGlobalVolume != confInt["globalVolume"]) setVolume(confInt["globalVolume"]);
 
 		if (lang == "English") lang = "";
-		// if (lang != tr.lang()) tr.setLang(lang);
 		if (confStr["lang"] != lang) {
 			confStr["lang"] = lang;
 			tr.setLang(lang);
@@ -1541,38 +1043,257 @@ void GMenu2X::settings() {
 	}
 }
 
-const string GMenu2X::getDateTime() {
-	char       buf[80];
-	time_t     now = time(0);
-	struct tm  tstruct = *localtime(&now);
-	strftime(buf, sizeof(buf), "%F %R", &tstruct);
-	return buf;
+
+void GMenu2X::readTmp() {
+	lastSelectorElement = -1;
+	if (!fileExists("/tmp/gmenu2x.tmp")) return;
+	ifstream inf("/tmp/gmenu2x.tmp", ios_base::in);
+	if (!inf.is_open()) return;
+	string line;
+	string section = "";
+
+	while (getline(inf, line, '\n')) {
+		string::size_type pos = line.find("=");
+		string name = trim(line.substr(0,pos));
+		string value = trim(line.substr(pos+1,line.length()));
+
+		if (name == "section") menu->setSectionIndex(atoi(value.c_str()));
+		else if (name == "link") menu->setLinkIndex(atoi(value.c_str()));
+		else if (name == "selectorelem") lastSelectorElement = atoi(value.c_str());
+		else if (name == "selectordir") lastSelectorDir = value;
+		else if (name == "TVOut") TVOut = value;
+	}
+	if (TVOut != "NTSC" && TVOut != "PAL") TVOut = "OFF";
+
+	inf.close();
+	unlink("/tmp/gmenu2x.tmp");
 }
 
-void GMenu2X::setDateTime() {
-	int imonth, iday, iyear, ihour, iminute;
-	string value = confStr["datetime"];
+void GMenu2X::writeTmp(int selelem, const string &selectordir) {
+	string conffile = "/tmp/gmenu2x.tmp";
+	ofstream inf(conffile.c_str());
+	if (inf.is_open()) {
+		inf << "section=" << menu->selSectionIndex() << endl;
+		inf << "link=" << menu->selLinkIndex() << endl;
+		if (selelem >- 1) inf << "selectorelem=" << selelem << endl;
+		if (selectordir != "") inf << "selectordir=" << selectordir << endl;
+		inf << "TVOut=" << TVOut << endl;
+		inf.close();
+	}
+}
 
-	sscanf(value.c_str(), "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
+void GMenu2X::readConfig() {
+	string conffile = path+"gmenu2x.conf";
 
-	struct tm datetime = { 0 };
+	// Defaults
+	confStr["batteryType"] = "BL-5B";
+	confStr["datetime"] = __BUILDTIME__;
 
-	datetime.tm_year = iyear - 1900;
-	datetime.tm_mon  = imonth - 1;
-	datetime.tm_mday = iday;
-	datetime.tm_hour = ihour;
-	datetime.tm_min  = iminute;
-	datetime.tm_sec  = 0;
+	if (fileExists(conffile)) {
+		ifstream inf(conffile.c_str(), ios_base::in);
+		if (inf.is_open()) {
+			string line;
+			while (getline(inf, line, '\n')) {
+				string::size_type pos = line.find("=");
+				string name = trim(line.substr(0,pos));
+				string value = trim(line.substr(pos+1,line.length()));
 
-	if (datetime.tm_year < 0) datetime.tm_year = 0;
+				if (value.length()>1 && value.at(0)=='"' && value.at(value.length()-1)=='"')
+					confStr[name] = value.substr(1,value.length()-2);
+				else
+					confInt[name] = atoi(value.c_str());
+			}
+			inf.close();
+		}
+	}
 
-	time_t t = mktime(&datetime);
+	if (confStr["TVOut"] != "PAL") confStr["TVOut"] = "NTSC";
+	if (!confStr["lang"].empty()) tr.setLang(confStr["lang"]);
+	if (!confStr["wallpaper"].empty() && !fileExists(confStr["wallpaper"])) confStr["wallpaper"] = "";
+	if (confStr["skin"].empty() || !dirExists("skins/"+confStr["skin"])) confStr["skin"] = "Default";
 
-	struct timeval newtime = { t, 0 };
+	// evalIntConf( &confInt["batteryLog"], 0, 0, 1 );
+	evalIntConf( &confInt["backlightTimeout"], 30, 10, 300);
+	evalIntConf( &confInt["powerTimeout"], 10, 1, 300);
+	evalIntConf( &confInt["outputLogs"], 0, 0, 1 );
 
-#if !defined(TARGET_PC)
-	settimeofday(&newtime, NULL);
-#endif
+	evalIntConf( &confInt["cpuMax"], 642, 200, 1200 );
+	evalIntConf( &confInt["cpuMin"], 312, 200, 1200 );
+	evalIntConf( &confInt["cpuMenu"], 528, 200, 1200 );
+
+	evalIntConf( &confInt["globalVolume"], 60, 1, 100 );
+	evalIntConf( &confInt["gamma"], 10, 1, 100 );
+	evalIntConf( &confInt["videoBpp"], 16, 8, 32 );
+	evalIntConf( &confInt["backlight"], 70, 1, 100);
+
+	evalIntConf( &confInt["minBattery"], 0, 1, 10000);
+	evalIntConf( &confInt["maxBattery"], 4500, 1, 10000);
+
+	evalIntConf( &confInt["sectionBar"], SB_LEFT, 1, 4);
+
+	if (!confInt["saveSelection"]) {
+		confInt["section"] = 0;
+		confInt["link"] = 0;
+	}
+
+	resX = constrain( confInt["resolutionX"], 320, 1920 );
+	resY = constrain( confInt["resolutionY"], 240, 1200 );
+}
+
+void GMenu2X::writeConfig() {
+	ledOn();
+	if (confInt["saveSelection"] && menu != NULL) {
+		confInt["section"] = menu->selSectionIndex();
+		confInt["link"] = menu->selLinkIndex();
+	}
+
+	string conffile = path + "gmenu2x.conf";
+	ofstream inf(conffile.c_str());
+	if (inf.is_open()) {
+		for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
+			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding") continue;
+			inf << curr->first << "=\"" << curr->second << "\"" << endl;
+		}
+
+		for (ConfIntHash::iterator curr = confInt.begin(); curr != confInt.end(); curr++) {
+			if (curr->first == "batteryLog" || curr->first == "maxClock" || curr->first == "minClock" || curr->first == "menuClock") continue;
+			inf << curr->first << "=" << curr->second << endl;
+		}
+		inf.close();
+		sync();
+	}
+	ledOff();
+}
+
+void GMenu2X::writeSkinConfig() {
+	ledOn();
+	string conffile = path+"skins/"+confStr["skin"]+"/skin.conf";
+	ofstream inf(conffile.c_str());
+	if (inf.is_open()) {
+		for (ConfStrHash::iterator curr = skinConfStr.begin(); curr != skinConfStr.end(); curr++)
+			inf << curr->first << "=\"" << curr->second << "\"" << endl;
+
+		for (ConfIntHash::iterator curr = skinConfInt.begin(); curr != skinConfInt.end(); curr++) {
+			if (curr->first == "titleFontSize" || curr->first == "sectionBarHeight" || curr->first == "linkHeight" ) continue;
+			inf << curr->first << "=" << curr->second << endl;
+		}
+
+		for (int i = 0; i < NUM_COLORS; ++i) {
+			inf << colorToString((enum color)i) << "=" << rgbatostr(skinConfColors[i]) << endl;
+		}
+
+		inf.close();
+		sync();
+	}
+	ledOff();
+}
+
+void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
+	confStr["skin"] = skin;
+
+	// Clear previous skin settings
+	skinConfStr.clear();
+	skinConfInt.clear();
+
+//clear collection and change the skin path
+	if (clearSC) sc.clear();
+	sc.setSkin(skin);
+	// if (btnContextMenu != NULL) btnContextMenu->setIcon( btnContextMenu->getIcon() );
+
+	// reset colors to the default values
+	skinConfColors[COLOR_TOP_BAR_BG] = (RGBAColor){255,255,255,130};
+	skinConfColors[COLOR_LIST_BG] = (RGBAColor){255,255,255,0};
+	skinConfColors[COLOR_BOTTOM_BAR_BG] = (RGBAColor){255,255,255,130};
+	skinConfColors[COLOR_SELECTION_BG] = (RGBAColor){255,255,255,130};
+	skinConfColors[COLOR_MESSAGE_BOX_BG] = (RGBAColor){255,255,255,255};
+	skinConfColors[COLOR_MESSAGE_BOX_BORDER] = (RGBAColor){80,80,80,255};
+	skinConfColors[COLOR_MESSAGE_BOX_SELECTION] = (RGBAColor){160,160,160,255};
+	skinConfColors[COLOR_FONT] = (RGBAColor){255,255,255,255};
+	skinConfColors[COLOR_FONT_OUTLINE] = (RGBAColor){0,0,0,200};
+
+	skinConfColors[COLOR_FONT_ALT] = (RGBAColor){253,1,252,0};
+	skinConfColors[COLOR_FONT_ALT_OUTLINE] = (RGBAColor){253,1,252,0};
+
+//load skin settings
+	string skinconfname = "skins/"+skin+"/skin.conf";
+	if (fileExists(skinconfname)) {
+		ifstream skinconf(skinconfname.c_str(), ios_base::in);
+		if (skinconf.is_open()) {
+			string line;
+			while (getline(skinconf, line, '\n')) {
+				line = trim(line);
+				// DEBUG("skinconf: '%s'", line.c_str());
+				string::size_type pos = line.find("=");
+				string name = trim(line.substr(0,pos));
+				string value = trim(line.substr(pos+1,line.length()));
+
+				if (value.length() > 0) {
+					if (value.length() > 1 && value.at(0) == '"' && value.at(value.length() - 1) == '"') {
+							skinConfStr[name] = value.substr(1, value.length() - 2);
+					} else if (value.at(0) == '#') {
+						// skinConfColor[name] = strtorgba(value.substr(1,value.length()) );
+						skinConfColors[stringToColor(name)] = strtorgba(value);
+					} else if (name.length() > 6 && name.substr(name.length() - 6, 5 ) == "Color") {
+						value += name.substr(name.length() - 1);
+						name = name.substr(0, name.length() - 6);
+						if (name == "selection" || name == "topBar" || name == "bottomBar" || name == "messageBox") name += "Bg";
+						if (value.substr(value.length() - 1) == "R") skinConfColors[stringToColor(name)].r = atoi(value.c_str());
+						if (value.substr(value.length() - 1) == "G") skinConfColors[stringToColor(name)].g = atoi(value.c_str());
+						if (value.substr(value.length() - 1) == "B") skinConfColors[stringToColor(name)].b = atoi(value.c_str());
+						if (value.substr(value.length() - 1) == "A") skinConfColors[stringToColor(name)].a = atoi(value.c_str());
+					} else {
+						skinConfInt[name] = atoi(value.c_str());
+					}
+				}
+			}
+			skinconf.close();
+
+			if (setWallpaper && !skinConfStr["wallpaper"].empty() && fileExists("skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"])) {
+				confStr["wallpaper"] = "skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"];
+				sc[confStr["wallpaper"]]->blit(bg,0,0);
+			}
+		}
+	}
+
+// (poor) HACK: ensure font alt colors have a default value
+	if (skinConfColors[COLOR_FONT_ALT].r == 253 && skinConfColors[COLOR_FONT_ALT].g == 1 && skinConfColors[COLOR_FONT_ALT].b == 252 && skinConfColors[COLOR_FONT_ALT].a == 0) skinConfColors[COLOR_FONT_ALT] = skinConfColors[COLOR_FONT];
+	if (skinConfColors[COLOR_FONT_ALT_OUTLINE].r == 253 && skinConfColors[COLOR_FONT_ALT_OUTLINE].g == 1 && skinConfColors[COLOR_FONT_ALT_OUTLINE].b == 252 && skinConfColors[COLOR_FONT_ALT_OUTLINE].a == 0) skinConfColors[COLOR_FONT_ALT_OUTLINE] = skinConfColors[COLOR_FONT_OUTLINE];
+
+// prevents breaking current skin until they are updated
+	if (!skinConfInt["fontSizeTitle"] && skinConfInt["titleFontSize"] > 0) skinConfInt["fontSizeTitle"] = skinConfInt["titleFontSize"];
+
+	evalIntConf( &skinConfInt["topBarHeight"], 40, 1, resY);
+	// evalIntConf( &skinConfInt["sectionBarHeight"], 200, 32, resY);
+	evalIntConf( &skinConfInt["sectionBarSize"], 40, 1, resX);
+	// evalIntConf( &skinConfInt["linkHeight"], 40, 16, resY);
+	evalIntConf( &skinConfInt["linkItemHeight"], 40, 32, resY);
+	evalIntConf( &skinConfInt["bottomBarHeight"], 16, 1, resY);
+	evalIntConf( &skinConfInt["selectorX"], 142, 1, resX);
+	evalIntConf( &skinConfInt["selectorPreviewX"], 7, 1, resX);
+	evalIntConf( &skinConfInt["selectorPreviewY"], 56, 1, resY);
+	evalIntConf( &skinConfInt["selectorPreviewWidth"], 128, 32, resY);
+	evalIntConf( &skinConfInt["selectorPreviewHeight"], 128, 32, resX);
+	evalIntConf( &skinConfInt["fontSize"], 9, 6, 60);
+	evalIntConf( &skinConfInt["fontSizeTitle"], 14, 6, 60);
+
+//recalculate some coordinates based on the new element sizes
+	// linkRows = resY/skinConfInt["linkItemHeight"];
+	// needed until refactor menu.cpp
+	// linkRows = linksRect.h / skinConfInt["linkItemHeight"];
+	// linkColumns = 4;//(resX-10)/skinConfInt["linkWidth"];
+
+	// LIST
+	// linkColumns = 1;
+	// linkRows = resY / skinConfInt["linkItemHeight"];
+
+	// WIP
+	linkColumns = 1;
+	linkRows = 4;
+
+	if (menu != NULL && clearSC) menu->loadIcons();
+
+//font
+	initFont();
 }
 
 uint GMenu2X::onChangeSkin() {
@@ -1624,6 +1345,285 @@ void GMenu2X::skinMenu() {
 
 	setSkin(confStr["skin"], true, true);
 	initBG();
+}
+
+void GMenu2X::about() {
+	vector<string> text;
+	string temp, batt;
+
+	char *hms = ms2hms(SDL_GetTicks());
+	long battlevel = getBatteryStatus();
+
+	stringstream ss; ss << battlevel; ss >> batt;
+
+	temp = tr["Build date: "] + __DATE__ + "\n";
+	temp += tr["Uptime: "] + hms + "\n";
+	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : batt);// + "\n";
+	// temp += tr["Storage:"];
+	// temp += "\n    " + tr["Root: "] + getDiskFree("/");
+	// temp += "\n    " + tr["Internal: "] + getDiskFree("/mnt/int_sd");
+	// temp += "\n    " + tr["External: "] + getDiskFree("/mnt/ext_sd");
+	temp += "\n----\n";
+
+#if defined(TARGET_CAANOO)
+	string versionFile = "";
+	if (fileExists("/usr/gp2x/version"))
+		versionFile = "/usr/gp2x/version";
+	else if (fileExists("/tmp/gp2x/version"))
+		versionFile = "/tmp/gp2x/version";
+	if (!versionFile.empty()) {
+		ifstream f(versionFile.c_str(), ios_base::in);
+		if (f.is_open()) {
+			string line;
+			if (getline(f, line, '\n'))
+				temp += "\nFirmware version: " + line + "\n" + exec("uname -srm");
+			f.close();
+		}
+	}
+#endif
+
+	ifstream f("about.txt", ios_base::in);
+	if (f.is_open()) {
+		string line;
+		while (getline(f, line, '\n'))
+			temp += line + "\n"; // + exec("uname -srm");
+		f.close();
+	}
+
+	split(text, temp, "\n");
+	TextDialog td(this, "GMenuNext", tr["Info about system"], "skin:icons/about.png", &text);
+	td.exec();
+}
+
+void GMenu2X::viewLog() {
+	string logfile = path + "log.txt";
+	if (!fileExists(logfile)) return;
+	ifstream inf(logfile.c_str(), ios_base::in);
+	if (!inf.is_open()) return;
+	vector<string> log;
+
+	string line;
+	while (getline(inf, line, '\n'))
+		log.push_back(line);
+	inf.close();
+
+	TextDialog td(this, tr["Log Viewer"], tr["Displays last launched program's output"], "skin:icons/ebook.png", &log);
+	td.exec();
+
+	MessageBox mb(this, tr["Do you want to delete the log file?"], "skin:icons/ebook.png");
+	mb.setButton(CONFIRM, tr["Yes"]);
+	mb.setButton(CANCEL,  tr["No"]);
+	if (mb.exec() == CONFIRM) {
+		ledOn();
+		unlink(logfile.c_str());
+		sync();
+		menu->deleteSelectedLink();
+		ledOff();
+	}
+}
+
+void GMenu2X::batteryLogger() {
+	BatteryLoggerDialog bl(this, tr["Battery Logger"], tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
+	bl.exec();
+}
+
+void GMenu2X::linkScanner() {
+	LinkScannerDialog ls(this, tr["Link scanner"], tr["Scan for applications and games"], "skin:icons/configure.png");
+	ls.exec();
+}
+
+void GMenu2X::changeWallpaper() {
+	WallpaperDialog wp(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], "skin:icons/wallpaper.png");
+	if (wp.exec() && confStr["wallpaper"] != wp.wallpaper) {
+		confStr["wallpaper"] = wp.wallpaper;
+		initBG();
+		writeConfig();
+	}
+}
+
+void GMenu2X::showManual() {
+	string linkTitle = menu->selLinkApp()->getTitle();
+	string linkDescription = menu->selLinkApp()->getDescription();
+	string linkIcon = menu->selLinkApp()->getIcon();
+	string linkManual = menu->selLinkApp()->getManualPath();
+	string linkBackdrop = menu->selLinkApp()->getBackdropPath();
+
+	if (linkManual == "" || !fileExists(linkManual)) return;
+
+	string ext = linkManual.substr(linkManual.size() - 4, 4);
+	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == "jpeg") {
+		ImageViewerDialog im(this, linkTitle, linkDescription, linkIcon, linkManual);
+		im.exec();
+		return;
+	}
+
+	// Txt manuals and readmes
+	vector<string> txtman;
+
+	string line;
+	ifstream infile(linkManual.c_str(), ios_base::in);
+	if (infile.is_open()) {
+		while (getline(infile, line, '\n'))
+			txtman.push_back( strreplace(line, "\r", "") );
+		infile.close();
+
+		TextDialog td(this, linkTitle, linkDescription, linkIcon, &txtman, linkBackdrop);
+		td.exec();
+	}
+}
+
+void GMenu2X::explorer() {
+	FileDialog fd(this, tr["Select an application"], ".gpu,.gpe,.sh,", "", tr["Explorer"]);
+	if (fd.exec()) {
+		if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
+			writeConfig();
+
+#if defined(TARGET_GP2X)
+		if (fwType == "open2x" && savedVolumeMode != volumeMode)
+			writeConfigOpen2x();
+#endif
+
+	//string command = cmdclean(fd.path()+"/"+fd.file) + "; sync & cd "+cmdclean(getExePath())+"; exec ./gmenu2x";
+		string command = cmdclean(fd.getPath() + "/" + fd.getFile());
+		chdir(fd.getPath().c_str());
+		quit();
+		setCPU(confInt["cpuMenu"]);
+		execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
+
+	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
+	//try relaunching gmenu2x
+		WARNING("Error executing selected application, re-launching gmenu2x");
+		chdir(getExePath().c_str());
+		execlp("./gmenu2x", "./gmenu2x", NULL);
+	}
+}
+
+
+void GMenu2X::ledOn() {
+#if defined(TARGET_GP2X)
+	if (memdev != 0 && !f200) memregs[0x106E >> 1] ^= 16;
+	//SDL_SYS_JoystickGp2xSys(joy.joystick, BATT_LED_ON);
+#endif
+}
+
+void GMenu2X::ledOff() {
+#if defined(TARGET_GP2X)
+	if (memdev != 0 && !f200) memregs[0x106E >> 1] ^= 16;
+	//SDL_SYS_JoystickGp2xSys(joy.joystick, BATT_LED_OFF);
+#endif
+}
+
+void GMenu2X::hwCheck() {
+	if (memdev > 0) {
+		// INFO("\e[1;0fA: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x\e[0K",
+		// 	memregs[0x10000 >> 2], memregs[0x10010 >> 2],
+		// 	memregs[0x10100 >> 2], memregs[0x10110 >> 2],
+		// 	memregs[0x10200 >> 2], memregs[0x10210 >> 2],
+		// 	memregs[0x10300 >> 2], memregs[0x10310 >> 2],
+		// 	memregs[0x10400 >> 2], memregs[0x10410 >> 2],
+		// 	memregs[0x10500 >> 2], memregs[0x10510 >> 2]
+		// );
+
+		// printf("A: ");
+		// printbin(memregs[0x10000 >> 2]);
+
+		// printf("B: ");
+		// printbin(memregs[0x10100 >> 2]);
+
+		// printf("C: ");
+		// printbin(memregs[0x10200 >> 2]);
+
+		// printf("D: ");
+		// printbin(memregs[0x10300 >> 2]);
+
+		// printf("E: ");
+		// printbin(memregs[0x10400 >> 2]);
+
+		// printf("F: ");
+		// printbin(memregs[0x10500 >> 2]);
+
+		// INFO("D: 0x%x 8>0x%x 16>0x%x 24>0x%x 32>0x%x 40>0x%x 48>0x%x",
+		// 	memregs[0x10300 >> 2],
+		// 	memregs[0x10300 >> 2] >> 8 & 0b1,
+		// 	memregs[0x10300 >> 2] >> 16 & 0b1,
+		// 	memregs[0x10300 >> 2] >> 24 & 0b1,
+		// 	memregs[0x10300 >> 2] >> 32 & 0b1,
+		// 	memregs[0x10300 >> 2] >> 40 & 0b1,
+		// 	memregs[0x10300 >> 2] >> 28 & 0b1
+		// );
+
+		// INFO("UDC: 0b%d",
+		// 	memregs[0x10300 >> 2] >> 7 & 0b1
+		// );
+
+		// tvOutConnected = !(memregs[0x10300 >> 2] >> 25 & 0b1);
+
+		curMMCStatus = getMMCStatus();
+		if (preMMCStatus != curMMCStatus) {
+			preMMCStatus = curMMCStatus;
+			MMCToggle = 1;
+		}
+
+		tvOutConnected = getTVOutStatus();
+		if (tvOutPrev != tvOutConnected) {
+			tvOutPrev = tvOutConnected;
+			tvOutToggle = 1;
+		}
+	}
+}
+
+const string GMenu2X::getDateTime() {
+	char       buf[80];
+	time_t     now = time(0);
+	struct tm  tstruct = *localtime(&now);
+	strftime(buf, sizeof(buf), "%F %R", &tstruct);
+	return buf;
+}
+
+void GMenu2X::setDateTime() {
+	int imonth, iday, iyear, ihour, iminute;
+	string value = confStr["datetime"];
+
+	sscanf(value.c_str(), "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
+
+	struct tm datetime = { 0 };
+
+	datetime.tm_year = iyear - 1900;
+	datetime.tm_mon  = imonth - 1;
+	datetime.tm_mday = iday;
+	datetime.tm_hour = ihour;
+	datetime.tm_min  = iminute;
+	datetime.tm_sec  = 0;
+
+	if (datetime.tm_year < 0) datetime.tm_year = 0;
+
+	time_t t = mktime(&datetime);
+
+	struct timeval newtime = { t, 0 };
+
+#if !defined(TARGET_PC)
+	settimeofday(&newtime, NULL);
+#endif
+}
+
+bool GMenu2X::saveScreenshot() {
+	ledOn();
+	uint x = 0;
+	string fname;
+	
+	mkdir("screenshots/", 0777);
+
+	do {
+		x++;
+		stringstream ss;
+		ss << x;
+		ss >> fname;
+		fname = "screenshots/screen" + fname + ".bmp";
+	} while (fileExists(fname));
+	x = SDL_SaveBMP(s->raw, fname.c_str());
+	sync();
+	ledOff();
+	return x == 0;
 }
 
 void GMenu2X::restartDialog(bool showDialog) {
@@ -1822,27 +1822,6 @@ void GMenu2X::contextMenu() {
 	}
 }
 
-bool GMenu2X::saveScreenshot() {
-	ledOn();
-	uint x = 0;
-	string fname;
-	
-	mkdir("screenshots/", 0777);
-
-	do {
-		x++;
-		// fname = "";
-		stringstream ss;
-		ss << x;
-		ss >> fname;
-		fname = "screenshots/screen" + fname + ".bmp";
-	} while (fileExists(fname));
-	x = SDL_SaveBMP(s->raw, fname.c_str());
-	sync();
-	ledOff();
-	return x == 0;
-}
-
 void GMenu2X::addLink() {
 	FileDialog fd(this, tr["Select an application"], "", "", tr["File Dialog"]);
 	if (fd.exec()) {
@@ -2039,6 +2018,18 @@ void GMenu2X::deleteSection() {
 		}
 		ledOff();
 	}
+}
+
+long GMenu2X::getBatteryStatus() {
+	char buf[32] = "-1";
+#if defined(TARGET_RS97)
+	FILE *f = fopen("/proc/jz/battery", "r");
+	if (f) {
+		fgets(buf, sizeof(buf), f);
+	}
+	fclose(f);
+#endif
+	return atol(buf);
 }
 
 unsigned short GMenu2X::getBatteryLevel() {
