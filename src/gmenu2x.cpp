@@ -831,9 +831,16 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 //recalculate some coordinates based on the new element sizes
 	// linkRows = resY/skinConfInt["linkItemHeight"];
 	// needed until refactor menu.cpp
-	linkColumns = 1;//(resX-10)/skinConfInt["linkWidth"];
-	linkRows = resY / skinConfInt["linkItemHeight"];
 	// linkRows = linksRect.h / skinConfInt["linkItemHeight"];
+	// linkColumns = 4;//(resX-10)/skinConfInt["linkWidth"];
+
+	// LIST
+	// linkColumns = 1;
+	// linkRows = resY / skinConfInt["linkItemHeight"];
+
+	// WIP
+	linkColumns = 1;
+	linkRows = 4;
 
 	if (menu != NULL && clearSC) menu->loadIcons();
 
@@ -914,7 +921,6 @@ void* mainThread(void* param) {
 	return NULL;
 }
 
-
 void printbin(int n) {
 	for(int i = 31; i >= 0; i--) {
 		printf("%d", !!(n & 1 << i));
@@ -990,8 +996,10 @@ void GMenu2X::main() {
 	uint sectionLinkPadding = 4; //max(skinConfInt["sectionBarHeight"] - 32 - font->getHeight(), 0) / 3;
 
 	bool quit = false;
-	int x = 0, y = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
-	uint i;
+	int i = 0, x = 0, y = 0, ix = 0, iy = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
+	int linkWidth = linksRect.w/linkColumns - 2 * sectionLinkPadding;
+	int linkHeight = linksRect.h/linkRows - 2 * sectionLinkPadding;
+
 	Uint32 tickBattery = -4800, tickNow, tickMMC = 0; //, tickUSB = 0;
 
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
@@ -1044,29 +1052,48 @@ void GMenu2X::main() {
 		s->setClipRect(linksRect);
 		s->box(linksRect, skinConfColors[COLOR_LIST_BG]);
 
-		linkRows = linksRect.h / skinConfInt["linkItemHeight"];
-		x = linksRect.x;
-		// for (i = menu->firstDispRow() * linkColumns; i < (menu->firstDispRow() * linkColumns) && i < menu->sectionLinks()->size(); i++) {
-		// for (i = menu->firstDispRow() * linkColumns; i < (menu->firstDispRow() * linkColumns) + linksPerPage && i < menu->sectionLinks()->size(); i++) {
-		// for (i = menu->firstDispRow() * linkColumns; i < (menu->firstDispRow() * linkColumns) + linkRows && i < menu->sectionLinks()->size(); i++) {
-		for (i = menu->firstDispRow(); i < menu->firstDispRow() + linkRows && i < menu->sectionLinks()->size(); i++) {
-			// int ir = i - menu->firstDispRow();
-			int ir = i - menu->firstDispRow() * linkColumns;
+		// int linkColumns = 0;
+		i = menu->firstDispRow() * linkColumns;
 
-			// y = (ir) * skinConfInt["linkItemHeight"] + linksRect.y; //+skinConfInt["sectionBarY"];//ir/linkColumns*(skinConfInt["linkItemHeight"]+linkSpacingY)+skinConfInt["linkItemHeight"]+2;
-			y = (ir % linkRows) * skinConfInt["linkItemHeight"] + linksRect.y; //+skinConfInt["sectionBarY"];//ir/linkColumns*(skinConfInt["linkItemHeight"]+linkSpacingY)+skinConfInt["linkItemHeight"]+2;
+		if (linkColumns == 1) {
+			// LIST
+			linkRows = linksRect.h / skinConfInt["linkItemHeight"];
+			linkHeight = skinConfInt["linkItemHeight"];
 
-			menu->sectionLinks()->at(i)->setPosition(x,y);
+			ix = linksRect.x;
+			for (y = 0; y < linkRows && i < menu->sectionLinks()->size(); y++, i++) {
+				iy = linksRect.y + y * linkHeight; // + (y + 1) * sectionLinkPadding;
+				// s->setClipRect({ix, iy, linkWidth, linkHeight});
+				menu->sectionLinks()->at(i)->setPosition(x,y);
 
-			if (i == (uint)menu->selLinkIndex())
-				s->box(x, y, linksRect.w, skinConfInt["linkItemHeight"], skinConfColors[COLOR_SELECTION_BG]);
-// gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]
-				// menu->sectionLinks()->at(i)->paintHover();
+				if (i == (uint)menu->selLinkIndex())
+					s->box(ix, iy, linksRect.w, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 
-			sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, x + sectionLinkPadding, y + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding);
-			s->write(titlefont, tr.translate(menu->sectionLinks()->at(i)->getTitle()), x + sectionLinkPadding + 36, y + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
-			s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), x + sectionLinkPadding + 36, y + skinConfInt["linkItemHeight"] - sectionLinkPadding/2, HAlignLeft, VAlignBottom);
-			// menu->sectionLinks()->at(i)->paint();
+				sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, ix + sectionLinkPadding, iy + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, linkHeight - 2 * sectionLinkPadding);
+				s->write(titlefont, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + sectionLinkPadding + 36, iy + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
+				s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + sectionLinkPadding + 36, iy + linkHeight - sectionLinkPadding/2, HAlignLeft, VAlignBottom);
+			}
+		} else {
+			for (y = 0; y < linkRows; y++) {
+				for (x = 0; x < linkColumns && i < menu->sectionLinks()->size(); x++, i++) {
+
+					// INFO("I: %d, X: %d, Y: %d, size: %d", i, x, y, menu->sectionLinks()->size());
+
+					ix = linksRect.x + x * linkWidth  + (x + 1) * sectionLinkPadding;
+					iy = linksRect.y + y * linkHeight + (y + 1) * sectionLinkPadding;
+
+					s->setClipRect({ix, iy, linkWidth, linkHeight});
+		
+					menu->sectionLinks()->at(i)->setPosition(x,y);
+		
+					if (i == (uint)menu->selLinkIndex())
+						s->box(ix, iy, linkWidth, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
+		
+					sc[menu->sectionLinks()->at(i)->getIconPath()]->blitCenter(s, ix + linkWidth/2, iy + linkHeight/2, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding);
+					s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - sectionLinkPadding, HAlignCenter, VAlignBottom);
+					// s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + sectionLinkPadding + 36, iy + skinConfInt["linkItemHeight"] - sectionLinkPadding/2, HAlignLeft, VAlignBottom);
+				}
+			}
 		}
 		s->clearClipRect();
 
@@ -1194,8 +1221,10 @@ void GMenu2X::main() {
 		else if ( input[SETTINGS] ) settings();
 		else if ( input[MENU]     ) contextMenu();
 		// LINK NAVIGATION
-		else if ( input[LEFT ] ) menu->pageUp();
-		else if ( input[RIGHT] ) menu->pageDown();
+		else if ( input[LEFT ] && linkColumns == 1) menu->pageUp();
+		else if ( input[RIGHT] && linkColumns == 1) menu->pageDown();
+		else if ( input[LEFT ] ) menu->linkLeft();
+		else if ( input[RIGHT] ) menu->linkRight();
 		else if ( input[UP   ] ) menu->linkUp();
 		else if ( input[DOWN ] ) menu->linkDown();
 		// SECTION
