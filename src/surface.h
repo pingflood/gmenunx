@@ -87,7 +87,7 @@ public:
 	void blendAdd(Surface*, int,int);
 
 	void clearClipRect();
-	void setClipRect(int x, int y, int w, int h);
+	// void setClipRect(int x, int y, int w, int h);
 	void setClipRect(SDL_Rect rect);
 
 	// bool blit(Surface *destination, int x, int y, int w=0, int h=0, int a=-1);

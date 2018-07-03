@@ -43,7 +43,7 @@ void Dialog::drawTopBar(Surface *s = NULL, const std::string &title, const std::
 	// Surface *bar = sc.skinRes("imgs/topbar.png");
 	// if (bar != NULL) bar->blit(s, 0, 0);
 	// else
-	s->setClipRect(0, 0, gmenu2x->resX, gmenu2x->skinConfInt["topBarHeight"]);
+	s->setClipRect({0, 0, gmenu2x->resX, gmenu2x->skinConfInt["topBarHeight"]});
 	s->box(0, 0, gmenu2x->resX, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 	if (!title.empty()) writeTitle(title, s);
 	if (!description.empty()) writeSubTitle(description, s);
