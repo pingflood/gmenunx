@@ -157,9 +157,9 @@ int Selector::exec(int startSelection) {
 			gmenu2x->s->clearClipRect();
 
 			if (animation < gmenu2x->skinConfInt["selectorX"]) {
-				animation = intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 150);
+				animation = intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 110);
 				gmenu2x->s->flip();
-				gmenu2x->input.setWakeUpInterval(25);
+				gmenu2x->input.setWakeUpInterval(45);
 				continue;
 			}
 		} else {
@@ -167,7 +167,7 @@ int Selector::exec(int startSelection) {
 				gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 				animation = gmenu2x->skinConfInt["selectorX"] - intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 80);
 				gmenu2x->s->flip();
-				gmenu2x->input.setWakeUpInterval(25);
+				gmenu2x->input.setWakeUpInterval(45);
 				continue;
 			}
 			// animation = 0;
@@ -209,8 +209,8 @@ int Selector::exec(int startSelection) {
 			if (selected > fl.size()) selected = fl.size() - 1;
 		} else if ( gmenu2x->input[SETTINGS] ) {
 			close = true; result = false;
-		} else if ( gmenu2x->input[MENU] ) {
-			gmenu2x->editLink();
+		// } else if ( gmenu2x->input[MENU] ) {
+			// gmenu2x->editLink();
 		} else if ( gmenu2x->input[CANCEL] ) {
 			if (link->getSelectorBrowser()) {
 				string::size_type p = dir.rfind("/", dir.size() - 2);
