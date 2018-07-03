@@ -1118,7 +1118,7 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["outputLogs"], 0, 0, 1 );
 
 	evalIntConf( &confInt["cpuMax"], 642, 200, 1200 );
-	evalIntConf( &confInt["cpuMin"], 312, 200, 1200 );
+	evalIntConf( &confInt["cpuMin"], 318, 200, 1200 );
 	evalIntConf( &confInt["cpuMenu"], 528, 200, 1200 );
 
 	evalIntConf( &confInt["globalVolume"], 60, 1, 100 );
