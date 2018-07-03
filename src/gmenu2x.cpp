@@ -460,8 +460,8 @@ void GMenu2X::main() {
 
 				// sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, ix + sectionLinkPadding, iy + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, linkHeight - 2 * sectionLinkPadding);
 				sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix + sectionLinkPadding, iy + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, linkHeight - 2 * sectionLinkPadding}, HAlignLeft | VAlignMiddle);
-				s->write(titlefont, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + sectionLinkPadding + 36, iy + titlefont->getHeight()/2, HAlignLeft, VAlignMiddle);
-				s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + sectionLinkPadding + 36, iy + linkHeight - sectionLinkPadding/2, HAlignLeft, VAlignBottom);
+				s->write(titlefont, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + sectionLinkPadding + 36, iy + titlefont->getHeight()/2, VAlignMiddle);
+				s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + sectionLinkPadding + 36, iy + linkHeight - sectionLinkPadding/2, VAlignBottom);
 			}
 		} else {
 			for (y = 0; y < linkRows; y++) {
@@ -482,7 +482,7 @@ void GMenu2X::main() {
 					// sc[menu->sectionLinks()->at(i)->getIconPath()]->blitCenter(s, ix + linkWidth/2, iy + linkHeight/2, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding);
 					sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix, iy, linkWidth, linkHeight}, HAlignCenter | VAlignMiddle);
 
-					s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - sectionLinkPadding, HAlignCenter, VAlignBottom);
+					s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - sectionLinkPadding, HAlignCenter | VAlignBottom);
 					// s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + sectionLinkPadding + 36, iy + skinConfInt["linkItemHeight"] - sectionLinkPadding/2, HAlignLeft, VAlignBottom);
 				}
 			}
@@ -1799,10 +1799,10 @@ void GMenu2X::contextMenu() {
 		s->rectangle( box.x + 2, box.y + 2, box.w - 4, box.h - 4, skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
 
 		//draw selection rect
-		selbox.y = box.y + 4 + h * sel;
-		s->box( selbox.x, selbox.y, selbox.w, selbox.h, skinConfColors[COLOR_MESSAGE_BOX_SELECTION] );
+		s->box( box.x + 4, box.y + 4 + h * sel, box.w - 8, h, skinConfColors[COLOR_MESSAGE_BOX_SELECTION] );
 		for (i = 0; i < voices.size(); i++)
-			s->write( font, voices[i].text, box.x + 12, box.y + h2 + 3 + h * i, HAlignLeft, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+			s->write( font, voices[i].text, box.x + 12, box.y + h2 + 3 + h * i, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+
 		s->flip();
 
 		if (fadeAlpha < 200) {
@@ -2376,7 +2376,7 @@ int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x
 		sc["imgs/buttons/"+btn+".png"]->blit(s, re.x + 8, re.y + 2, HAlignCenter | VAlignMiddle);
 		re.w = sc["imgs/buttons/"+btn+".png"]->raw->w + 3;
 
-		s->write(font, text, re.x + re.w, re.y, HAlignLeft, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+		s->write(font, text, re.x + re.w, re.y, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 		re.w += font->getTextWidth(text);
 	}
 	return x + re.w + 6;
@@ -2389,7 +2389,7 @@ int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, 
 		x -= 16;
 		sc["imgs/buttons/" + btn + ".png"]->blit(s, x + 8, y + 2, HAlignCenter | VAlignMiddle);
 		x -= 3;
-		s->write(font, text, x, y, HAlignRight, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+		s->write(font, text, x, y, HAlignRight | VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 		return x - 6 - font->getTextWidth(text);
 	}
 	return x - 6;

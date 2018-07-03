@@ -92,7 +92,7 @@ bool WallpaperDialog::exec()
 			iY = i - firstElement;
 			iY = iY * rowHeight + 3 + gmenu2x->listRect.y + rowHeight/3;
 
-			gmenu2x->s->write(gmenu2x->font, wallpapers[i], 5, iY, HAlignLeft, VAlignMiddle);
+			gmenu2x->s->write(gmenu2x->font, wallpapers[i], 5, iY, VAlignMiddle);
 		}
 
 		gmenu2x->drawScrollBar(numRows, wallpapers.size(), firstElement, gmenu2x->listRect);

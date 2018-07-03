@@ -7,7 +7,7 @@ FontHelper::FontHelper(const string &fontName, int fontSize, RGBAColor textColor
 	  fontSize(fontSize),
 	  textColor(textColor),
 	  outlineColor(outlineColor) {
-	loadFont(fontName, fontSize, textColor, outlineColor);
+	loadFont(fontName, fontSize);
 }
 
 FontHelper::~FontHelper() {
@@ -15,7 +15,7 @@ FontHelper::~FontHelper() {
 	TTF_CloseFont(fontOutline);
 }
 
-void FontHelper::loadFont(const string &fontName, int fontSize, RGBAColor textColor, RGBAColor outlineColor) {
+void FontHelper::loadFont(const string &fontName, int fontSize) {
 	if (!TTF_WasInit()) {
 		DEBUG("Initializing font");
 		if (TTF_Init() == -1) {
@@ -52,7 +52,7 @@ FontHelper *FontHelper::setSize(const int size) {
 	TTF_CloseFont(font);
 	TTF_CloseFont(fontOutline);
 	fontSize = size;
-	loadFont(this->fontName, this->fontSize, this->textColor, this->outlineColor);
+	loadFont(this->fontName, this->fontSize);
 	return this;
 }
 
@@ -66,13 +66,13 @@ FontHelper *FontHelper::setOutlineColor(RGBAColor color) {
 	return this;
 }
 
-uint FontHelper::getLineWidth(const string& text) {
+uint FontHelper::getLineWidth(const string &text) {
 	int width = 0;
 	TTF_SizeUTF8(fontOutline, text.c_str(), &width, NULL);
 	return width;
 }
 
-uint FontHelper::getTextWidth(const string& text) {
+uint FontHelper::getTextWidth(const string &text) {
 	if (text.find("\n",0) != string::npos) {
 		vector<string> textArr;
 		split(textArr,text,"\n");
@@ -88,18 +88,64 @@ uint FontHelper::getTextWidth(vector<string> *text) {
 	return w;
 }
 
-int FontHelper::getTextHeight(const string& text) {
+int FontHelper::getTextHeight(const string &text) {
 	vector<string> textArr;
 	split(textArr, text, "\n");
 	return textArr.size();
 }
 
-
-void FontHelper::write(Surface *s, const string &text, int x, int y) {
-	write(s, text, x, y, textColor, outlineColor);
+void FontHelper::write(Surface *surface, vector<string> *text, int x, int y, const Uint8 align) {
+	write(surface, text, x, y, align, textColor, outlineColor);
 }
 
-void FontHelper::write(Surface *s, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor) {
+void FontHelper::write(Surface *surface, vector<string> *text, int x, int y, const Uint8 align, RGBAColor fgColor, RGBAColor bgColor) {
+	if (align & VAlignMiddle) {
+		y -= getHalfHeight() * text->size();
+	} else if (align & VAlignBottom) {
+		y -= getHeight() * text->size();
+	}
+
+	for (uint i = 0; i < text->size(); i++) {
+		int ix = x;
+		if (align & HAlignCenter) {
+			ix -= getTextWidth(text->at(i))/2;
+		} else if (align & HAlignRight) {
+			ix -= getTextWidth(text->at(i));
+		}
+
+		write(surface, text->at(i), x, y + i * getHeight(), fgColor, bgColor);
+	}
+}
+
+
+void FontHelper::write(Surface* surface, const string &text, int x, int y, const Uint8 align, RGBAColor fgColor, RGBAColor bgColor) {
+	if (text.find("\n", 0) != string::npos) {
+		vector<string> textArr;
+		split(textArr,text, "\n");
+		write(surface, &textArr, x, y, align, fgColor, bgColor);
+		return;
+	}
+
+	if (align & HAlignCenter) {
+		x -= getTextWidth(text)/2;
+	} else if (align & HAlignRight) {
+		x -= getTextWidth(text);
+	}
+
+	if (align & VAlignMiddle) {
+		y -= getHalfHeight();
+	} else if (align & VAlignBottom) {
+		y -= getHeight();
+	}
+
+	write(surface, text, x, y, fgColor, bgColor);
+}
+
+void FontHelper::write(Surface *surface, const string &text, int x, int y, const Uint8 align) {
+	write(surface, text, x, y, align, textColor, outlineColor);
+}
+
+void FontHelper::write(Surface *surface, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor) {
 	if (text.empty()) return;
 
 	Surface bg;
@@ -126,41 +172,9 @@ void FontHelper::write(Surface *s, const string &text, int x, int y, RGBAColor f
 			bg.putPixel(ix, iy, bgcol);
 		}
 
-	bg.blit(s, x, y);
+	bg.blit(surface, x, y);
 }
 
-void FontHelper::write(Surface* surface, vector<string> *text, int x, int y, const unsigned short halign, const unsigned short valign) {
-	write(surface, text, x, y, halign, valign, textColor, outlineColor);
-}
-
-void FontHelper::write(Surface* surface, vector<string> *text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor) {
-	switch (valign) {
-		case VAlignMiddle:
-			y -= getHalfHeight()*text->size();
-		break;
-		case VAlignBottom:
-			y -= getHeight()*text->size();
-		break;
-	}
-
-	for (uint i=0; i<text->size(); i++) {
-		int ix = x;
-		switch (halign) {
-			case HAlignCenter:
-				ix -= getTextWidth(text->at(i))/2;
-			break;
-			case HAlignRight:
-				ix -= getTextWidth(text->at(i));
-			break;
-		}
-
-		write(surface, text->at(i), x, y+getHeight()*i, fgColor, bgColor);
-	}
-}
-
-void FontHelper::write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign) {
-	write(surface, text, x, y, halign, valign, textColor, outlineColor);
-}
 
 // void FontHelper::write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor) {
 // 	if (text.find("\n",0)!=string::npos) {
@@ -175,32 +189,6 @@ void FontHelper::write(Surface* surface, const string& text, int x, int y, const
 // 	write(surface, text, x, y, halign, valign, textColor, outlineColor);
 // }
 
-void FontHelper::write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor) {
-	if (text.find("\n",0)!=string::npos) {
-		vector<string> textArr;
-		split(textArr,text,"\n");
-		write(surface, &textArr, x, y, halign, valign, fgColor, bgColor);
-		return;
-	}
-
-
-	switch (halign) {
-		case HAlignCenter:
-			x -= getTextWidth(text)/2;
-		break;
-		case HAlignRight:
-			x -= getTextWidth(text);
-		break;
-	}
-
-	switch (valign) {
-		case VAlignMiddle:
-			y -= getHalfHeight();
-		break;
-		case VAlignBottom:
-			y -= getHeight();
-		break;
-	}
-
-	write(surface, text, x, y, fgColor, bgColor);
-}
+// void FontHelper::write(Surface *surface, const string &text, int x, int y) {
+// 	write(surface, text, x, y, textColor, outlineColor);
+// }

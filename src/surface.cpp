@@ -256,11 +256,11 @@ void Surface::blendAdd(Surface *target, int x, int y) {
 */
 }
 
-void Surface::write(FontHelper *font, const string &text, int x, int y, const unsigned short halign, const unsigned short valign) {
-	font->write(this, text, x, y, halign, valign);
+void Surface::write(FontHelper *font, const string &text, int x, int y, const Uint8 align) {
+	font->write(this, text, x, y, align);
 }
-void Surface::write(FontHelper *font, const string &text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor) {
-	font->write(this, text, x, y, halign, valign, fgColor, bgColor);
+void Surface::write(FontHelper *font, const string &text, int x, int y, const Uint8 align, RGBAColor fgColor, RGBAColor bgColor) {
+	font->write(this, text, x, y, align, fgColor, bgColor);
 }
 
 
@@ -393,7 +393,7 @@ void Surface::setClipRect(SDL_Rect rect) {
 // }
 
 
-bool Surface::blit(Surface *destination, int x, int y, const unsigned short align, int alpha) {
+bool Surface::blit(Surface *destination, int x, int y, const Uint8 align, Uint8 alpha) {
 	if (align & HAlignCenter) {
 		x -= raw->w / 2;
 	} else if (align & HAlignRight) {
@@ -409,7 +409,7 @@ bool Surface::blit(Surface *destination, int x, int y, const unsigned short alig
 	return blit(destination, {x, y, raw->w, raw->h}, HAlignLeft | VAlignTop, alpha);
 }
 
-bool Surface::blit(Surface *destination, SDL_Rect destrect, const unsigned short align, int alpha) {
+bool Surface::blit(Surface *destination, SDL_Rect destrect, const Uint8 align, Uint8 alpha) {
 	if (destination->raw == NULL || alpha == 0) return false;
 
 	SDL_Rect srcrect = {0, 0, destrect.w, destrect.h};

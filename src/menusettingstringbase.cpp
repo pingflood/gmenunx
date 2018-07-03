@@ -31,31 +31,23 @@ MenuSettingStringBase::MenuSettingStringBase(
 {
 }
 
-MenuSettingStringBase::~MenuSettingStringBase()
-{
+MenuSettingStringBase::~MenuSettingStringBase() {
 }
 
-void MenuSettingStringBase::draw(int y)
-{
+void MenuSettingStringBase::draw(int y) {
 	MenuSetting::draw(y);
-	gmenu2x->s->write(
-			gmenu2x->font, value(),
-			155, y + gmenu2x->font->getHalfHeight(),
-			HAlignLeft, VAlignMiddle);
+	gmenu2x->s->write(gmenu2x->font, value(), 155, y + gmenu2x->font->getHalfHeight(), VAlignMiddle);
 }
 
-uint MenuSettingStringBase::manageInput()
-{
+uint MenuSettingStringBase::manageInput() {
 	if (gmenu2x->input[MENU]) clear();
 	if (gmenu2x->input[CONFIRM]) edit();
 }
 
-void MenuSettingStringBase::clear()
-{
+void MenuSettingStringBase::clear() {
 	setValue("");
 }
 
-bool MenuSettingStringBase::edited()
-{
+bool MenuSettingStringBase::edited() {
 	return originalValue != value();
 }

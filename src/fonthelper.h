@@ -41,29 +41,27 @@ public:
 
 	bool utf8Code(unsigned char c);
 
-	void write(Surface *s, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor);
-	void write(Surface *s, const string &text, int x, int y);
+	void write(Surface *surface, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor);
+	void write(Surface *surface, const string& text, int x, int y, const Uint8 align = HAlignLeft | VAlignTop);
+	void write(Surface *surface, const string& text, int x, int y, const Uint8 align, RGBAColor fgColor, RGBAColor bgColor);
+
+	void write(Surface *surface, vector<string> *text, int x, int y, const Uint8 align, RGBAColor fgColor, RGBAColor bgColor);
+	void write(Surface *surface, vector<string> *text, int x, int y, const Uint8 align = HAlignLeft | VAlignTop);
+
+	// void write(Surface *surface, const string &text, int x, int y);
 
 	// void write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign = 0);
 	// void write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
 
-	void write(Surface* surface, vector<string> *text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
-	void write(Surface* surface, vector<string> *text, int x, int y, const unsigned short halign = 0, const unsigned short valign = 0);
-	
-	void write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
-	void write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign);
-
-	uint getLineWidth(const string& text);
-	uint getTextWidth(const string& text);
-	int getTextHeight(const string& text);
+	uint getLineWidth(const string &text);
+	uint getTextWidth(const string &text);
+	int getTextHeight(const string &text);
 	uint getTextWidth(vector<string> *text);
 	
 	uint getHeight() { return height; };
 	uint getHalfHeight() { return halfHeight; };
-	
 
-	void loadFont(const string &fontName, int fontSize, RGBAColor textColor, RGBAColor outlineColor);
-
+	void loadFont(const string &fontName, int fontSize);
 
 	FontHelper *setSize(const int size);
 	FontHelper *setColor(RGBAColor color);

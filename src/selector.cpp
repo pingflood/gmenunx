@@ -143,7 +143,7 @@ int Selector::exec(int startSelection) {
 			} else {
 				iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 			}
-			gmenu2x->s->write(gmenu2x->font, fl[i], gmenu2x->listRect.x + 21, iY + 4, HAlignLeft, VAlignMiddle);
+			gmenu2x->s->write(gmenu2x->font, fl[i], gmenu2x->listRect.x + 21, iY + 4, VAlignMiddle);
 
 			iY += rowHeight;
 		}

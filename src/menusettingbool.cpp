@@ -61,7 +61,7 @@ void MenuSettingBool::initButton()
 void MenuSettingBool::draw(int y)
 {
 	MenuSetting::draw(y);
-	gmenu2x->s->write( gmenu2x->font, strvalue, 155, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
+	gmenu2x->s->write( gmenu2x->font, strvalue, 155, y+gmenu2x->font->getHalfHeight(), VAlignMiddle );
 }
 
 uint MenuSettingBool::manageInput()

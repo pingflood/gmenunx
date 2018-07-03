@@ -33,7 +33,7 @@ void IconButton::paint() {
 	if (iconSurface != NULL)
 		iconSurface->blit(gmenu2x->s, iconRect);
 	if (label != "") {
-		gmenu2x->s->write(gmenu2x->font, label, labelRect.x, labelRect.y, labelHAlign, labelVAlign, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+		gmenu2x->s->write(gmenu2x->font, label, labelRect.x, labelRect.y, labelHAlign | labelVAlign, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 	}
 }
 

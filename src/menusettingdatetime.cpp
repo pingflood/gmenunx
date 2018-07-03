@@ -64,7 +64,7 @@ MenuSettingDateTime::MenuSettingDateTime(GMenu2X *gmenu2x, const string &name, c
 void MenuSettingDateTime::draw(int y) {
 	this->y = y;
 	MenuSetting::draw(y);
-	gmenu2x->s->write( gmenu2x->font, year + "-" + month + "-" + day + " " + hour + ":" + minute, 155, y+gmenu2x->font->getHalfHeight(), HAlignLeft, VAlignMiddle );
+	gmenu2x->s->write(gmenu2x->font, year + "-" + month + "-" + day + " " + hour + ":" + minute, 155, y+gmenu2x->font->getHalfHeight(), VAlignMiddle);
 }
 
 uint MenuSettingDateTime::manageInput() {
