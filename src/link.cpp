@@ -99,19 +99,17 @@ void Link::setIcon(const string &icon) {
 }
 
 const string &Link::searchIcon() {
-	iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
+	if (!gmenu2x->sc.getSkinFilePath(iconPath).empty()) {
+		iconPath = gmenu2x->sc.getSkinFilePath(iconPath);
+	}	else if (!fileExists(iconPath)) {
+		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
+	} else
+		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
 	return iconPath;
 }
 
 const string &Link::getIconPath() {
 	if (iconPath.empty()) searchIcon();
-
-	if (!gmenu2x->sc.getSkinFilePath(iconPath).empty()) {
-		iconPath = gmenu2x->sc.getSkinFilePath(iconPath);
-	}	else if (!fileExists(iconPath)) {
-		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
-	}
-
 	return iconPath;
 }
 

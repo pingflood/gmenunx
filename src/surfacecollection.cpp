@@ -83,7 +83,7 @@ Surface *SurfaceCollection::add(const string &path, bool alpha) {
 
 Surface *SurfaceCollection::addSkinRes(const string &path, bool alpha) {
 	if (path.empty()) return NULL;
-	if (exists(path)) surfaces[path]; // del(path);
+	if (exists(path)) return surfaces[path]; // del(path);
 
 	string skinpath = getSkinFilePath(path);
 	if (skinpath.empty())
@@ -105,7 +105,7 @@ void SurfaceCollection::del(const string &path) {
 }
 
 void SurfaceCollection::clear() {
-	while (surfaces.size()>0) {
+	while (surfaces.size() > 0) {
 		delete surfaces.begin()->second;
 		surfaces.erase(surfaces.begin());
 	}
