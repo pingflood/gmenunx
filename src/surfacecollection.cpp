@@ -127,7 +127,6 @@ Surface *SurfaceCollection::operator[](const string &key) {
 
 Surface *SurfaceCollection::skinRes(const string &key) {
 	if (key.empty()) return NULL;
-
 	SurfaceHash::iterator i = surfaces.find(key);
 	if (i == surfaces.end())
 		return addSkinRes(key, defaultAlpha);

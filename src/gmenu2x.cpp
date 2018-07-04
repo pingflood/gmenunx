@@ -385,11 +385,40 @@ void GMenu2X::main() {
 	int i = 0, x = 0, y = 0, ix = 0, iy = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
 	int linkWidth = linksRect.w/linkColumns - 2 * sectionLinkPadding;
 	int linkHeight = linksRect.h/linkRows - 2 * sectionLinkPadding;
-
 	uint32_t tickBattery = -4800, tickNow, tickMMC = 0; //, tickUSB = 0;
-
-	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
 	string prevBackdrop = confStr["wallpaper"], currBackdrop = confStr["wallpaper"];
+
+	int8_t brightnessIcon = 5;
+	Surface *iconBrightness[6] = {
+		sc.skinRes("imgs/brightness/0.png"),
+		sc.skinRes("imgs/brightness/1.png"),
+		sc.skinRes("imgs/brightness/2.png"),
+		sc.skinRes("imgs/brightness/3.png"),
+		sc.skinRes("imgs/brightness/4.png"),
+		sc.skinRes("imgs/brightness.png"),
+	};
+
+	int8_t batteryIcon = 3;
+	Surface *iconBattery[7] = {
+		sc.skinRes("imgs/battery/0.png"),
+		sc.skinRes("imgs/battery/1.png"),
+		sc.skinRes("imgs/battery/2.png"),
+		sc.skinRes("imgs/battery/3.png"),
+		sc.skinRes("imgs/battery/4.png"),
+		sc.skinRes("imgs/battery/5.png"),
+		sc.skinRes("imgs/battery/ac.png"),
+	};
+
+	Surface *iconVolume[3] = {
+		sc.skinRes("imgs/mute.png"),
+		sc.skinRes("imgs/phones.png"),
+		sc.skinRes("imgs/volume.png"),
+	};
+
+	Surface *iconSD = sc.skinRes("imgs/sd1.png"),
+			*iconManual = sc.skinRes("imgs/manual.png"),
+			*iconCPU = sc.skinRes("imgs/cpu.png"),
+			*iconMenu = sc.skinRes("imgs/menu.png");
 
 	stringstream ss;
 
@@ -510,33 +539,22 @@ void GMenu2X::main() {
 
 		if (confInt["sectionBar"]) {
 			// TRAY 0,0
-			switch(volumeMode) {
-				case VOLUME_MODE_PHONES: sc.skinRes("imgs/phones.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
-				case VOLUME_MODE_MUTE:   sc.skinRes("imgs/mute.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
-				default: sc.skinRes("imgs/volume.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38); break;
-			}
+			iconVolume[volumeMode]->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38);
 
 			// TRAY 1,0
 			if (tickNow - tickBattery >= 5000) {
 				// TODO: move to hwCheck
 				tickBattery = tickNow;
-				uint16_t battlevel = getBatteryLevel();
-				if (battlevel > 5) {
-					batteryIcon = "imgs/battery/ac.png";
-				} else {
-					ss.clear();
-					ss << battlevel;
-					ss >> batteryIcon;
-					batteryIcon = "imgs/battery/" + batteryIcon + ".png";
-				}
+				batteryIcon = getBatteryLevel();
 			}
-			sc.skinRes(batteryIcon)->blit(s, sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38);
+			if (batteryIcon > 5) batteryIcon = 6;
+			iconBattery[batteryIcon]->blit(s, sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38);
+
 
 			// TRAY iconTrayShift,1
 			int iconTrayShift = 0;
 			if (curMMCStatus == MMC_INSERT) {
-				// TODO: move to hwCheck
-				sc.skinRes("imgs/sd1.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+				iconSD->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 				iconTrayShift++;
 			}
 
@@ -544,13 +562,13 @@ void GMenu2X::main() {
 				if (menu->selLinkApp() != NULL) {
 					if (!menu->selLinkApp()->getManualPath().empty() && iconTrayShift < 2) {
 						// Manual indicator
-						sc.skinRes("imgs/manual.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+						iconManual->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 						iconTrayShift++;
 					}
 
 					if (iconTrayShift < 2) {
 						// CPU indicator
-						sc.skinRes("imgs/cpu.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+						iconCPU->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 						iconTrayShift++;
 					}
 				}
@@ -558,22 +576,14 @@ void GMenu2X::main() {
 
 			if (iconTrayShift < 2) {
 				// menu indicator
-				sc.skinRes("imgs/menu.png")->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+				iconMenu->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 				iconTrayShift++;
 			}
 
 			if (iconTrayShift < 2) {
-				int backlightLevel = confInt["backlight"]/20;
-				string backlightIcon;
-				ss.clear();
-				ss << backlightLevel;
-				ss >> backlightIcon;
-				backlightIcon = "imgs/brightness/" + backlightIcon + ".png";
-
-				if (backlightLevel > 4 || sc.skinRes(backlightIcon)==NULL) 
-					backlightIcon = "imgs/brightness.png";
-
-				sc.skinRes(backlightIcon)->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+				brightnessIcon = confInt["backlight"]/20;
+				if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
+				iconBrightness[brightnessIcon]->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 				iconTrayShift++;
 			}
 		}
@@ -2285,11 +2295,11 @@ int GMenu2X::setBacklight(int val, bool popup) {
 		powerManager->clearTimer();
 		while (!close) {
 			input.setWakeUpInterval(3000);
-			int backlightIcon = val/20;
+			int brightnessIcon = val/20;
 
-			if (backlightIcon > 4 || iconBrightness[backlightIcon] == NULL) backlightIcon = 5;
+			if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
 
-			drawSlider(val, 0, 100, *iconBrightness[backlightIcon], bg);
+			drawSlider(val, 0, 100, *iconBrightness[brightnessIcon], bg);
 
 			close = !input.update();
 

@@ -44,11 +44,13 @@ const int MAX_VOLUME_SCALE_FACTOR = 200;
 const int VOLUME_SCALER_MUTE = 0;
 const int VOLUME_SCALER_PHONES = 65;
 const int VOLUME_SCALER_NORMAL = 100;
-const int VOLUME_MODE_MUTE = 0;
-const int VOLUME_MODE_PHONES = 1;
-const int VOLUME_MODE_NORMAL = 2;
 const int BATTERY_READS = 10;
 
+enum vol_mode_t {
+	VOLUME_MODE_MUTE,
+	VOLUME_MODE_PHONES,
+	VOLUME_MODE_NORMAL
+};
 // const int LOOP_DELAY = 50000;
 
 // #if defined(TARGET_GP2X)
@@ -229,7 +231,7 @@ public:
 	string fwType; //, fwVersion;
 	//gp2x type
 	bool f200;
-	int volumeMode;
+	int volumeMode = VOLUME_MODE_NORMAL;
 
 	SurfaceCollection sc;
 	Translator tr;
