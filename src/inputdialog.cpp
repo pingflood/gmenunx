@@ -177,7 +177,7 @@ bool InputDialog::exec() {
 		action = drawVirtualKeyboard();
 		gmenu2x->s->flip();
 
-		if ( gmenu2x->input[MENU] ) action = ID_ACTION_CLOSE;
+		if ( gmenu2x->input[CANCEL] || gmenu2x->input[MENU] ) action = ID_ACTION_CLOSE;
 		else if ( gmenu2x->input[SETTINGS] ) action = ID_ACTION_SAVE;
 		else if ( gmenu2x->input[UP]       ) action = ID_ACTION_UP;
 		else if ( gmenu2x->input[DOWN]     ) action = ID_ACTION_DOWN;
@@ -185,7 +185,7 @@ bool InputDialog::exec() {
 		else if ( gmenu2x->input[RIGHT]    ) action = ID_ACTION_RIGHT;
 		else if ( gmenu2x->input[CONFIRM]  ) action = ID_ACTION_SELECT;
 		else if ( gmenu2x->input[MANUAL]   ) action = ID_ACTION_KB_CHANGE;
-		else if ( gmenu2x->input[CANCEL] || gmenu2x->input[SECTION_PREV] ) action = ID_ACTION_BACKSPACE;
+		else if ( gmenu2x->input[SECTION_PREV] ) action = ID_ACTION_BACKSPACE;
 		else if ( gmenu2x->input[SECTION_NEXT] ) action = ID_ACTION_SPACE;
 
 		switch (action) {
