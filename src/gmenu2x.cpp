@@ -2305,14 +2305,19 @@ int GMenu2X::setBacklight(int val, bool popup) {
 	}
 
 #if defined(TARGET_RS97)
-	char buf[4];
-	FILE *f = fopen("/proc/jz/lcd_backlight", "w");
-	if (f) {
-		sprintf(buf, "%d", val);
-		fputs(buf, f);
-	}
-	fflush(f);
-	fclose(f);
+	char buf[34] = {0};
+	sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
+	system(buf);
+
+	// char buf[4];
+	// FILE *f = fopen("/proc/jz/lcd_backlight", "w");
+	// if (f) {
+	// 	sprintf(buf, "%d", val);
+	 // fprintf(f, "%d", val);
+	// 	fputs(buf, f);
+	// }
+	// fflush(f);
+	// fclose(f);
 #endif
 
 	return val;
