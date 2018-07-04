@@ -420,8 +420,6 @@ void GMenu2X::main() {
 			*iconCPU = sc.skinRes("imgs/cpu.png"),
 			*iconMenu = sc.skinRes("imgs/menu.png");
 
-	stringstream ss;
-
 	if (pthread_create(&thread_id, NULL, mainThread, this)) {
 		ERROR("%s, failed to create main thread\n", __func__);
 	}
@@ -1353,8 +1351,7 @@ void GMenu2X::skinMenu() {
 	writeSkinConfig();
 	writeConfig();
 
-	setSkin(confStr["skin"], true, true);
-	initBG();
+	if (curSkin != confStr["skin"]) restartDialog();
 }
 
 void GMenu2X::about() {
