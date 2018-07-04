@@ -20,8 +20,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <SDL.h>
-#include <SDL_gfxPrimitives.h>
+// #include <SDL.h>
+// #include <SDL_gfxPrimitives.h>
 
 #include "messagebox.h"
 #include "debug.h"
@@ -96,7 +96,8 @@ int MessageBox::exec() {
 
 	// Surface bg(gmenu2x->s);
 	//Darken background
-	gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0,bgalpha);
+	// gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0,bgalpha);
+	gmenu2x->s->box((SDL_Rect){0, 0, gmenu2x->resX, gmenu2x->resY}, (RGBAColor){0,0,0,bgalpha});
 
 	SDL_Rect box;
 	box.h = gmenu2x->font->getTextHeight(text) * gmenu2x->font->getHeight() + gmenu2x->font->getHeight();

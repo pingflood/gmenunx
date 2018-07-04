@@ -18,12 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <SDL_gfxPrimitives.h>
+// #include <SDL_gfxPrimitives.h>
 
 #include "surface.h"
 #include "fonthelper.h"
 #include "utilities.h"
 #include "debug.h"
+#include <cassert>
 
 RGBAColor strtorgba(const string &strColor) {
 	const int s = (strColor.at(0) == '#') ? 1 : 0;
@@ -275,51 +276,195 @@ void Surface::operator = (Surface *s) {
 	this->operator =(s->raw);
 }
 
-int Surface::box(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-	return boxRGBA(raw,x,y,x+w-1,y+h-1,r,g,b,a);
-}
-int Surface::box(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-	return boxRGBA(raw,re.x,re.y,re.x+re.w-1,re.y+re.h-1,r,g,b,a);
-}
-int Surface::box(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b) {
-	return SDL_FillRect(raw, &re, SDL_MapRGBA(format(),r,g,b,255));
-}
-int Surface::box(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b) {
-	SDL_Rect re = {x,y,w,h};
-	return box(re,r,g,b);
-}
-int Surface::box(int16_t x, int16_t y, int16_t w, int16_t h, RGBAColor c) {
-	return box(x,y,w,h,c.r,c.g,c.b,c.a);
-}
-int Surface::box(SDL_Rect re, RGBAColor c) {
-	return box(re,c.r,c.g,c.b,c.a);
+// int Surface::box(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+// 	return boxRGBA(raw,x,y,x+w-1,y+h-1,r,g,b,a);
+// }
+
+// int Surface::box(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+// 	return boxRGBA(raw,re.x,re.y,re.x+re.w-1,re.y+re.h-1,r,g,b,a);
+// }
+
+// int Surface::box(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+// 	return SDL_FillRect(raw, &re, SDL_MapRGBA(format(),r,g,b,255));
+// }
+
+// int Surface::box(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b) {
+// 	return SDL_FillRect(raw, &re, SDL_MapRGBA(format(),r,g,b,255));
+// }
+// int Surface::box(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b) {
+// 	SDL_Rect re = {x,y,w,h};
+// 	return box(re,r,g,b);
+// }
+// int Surface::box(int16_t x, int16_t y, int16_t w, int16_t h, RGBAColor c) {
+// 	return box(x,y,w,h,c.r,c.g,c.b,c.a);
+// }
+// int Surface::box(SDL_Rect re, RGBAColor c) {
+// 	return box(re,c.r,c.g,c.b,c.a);
+// }
+
+
+void Surface::box(SDL_Rect re, RGBAColor c) {
+	if (c.a == 255) {
+		SDL_FillRect(raw, &re, c.pixelValue(raw->format));
+	} else if (c.a != 0) {
+		fillRectAlpha(re, c);
+	}
 }
 
-int Surface::rectangle(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-	return rectangleRGBA(raw,x,y,x+w-1,y+h-1,r,g,b,a);
+void Surface::applyClipRect(SDL_Rect& rect) {
+	SDL_Rect clip;
+	SDL_GetClipRect(raw, &clip);
+
+	// Clip along X-axis.
+	if (rect.x < clip.x) {
+		rect.w = max(rect.x + rect.w - clip.x, 0);
+		rect.x = clip.x;
+	}
+	if (rect.x + rect.w > clip.x + clip.w) {
+		rect.w = max(clip.x + clip.w - rect.x, 0);
+	}
+
+	// Clip along Y-axis.
+	if (rect.y < clip.y) {
+		rect.h = max(rect.y + rect.h - clip.y, 0);
+		rect.y = clip.y;
+	}
+	if (rect.y + rect.h > clip.y + clip.h) {
+		rect.h = max(clip.y + clip.h - rect.y, 0);
+	}
 }
-int Surface::rectangle(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-	return rectangleRGBA(raw,re.x,re.y,re.x+re.w-1,re.y+re.h-1,r,g,b,a);
-}
-int Surface::rectangle(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b) {
-	return rectangleColor(raw, x,y,x+w-1,y+h-1, SDL_MapRGBA(format(),r,g,b,255));
-}
-int Surface::rectangle(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b) {
-	return rectangleColor(raw, re.x,re.y,re.x+re.w-1,re.y+re.h-1, SDL_MapRGBA(format(),r,g,b,255));
-}
-int Surface::rectangle(int16_t x, int16_t y, int16_t w, int16_t h, RGBAColor c) {
-	return rectangle(x,y,w,h,c.r,c.g,c.b,c.a);
-}
-int Surface::rectangle(SDL_Rect re, RGBAColor c) {
-	return rectangle(re.x,re.y,re.w,re.h,c.r,c.g,c.b,c.a);
+static inline uint32_t mult8x4(uint32_t c, uint8_t a) {
+	return ((((c >> 8) & 0x00FF00FF) * a) & 0xFF00FF00)
+	     | ((((c & 0x00FF00FF) * a) & 0xFF00FF00) >> 8);
 }
 
-int Surface::hline(int16_t x, int16_t y, int16_t w, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
-	return hlineRGBA(raw,x,x+w-1,y,r,g,b,a);
+void Surface::fillRectAlpha(SDL_Rect rect, RGBAColor c) {
+	applyClipRect(rect);
+	if (rect.w == 0 || rect.h == 0) {
+		// Entire rectangle is outside clipping area.
+		return;
+	}
+
+	if (SDL_MUSTLOCK(raw)) {
+		if (SDL_LockSurface(raw) < 0) {
+			return;
+		}
+	}
+
+	SDL_PixelFormat *format = raw->format;
+	uint32_t color = c.pixelValue(format);
+	uint8_t alpha = c.a;
+
+	uint8_t* edge = static_cast<uint8_t*>(raw->pixels)
+	               + rect.y * raw->pitch
+	               + rect.x * format->BytesPerPixel;
+
+	// Blending: surf' = surf * (1 - alpha) + fill * alpha
+
+	if (format->BytesPerPixel == 2) {
+		uint32_t Rmask = format->Rmask;
+		uint32_t Gmask = format->Gmask;
+		uint32_t Bmask = format->Bmask;
+
+		// Pre-multiply the fill color. We're hardcoding alpha to 1: 15/16bpp
+		// modes are unlikely to have an alpha channel and even if they do,
+		// the written alpha isn't used by gmenu2x.
+		uint16_t f = (((color & Rmask) * alpha >> 8) & Rmask)
+		           | (((color & Gmask) * alpha >> 8) & Gmask)
+		           | (((color & Bmask) * alpha >> 8) & Bmask)
+		           | format->Amask;
+		alpha = 255 - alpha;
+
+		for (auto y = 0; y < rect.h; y++) {
+			for (auto x = 0; x < rect.w; x++) {
+				uint16_t& pixel = reinterpret_cast<uint16_t*>(edge)[x];
+				uint32_t R = ((pixel & Rmask) * alpha >> 8) & Rmask;
+				uint32_t G = ((pixel & Gmask) * alpha >> 8) & Gmask;
+				uint32_t B = ((pixel & Bmask) * alpha >> 8) & Bmask;
+				pixel = uint16_t(R | G | B) + f;
+			}
+			edge += raw->pitch;
+		}
+	} else if (format->BytesPerPixel == 4) {
+		// Assume the pixel format uses 8 bits per component; we don't care
+		// which component is where since they all blend the same.
+		uint32_t f = mult8x4(color, alpha); // pre-multiply the fill color
+		alpha = 255 - alpha;
+
+		for (auto y = 0; y < rect.h; y++) {
+			for (auto x = 0; x < rect.w; x++) {
+				uint32_t& pixel = reinterpret_cast<uint32_t*>(edge)[x];
+				pixel = mult8x4(pixel, alpha) + f;
+			}
+			edge += raw->pitch;
+		}
+	} else {
+		assert(false);
+	}
+
+	if (SDL_MUSTLOCK(raw)) {
+		SDL_UnlockSurface(raw);
+	}
 }
-int Surface::hline(int16_t x, int16_t y, int16_t w, RGBAColor c) {
-	return hline(x,y,w-1,c.r,c.g,c.b,c.a);
+
+
+
+
+
+
+// int Surface::rectangle(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+// 	return rectangleRGBA(raw,x,y,x+w-1,y+h-1,r,g,b,a);
+// }
+// int Surface::rectangle(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+// 	return rectangleRGBA(raw,re.x,re.y,re.x+re.w-1,re.y+re.h-1,r,g,b,a);
+// }
+// int Surface::rectangle(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b) {
+// 	return rectangleColor(raw, x,y,x+w-1,y+h-1, SDL_MapRGBA(format(),r,g,b,255));
+// }
+// int Surface::rectangle(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b) {
+// 	return rectangleColor(raw, re.x,re.y,re.x+re.w-1,re.y+re.h-1, SDL_MapRGBA(format(),r,g,b,255));
+// }
+// int Surface::rectangle(int16_t x, int16_t y, int16_t w, int16_t h, RGBAColor c) {
+// 	return rectangle(x,y,w,h,c.r,c.g,c.b,c.a);
+// }
+// int Surface::rectangle(SDL_Rect re, RGBAColor c) {
+// 	return rectangle(re.x,re.y,re.w,re.h,c.r,c.g,c.b,c.a);
+// }
+
+
+
+void Surface::rectangle(SDL_Rect re, RGBAColor c) {
+	if (re.h >= 1) {
+		// Top.
+		box(SDL_Rect { re.x, re.y, re.w, 1 }, c);
+	}
+	if (re.h >= 2) {
+		Sint16 ey = re.y + re.h - 1;
+		// Bottom.
+		box(SDL_Rect { re.x, ey, re.w, 1 }, c);
+
+		Sint16 ex = re.x + re.w - 1;
+		Sint16 sy = re.y + 1;
+		Uint16 sh = re.h - 2;
+		// Left.
+		if (re.w >= 1) {
+			box(SDL_Rect { re.x, sy, 1, sh }, c);
+		}
+		// Right.
+		if (re.w >= 2) {
+			box(SDL_Rect { ex, sy, 1, sh }, c);
+		}
+	}
 }
+
+
+// int Surface::hline(int16_t x, int16_t y, int16_t w, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+// 	return box(x, y, w, 1, r, g, b, a);
+// 	// return hlineRGBA(raw,x,x+w-1,y,r,g,b,a);
+// }
+// int Surface::hline(int16_t x, int16_t y, int16_t w, RGBAColor c) {
+// 	return hline(x,y,w-1,c.r,c.g,c.b,c.a);
+// }
 
 void Surface::clearClipRect() {
 	SDL_SetClipRect(raw, NULL);

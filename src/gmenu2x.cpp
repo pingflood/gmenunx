@@ -26,8 +26,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
-#include <SDL.h>
-#include <SDL_gfxPrimitives.h>
+// #include <SDL.h>
+// #include <SDL_gfxPrimitives.h>
 #include <signal.h>
 
 #include <sys/statvfs.h>
@@ -834,7 +834,7 @@ void GMenu2X::initBG(const string &imagePath) {
 	if (bg != NULL) delete bg;
 
 	bg = new Surface(s);
-	bg->box(0, 0, resX, resY, 0, 0, 0);
+	bg->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 0});
 
 	if (!imagePath.empty() && sc.add(imagePath) != NULL) {
 		sc[imagePath]->blit(bg, 0, 0);

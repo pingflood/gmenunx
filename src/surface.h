@@ -41,6 +41,13 @@ struct RGBAColor {
 	uint8_t r,g,b,a;
 	// static RGBAColor fromString(std::string const& strColor);
 	// static string toString(RGBAColor &color);
+	RGBAColor() : r(0), g(0), b(0), a(0) {}
+	RGBAColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
+		: r(r), g(g), b(b), a(a) {}
+	Uint32 pixelValue(SDL_PixelFormat *fmt) const {
+		return SDL_MapRGBA(fmt, r, g, b, a);
+	}
+
 };
 
 RGBAColor strtorgba(const string &strColor);
@@ -104,22 +111,48 @@ public:
 	void write(FontHelper *font, const string &text, int x, int y, const uint8_t align = HAlignLeft | VAlignTop);
 	void write(FontHelper *font, const string &text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor);
 
-	int box(int16_t, int16_t, int16_t, int16_t, uint8_t, uint8_t, uint8_t, uint8_t);
-	int box(int16_t, int16_t, int16_t, int16_t, uint8_t, uint8_t, uint8_t);
-	int box(int16_t, int16_t, int16_t, int16_t, RGBAColor);
-	int box(SDL_Rect, uint8_t, uint8_t, uint8_t, uint8_t);
-	int box(SDL_Rect, uint8_t, uint8_t, uint8_t);
-	int box(SDL_Rect, RGBAColor);
+	// int box(int16_t, int16_t, int16_t, int16_t, uint8_t, uint8_t, uint8_t, uint8_t);
+	// int box(int16_t, int16_t, int16_t, int16_t, uint8_t, uint8_t, uint8_t);
+	// int box(int16_t, int16_t, int16_t, int16_t, RGBAColor);
+	// int box(SDL_Rect, uint8_t, uint8_t, uint8_t, uint8_t);
+	// int box(SDL_Rect, uint8_t, uint8_t, uint8_t);
+	// int box(SDL_Rect, RGBAColor);
 
-	int rectangle(int16_t, int16_t, int16_t, int16_t, uint8_t, uint8_t, uint8_t, uint8_t);
-	int rectangle(int16_t, int16_t, int16_t, int16_t, uint8_t, uint8_t, uint8_t);
-	int rectangle(int16_t, int16_t, int16_t, int16_t, RGBAColor);
-	int rectangle(SDL_Rect, uint8_t, uint8_t, uint8_t, uint8_t);
-	int rectangle(SDL_Rect, uint8_t, uint8_t, uint8_t);
-	int rectangle(SDL_Rect, RGBAColor);
-	
-	int hline(int16_t, int16_t, int16_t, uint8_t, uint8_t, uint8_t, uint8_t);
-	int hline(int16_t, int16_t, int16_t, RGBAColor);
+	void box(SDL_Rect re, RGBAColor c);
+	void box(Sint16 x, Sint16 y, Uint16 w, Uint16 h, RGBAColor c) {
+		box((SDL_Rect){ x, y, w, h }, c);
+	}
+	void box(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+		box((SDL_Rect){ x, y, w, h }, RGBAColor(r, g, b, a));
+	}
+	/** Draws the given rectangle on this surface in the given color, blended
+	  * according to the alpha value of the color argument.
+	  */
+	void fillRectAlpha(SDL_Rect rect, RGBAColor c);
+
+	/** Clips the given rectangle against this surface's active clipping
+	  * rectangle.
+	  */
+	void applyClipRect(SDL_Rect& rect);
+
+
+	// int rectangle(int16_t, int16_t, int16_t, int16_t, uint8_t, uint8_t, uint8_t, uint8_t);
+	// int rectangle(int16_t, int16_t, int16_t, int16_t, uint8_t, uint8_t, uint8_t);
+	// int rectangle(int16_t, int16_t, int16_t, int16_t, RGBAColor);
+	// int rectangle(SDL_Rect, uint8_t, uint8_t, uint8_t, uint8_t);
+	// int rectangle(SDL_Rect, uint8_t, uint8_t, uint8_t);
+	// int rectangle(SDL_Rect, RGBAColor);
+
+	void rectangle(SDL_Rect re, RGBAColor c);
+	void rectangle(Sint16 x, Sint16 y, Uint16 w, Uint16 h, RGBAColor c) {
+		rectangle((SDL_Rect){ x, y, w, h }, c);
+	}
+	void rectangle(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+		rectangle((SDL_Rect){ x, y, w, h }, RGBAColor(r, g, b, a));
+	}
+
+	// int hline(int16_t, int16_t, int16_t, uint8_t, uint8_t, uint8_t, uint8_t);
+	// int hline(int16_t, int16_t, int16_t, RGBAColor);
 
 	void operator = (SDL_Surface*);
 	void operator = (Surface*);
