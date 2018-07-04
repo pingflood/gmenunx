@@ -578,3 +578,10 @@ bool Surface::blit(Surface *destination, SDL_Rect destrect, const uint8_t align,
 	return SDL_BlitSurface(raw, &srcrect, destination->raw, &destrect);
 }
 
+void Surface::softStretch(uint8_t x, uint8_t y) {
+	Surface *thisSurface = new Surface(this);
+	Surface *outSurface = new Surface(x, y);
+	SDL_BlitSurface(raw, NULL, thisSurface->raw, NULL);
+	SDL_SoftStretch(thisSurface->raw, NULL, outSurface->raw, NULL);
+	raw = outSurface->raw;
+}

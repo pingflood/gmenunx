@@ -155,6 +155,9 @@ int Selector::exec(int startSelection) {
 
 			// gmenu2x->s->setClipRect(320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["selectorX"] - 2 * padding, gmenu2x->listRect.h - 2 * padding);
 			// gmenu2x->sc[screens[selected - fl.dirCount()]]->blitCenter(gmenu2x->s, 320 - animation + (gmenu2x->skinConfInt["selectorX"]/2), gmenu2x->listRect.y + gmenu2x->listRect.h/2, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, 220);
+
+			// gmenu2x->sc[screens[selected - fl.dirCount()]]->softStretch(50, 50);
+
 			gmenu2x->sc[screens[selected - fl.dirCount()]]->blit(gmenu2x->s, {320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["selectorX"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
 			// gmenu2x->s->clearClipRect();
 
