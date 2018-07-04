@@ -36,7 +36,7 @@ TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &desc
 }
 
 void TextDialog::preProcess() {
-	uint i=0;
+	uint32_t i=0;
 	string row;
 
 	while (i<text->size()) {
@@ -48,12 +48,12 @@ void TextDialog::preProcess() {
 			vector<string> words;
 			split(words, row, " ");
 
-			uint numWords = words.size();
+			uint32_t numWords = words.size();
 			//find the maximum number of rows that can be printed on screen
 			while (gmenu2x->font->getTextWidth(row)>gmenu2x->resX-15 && numWords>0) {
 				numWords--;
 				row = "";
-				for (uint x=0; x<numWords; x++)
+				for (uint32_t x=0; x<numWords; x++)
 					row += words[x] + " ";
 				row = trim(row);
 			}
@@ -65,7 +65,7 @@ void TextDialog::preProcess() {
 
 				//build the remaining text in another row
 				row = "";
-				for (uint x=numWords; x<words.size(); x++)
+				for (uint32_t x=numWords; x<words.size(); x++)
 					row += words[x] + " ";
 				row = trim(row);
 
@@ -77,10 +77,10 @@ void TextDialog::preProcess() {
 	}
 }
 
-void TextDialog::drawText(vector<string> *text, uint firstRow, uint rowsPerPage) {
+void TextDialog::drawText(vector<string> *text, uint32_t firstRow, uint32_t rowsPerPage) {
 	gmenu2x->s->setClipRect(gmenu2x->listRect);
 
-	for (uint i = firstRow; i < firstRow + rowsPerPage && i < text->size(); i++) {
+	for (uint32_t i = firstRow; i < firstRow + rowsPerPage && i < text->size(); i++) {
 		int rowY;
 		if (text->at(i)=="----") { //draw a line
 			rowY = gmenu2x->listRect.y + (int)((i - firstRow + 0.5) * gmenu2x->font->getHeight());
@@ -116,7 +116,7 @@ void TextDialog::exec() {
 
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	uint firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
+	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 	while (!close) {
 		this->bg->blit(gmenu2x->s,0,0);
 		drawText(text, firstRow, rowsPerPage);

@@ -29,7 +29,7 @@
 using namespace fastdelegate;
 using fastdelegate::MakeDelegate;
 
-typedef FastDelegate0<uint> cbAction;
+typedef FastDelegate0<uint32_t> cbAction;
 
 class MenuSettingMultiString : public MenuSettingStringBase {
 private:
@@ -57,11 +57,11 @@ public:
 			const std::string &description, std::string *value,
 			const std::vector<std::string> *choices, cbAction cbOnChange);
 
-	uint voidAction() { return 0; };
+	uint32_t voidAction() { return 0; };
 
 
 	virtual ~MenuSettingMultiString() {};
-	virtual uint manageInput();
+	virtual uint32_t manageInput();
 };
 
 #endif

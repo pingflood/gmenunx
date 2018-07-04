@@ -27,7 +27,7 @@ class GMenu2X;
 
 class MenuSettingRGBA : public MenuSetting {
 private:
-	unsigned short selPart;
+	uint16_t selPart;
 	int y;
 	std::string strR, strG, strB, strA;
 	RGBAColor originalValue;
@@ -44,17 +44,17 @@ public:
 
 	virtual void draw(int y);
 	virtual void handleTS();
-	virtual uint manageInput();
+	virtual uint32_t manageInput();
 	virtual void adjustInput();
 	virtual void drawSelected(int y);
 	virtual bool edited();
 
-	void setSelPart(unsigned short int value);
-	void setR(unsigned short int r);
-	void setG(unsigned short int g);
-	void setB(unsigned short int b);
-	void setA(unsigned short int a);
-	unsigned short int getSelPart();
+	void setSelPart(uint16_t value);
+	void setR(uint16_t r);
+	void setG(uint16_t g);
+	void setB(uint16_t b);
+	void setA(uint16_t a);
+	uint16_t getSelPart();
 	RGBAColor value();
 };
 

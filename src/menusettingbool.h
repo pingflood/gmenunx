@@ -40,7 +40,7 @@ public:
 	virtual ~MenuSettingBool() {};
 
 	virtual void draw(int y);
-	virtual uint manageInput();
+	virtual uint32_t manageInput();
 	virtual bool edited();
 
 	void setValue(int value);

@@ -42,8 +42,8 @@ bool IconButton::paintHover() {
 }
 
 void IconButton::recalcSize() {
-	uint h = 0, w = 0;
-	uint margin = labelMargin;
+	uint32_t h = 0, w = 0;
+	uint32_t margin = labelMargin;
 
 	if (iconSurface == NULL || label == "")
 		margin = 0;

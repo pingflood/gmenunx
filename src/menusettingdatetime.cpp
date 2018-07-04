@@ -67,7 +67,7 @@ void MenuSettingDateTime::draw(int y) {
 	gmenu2x->s->write(gmenu2x->font, year + "-" + month + "-" + day + " " + hour + ":" + minute, 155, y+gmenu2x->font->getHalfHeight(), VAlignMiddle);
 }
 
-uint MenuSettingDateTime::manageInput() {
+uint32_t MenuSettingDateTime::manageInput() {
 	if (gmenu2x->input[INC]) inc();
 	if (gmenu2x->input[DEC]) dec();
 	if (gmenu2x->input[LEFT]) leftComponent();
@@ -90,14 +90,14 @@ void MenuSettingDateTime::rightComponent() {
 	selPart = constrain(selPart+1,0,4);
 }
 
-void MenuSettingDateTime::setYear(short int i) {
+void MenuSettingDateTime::setYear(int16_t i) {
 	iyear = constrain(i, 1970, 2100);
 	stringstream ss;
 	ss << iyear;
 	ss >> year;
 }
 
-void MenuSettingDateTime::setMonth(short int i) {
+void MenuSettingDateTime::setMonth(int16_t i) {
 	imonth = i;
 	if (i < 1) imonth = 12;
 	else if (i > 12) imonth = 0;
@@ -106,7 +106,7 @@ void MenuSettingDateTime::setMonth(short int i) {
 	ss >> month;
 }
 
-void MenuSettingDateTime::setDay(short int i) {
+void MenuSettingDateTime::setDay(int16_t i) {
 	iday = i;
 	if (i < 1) iday = 31;
 	else if (i > 31) iday = 0;
@@ -115,7 +115,7 @@ void MenuSettingDateTime::setDay(short int i) {
 	ss >> day;
 }
 
-void MenuSettingDateTime::setHour(short int i) {
+void MenuSettingDateTime::setHour(int16_t i) {
 	ihour = i;
 	if (i < 0) ihour = 23;
 	else if (i > 23) ihour = 0;
@@ -124,7 +124,7 @@ void MenuSettingDateTime::setHour(short int i) {
 	ss >> hour;
 }
 
-void MenuSettingDateTime::setMinute(short int i) {
+void MenuSettingDateTime::setMinute(int16_t i) {
 	iminute = i;
 	if (i < 0) iminute = 59;
 	else if (i > 59) iminute = 0;
@@ -133,7 +133,7 @@ void MenuSettingDateTime::setMinute(short int i) {
 	ss >> minute;
 }
 
-void MenuSettingDateTime::setSelPart(unsigned short int i) {
+void MenuSettingDateTime::setSelPart(uint16_t i) {
 	switch (selPart) {
 		case 1: setMonth(i); break;
 		case 2: setDay(i); break;
@@ -149,13 +149,13 @@ string MenuSettingDateTime::value() {
 	return *_value;
 }
 
-unsigned short int MenuSettingDateTime::getSelPart() {
+uint16_t MenuSettingDateTime::getSelPart() {
 	switch (selPart) {
-		default: case 0: return iyear;
 		case 1: return imonth;
 		case 2: return iday;
 		case 3: return ihour;
 		case 4: return iminute;
+		default: return iyear;
 	}
 }
 

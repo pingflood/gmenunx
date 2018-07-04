@@ -191,14 +191,14 @@ string strreplace (string orig, const string &search, const string &replace) {
 
 string cmdclean (string cmdline) {
 	string spchars = "\\`$();|{}&'\"*?<>[]!^~-#\n\r ";
-	for (uint i=0; i<spchars.length(); i++) {
+	for (uint32_t i=0; i<spchars.length(); i++) {
 		string curchar = spchars.substr(i,1);
 		cmdline = strreplace(cmdline, curchar, "\\"+curchar);
 	}
 	return cmdline;
 }
 
-int intTransition(int from, int to, long tickStart, long duration, long tickNow) {
+int intTransition(int from, int to, int32_t tickStart, int32_t duration, int32_t tickNow) {
 	if (tickNow<0) tickNow = SDL_GetTicks();
 	float elapsed = (float)(tickNow-tickStart)/duration;
 	//                    elapsed                 increments

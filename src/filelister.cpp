@@ -110,21 +110,21 @@ void FileLister::browse() {
 	}
 }
 
-uint FileLister::size() {
+uint32_t FileLister::size() {
 	return files.size()+directories.size();
 }
-uint FileLister::dirCount() {
+uint32_t FileLister::dirCount() {
 	return directories.size();
 }
-uint FileLister::fileCount() {
+uint32_t FileLister::fileCount() {
 	return files.size();
 }
 
-string FileLister::operator[](uint x) {
+string FileLister::operator[](uint32_t x) {
 	return at(x);
 }
 
-string FileLister::at(uint x) {
+string FileLister::at(uint32_t x) {
 	if (x>=size()) return "";
 	if (x<directories.size())
 		return directories[x];
@@ -132,11 +132,11 @@ string FileLister::at(uint x) {
 		return files[x-directories.size()];
 }
 
-bool FileLister::isFile(uint x) {
+bool FileLister::isFile(uint32_t x) {
 	return x >= directories.size() && x < size();
 }
 
-bool FileLister::isDirectory(uint x) {
+bool FileLister::isDirectory(uint32_t x) {
 	return x < directories.size();
 }
 

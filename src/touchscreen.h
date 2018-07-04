@@ -24,7 +24,7 @@
 #include <SDL.h>
 
 #include <fcntl.h>
-#include <stdint.h>
+#include <cstdint>
 
 typedef struct {
 	uint16_t pressure;

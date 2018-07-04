@@ -36,9 +36,9 @@ bool BrowseDialog::exec() {
 	// gmenu2x->initBG();
 
 	// moved out of the loop to fix weird scroll behavior
-	unsigned int i, iY;
-	unsigned int firstElement=0; //, lastElement;
-	unsigned int offsetY;
+	uint32_t i, iY;
+	uint32_t firstElement=0; //, lastElement;
+	uint32_t offsetY;
 
 	if (!fl)
 		return false;

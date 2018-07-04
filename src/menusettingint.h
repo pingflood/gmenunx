@@ -36,7 +36,7 @@ public:
 	MenuSettingInt(GMenu2X *gmenu2x, const std::string &name, const std::string &description, int *value, int def, int min, int max, int delta=1);
 	virtual ~MenuSettingInt() {};
 
-	virtual uint manageInput();
+	virtual uint32_t manageInput();
 	// virtual void adjustInput();
 	virtual void draw(int);
 	virtual bool edited();

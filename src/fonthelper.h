@@ -8,7 +8,7 @@
 #include <SDL_ttf.h>
 
 #ifdef _WIN32
-    typedef unsigned int uint;
+    typedef unsigned int uint32_t;
 #endif
 using std::vector;
 using std::string;
@@ -39,27 +39,27 @@ public:
 	FontHelper(const string &fontName, int size, RGBAColor textColor = (RGBAColor){255,255,255}, RGBAColor outlineColor = (RGBAColor){5,5,5});
 	~FontHelper();
 
-	bool utf8Code(unsigned char c);
+	bool utf8Code(uint8_t c);
 
 	void write(Surface *surface, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor);
-	void write(Surface *surface, const string& text, int x, int y, const Uint8 align = HAlignLeft | VAlignTop);
-	void write(Surface *surface, const string& text, int x, int y, const Uint8 align, RGBAColor fgColor, RGBAColor bgColor);
+	void write(Surface *surface, const string& text, int x, int y, const uint8_t align = HAlignLeft | VAlignTop);
+	void write(Surface *surface, const string& text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor);
 
-	void write(Surface *surface, vector<string> *text, int x, int y, const Uint8 align, RGBAColor fgColor, RGBAColor bgColor);
-	void write(Surface *surface, vector<string> *text, int x, int y, const Uint8 align = HAlignLeft | VAlignTop);
+	void write(Surface *surface, vector<string> *text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor);
+	void write(Surface *surface, vector<string> *text, int x, int y, const uint8_t align = HAlignLeft | VAlignTop);
 
 	// void write(Surface *surface, const string &text, int x, int y);
 
-	// void write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign = 0);
-	// void write(Surface* surface, const string& text, int x, int y, const unsigned short halign, const unsigned short valign, RGBAColor fgColor, RGBAColor bgColor);
+	// void write(Surface* surface, const string& text, int x, int y, const uint16_t halign, const uint16_t valign = 0);
+	// void write(Surface* surface, const string& text, int x, int y, const uint16_t halign, const uint16_t valign, RGBAColor fgColor, RGBAColor bgColor);
 
-	uint getLineWidth(const string &text);
-	uint getTextWidth(const string &text);
+	uint32_t getLineWidth(const string &text);
+	uint32_t getTextWidth(const string &text);
 	int getTextHeight(const string &text);
-	uint getTextWidth(vector<string> *text);
+	uint32_t getTextWidth(vector<string> *text);
 	
-	uint getHeight() { return height; };
-	uint getHalfHeight() { return halfHeight; };
+	uint32_t getHeight() { return height; };
+	uint32_t getHalfHeight() { return halfHeight; };
 
 	void loadFont(const string &fontName, int fontSize);
 

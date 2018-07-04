@@ -42,7 +42,7 @@ Base class that represents a link on screen.
 */
 class Link : public Button {
 private:
-	uint padding;
+	uint32_t padding;
 	LinkAction action;
 
 protected:

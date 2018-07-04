@@ -61,7 +61,7 @@ MenuSettingMultiString::MenuSettingMultiString(
 	buttonBox.add(btn);
 }
 
-uint MenuSettingMultiString::manageInput() {
+uint32_t MenuSettingMultiString::manageInput() {
 	if (gmenu2x->input[LEFT]) { decSel(); return this->onChange();}
 	else if (gmenu2x->input[RIGHT]) { incSel(); return this->onChange();}
 	return 0; // SD_ACTION_CLOSE

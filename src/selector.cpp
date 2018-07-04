@@ -57,7 +57,7 @@ int Selector::exec(int startSelection) {
 	bool close = false, result = true;
 	vector<string> screens, titles;
 
-	uint i, firstElement = 0, iY, animation = 0, padding = 6;
+	uint32_t i, firstElement = 0, iY, animation = 0, padding = 6;
 
 	FileLister fl(dir, link->getSelectorBrowser());
 	fl.setFilter(link->getSelectorFilter());
@@ -77,8 +77,8 @@ int Selector::exec(int startSelection) {
 	// }
 
 	// dc: adjust rowHeight with font
-	uint rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
-	uint numRows = gmenu2x->listRect.h / rowHeight - 1;
+	uint32_t rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
+	uint32_t numRows = gmenu2x->listRect.h / rowHeight - 1;
 
 	// drawTitleIcon(link->getIconPath(), this->bg);
 	// writeTitle(link->getTitle(), this->bg);
@@ -114,7 +114,7 @@ int Selector::exec(int startSelection) {
 
 	gmenu2x->sc.defaultAlpha = false;
 	// gmenu2x->input.setWakeUpInterval(1); // refresh on load
-	Uint32 tickStart = SDL_GetTicks();
+	uint32_t tickStart = SDL_GetTicks();
 
 	while (!close) {
 		this->bg->blit(gmenu2x->s, 0, 0);
@@ -258,7 +258,7 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 
 	string noext, realdir;
 	string::size_type pos;
-	for (uint i = 0; i < fl->getFiles().size(); i++) {
+	for (uint32_t i = 0; i < fl->getFiles().size(); i++) {
 		noext = fl->getFiles()[i];
 		pos = noext.rfind(".");
 		if (pos != string::npos && pos>0)
@@ -284,7 +284,7 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 }
 
 void Selector::freeScreenshots(vector<string> *screens) {
-	for (uint i = 0; i < screens->size(); i++) {
+	for (uint32_t i = 0; i < screens->size(); i++) {
 		if (screens->at(i) != "")
 			gmenu2x->sc.del(screens->at(i));
 	}

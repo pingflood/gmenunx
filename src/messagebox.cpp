@@ -42,7 +42,7 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	buttons.resize(19);
 	buttonLabels.resize(19);
 	buttonPositions.resize(19);
-	for (uint x = 0; x < buttons.size(); x++) {
+	for (uint32_t x = 0; x < buttons.size(); x++) {
 		buttons[x] = "";
 		buttonLabels[x] = "";
 		buttonPositions[x].h = gmenu2x->font->getHeight();
@@ -127,7 +127,7 @@ int MessageBox::exec() {
 	gmenu2x->s->box(box.x, box.y+box.h, box.w, gmenu2x->font->getHeight(), gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 
 	int btnX = gmenu2x->halfX+box.w/2-6;
-	for (uint i = 0; i < buttons.size(); i++) {
+	for (uint32_t i = 0; i < buttons.size(); i++) {
 		if (buttons[i] != "") {
 			buttonPositions[i].y = box.y+box.h+gmenu2x->font->getHalfHeight();
 			buttonPositions[i].w = btnX;
@@ -143,7 +143,7 @@ int MessageBox::exec() {
 	while (result < 0) {
 		//touchscreen
 		if (gmenu2x->f200 && gmenu2x->ts.poll()) {
-			for (uint i = 0; i < buttons.size(); i++) {
+			for (uint32_t i = 0; i < buttons.size(); i++) {
 				if (buttons[i] != "" && gmenu2x->ts.inRect(buttonPositions[i])) {
 					result = i;
 					break;
@@ -155,7 +155,7 @@ int MessageBox::exec() {
 		if (inputAction) {
 			// if (gmenu2x->inputCommonActions(inputAction)) continue; // causes power button bounce
 
-			for (uint i = 0; i < buttons.size(); i++) {
+			for (uint32_t i = 0; i < buttons.size(); i++) {
 				if (buttons[i] != "" && gmenu2x->input[i]) {
 					result = i;
 					break;

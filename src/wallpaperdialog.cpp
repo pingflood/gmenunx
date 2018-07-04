@@ -41,8 +41,8 @@ bool WallpaperDialog::exec()
 	bool close = false, result = true;
 
 	// dc: adjust rowheight with font
-	uint rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
-	uint numRows = gmenu2x->listRect.h/rowHeight - 1;
+	uint32_t rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
+	uint32_t numRows = gmenu2x->listRect.h/rowHeight - 1;
 
 	FileLister fl("skins/"+gmenu2x->confStr["skin"]+"/wallpapers");
 	fl.setFilter(".png,.jpg,.jpeg,.bmp");
@@ -53,13 +53,13 @@ bool WallpaperDialog::exec()
 	}
 	if (gmenu2x->confStr["skin"] != "Default") {
 		fl.setPath("skins/Default/wallpapers",true);
-		for (uint i=0; i<fl.getFiles().size(); i++)
+		for (uint32_t i=0; i<fl.getFiles().size(); i++)
 			wallpapers.push_back(fl.getFiles()[i]);
 	}
 
 	DEBUG("Wallpapers: %i", wallpapers.size());
 
-	uint i, selected = 0, firstElement = 0, iY;
+	uint32_t i, selected = 0, firstElement = 0, iY;
 
 	while (!close) {
 		bool inputAction = gmenu2x->input.update();
@@ -135,7 +135,7 @@ bool WallpaperDialog::exec()
 		}
 	}
 
-	for (uint i = 0; i < wallpapers.size(); i++)
+	for (uint32_t i = 0; i < wallpapers.size(); i++)
 		if (i < wallpapers.size() - fl.getFiles().size())
 			gmenu2x->sc.del("skins/" + gmenu2x->confStr["skin"] + "/wallpapers/" + wallpapers[i]);
 		else

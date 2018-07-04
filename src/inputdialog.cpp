@@ -138,10 +138,10 @@ bool InputDialog::exec() {
 
 	SDL_Rect box = {0, 60, 0, gmenu2x->font->getHeight() + 4};
 
-	Uint32 caretTick = 0, curTick;
+	uint32_t caretTick = 0, curTick;
 	bool caretOn = true;
 
-	uint action;
+	uint32_t action;
 	close = false;
 	ok = true;
 
@@ -248,7 +248,7 @@ void InputDialog::confirm() {
 	} else {
 		bool utf8;
 		int xc=0;
-		for (uint x = 0; x < kb->at(selRow).length(); x++) {
+		for (uint32_t x = 0; x < kb->at(selRow).length(); x++) {
 			utf8 = gmenu2x->font->utf8Code(kb->at(selRow)[x]);
 			if (xc == selCol) input += kb->at(selRow).substr(x, utf8 ? 2 : 1);
 			if (utf8) x++;
@@ -283,11 +283,11 @@ int InputDialog::drawVirtualKeyboard() {
 	}
 
 	//keys
-	for (uint l = 0; l < kb->size(); l++) {
+	for (uint32_t l = 0; l < kb->size(); l++) {
 		string line = kb->at(l);
-		for (uint x = 0, xc = 0; x < line.length(); x++) {
+		for (uint32_t x = 0, xc = 0; x < line.length(); x++) {
 			string charX;
-			//utf8 characters
+			// utf8 characters
 			if (gmenu2x->font->utf8Code(line[x])) {
 				charX = line.substr(x,2);
 				x++;

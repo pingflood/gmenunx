@@ -41,7 +41,7 @@ using std::string;
 
 typedef struct {
 	int type;
-	uint num;
+	uint32_t num;
 	int value;
 	int treshold;
 } InputMap;
@@ -76,8 +76,8 @@ private:
 	vector <SDL_Joystick*> joysticks;
 	vector <InputManagerAction> actions;
 
-	static Uint32 checkRepeat(Uint32 interval, void *_data);
-	static Uint32 wakeUp(Uint32 interval, void *_data);
+	static uint32_t checkRepeat(uint32_t interval, void *_data);
+	static uint32_t wakeUp(uint32_t interval, void *_data);
 	SDL_Event *fakeEventForAction(int action);
 
 	const char konami[10] = {UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, CANCEL, CONFIRM}; // eegg

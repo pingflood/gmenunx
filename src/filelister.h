@@ -37,13 +37,13 @@ public:
 	FileLister(const string &startPath = "/mnt/sd", bool showDirectories = true, bool showFiles = true);
 	void browse();
 
-	unsigned int size();
-	unsigned int dirCount();
-	unsigned int fileCount();
-	string operator[](unsigned int);
-	string at(unsigned int);
-	bool isFile(unsigned int);
-	bool isDirectory(unsigned int);
+	uint32_t size();
+	uint32_t dirCount();
+	uint32_t fileCount();
+	string operator[](uint32_t);
+	string at(uint32_t);
+	bool isFile(uint32_t);
+	bool isDirectory(uint32_t);
 
 	const string &getPath();
 	void setPath(const string &path, bool doBrowse=true);

@@ -41,7 +41,7 @@ SettingsDialog::SettingsDialog(
 }
 
 SettingsDialog::~SettingsDialog() {
-	for (uint i=0; i<voices.size(); i++)
+	for (uint32_t i=0; i<voices.size(); i++)
 		delete voices[i];
 }
 
@@ -49,7 +49,7 @@ bool SettingsDialog::exec() {
 	// gmenu2x->initBG();
 
 	bool close = false, ts_pressed = false;
-	uint i, sel = 0, iY, firstElement = 0, action;
+	uint32_t i, sel = 0, iY, firstElement = 0, action;
 	voices[sel]->adjustInput();
 
 	while (!close) {
@@ -57,8 +57,8 @@ bool SettingsDialog::exec() {
 		gmenu2x->font->setSize(gmenu2x->skinConfInt["fontSize"])->setColor(gmenu2x->skinConfColors[COLOR_FONT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_OUTLINE]);
 		gmenu2x->titlefont->setSize(gmenu2x->skinConfInt["fontSizeTitle"])->setColor(gmenu2x->skinConfColors[COLOR_FONT_ALT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 
-		uint rowHeight = gmenu2x->font->getHeight();
-		uint numRows = gmenu2x->listRect.h/rowHeight;
+		uint32_t rowHeight = gmenu2x->font->getHeight();
+		uint32_t numRows = gmenu2x->listRect.h/rowHeight;
 
 		this->bg->blit(gmenu2x->s,0,0);
 
@@ -139,7 +139,7 @@ void SettingsDialog::addSetting(MenuSetting* set) {
 
 bool SettingsDialog::edited() {
 	// WARNING("EDITED!!");
-	for (uint i=0; i<voices.size(); i++)
+	for (uint32_t i=0; i<voices.size(); i++)
 		if (voices[i]->edited()) return true;
 	return false;
 }

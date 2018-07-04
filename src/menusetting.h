@@ -43,7 +43,7 @@ public:
 	virtual void draw(int y);
 	virtual void handleTS();
 
-	virtual uint manageInput() = 0;
+	virtual uint32_t manageInput() = 0;
 	virtual void adjustInput();
 	virtual void drawSelected(int y);
 	virtual bool edited() = 0;

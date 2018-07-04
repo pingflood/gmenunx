@@ -45,7 +45,7 @@ protected:
 	}
 
 	FileLister *fl;
-	unsigned int selected;
+	uint32_t selected;
 
 private:
 	enum Action {
@@ -68,8 +68,8 @@ private:
 	// SDL_Rect clipRect;
 	// SDL_Rect touchRect;
 
-	unsigned int numRows;
-	unsigned int rowHeight;
+	uint32_t numRows;
+	uint32_t rowHeight;
 
 	bool ts_pressed;
 

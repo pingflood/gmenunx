@@ -33,7 +33,7 @@
 #include <sys/statvfs.h>
 #include <errno.h>
 
-#include <sys/fcntl.h> //for battery
+// #include <sys/fcntl.h> //for battery
 
 //for browsing the filesystem
 #include <sys/stat.h>
@@ -107,7 +107,7 @@ static const char *colorNames[NUM_COLORS] = {
 };
 
 static enum color stringToColor(const string &name) {
-	for (unsigned int i = 0; i < NUM_COLORS; i++) {
+	for (uint32_t i = 0; i < NUM_COLORS; i++) {
 		if (strcmp(colorNames[i], name.c_str()) == 0) {
 			return (enum color)i;
 		}
@@ -119,7 +119,7 @@ static const char *colorToString(enum color c) {
 	return colorNames[c];
 }
 
-char *ms2hms(unsigned long t, bool mm = true, bool ss = true) {
+char *ms2hms(uint32_t t, bool mm = true, bool ss = true) {
 	static char buf[10];
 
 	t = t / 1000;
@@ -149,16 +149,16 @@ static void quit_all(int err) {
 
 int memdev = 0;
 #ifdef TARGET_RS97
-	volatile unsigned long *memregs;
+	volatile uint32_t *memregs;
 #else
-	volatile unsigned short *memregs;
+	volatile uint16_t *memregs;
 #endif
 
 enum mmc_status {
 	MMC_REMOVE, MMC_INSERT, MMC_ERROR
 };
 
-short int getMMCStatus(void) {
+int16_t getMMCStatus(void) {
 	if (memdev > 0) return !(memregs[0x10500 >> 2] >> 0 & 0b1);
 	return MMC_ERROR;
 }
@@ -168,13 +168,13 @@ enum udc_status {
 };
 
 int udcConnectedOnBoot;
-short int getUDCStatus(void) {
+int16_t getUDCStatus(void) {
 	if (memdev > 0) return (memregs[0x10300 >> 2] >> 7 & 0b1);
 	return UDC_ERROR;
 }
 
-short int tvOutPrev, tvOutConnected, tvOutToggle = 0;
-short int curMMCStatus, preMMCStatus, MMCToggle = MMC_REMOVE;
+int16_t tvOutPrev, tvOutConnected, tvOutToggle = 0;
+int16_t curMMCStatus, preMMCStatus, MMCToggle = MMC_REMOVE;
 
 bool getTVOutStatus() {
 	if (memdev > 0) return !(memregs[0x10300 >> 2] >> 25 & 0b1);
@@ -379,17 +379,14 @@ GMenu2X::GMenu2X() {
 
 void GMenu2X::main() {
 	pthread_t thread_id;
-	// uint linksPerPage = linkColumns*linkRows;
-	// int linkSpacingX = (resX-10 - linkColumns*(resX - skinConfInt["sectionBarX"]))/linkColumns;
-	// int linkSpacingY = (resY-35 - skinConfInt["sectionBarY"] - linkRows*skinConfInt["sectionBarHeight"])/linkRows;
-	uint sectionLinkPadding = 4; //max(skinConfInt["sectionBarHeight"] - 32 - font->getHeight(), 0) / 3;
+	uint32_t sectionLinkPadding = 4;
 
 	bool quit = false;
 	int i = 0, x = 0, y = 0, ix = 0, iy = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
 	int linkWidth = linksRect.w/linkColumns - 2 * sectionLinkPadding;
 	int linkHeight = linksRect.h/linkRows - 2 * sectionLinkPadding;
 
-	Uint32 tickBattery = -4800, tickNow, tickMMC = 0; //, tickUSB = 0;
+	uint32_t tickBattery = -4800, tickNow, tickMMC = 0; //, tickUSB = 0;
 
 	string batteryIcon = "imgs/battery/3.png"; //, backlightIcon = "imgs/backlight.png";
 	string prevBackdrop = confStr["wallpaper"], currBackdrop = confStr["wallpaper"];
@@ -455,7 +452,7 @@ void GMenu2X::main() {
 				// s->setClipRect({ix, iy, linkWidth, linkHeight});
 				menu->sectionLinks()->at(i)->setPosition(x,y);
 
-				if (i == (uint)menu->selLinkIndex())
+				if (i == (uint32_t)menu->selLinkIndex())
 					s->box(ix, iy, linksRect.w, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 
 				// sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, ix + sectionLinkPadding, iy + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, linkHeight - 2 * sectionLinkPadding);
@@ -476,7 +473,7 @@ void GMenu2X::main() {
 		
 					menu->sectionLinks()->at(i)->setPosition(x,y);
 		
-					if (i == (uint)menu->selLinkIndex())
+					if (i == (uint32_t)menu->selLinkIndex())
 						s->box(ix, iy, linkWidth, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 		
 					// sc[menu->sectionLinks()->at(i)->getIconPath()]->blitCenter(s, ix + linkWidth/2, iy + linkHeight/2, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding);
@@ -523,7 +520,7 @@ void GMenu2X::main() {
 			if (tickNow - tickBattery >= 5000) {
 				// TODO: move to hwCheck
 				tickBattery = tickNow;
-				unsigned short battlevel = getBatteryLevel();
+				uint16_t battlevel = getBatteryLevel();
 				if (battlevel > 5) {
 					batteryIcon = "imgs/battery/ac.png";
 				} else {
@@ -759,12 +756,12 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 #endif
 		}
 	}
-	
+
 	input[MENU] = wasActive; // Key was active but no combo was pressed
 
 	if ( input[BACKLIGHT] ) {
 		setBacklight(confInt["backlight"], true);
-		return true; 
+		return true;
 	}
 
 	return false;
@@ -778,7 +775,7 @@ void GMenu2X::hwInit() {
 
 	if (memdev > 0) {
 #if defined(TARGET_GP2X)
-		memregs = (unsigned short*)mmap(0, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
+		memregs = (uint16_t*)mmap(0, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
 		MEM_REG = &memregs[0];
 
 		//Fix tv-out
@@ -790,9 +787,9 @@ void GMenu2X::hwInit() {
 		memregs[0x28E8 >> 1] = 239;
 
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-		memregs = (unsigned short*)mmap(0, 0x20000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
+		memregs = (uint16_t*)mmap(0, 0x20000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
 #elif defined(TARGET_RS97)
-		memregs = (unsigned long*)mmap(0, 0x20000, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
+		memregs = (uint32_t*)mmap(0, 0x20000, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
 #endif
 		if (memregs == MAP_FAILED) {
 			ERROR("Could not mmap hardware registers!");
@@ -899,7 +896,7 @@ void GMenu2X::initMenu() {
 	// ERROR("SECTION INDEX: %d", iii);
 	// menu->addActionLink(iii, tr["Umount Test"], MakeDelegate(this, &GMenu2X::explorer), tr["Umount external SD"], "skin:icons/eject.png");
 
-	for (uint i = 0; i < menu->getSections().size(); i++) {
+	for (uint32_t i = 0; i < menu->getSections().size(); i++) {
 		//Add virtual links in the applications section
 		if (menu->getSections()[i] == "applications") {
 			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Launch an application"], "skin:icons/explorer.png");
@@ -1290,7 +1287,7 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 	// linkRows = resY / skinConfInt["linkItemHeight"];
 
 	// WIP
-	linkColumns = 4;
+	linkColumns = 1;
 	linkRows = 4;
 
 	if (menu != NULL && clearSC) menu->loadIcons();
@@ -1299,7 +1296,7 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 	initFont();
 }
 
-uint GMenu2X::onChangeSkin() {
+uint32_t GMenu2X::onChangeSkin() {
 	return 1;
 }
 
@@ -1355,7 +1352,7 @@ void GMenu2X::about() {
 	string temp, batt;
 
 	char *hms = ms2hms(SDL_GetTicks());
-	long battlevel = getBatteryStatus();
+	int32_t battlevel = getBatteryStatus();
 
 	stringstream ss; ss << battlevel; ss >> batt;
 
@@ -1611,9 +1608,9 @@ void GMenu2X::setDateTime() {
 
 bool GMenu2X::saveScreenshot() {
 	ledOn();
-	uint x = 0;
+	uint32_t x = 0;
 	string fname;
-	
+
 	mkdir("screenshots/", 0777);
 
 	do {
@@ -1773,7 +1770,7 @@ void GMenu2X::contextMenu() {
 	Surface bg(s);
 	bool close = false;
 	int sel = 0;
-	uint i, fadeAlpha = 0, h = font->getHeight(), h2 = font->getHalfHeight();
+	uint32_t i, fadeAlpha = 0, h = font->getHeight(), h2 = font->getHalfHeight();
 
 	SDL_Rect box;
 	box.h = h * voices.size() + 8;
@@ -1786,11 +1783,8 @@ void GMenu2X::contextMenu() {
 	box.x = halfX - box.w / 2;
 	box.y = halfY - box.h / 2;
 
-	SDL_Rect selbox = {box.x + 4, 0, box.w - 8, h};
-	Uint32 tickStart = SDL_GetTicks();
-
+	uint32_t tickStart = SDL_GetTicks();
 	input.setWakeUpInterval(45);
-
 	while (!close) {
 		bg.blit(s, 0, 0);
 
@@ -1928,7 +1922,7 @@ void GMenu2X::editLink() {
 			vector<string>::const_iterator newSectionIndex = find(menu->getSections().begin(), menu->getSections().end(), newSection);
 			if (newSectionIndex == menu->getSections().end()) return;
 			string newFileName = "sections/" + newSection + "/" + linkTitle;
-			uint x = 2;
+			uint32_t x = 2;
 			while (fileExists(newFileName)) {
 				string id = "";
 				stringstream ss; ss << x; ss >> id;
@@ -2023,7 +2017,7 @@ void GMenu2X::deleteSection() {
 	}
 }
 
-long GMenu2X::getBatteryStatus() {
+int32_t GMenu2X::getBatteryStatus() {
 	char buf[32] = "-1";
 #if defined(TARGET_RS97)
 	FILE *f = fopen("/proc/jz/battery", "r");
@@ -2035,8 +2029,8 @@ long GMenu2X::getBatteryStatus() {
 	return atol(buf);
 }
 
-unsigned short GMenu2X::getBatteryLevel() {
-	long val = getBatteryStatus();
+uint16_t GMenu2X::getBatteryLevel() {
+	int32_t val = getBatteryStatus();
 
 if (confStr["batteryType"] == "BL-5B") {
 	if ((val > 10000) || (val < 0)) return 6;
@@ -2061,7 +2055,7 @@ if (confStr["batteryType"] == "BL-5B") {
 		return 6;
 	} else {
 		int battval = 0;
-		unsigned short cbv, min=900, max=0;
+		uint16_t cbv, min=900, max=0;
 
 		for (int i = 0; i < BATTERY_READS; i ++) {
 			if ( read(batteryHandle, &cbv, 2) == 2) {
@@ -2083,7 +2077,7 @@ if (confStr["batteryType"] == "BL-5B") {
 	}
 
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	unsigned short cbv;
+	uint16_t cbv;
 	if ( read(batteryHandle, &cbv, 2) == 2) {
 		// 0=fail, 1=100%, 2=66%, 3=33%, 4=0%
 		switch (cbv) {
@@ -2099,8 +2093,8 @@ if (confStr["batteryType"] == "BL-5B") {
 	val = constrain(val, 0, 4500);
 
 	bool needWriteConfig = false;
-	long max = confInt["maxBattery"];
-	long min = confInt["minBattery"];
+	int32_t max = confInt["maxBattery"];
+	int32_t min = confInt["minBattery"];
 
 	if (val > max) {
 		needWriteConfig = true;
@@ -2141,14 +2135,13 @@ void GMenu2X::setInputSpeed() {
 	input.setInterval(1500, POWER);
 }
 
-void GMenu2X::setCPU(unsigned int mhz) {
+void GMenu2X::setCPU(uint32_t mhz) {
 	// mhz = constrain(mhz, CPU_CLK_MIN, CPU_CLK_MAX);
 	if (memdev > 0) {
 		DEBUG("Setting clock to %d", mhz);
 
 #if defined(TARGET_GP2X)
-		unsigned v;
-		unsigned mdiv, pdiv=3, scale=0;
+		uint32_t v, mdiv, pdiv=3, scale=0;
 
 		#define SYS_CLK_FREQ 7372800
 		mhz *= 1000000;
@@ -2160,9 +2153,9 @@ void GMenu2X::setCPU(unsigned int mhz) {
 		MEM_REG[0x910>>1] = v;
 
 #elif defined(TARGET_CAANOO) || defined(TARGET_WIZ)
-		volatile unsigned int *memregl = static_cast<volatile unsigned int*>((volatile void*)memregs);
+		volatile uint32_t *memregl = static_cast<volatile uint32_t*>((volatile void*)memregs);
 		int mdiv, pdiv = 9, sdiv = 0;
-		unsigned long v;
+		uint32_t v;
 
 		#define SYS_CLK_FREQ 27
 		#define PLLSETREG0   (memregl[0xF004>>2])
@@ -2176,7 +2169,7 @@ void GMenu2X::setCPU(unsigned int mhz) {
 		for (int i = 0; (PWRMODE & 0x8000) && i < 0x100000; i++);
 
 #elif defined(TARGET_RS97)
-		unsigned long m = mhz / 6;
+		uint32_t m = mhz / 6;
 		memregs[0x10 >> 2] = (m << 24) | 0x090520;
 		INFO("Set CPU clock: %d", mhz);
 #endif
@@ -2186,7 +2179,7 @@ void GMenu2X::setCPU(unsigned int mhz) {
 
 int GMenu2X::getVolume() {
 	int vol = -1;
-	unsigned long soundDev = open("/dev/mixer", O_RDONLY);
+	uint32_t soundDev = open("/dev/mixer", O_RDONLY);
 
 	if (soundDev) {
 #if defined(TARGET_RS97)
@@ -2241,7 +2234,7 @@ int GMenu2X::setVolume(int val, bool popup) {
 		writeConfig();
 	}
 
-	unsigned long soundDev = open("/dev/mixer", O_RDWR);
+	uint32_t soundDev = open("/dev/mixer", O_RDWR);
 	if (soundDev) {
 		int vol = (val << 8) | val;
 #if defined(TARGET_RS97)
@@ -2345,17 +2338,17 @@ string GMenu2X::getDiskFree(const char *path) {
 
 	if (statvfs(path, &b) == 0) {
 		// Make sure that the multiplication happens in 64 bits.
-		unsigned long freeMiB = ((unsigned long long)b.f_bfree * b.f_bsize) / (1024 * 1024);
-		unsigned long totalMiB = ((unsigned long long)b.f_blocks * b.f_frsize) / (1024 * 1024);
+		uint32_t freeMiB = ((uint64_t)b.f_bfree * b.f_bsize) / (1024 * 1024);
+		uint32_t totalMiB = ((uint64_t)b.f_blocks * b.f_frsize) / (1024 * 1024);
 		stringstream ss;
 		if (totalMiB >= 10000) {
-			ss << (freeMiB / 1024) << "." << ((freeMiB % 1024) * 10) / 1024 << "/"
-			   << (totalMiB / 1024) << "." << ((totalMiB % 1024) * 10) / 1024 << "GiB";
+			ss	<< (freeMiB / 1024) << "." << ((freeMiB % 1024) * 10) / 1024 << "/"
+				<< (totalMiB / 1024) << "." << ((totalMiB % 1024) * 10) / 1024 << "GiB";
 		} else {
-			ss << freeMiB << "/" << totalMiB << "MiB";
+			ss	<< freeMiB << "/" << totalMiB << "MiB";
 		}
 		ss >> df;
-	} else WARNING("statvfs failed with error '%s'.\n", strerror(errno));
+	} else WARNING("statvfs failed with error '%s'", strerror(errno));
 	return df;
 }
 
@@ -2395,14 +2388,14 @@ int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, 
 	return x - 6;
 }
 
-void GMenu2X::drawScrollBar(uint pagesize, uint totalsize, uint pagepos, SDL_Rect scrollRect) {
+void GMenu2X::drawScrollBar(uint32_t pagesize, uint32_t totalsize, uint32_t pagepos, SDL_Rect scrollRect) {
 	if (totalsize <= pagesize) return;
 
 	//internal bar total height = height-2
 	//bar size
-	uint bs = (scrollRect.h - 4) * pagesize / totalsize;
+	uint32_t bs = (scrollRect.h - 4) * pagesize / totalsize;
 	//bar y position
-	uint by = (scrollRect.h - 4) * pagepos / totalsize;
+	uint32_t by = (scrollRect.h - 4) * pagepos / totalsize;
 	by = scrollRect.y + 4 + by;
 	if ( by + bs > scrollRect.y + scrollRect.h - 4) by = scrollRect.y + scrollRect.h - 4 - bs;
 
@@ -2437,7 +2430,7 @@ void GMenu2X::gp2x_tvout_on(bool pal) {
 		//if tv-out is enabled without cx25874 open, stop
 		//if (memregs[0x2800 >> 1]&0x100) return;
 		cx25874 = open("/dev/cx25874",O_RDWR);
-		ioctl(cx25874, _IOW('v', 0x02, unsigned char), pal ? 4 : 3);
+		ioctl(cx25874, _IOW('v', 0x02, uint8_t), pal ? 4 : 3);
 		memregs[0x2906 >> 1] = 512;
 		memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
 		memregs[0x28E8 >> 1] = 239;
@@ -2588,8 +2581,8 @@ void GMenu2X::setGamma(int gamma) {
 	MEM_REG[0x295C>>1] = 0;
 
 	for (int i = 0; i < 256; i++) {
-		unsigned char g = (unsigned char)(255.0*pow(i/255.0,fgamma));
-		unsigned short s = (g << 8) | g;
+		uint8_t g = (uint8_t)(255.0*pow(i/255.0,fgamma));
+		uint16_t s = (g << 8) | g;
 		MEM_REG[0x295E >> 1] = s;
 		MEM_REG[0x295E >> 1] = g;
 	}
@@ -2597,7 +2590,7 @@ void GMenu2X::setGamma(int gamma) {
 
 void GMenu2X::setVolumeScaler(int scale) {
 	scale = constrain(scale,0,MAX_VOLUME_SCALE_FACTOR);
-	unsigned long soundDev = open("/dev/mixer", O_WRONLY);
+	uint32_t soundDev = open("/dev/mixer", O_WRONLY);
 	if (soundDev) {
 		ioctl(soundDev, SOUND_MIXER_PRIVATE2, &scale);
 		close(soundDev);
@@ -2606,7 +2599,7 @@ void GMenu2X::setVolumeScaler(int scale) {
 
 int GMenu2X::getVolumeScaler() {
 	int currentscalefactor = -1;
-	unsigned long soundDev = open("/dev/mixer", O_RDONLY);
+	uint32_t soundDev = open("/dev/mixer", O_RDONLY);
 	if (soundDev) {
 		ioctl(soundDev, SOUND_MIXER_PRIVATE1, &currentscalefactor);
 		close(soundDev);

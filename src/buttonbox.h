@@ -2,6 +2,7 @@
 #define __BUTTONBOX_H__
 
 #include <vector>
+#include <cstdint>
 
 class GMenu2X;
 class Button;
@@ -14,7 +15,7 @@ public:
 
 	void add(Button *button);
 
-	void paint(unsigned int posX);
+	void paint(uint32_t posX);
 	void handleTS();
 private:
 	typedef std::vector<Button*> ButtonList;

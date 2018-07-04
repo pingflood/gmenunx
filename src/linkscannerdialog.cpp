@@ -15,7 +15,7 @@ void LinkScannerDialog::exec() {
 	bool close = false;
 	string str = "";
 	stringstream ss;
-	uint lineY = gmenu2x->listRect.y;
+	uint32_t lineY = gmenu2x->listRect.y;
 	vector<string> files;
 
 	drawTopBar(this->bg, title, description, icon);
@@ -62,7 +62,7 @@ void LinkScannerDialog::exec() {
 
 		string path, file;
 		string::size_type pos;
-		uint linkCount = 0;
+		uint32_t linkCount = 0;
 
 		// ledOn();
 		for (size_t i = 0; i < files.size(); ++i) {

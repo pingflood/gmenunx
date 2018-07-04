@@ -66,7 +66,7 @@ Surface::Surface(const string &img, const string &skin, bool alpha) {
 	halfH = raw->h/2;
 }
 
-Surface::Surface(SDL_Surface *s, SDL_PixelFormat *fmt, Uint32 flags) {
+Surface::Surface(SDL_Surface *s, SDL_PixelFormat *fmt, uint32_t flags) {
 	dblbuffer = NULL;
 	this->operator =(s);
 	if (fmt != NULL || flags != 0) {
@@ -81,9 +81,9 @@ Surface::Surface(Surface *s) {
 	this->operator =(s->raw);
 }
 
-Surface::Surface(int w, int h, Uint32 flags) {
+Surface::Surface(int w, int h, uint32_t flags) {
 	dblbuffer = NULL;
-	Uint32 rmask, gmask, bmask, amask;
+	uint32_t rmask, gmask, bmask, amask;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	rmask = 0xff000000;
 	gmask = 0x00ff0000;
@@ -187,14 +187,14 @@ void Surface::flip() {
 }
 
 void Surface::putPixel(int x, int y, RGBAColor color) {
-	putPixel(x,y, SDL_MapRGBA( raw->format , color.r , color.g , color.b, color.a ));
+	putPixel(x,y, SDL_MapRGBA(raw->format, color.r, color.g, color.b, color.a));
 }
 
-void Surface::putPixel(int x, int y, Uint32 color) {
+void Surface::putPixel(int x, int y, uint32_t color) {
 	//determine position
-	char* pPosition = ( char* ) raw->pixels ;
+	char* pPosition = (char*) raw->pixels;
 	//offset by y
-	pPosition += ( raw->pitch * y ) ;
+	pPosition += (raw->pitch * y);
 	//offset by x
 	pPosition += ( raw->format->BytesPerPixel * x ) ;
 	//copy pixel data
@@ -203,12 +203,12 @@ void Surface::putPixel(int x, int y, Uint32 color) {
 
 RGBAColor Surface::pixelColor(int x, int y) {
 	RGBAColor color;
-	Uint32 col = pixel(x,y);
+	uint32_t col = pixel(x,y);
 	SDL_GetRGBA( col, raw->format, &color.r, &color.g, &color.b, &color.a );
 	return color;
 }
 
-Uint32 Surface::pixel(int x, int y) {
+uint32_t Surface::pixel(int x, int y) {
 	//determine position
 	char* pPosition = ( char* ) raw->pixels ;
 	//offset by y
@@ -216,28 +216,28 @@ Uint32 Surface::pixel(int x, int y) {
 	//offset by x
 	pPosition += ( raw->format->BytesPerPixel * x ) ;
 	//copy pixel data
-	Uint32 col = 0;
+	uint32_t col = 0;
 	memcpy ( &col , pPosition , raw->format->BytesPerPixel ) ;
 	return col;
 }
 
 void Surface::blendAdd(Surface *target, int x, int y) {
 	RGBAColor targetcol, blendcol;
-	for (int iy=0; iy<raw->h; iy++)
-		if (iy+y >= 0 && iy+y < target->raw->h)
-			for (int ix=0; ix<raw->w; ix++) {
-				if (ix+x >= 0 && ix+x < target->raw->w) {
+	for (int iy = 0; iy < raw->h; iy++)
+		if (iy + y >= 0 && iy + y < target->raw->h)
+			for (int ix = 0; ix < raw->w; ix++) {
+				if (ix + x >= 0 && ix + x < target->raw->w) {
 					blendcol = pixelColor(ix,iy);
-					targetcol = target->pixelColor(ix+x,iy+y);
-					targetcol.r = min(targetcol.r+blendcol.r, 255);
-					targetcol.g = min(targetcol.g+blendcol.g, 255);
-					targetcol.b = min(targetcol.b+blendcol.b, 255);
-					target->putPixel(ix+x,iy+y,targetcol);
+					targetcol = target->pixelColor(ix + x, iy + y);
+					targetcol.r = min(targetcol.r + blendcol.r, 255);
+					targetcol.g = min(targetcol.g + blendcol.g, 255);
+					targetcol.b = min(targetcol.b + blendcol.b, 255);
+					target->putPixel(ix + x, iy + y, targetcol);
 				}
 			}
 
 /*
-	Uint32 bcol, tcol;
+	uint32_t bcol, tcol;
 	char *pPos, *tpPos;
 	for (int iy=0; iy<raw->h; iy++)
 		if (iy+y >= 0 && iy+y < target->raw->h) {
@@ -256,10 +256,11 @@ void Surface::blendAdd(Surface *target, int x, int y) {
 */
 }
 
-void Surface::write(FontHelper *font, const string &text, int x, int y, const Uint8 align) {
+void Surface::write(FontHelper *font, const string &text, int x, int y, const uint8_t align) {
 	font->write(this, text, x, y, align);
 }
-void Surface::write(FontHelper *font, const string &text, int x, int y, const Uint8 align, RGBAColor fgColor, RGBAColor bgColor) {
+
+void Surface::write(FontHelper *font, const string &text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor) {
 	font->write(this, text, x, y, align, fgColor, bgColor);
 }
 
@@ -274,49 +275,49 @@ void Surface::operator = (Surface *s) {
 	this->operator =(s->raw);
 }
 
-int Surface::box(Sint16 x, Sint16 y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+int Surface::box(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	return boxRGBA(raw,x,y,x+w-1,y+h-1,r,g,b,a);
 }
-int Surface::box(SDL_Rect re, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+int Surface::box(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	return boxRGBA(raw,re.x,re.y,re.x+re.w-1,re.y+re.h-1,r,g,b,a);
 }
-int Surface::box(SDL_Rect re, Uint8 r, Uint8 g, Uint8 b) {
+int Surface::box(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b) {
 	return SDL_FillRect(raw, &re, SDL_MapRGBA(format(),r,g,b,255));
 }
-int Surface::box(Sint16 x, Sint16 y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b) {
+int Surface::box(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b) {
 	SDL_Rect re = {x,y,w,h};
 	return box(re,r,g,b);
 }
-int Surface::box(Sint16 x, Sint16 y, Sint16 w, Sint16 h, RGBAColor c) {
+int Surface::box(int16_t x, int16_t y, int16_t w, int16_t h, RGBAColor c) {
 	return box(x,y,w,h,c.r,c.g,c.b,c.a);
 }
 int Surface::box(SDL_Rect re, RGBAColor c) {
 	return box(re,c.r,c.g,c.b,c.a);
 }
 
-int Surface::rectangle(Sint16 x, Sint16 y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+int Surface::rectangle(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	return rectangleRGBA(raw,x,y,x+w-1,y+h-1,r,g,b,a);
 }
-int Surface::rectangle(SDL_Rect re, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+int Surface::rectangle(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	return rectangleRGBA(raw,re.x,re.y,re.x+re.w-1,re.y+re.h-1,r,g,b,a);
 }
-int Surface::rectangle(Sint16 x, Sint16 y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b) {
+int Surface::rectangle(int16_t x, int16_t y, int16_t w, int16_t h, uint8_t r, uint8_t g, uint8_t b) {
 	return rectangleColor(raw, x,y,x+w-1,y+h-1, SDL_MapRGBA(format(),r,g,b,255));
 }
-int Surface::rectangle(SDL_Rect re, Uint8 r, Uint8 g, Uint8 b) {
+int Surface::rectangle(SDL_Rect re, uint8_t r, uint8_t g, uint8_t b) {
 	return rectangleColor(raw, re.x,re.y,re.x+re.w-1,re.y+re.h-1, SDL_MapRGBA(format(),r,g,b,255));
 }
-int Surface::rectangle(Sint16 x, Sint16 y, Sint16 w, Sint16 h, RGBAColor c) {
+int Surface::rectangle(int16_t x, int16_t y, int16_t w, int16_t h, RGBAColor c) {
 	return rectangle(x,y,w,h,c.r,c.g,c.b,c.a);
 }
 int Surface::rectangle(SDL_Rect re, RGBAColor c) {
 	return rectangle(re.x,re.y,re.w,re.h,c.r,c.g,c.b,c.a);
 }
 
-int Surface::hline(Sint16 x, Sint16 y, Sint16 w, Uint8 r, Uint8 g, Uint8 b, Uint8 a) {
+int Surface::hline(int16_t x, int16_t y, int16_t w, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 	return hlineRGBA(raw,x,x+w-1,y,r,g,b,a);
 }
-int Surface::hline(Sint16 x, Sint16 y, Sint16 w, RGBAColor c) {
+int Surface::hline(int16_t x, int16_t y, int16_t w, RGBAColor c) {
 	return hline(x,y,w-1,c.r,c.g,c.b,c.a);
 }
 
@@ -354,7 +355,7 @@ void Surface::setClipRect(SDL_Rect rect) {
 // }
 
 
-// bool Surface::blit(Surface *destination, SDL_Rect container, const unsigned short halign, const unsigned short valign) {
+// bool Surface::blit(Surface *destination, SDL_Rect container, const uint16_t halign, const uint16_t valign) {
 // 	switch (halign) {
 // 	case HAlignCenter:
 // 		container.x += container.w/2-halfW;
@@ -393,7 +394,7 @@ void Surface::setClipRect(SDL_Rect rect) {
 // }
 
 
-bool Surface::blit(Surface *destination, int x, int y, const Uint8 align, Uint8 alpha) {
+bool Surface::blit(Surface *destination, int x, int y, const uint8_t align, uint8_t alpha) {
 	if (align & HAlignCenter) {
 		x -= raw->w / 2;
 	} else if (align & HAlignRight) {
@@ -409,7 +410,7 @@ bool Surface::blit(Surface *destination, int x, int y, const Uint8 align, Uint8 
 	return blit(destination, {x, y, raw->w, raw->h}, HAlignLeft | VAlignTop, alpha);
 }
 
-bool Surface::blit(Surface *destination, SDL_Rect destrect, const Uint8 align, Uint8 alpha) {
+bool Surface::blit(Surface *destination, SDL_Rect destrect, const uint8_t align, uint8_t alpha) {
 	if (destination->raw == NULL || alpha == 0) return false;
 
 	SDL_Rect srcrect = {0, 0, destrect.w, destrect.h};

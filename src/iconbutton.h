@@ -14,7 +14,7 @@ protected:
 	GMenu2X *gmenu2x;
 	string icon, label;
 	int labelPosition, labelMargin;
-	unsigned short labelHAlign, labelVAlign;
+	uint16_t labelHAlign, labelVAlign;
 	void recalcSize();
 	SDL_Rect iconRect, labelRect;
 

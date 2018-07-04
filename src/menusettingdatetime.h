@@ -28,7 +28,7 @@ class GMenu2X;
 class MenuSettingDateTime : public MenuSetting {
 
 private:
-	unsigned short selPart;
+	uint16_t selPart;
 	int y;
 	std::string month, day, year, hour, minute, *_value, originalValue;
 	int imonth, iday, iyear, ihour, iminute;
@@ -43,18 +43,18 @@ public:
 	virtual ~MenuSettingDateTime() {};
 
 	virtual void draw(int y);
-	virtual uint manageInput();
+	virtual uint32_t manageInput();
 	// virtual void adjustInput();
 	virtual void drawSelected(int y);
 	virtual bool edited();
 
-	void setSelPart(unsigned short int i);
-	void setYear(short int i);
-	void setMonth(short int i);
-	void setDay(short int i);
-	void setHour(short int i);
-	void setMinute(short int i);
-	unsigned short int getSelPart();
+	void setSelPart(uint16_t i);
+	void setYear(int16_t i);
+	void setMonth(int16_t i);
+	void setDay(int16_t i);
+	void setHour(int16_t i);
+	void setMinute(int16_t i);
+	uint16_t getSelPart();
 	string value();
 };
 

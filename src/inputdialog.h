@@ -59,7 +59,7 @@ private:
 	int selRow, selCol;
 	bool close, ok;
 	string title, text, icon;
-	short curKeyboard;
+	int16_t curKeyboard;
 	vector<stringlist> keyboard;
 	stringlist *kb;
 	int kbLength, kbWidth, kbHeight, kbLeft;

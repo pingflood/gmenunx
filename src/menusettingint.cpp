@@ -61,7 +61,7 @@ void MenuSettingInt::draw(int y) {
 	gmenu2x->s->write(gmenu2x->font, strvalue, 155, y+gmenu2x->font->getHalfHeight(), VAlignMiddle);
 }
 
-uint MenuSettingInt::manageInput() {
+uint32_t MenuSettingInt::manageInput() {
 	if ( gmenu2x->input[LEFT ] ) dec();
 	if ( gmenu2x->input[RIGHT] ) inc();
 	if ( gmenu2x->input[DEC] ) setValue(value() - 10 * delta);

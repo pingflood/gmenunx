@@ -6,21 +6,21 @@
 
 class PowerManager {
 public:
-	PowerManager(GMenu2X *gmenu2x, unsigned int suspendTimeout, unsigned int powerTimeout);
+	PowerManager(GMenu2X *gmenu2x, uint32_t suspendTimeout, uint32_t powerTimeout);
 	~PowerManager();
-	void setSuspendTimeout(unsigned int suspendTimeout);
-	void setPowerTimeout(unsigned int powerTimeout);
+	void setSuspendTimeout(uint32_t suspendTimeout);
+	void setPowerTimeout(uint32_t powerTimeout);
 	void clearTimer();
 	void resetSuspendTimer();
 	void resetPowerTimer();
-	static Uint32 doSuspend(unsigned int interval, void *param = NULL);
-	static Uint32 doPowerOff(unsigned int interval, void *param = NULL);
+	static uint32_t doSuspend(uint32_t interval, void *param = NULL);
+	static uint32_t doPowerOff(uint32_t interval, void *param = NULL);
 	bool suspendActive;
 	SDL_TimerID powerTimer; // = NULL;
 
 private:
 	GMenu2X *gmenu2x;
-	unsigned int suspendTimeout, powerTimeout;
+	uint32_t suspendTimeout, powerTimeout;
 	static PowerManager *instance;
 };
 
