@@ -1481,7 +1481,8 @@ void GMenu2X::showManual() {
 
 void GMenu2X::explorer() {
 	FileDialog fd(this, tr["Select an application"], ".gpu,.gpe,.sh,", "", tr["Explorer"]);
-	if (fd.exec()) {
+	bool loop = true;
+	while (fd.exec() && loop) {
 		if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
 			writeConfig();
 
@@ -1490,18 +1491,26 @@ void GMenu2X::explorer() {
 			writeConfigOpen2x();
 #endif
 
-	//string command = cmdclean(fd.path()+"/"+fd.file) + "; sync & cd "+cmdclean(getExePath())+"; exec ./gmenu2x";
-		string command = cmdclean(fd.getPath() + "/" + fd.getFile());
-		chdir(fd.getPath().c_str());
-		quit();
-		setCPU(confInt["cpuMenu"]);
-		execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
+		string ext = fd.getExt();
+		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif") {
+			ImageViewerDialog im(this, "Image viewer", fd.getFile(), "icons/explorer.png", fd.getPath() + "/" + fd.getFile());
+			im.exec();
+			continue;
+		} else {
+			loop = false;
+		//string command = cmdclean(fd.path()+"/"+fd.file) + "; sync & cd "+cmdclean(getExePath())+"; exec ./gmenu2x";
+			string command = cmdclean(fd.getPath() + "/" + fd.getFile());
+			chdir(fd.getPath().c_str());
+			quit();
+			setCPU(confInt["cpuMenu"]);
+			execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 
-	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
-	//try relaunching gmenu2x
-		WARNING("Error executing selected application, re-launching gmenu2x");
-		chdir(getExePath().c_str());
-		execlp("./gmenu2x", "./gmenu2x", NULL);
+		//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
+		//try relaunching gmenu2x
+			WARNING("Error executing selected application, re-launching gmenu2x");
+			chdir(getExePath().c_str());
+			execlp("./gmenu2x", "./gmenu2x", NULL);
+		}
 	}
 }
 
@@ -1522,32 +1531,32 @@ void GMenu2X::ledOff() {
 
 void GMenu2X::hwCheck() {
 	if (memdev > 0) {
-		// INFO("\e[1;0fA: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x\e[0K",
-		// 	memregs[0x10000 >> 2], memregs[0x10010 >> 2],
-		// 	memregs[0x10100 >> 2], memregs[0x10110 >> 2],
-		// 	memregs[0x10200 >> 2], memregs[0x10210 >> 2],
-		// 	memregs[0x10300 >> 2], memregs[0x10310 >> 2],
-		// 	memregs[0x10400 >> 2], memregs[0x10410 >> 2],
-		// 	memregs[0x10500 >> 2], memregs[0x10510 >> 2]
-		// );
+		INFO("\e[1;0fA: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x\e[0K",
+			memregs[0x10000 >> 2], memregs[0x10010 >> 2],
+			memregs[0x10100 >> 2], memregs[0x10110 >> 2],
+			memregs[0x10200 >> 2], memregs[0x10210 >> 2],
+			memregs[0x10300 >> 2], memregs[0x10310 >> 2],
+			memregs[0x10400 >> 2], memregs[0x10410 >> 2],
+			memregs[0x10500 >> 2], memregs[0x10510 >> 2]
+		);
 
-		// printf("A: ");
-		// printbin(memregs[0x10000 >> 2]);
+		printf("A: ");
+		printbin(memregs[0x10000 >> 2]);
 
-		// printf("B: ");
-		// printbin(memregs[0x10100 >> 2]);
+		printf("B: ");
+		printbin(memregs[0x10100 >> 2]);
 
-		// printf("C: ");
-		// printbin(memregs[0x10200 >> 2]);
+		printf("C: ");
+		printbin(memregs[0x10200 >> 2]);
 
-		// printf("D: ");
-		// printbin(memregs[0x10300 >> 2]);
+		printf("D: ");
+		printbin(memregs[0x10300 >> 2]);
 
-		// printf("E: ");
-		// printbin(memregs[0x10400 >> 2]);
+		printf("E: ");
+		printbin(memregs[0x10400 >> 2]);
 
-		// printf("F: ");
-		// printbin(memregs[0x10500 >> 2]);
+		printf("F: ");
+		printbin(memregs[0x10500 >> 2]);
 
 		// INFO("D: 0x%x 8>0x%x 16>0x%x 24>0x%x 32>0x%x 40>0x%x 48>0x%x",
 		// 	memregs[0x10300 >> 2],

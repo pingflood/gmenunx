@@ -29,13 +29,12 @@ using std::vector;
 
 class ImageDialog : public FileDialog {
 protected:
-	SurfaceCollection previews;
+	// SurfaceCollection previews;
 public:
 	ImageDialog(GMenu2X *gmenu2x, const string &text, const string &filter="", const string &file="");
-	virtual ~ImageDialog();
-
-	virtual void beforeFileList();
-	virtual void onChangeDir();
+	// virtual ~ImageDialog();
+	// virtual void beforeFileList();
+	// virtual void onChangeDir();
 };
 
 #endif /*IMAGEDIALOG_H_*/

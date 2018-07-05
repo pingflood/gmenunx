@@ -44,16 +44,16 @@ ImageDialog::ImageDialog(GMenu2X *gmenu2x, const string &text, const string &fil
 	}
 }
 
-ImageDialog::~ImageDialog() {
-	previews.clear();
-}
+// ImageDialog::~ImageDialog() {
+// 	previews.clear();
+// }
 
-void ImageDialog::beforeFileList() {
-	if (fl->isFile(selected) && fileExists(getPath()+"/"+(*fl)[selected])) {
-		previews[getPath()+"/"+(*fl)[selected]]->blit(gmenu2x->s, gmenu2x->halfX, gmenu2x->halfY, HAlignCenter | VAlignMiddle);
-	}
-}
+// void ImageDialog::beforeFileList() {
+// 	if (fl->isFile(selected) && fileExists(getPath()+"/"+(*fl)[selected])) {
+// 		previews[getPath()+"/"+(*fl)[selected]]->blit(gmenu2x->s, gmenu2x->halfX, gmenu2x->halfY, HAlignCenter | VAlignMiddle);
+// 	}
+// }
 
-void ImageDialog::onChangeDir() {
-	previews.clear();
-}
+// void ImageDialog::onChangeDir() {
+// 	previews.clear();
+// }

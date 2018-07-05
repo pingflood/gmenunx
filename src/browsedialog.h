@@ -98,6 +98,8 @@ public:
 	std::string getFile() {
 		return (*fl)[selected];
 	}
+
+	const std::string getExt();
 };
 
 #endif /*INPUTDIALOG_H_*/

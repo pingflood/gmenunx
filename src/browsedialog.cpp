@@ -6,11 +6,14 @@
 #include "gmenu2x.h"
 #include "messagebox.h"
 
+#include "debug.h"
+#include <algorithm>
+
 using namespace fastdelegate;
 using namespace std;
 
 BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &subtitle)
-	: Dialog(gmenu2x), title(title), subtitle(subtitle), ts_pressed(false), buttonBox(gmenu2x) {
+: Dialog(gmenu2x), title(title), subtitle(subtitle), ts_pressed(false), buttonBox(gmenu2x) {
 	IconButton *btn;
 
 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/start.png", gmenu2x->tr["Exit"]);
@@ -36,9 +39,7 @@ bool BrowseDialog::exec() {
 	// gmenu2x->initBG();
 
 	// moved out of the loop to fix weird scroll behavior
-	uint32_t i, iY;
-	uint32_t firstElement=0; //, lastElement;
-	uint32_t offsetY;
+	uint32_t i, iY, firstElement = 0, offsetY, animation = 0, padding = 6;
 
 	if (!fl)
 		return false;
@@ -60,11 +61,9 @@ bool BrowseDialog::exec() {
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	// this->bg->setClipRect(gmenu2x->listRect);
+	uint32_t tickStart = SDL_GetTicks();
 
 	while (!close) {
-		handleInput();
-
-		if (gmenu2x->f200) gmenu2x->ts.poll();
 
 		this->bg->blit(gmenu2x->s, 0, 0);
 
@@ -87,13 +86,13 @@ bool BrowseDialog::exec() {
 		for (i = firstElement; i < fl->size() && i <= firstElement + numRows; i++) {
 			if (fl->isDirectory(i)) {
 				if ((*fl)[i] == "..")
-						iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2, HAlignCenter | VAlignMiddle);
-					else
-						iconFolder->blit(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2, HAlignCenter | VAlignMiddle);
-				} else{
-					iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2, HAlignCenter | VAlignMiddle);
-				}
-				gmenu2x->s->write(gmenu2x->font, (*fl)[i], gmenu2x->listRect.x + 21, offsetY + 4, VAlignMiddle);
+					iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2, HAlignCenter | VAlignMiddle);
+				else
+					iconFolder->blit(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2, HAlignCenter | VAlignMiddle);
+			} else{
+				iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, offsetY + rowHeight/2, HAlignCenter | VAlignMiddle);
+			}
+			gmenu2x->s->write(gmenu2x->font, (*fl)[i], gmenu2x->listRect.x + 21, offsetY + 4, VAlignMiddle);
 
 			if (gmenu2x->f200 && gmenu2x->ts.pressed() && gmenu2x->ts.inRect(gmenu2x->listRect.x, offsetY + 3, gmenu2x->listRect.w, rowHeight)) {
 				ts_pressed = true;
@@ -103,8 +102,108 @@ bool BrowseDialog::exec() {
 			offsetY += rowHeight;
 		}
 
+		// preview
+		string filename = fl->getPath() + "/" + getFile();
+		string ext = getExt();
+
+		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif") {
+			gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+			gmenu2x->sc[filename]->blit(gmenu2x->s, {320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["selectorX"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
+
+			if (animation < gmenu2x->skinConfInt["selectorX"]) {
+				animation = intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 110);
+				gmenu2x->s->flip();
+				gmenu2x->input.setWakeUpInterval(45);
+				continue;
+			}
+		} else {
+			if (animation > 0) {
+				gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+				animation = gmenu2x->skinConfInt["selectorX"] - intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 80);
+				gmenu2x->s->flip();
+				gmenu2x->input.setWakeUpInterval(45);
+				continue;
+			}
+		}
+		gmenu2x->input.setWakeUpInterval(1000);
+
+
 		gmenu2x->drawScrollBar(numRows, fl->size(), firstElement, gmenu2x->listRect);
 		gmenu2x->s->flip();
+
+
+		// handleInput();
+		BrowseDialog::Action action;
+
+		bool inputAction = gmenu2x->input.update();
+	// if (gmenu2x->powerManager(inputAction)) return;
+		if (gmenu2x->inputCommonActions(inputAction)) continue;
+
+		if (ts_pressed && !gmenu2x->ts.pressed()) {
+			action = BrowseDialog::ACT_SELECT;
+			ts_pressed = false;
+		} else {
+			action = getAction();
+		}
+
+		if (gmenu2x->f200 && gmenu2x->ts.pressed() && !gmenu2x->ts.inRect(gmenu2x->listRect)) ts_pressed = false;
+	// if (action == BrowseDialog::ACT_SELECT && (*fl)[selected] == "..")
+		// action = BrowseDialog::ACT_GOUP;
+		switch (action) {
+			case BrowseDialog::ACT_CLOSE:
+			if (fl->isDirectory(selected)) {
+				confirm();
+			} else {
+				cancel();
+			}
+			break;
+			case BrowseDialog::ACT_UP:
+			tickStart = SDL_GetTicks();
+			if (selected == 0)
+				selected = fl->size() - 1;
+			else
+				selected -= 1;
+			break;
+			case BrowseDialog::ACT_DOWN:
+			tickStart = SDL_GetTicks();
+			if (fl->size() - 1 <= selected)
+				selected = 0;
+			else
+				selected += 1;
+			break;
+			case BrowseDialog::ACT_SCROLLUP:
+			tickStart = SDL_GetTicks();
+			if (selected < numRows)
+				selected = 0;
+			else
+				selected -= numRows;
+			break;
+			case BrowseDialog::ACT_SCROLLDOWN:
+			tickStart = SDL_GetTicks();
+			if (selected + numRows >= fl->size())
+				selected = fl->size()-1;
+			else
+				selected += numRows;
+			break;
+			case BrowseDialog::ACT_GOUP:
+			directoryUp();
+			break;
+			case BrowseDialog::ACT_SELECT:
+			if (fl->isDirectory(selected)) {
+				directoryEnter();
+				break;
+			}
+		/* Falltrough */
+			case BrowseDialog::ACT_CONFIRM:
+			confirm();
+			break;
+			default:
+			break;
+		}
+
+		if (gmenu2x->f200) gmenu2x->ts.poll();
+		buttonBox.handleTS();
+
 
 	}
 	// gmenu2x->s->clearClipRect();
@@ -131,77 +230,77 @@ BrowseDialog::Action BrowseDialog::getAction() {
 	else if (gmenu2x->input[CONFIRM])
 		action = BrowseDialog::ACT_SELECT;
 	else if (gmenu2x->input[SETTINGS]) {
-			action = BrowseDialog::ACT_CLOSE;
-		}
+		action = BrowseDialog::ACT_CLOSE;
+	}
 	return action;
 }
 
 void BrowseDialog::handleInput() {
-	BrowseDialog::Action action;
+	// BrowseDialog::Action action;
 
-	bool inputAction = gmenu2x->input.update();
-	// if (gmenu2x->powerManager(inputAction)) return;
-	if (gmenu2x->inputCommonActions(inputAction)) return;
+	// bool inputAction = gmenu2x->input.update();
+	// // if (gmenu2x->powerManager(inputAction)) return;
+	// if (gmenu2x->inputCommonActions(inputAction)) return;
 
-	if (ts_pressed && !gmenu2x->ts.pressed()) {
-		action = BrowseDialog::ACT_SELECT;
-		ts_pressed = false;
-	} else {
-		action = getAction();
-	}
+	// if (ts_pressed && !gmenu2x->ts.pressed()) {
+	// 	action = BrowseDialog::ACT_SELECT;
+	// 	ts_pressed = false;
+	// } else {
+	// 	action = getAction();
+	// }
 
-	if (gmenu2x->f200 && gmenu2x->ts.pressed() && !gmenu2x->ts.inRect(gmenu2x->listRect)) ts_pressed = false;
-	// if (action == BrowseDialog::ACT_SELECT && (*fl)[selected] == "..")
-		// action = BrowseDialog::ACT_GOUP;
-	switch (action) {
-	case BrowseDialog::ACT_CLOSE:
-		if (fl->isDirectory(selected)) {
-			confirm();
-		} else {
-			cancel();
-		}
-		break;
-	case BrowseDialog::ACT_UP:
-		if (selected == 0)
-			selected = fl->size() - 1;
-		else
-			selected -= 1;
-		break;
-	case BrowseDialog::ACT_SCROLLUP:
-		if (selected < numRows)
-			selected = 0;
-		else
-			selected -= numRows;
-		break;
-	case BrowseDialog::ACT_DOWN:
-		if (fl->size() - 1 <= selected)
-			selected = 0;
-		else
-			selected += 1;
-		break;
-	case BrowseDialog::ACT_SCROLLDOWN:
-		if (selected + numRows >= fl->size())
-			selected = fl->size()-1;
-		else
-			selected += numRows;
-		break;
-	case BrowseDialog::ACT_GOUP:
-		directoryUp();
-		break;
-	case BrowseDialog::ACT_SELECT:
-		if (fl->isDirectory(selected)) {
-			directoryEnter();
-			break;
-		}
-		/* Falltrough */
-	case BrowseDialog::ACT_CONFIRM:
-		confirm();
-		break;
-	default:
-		break;
-	}
+	// if (gmenu2x->f200 && gmenu2x->ts.pressed() && !gmenu2x->ts.inRect(gmenu2x->listRect)) ts_pressed = false;
+	// // if (action == BrowseDialog::ACT_SELECT && (*fl)[selected] == "..")
+	// 	// action = BrowseDialog::ACT_GOUP;
+	// switch (action) {
+	// case BrowseDialog::ACT_CLOSE:
+	// 	if (fl->isDirectory(selected)) {
+	// 		confirm();
+	// 	} else {
+	// 		cancel();
+	// 	}
+	// 	break;
+	// case BrowseDialog::ACT_UP:
+	// 	if (selected == 0)
+	// 		selected = fl->size() - 1;
+	// 	else
+	// 		selected -= 1;
+	// 	break;
+	// case BrowseDialog::ACT_SCROLLUP:
+	// 	if (selected < numRows)
+	// 		selected = 0;
+	// 	else
+	// 		selected -= numRows;
+	// 	break;
+	// case BrowseDialog::ACT_DOWN:
+	// 	if (fl->size() - 1 <= selected)
+	// 		selected = 0;
+	// 	else
+	// 		selected += 1;
+	// 	break;
+	// case BrowseDialog::ACT_SCROLLDOWN:
+	// 	if (selected + numRows >= fl->size())
+	// 		selected = fl->size()-1;
+	// 	else
+	// 		selected += numRows;
+	// 	break;
+	// case BrowseDialog::ACT_GOUP:
+	// 	directoryUp();
+	// 	break;
+	// case BrowseDialog::ACT_SELECT:
+	// 	if (fl->isDirectory(selected)) {
+	// 		directoryEnter();
+	// 		break;
+	// 	}
+	// 	/* Falltrough */
+	// case BrowseDialog::ACT_CONFIRM:
+	// 	confirm();
+	// 	break;
+	// default:
+	// 	break;
+	// }
 
-	buttonBox.handleTS();
+	// buttonBox.handleTS();
 }
 
 void BrowseDialog::directoryUp() {
@@ -234,4 +333,16 @@ void BrowseDialog::confirm() {
 void BrowseDialog::cancel() {
 	result = false;
 	close = true;
+}
+
+const std::string BrowseDialog::getExt() {
+	string filename = (*fl)[selected];
+	string ext = "";
+	string::size_type pos = filename.rfind(".");
+	DEBUG("filename: %s", filename.c_str());
+	if (pos != string::npos && pos > 0) {
+		ext = filename.substr(pos, filename.length());
+		transform(ext.begin(), ext.end(), ext.begin(), (int(*)(int)) tolower);
+	}
+	return ext;
 }
