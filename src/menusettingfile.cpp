@@ -49,15 +49,14 @@ void MenuSettingFile::edit() {
 
 	_value = dir_name(_value);
 
-	WARNING("PATH: %s",_value.c_str());
 	// FileDialog fd(gmenu2x, description, filter, _value);
 	// BrowseDialog fd(gmenu2x, gmenu2x->tr["File Browser"], description, filter, _value);
 
 	BrowseDialog fd(gmenu2x, gmenu2x->tr["File Browser"], description);
 	fd.showDirectories = true;
 	fd.showFiles = true;
-	fd.setPath(_value);
 	fd.setFilter(filter);
+	fd.setPath(_value);
 
 	if (fd.exec())
 		setValue(real_path(fd.getPath() + "/" + fd.getFile()));

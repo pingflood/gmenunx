@@ -33,7 +33,7 @@ using std::string;
 
 class BrowseDialog : protected Dialog {
 protected:
-	virtual void beforeFileList() {};
+	// virtual void beforeFileList() {};
 	virtual void onChangeDir() {};
 
 	FileLister *fl;

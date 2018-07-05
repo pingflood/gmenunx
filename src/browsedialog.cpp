@@ -35,7 +35,9 @@ BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &
 	fl = new FileLister(CARD_ROOT, true, false);
 }
 
-BrowseDialog::~BrowseDialog() {}
+BrowseDialog::~BrowseDialog() {
+	delete fl;
+}
 
 bool BrowseDialog::exec() {
 	// gmenu2x->initBG();
@@ -71,7 +73,7 @@ bool BrowseDialog::exec() {
 
 		buttonBox.paint(5);
 
-		beforeFileList(); // imagedialog.cpp
+		// beforeFileList(); // imagedialog.cpp
 
 		if (selected > firstElement + numRows) firstElement = selected - numRows;
 		if (selected < firstElement) firstElement = selected;

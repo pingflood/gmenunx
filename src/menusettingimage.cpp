@@ -31,8 +31,6 @@ MenuSettingImage::MenuSettingImage(GMenu2X *gmenu2x, const string &name, const s
 // 	string _value = value();
 // 	if (_value.empty())
 // 		_value = startPath+"/";
-	
-
 
 // 	BrowseDialog fd(gmenu2x, gmenu2x->tr["File Browser"], description);
 // 	fd.showDirectories = true;
@@ -43,16 +41,8 @@ MenuSettingImage::MenuSettingImage(GMenu2X *gmenu2x, const string &name, const s
 // 	if (fd.exec())
 // 		setValue(real_path(fd.getPath() + "/" + fd.getFile()));
 
-
-
-
-
 // 	ImageDialog id(gmenu2x, description, filter, _value);
 // 	if (id.exec()) setValue(real_path(id.getPath() + "/" + id.getFile()));
-
-
-
-
 // }
 
 void MenuSettingImage::setValue(const string &value) {

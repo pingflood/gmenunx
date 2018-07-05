@@ -34,7 +34,7 @@ private:
 
 public:
 	bool showDirectories, showFiles;
-	FileLister(const string &startPath = "/mnt/sd", bool showDirectories = true, bool showFiles = true);
+	FileLister(const string &startPath = "/mnt/", bool showDirectories = true, bool showFiles = true);
 	void browse();
 
 	uint32_t size();

@@ -20,57 +20,62 @@
 
 #include "textdialog.h"
 #include "messagebox.h"
+// #include "debug.h"
 
 using namespace std;
 
+#include <fstream>
+#include <sstream>
+
 // static SDL_Rect rect;
 
-TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, vector<string> *text, const string &backdrop)
-	: Dialog(gmenu2x), text(text), title(title), description(description), icon(icon), backdrop(backdrop)
+TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop)
+	: Dialog(gmenu2x), title(title), description(description), icon(icon), backdrop(backdrop)
 {
 	// this->text = text;
 	// this->title = title;
 	// this->description = description;
 	// this->icon = icon;
-	preProcess();
 }
 
 void TextDialog::preProcess() {
-	uint32_t i=0;
+	uint32_t i = 0;
 	string row;
 
-	while (i<text->size()) {
+	split(text, rawText, "\n");
+
+	while (i < text.size()) {
 		//clean this row
-		row = trim(text->at(i));
+		row = trim(text.at(i));
 
 		//check if this row is not too long
-		if (gmenu2x->font->getTextWidth(row)>gmenu2x->resX-15) {
+		if (gmenu2x->font->getTextWidth(row) > gmenu2x->resX - 15) {
 			vector<string> words;
 			split(words, row, " ");
 
 			uint32_t numWords = words.size();
 			//find the maximum number of rows that can be printed on screen
-			while (gmenu2x->font->getTextWidth(row)>gmenu2x->resX-15 && numWords>0) {
+			while (gmenu2x->font->getTextWidth(row) > gmenu2x->resX - 15 && numWords > 0) {
 				numWords--;
 				row = "";
-				for (uint32_t x=0; x<numWords; x++)
+				for (uint32_t x = 0; x < numWords; x++)
 					row += words[x] + " ";
 				row = trim(row);
 			}
 
 			//if numWords==0 then the string must be printed as-is, it cannot be split
-			if (numWords>0) {
+			if (numWords > 0) {
 				//replace with the shorter version
-				text->at(i) = row;
+				text.at(i) = row;
 
 				//build the remaining text in another row
 				row = "";
-				for (uint32_t x=numWords; x<words.size(); x++)
+				for (uint32_t x = numWords; x < words.size(); x++)
 					row += words[x] + " ";
 				row = trim(row);
 
 				if (!row.empty())
-					text->insert(text->begin()+i+1, row);
+					text.insert(text.begin() + i + 1, row);
 			}
 		}
 		i++;
@@ -101,6 +106,8 @@ void TextDialog::drawText(vector<string> *text, uint32_t firstRow, uint32_t rows
 void TextDialog::exec() {
 	if (gmenu2x->sc[backdrop] != NULL) gmenu2x->sc[backdrop]->blit(this->bg,0,0);
 
+	preProcess();
+
 	bool close = false;
 
 	drawTopBar(this->bg, title, description);
@@ -121,14 +128,14 @@ void TextDialog::exec() {
 	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 	while (!close) {
 		this->bg->blit(gmenu2x->s,0,0);
-		drawText(text, firstRow, rowsPerPage);
+		drawText(&text, firstRow, rowsPerPage);
 		gmenu2x->s->flip();
 
 		bool inputAction = gmenu2x->input.update();
 		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 		if ( gmenu2x->input[UP  ] && firstRow > 0 ) firstRow--;
-		else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < text->size() ) firstRow++;
+		else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < text.size() ) firstRow++;
 		else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT]) {
 			if (firstRow >= rowsPerPage - 1)
 				firstRow -= rowsPerPage - 1;
@@ -136,11 +143,23 @@ void TextDialog::exec() {
 				firstRow = 0;
 		}
 		else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT]) {
-			if (firstRow + rowsPerPage * 2 - 1 < text->size())
+			if (firstRow + rowsPerPage * 2 - 1 < text.size())
 				firstRow += rowsPerPage - 1;
 			else
-				firstRow = max(0,text->size()-rowsPerPage);
+				firstRow = max(0,text.size()-rowsPerPage);
 		}
 		else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
 	}
+}
+
+void TextDialog::appendText(const string &text) {
+	this->rawText += text;
+}
+
+void TextDialog::appendFile(const string &file) {
+	ifstream t(file);
+	stringstream buf;
+	buf << t.rdbuf();
+
+	this->rawText += buf.str();
 }

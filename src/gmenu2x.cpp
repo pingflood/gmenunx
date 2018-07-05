@@ -1373,49 +1373,39 @@ void GMenu2X::about() {
 	// temp += "\n    " + tr["External: "] + getDiskFree("/mnt/ext_sd");
 	temp += "\n----\n";
 
-#if defined(TARGET_CAANOO)
-	string versionFile = "";
-	if (fileExists("/usr/gp2x/version"))
-		versionFile = "/usr/gp2x/version";
-	else if (fileExists("/tmp/gp2x/version"))
-		versionFile = "/tmp/gp2x/version";
-	if (!versionFile.empty()) {
-		ifstream f(versionFile.c_str(), ios_base::in);
-		if (f.is_open()) {
-			string line;
-			if (getline(f, line, '\n'))
-				temp += "\nFirmware version: " + line + "\n" + exec("uname -srm");
-			f.close();
-		}
-	}
-#endif
+	TextDialog td(this, "GMenuNext", tr["Info about system"], "skin:icons/about.png");
 
-	ifstream f("about.txt", ios_base::in);
-	if (f.is_open()) {
-		string line;
-		while (getline(f, line, '\n'))
-			temp += line + "\n"; // + exec("uname -srm");
-		f.close();
-	}
+// #if defined(TARGET_CAANOO)
+// 	string versionFile = "";
+// // 	if (fileExists("/usr/gp2x/version"))
+// // 		versionFile = "/usr/gp2x/version";
+// // 	else if (fileExists("/tmp/gp2x/version"))
+// // 		versionFile = "/tmp/gp2x/version";
+// // 	if (!versionFile.empty()) {
+// // 		ifstream f(versionFile.c_str(), ios_base::in);
+// // 		if (f.is_open()) {
+// // 			string line;
+// // 			if (getline(f, line, '\n'))
+// // 				temp += "\nFirmware version: " + line + "\n" + exec("uname -srm");
+// // 			f.close();
+// // 		}
+// // 	}
+// 	td.appendText("\nFirmware version: ");
+// 	td.appendFile(versionFile);
+// 	td.appendText(exec("uname -srm"));
+// #endif
 
-	split(text, temp, "\n");
-	TextDialog td(this, "GMenuNext", tr["Info about system"], "skin:icons/about.png", &text);
+	td.appendText(temp);
+	td.appendFile("about.txt");
 	td.exec();
 }
 
 void GMenu2X::viewLog() {
 	string logfile = path + "log.txt";
 	if (!fileExists(logfile)) return;
-	ifstream inf(logfile.c_str(), ios_base::in);
-	if (!inf.is_open()) return;
-	vector<string> log;
 
-	string line;
-	while (getline(inf, line, '\n'))
-		log.push_back(line);
-	inf.close();
-
-	TextDialog td(this, tr["Log Viewer"], tr["Displays last launched program's output"], "skin:icons/ebook.png", &log);
+	TextDialog td(this, tr["Log Viewer"], tr["Last launched program's output"], "skin:icons/ebook.png");
+	td.appendFile(path + "log.txt");
 	td.exec();
 
 	MessageBox mb(this, tr["Do you want to delete the log file?"], "skin:icons/ebook.png");
@@ -1465,19 +1455,9 @@ void GMenu2X::showManual() {
 		return;
 	}
 
-	// Txt manuals and readmes
-	vector<string> txtman;
-
-	string line;
-	ifstream infile(linkManual.c_str(), ios_base::in);
-	if (infile.is_open()) {
-		while (getline(infile, line, '\n'))
-			txtman.push_back( strreplace(line, "\r", "") );
-		infile.close();
-
-		TextDialog td(this, linkTitle, linkDescription, linkIcon, &txtman, linkBackdrop);
-		td.exec();
-	}
+	TextDialog td(this, linkTitle, linkDescription, linkIcon, linkBackdrop);
+	td.appendFile(linkManual);
+	td.exec();
 }
 
 void GMenu2X::explorer() {
@@ -1716,6 +1696,7 @@ void GMenu2X::umountSdDialog() {
 		umountSd();
 		MessageBox mb(this, tr["Complete!"]);
 		mb.exec();
+		// menu->deleteSelectedLink();
 	}
 }
 

@@ -46,8 +46,6 @@ void MenuSettingDir::edit() {
 	if (_value.empty())
 		_value = startPath+"/";
 
-	WARNING("PATH: %s",_value.c_str());
-
 	// DirDialog dd(gmenu2x, description, _value);
 	BrowseDialog dd(gmenu2x, gmenu2x->tr["Directory Browser"], description);
 	dd.showDirectories = true;

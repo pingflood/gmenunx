@@ -30,14 +30,18 @@ using std::vector;
 
 class TextDialog : protected Dialog {
 protected:
-	vector<string> *text;
-	string title, description, icon, backdrop;
+	vector<string> text;
+	string title, description, icon, backdrop, rawText = "";
 
 	void preProcess();
 	void drawText(vector<string> *text, uint32_t firstRow, uint32_t rowsPerPage);
 
 public:
-	TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, vector<string> *text, const string &backdrop = "");
+	TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop = "");
+
+	void appendText(const string &text);
+	void appendFile(const string &file);
+
 	void exec();
 };
 
