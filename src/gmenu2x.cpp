@@ -187,9 +187,6 @@ GMenu2X::~GMenu2X() {
 
 	writeConfig();
 
-#if defined(TARGET_GP2X)
-	if (fwType=="open2x") writeConfigOpen2x();
-#endif
 	quit();
 
 	delete menu;
@@ -1171,6 +1168,11 @@ void GMenu2X::writeConfig() {
 		inf.close();
 		sync();
 	}
+
+#if defined(TARGET_GP2X)
+		if (fwType == "open2x" && savedVolumeMode != volumeMode)
+			writeConfigOpen2x();
+#endif
 	ledOff();
 }
 
@@ -1461,9 +1463,7 @@ void GMenu2X::showManual() {
 }
 
 void GMenu2X::explorer() {
-
-	// DirDialog dd(gmenu2x, description, _value);
-	BrowseDialog fd(this, tr["Explorer"], tr["Select an application"]);
+	BrowseDialog fd(this, tr["Explorer"], tr["Select a file or application"]);
 	fd.showDirectories = true;
 	fd.showFiles = true;
 	fd.setFilter(".dge,.gpu,.gpe,.sh,");
@@ -1472,20 +1472,20 @@ void GMenu2X::explorer() {
 	// FileDialog fd(this, tr["Select an application"], ".gpu,.gpe,.sh,", "", tr["Explorer"]);
 	bool loop = true;
 	while (fd.exec() && loop) {
+		string ext = fd.getExt();
+		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif") {
+			ImageViewerDialog im(this, tr["Image viewer"], fd.getFile(), "icons/explorer.png", fd.getPath() + "/" + fd.getFile());
+			im.exec();
+			continue;
+		} else if (ext == ".txt" || ext == ".me" || ext == ".md") {
+			TextDialog td(this, tr["Text viewer"], fd.getFile(), "skin:icons/ebook.png");
+			td.appendFile(fd.getPath() + "/" + fd.getFile());
+			td.exec();
+		} else {
+
 		if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
 			writeConfig();
 
-#if defined(TARGET_GP2X)
-		if (fwType == "open2x" && savedVolumeMode != volumeMode)
-			writeConfigOpen2x();
-#endif
-
-		string ext = fd.getExt();
-		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif") {
-			ImageViewerDialog im(this, "Image viewer", fd.getFile(), "icons/explorer.png", fd.getPath() + "/" + fd.getFile());
-			im.exec();
-			continue;
-		} else {
 			loop = false;
 		//string command = cmdclean(fd.path()+"/"+fd.file) + "; sync & cd "+cmdclean(getExePath())+"; exec ./gmenu2x";
 			string command = cmdclean(fd.getPath() + "/" + fd.getFile());
