@@ -30,10 +30,10 @@ using std::vector;
 class FileLister {
 private:
 	string path, filter;
-	bool showDirectories, showFiles;
 	vector<string> directories, files, excludes;
 
 public:
+	bool showDirectories, showFiles;
 	FileLister(const string &startPath = "/mnt/sd", bool showDirectories = true, bool showFiles = true);
 	void browse();
 

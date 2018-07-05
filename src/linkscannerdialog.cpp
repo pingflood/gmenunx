@@ -124,7 +124,7 @@ void LinkScannerDialog::scanPath(string path, vector<string> *files) {
 		if (statRet != -1) {
 			ext = filepath.substr(filepath.length()-4,4);
 
-			if (ext == ".gpu" || ext == ".gpe" || filepath.substr(filepath.length()-3,3) == ".sh")
+			if (ext == ".dge" || ext == ".gpu" || ext == ".gpe" || filepath.substr(filepath.length()-3,3) == ".sh")
 				files->push_back(filepath);
 		}
 	}

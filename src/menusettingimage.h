@@ -23,8 +23,8 @@
 #include "menusettingfile.h"
 
 class MenuSettingImage : public MenuSettingFile {
-protected:
-	virtual void edit();
+// protected:
+	// virtual void edit();
 
 public:
 	MenuSettingImage(GMenu2X *gmenu2x, const std::string &name, const std::string &description, std::string *value, const std::string &filter = "", const std::string &startPath="");

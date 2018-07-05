@@ -49,7 +49,8 @@
 #include "menu.h"
 #include "fonthelper.h"
 #include "surface.h"
-#include "filedialog.h"
+// #include "filedialog.h"
+#include "browsedialog.h"
 #include "powermanager.h"
 #include "gmenu2x.h"
 #include "filelister.h"
@@ -1480,7 +1481,15 @@ void GMenu2X::showManual() {
 }
 
 void GMenu2X::explorer() {
-	FileDialog fd(this, tr["Select an application"], ".gpu,.gpe,.sh,", "", tr["Explorer"]);
+
+	// DirDialog dd(gmenu2x, description, _value);
+	BrowseDialog fd(this, tr["Explorer"], tr["Select an application"]);
+	fd.showDirectories = true;
+	fd.showFiles = true;
+	fd.setFilter(".dge,.gpu,.gpe,.sh,");
+	// dd.setPath(_value);
+	// if (dd.exec()) setValue( dd.getPath() );
+	// FileDialog fd(this, tr["Select an application"], ".gpu,.gpe,.sh,", "", tr["Explorer"]);
 	bool loop = true;
 	while (fd.exec() && loop) {
 		if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
@@ -1836,7 +1845,11 @@ void GMenu2X::contextMenu() {
 }
 
 void GMenu2X::addLink() {
-	FileDialog fd(this, tr["Select an application"], "", "", tr["File Dialog"]);
+	BrowseDialog fd(this, tr["Add link"], tr["Select an application"]);
+	fd.showDirectories = true;
+	fd.showFiles = true;
+	fd.setFilter(".dge,.gpu,.gpe,.sh,");
+	// FileDialog fd(this, tr["Select an application"], "", "", tr["File Dialog"]);
 	if (fd.exec()) {
 		ledOn();
 		menu->addLink(fd.getPath(), fd.getFile());

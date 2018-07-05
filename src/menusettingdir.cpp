@@ -19,7 +19,9 @@
  ***************************************************************************/
 #include "menusettingdir.h"
 #include "iconbutton.h"
-#include "dirdialog.h"
+// #include "dirdialog.h"
+#include "browsedialog.h"
+#include "debug.h"
 
 using std::string;
 using fastdelegate::MakeDelegate;
@@ -43,6 +45,13 @@ void MenuSettingDir::edit() {
 	string _value = value();
 	if (_value.empty())
 		_value = startPath+"/";
-	DirDialog dd(gmenu2x, description, _value);
+
+	WARNING("PATH: %s",_value.c_str());
+
+	// DirDialog dd(gmenu2x, description, _value);
+	BrowseDialog dd(gmenu2x, gmenu2x->tr["Directory Browser"], description);
+	dd.showDirectories = true;
+	dd.showFiles = false;
+	dd.setPath(_value);
 	if (dd.exec()) setValue( dd.getPath() );
 }

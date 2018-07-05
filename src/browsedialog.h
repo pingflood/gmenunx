@@ -33,16 +33,8 @@ using std::string;
 
 class BrowseDialog : protected Dialog {
 protected:
-	BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &subtitle);
-	virtual ~BrowseDialog();
-
 	virtual void beforeFileList() {};
 	virtual void onChangeDir() {};
-
-	void setPath(const string &path) {
-		fl->setPath(path);
-		onChangeDir();
-	}
 
 	FileLister *fl;
 	uint32_t selected;
@@ -90,6 +82,9 @@ private:
 	void cancel();
 
 public:
+	BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &subtitle);
+	virtual ~BrowseDialog();
+
 	bool exec();
 
 	const std::string &getPath() {
@@ -100,6 +95,21 @@ public:
 	}
 
 	const std::string getExt();
+
+	void setFilter(const string &filter) {
+		fl->setFilter(filter);
+	}
+
+	bool showDirectories, showFiles;
+
+	void setPath(const string &path) {
+		fl->showDirectories = showDirectories;
+		fl->showFiles = showFiles;
+		fl->setPath(path);
+		onChangeDir();
+	}
+
+
 };
 
 #endif /*INPUTDIALOG_H_*/

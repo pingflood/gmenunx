@@ -31,6 +31,8 @@ BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &
 	iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
 	iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
 	iconFile = gmenu2x->sc.skinRes("imgs/file.png");
+
+	fl = new FileLister(CARD_ROOT, true, false);
 }
 
 BrowseDialog::~BrowseDialog() {}
@@ -203,8 +205,6 @@ bool BrowseDialog::exec() {
 
 		if (gmenu2x->f200) gmenu2x->ts.poll();
 		buttonBox.handleTS();
-
-
 	}
 	// gmenu2x->s->clearClipRect();
 	return result;

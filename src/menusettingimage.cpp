@@ -18,7 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "menusettingimage.h"
-#include "imagedialog.h"
+// #include "imagedialog.h"
+#include "browsedialog.h"
 #include "utilities.h"
 
 using std::string;
@@ -26,13 +27,33 @@ using std::string;
 MenuSettingImage::MenuSettingImage(GMenu2X *gmenu2x, const string &name, const string &description, string *value, const string &filter, const string &startPath)
 	: MenuSettingFile(gmenu2x, name, description, value, filter, startPath) {}
 
-void MenuSettingImage::edit() {
-	string _value = value();
-	if (_value.empty())
-		_value = startPath+"/";
-	ImageDialog id(gmenu2x, description, filter, _value);
-	if (id.exec()) setValue(real_path(id.getPath() + "/" + id.getFile()));
-}
+// void MenuSettingImage::edit() {
+// 	string _value = value();
+// 	if (_value.empty())
+// 		_value = startPath+"/";
+	
+
+
+// 	BrowseDialog fd(gmenu2x, gmenu2x->tr["File Browser"], description);
+// 	fd.showDirectories = true;
+// 	fd.showFiles = true;
+// 	fd.setPath(_value);
+// 	fd.setFilter(filter);
+
+// 	if (fd.exec())
+// 		setValue(real_path(fd.getPath() + "/" + fd.getFile()));
+
+
+
+
+
+// 	ImageDialog id(gmenu2x, description, filter, _value);
+// 	if (id.exec()) setValue(real_path(id.getPath() + "/" + id.getFile()));
+
+
+
+
+// }
 
 void MenuSettingImage::setValue(const string &value) {
 	string skinpath(gmenu2x->getExePath() + "skins/" + gmenu2x->confStr["skin"]);
