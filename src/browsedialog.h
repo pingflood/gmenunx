@@ -100,7 +100,7 @@ public:
 		fl->setFilter(filter);
 	}
 
-	bool showDirectories, showFiles;
+	bool showDirectories, showFiles, allowSelectDirectory = false;
 
 	void setPath(const string &path) {
 		fl->showDirectories = showDirectories;

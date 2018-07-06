@@ -1482,20 +1482,19 @@ void GMenu2X::explorer() {
 			td.appendFile(fd.getPath() + "/" + fd.getFile());
 			td.exec();
 		} else {
-
-		if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
-			writeConfig();
+			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
+				writeConfig();
 
 			loop = false;
-		//string command = cmdclean(fd.path()+"/"+fd.file) + "; sync & cd "+cmdclean(getExePath())+"; exec ./gmenu2x";
+			//string command = cmdclean(fd.path()+"/"+fd.file) + "; sync & cd "+cmdclean(getExePath())+"; exec ./gmenu2x";
 			string command = cmdclean(fd.getPath() + "/" + fd.getFile());
 			chdir(fd.getPath().c_str());
 			quit();
 			setCPU(confInt["cpuMenu"]);
 			execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 
-		//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
-		//try relaunching gmenu2x
+			//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
+			//try relaunching gmenu2x
 			WARNING("Error executing selected application, re-launching gmenu2x");
 			chdir(getExePath().c_str());
 			execlp("./gmenu2x", "./gmenu2x", NULL);

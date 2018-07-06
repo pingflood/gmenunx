@@ -157,7 +157,7 @@ bool BrowseDialog::exec() {
 		// action = BrowseDialog::ACT_GOUP;
 		switch (action) {
 			case BrowseDialog::ACT_CLOSE:
-			if (fl->isDirectory(selected)) {
+			if (allowSelectDirectory && fl->isDirectory(selected)) {
 				confirm();
 			} else {
 				cancel();

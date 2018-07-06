@@ -50,6 +50,7 @@ void MenuSettingDir::edit() {
 	BrowseDialog dd(gmenu2x, gmenu2x->tr["Directory Browser"], description);
 	dd.showDirectories = true;
 	dd.showFiles = false;
+	dd.allowSelectDirectory = true;
 	dd.setPath(_value);
 	if (dd.exec()) setValue( dd.getPath() );
 }
