@@ -1477,7 +1477,7 @@ void GMenu2X::explorer() {
 			ImageViewerDialog im(this, tr["Image viewer"], fd.getFile(), "icons/explorer.png", fd.getPath() + "/" + fd.getFile());
 			im.exec();
 			continue;
-		} else if (ext == ".txt" || ext == ".me" || ext == ".md") {
+		} else if (ext == ".txt" || ext == ".conf" || ext == ".me" || ext == ".md") {
 			TextDialog td(this, tr["Text viewer"], fd.getFile(), "skin:icons/ebook.png");
 			td.appendFile(fd.getPath() + "/" + fd.getFile());
 			td.exec();
