@@ -157,7 +157,7 @@ public:
 	void operator = (SDL_Surface*);
 	void operator = (Surface*);
 
-	void softStretch(uint8_t x, uint8_t y, bool keep_aspect = false, bool maximize = true);
+	void softStretch(uint16_t x, uint16_t y, bool keep_aspect = false, bool maximize = true);
 
 };
 

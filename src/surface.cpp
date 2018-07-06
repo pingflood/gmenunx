@@ -578,13 +578,13 @@ bool Surface::blit(Surface *destination, SDL_Rect destrect, const uint8_t align,
 	return SDL_BlitSurface(raw, &srcrect, destination->raw, &destrect);
 }
 
-void Surface::softStretch(uint8_t x, uint8_t y, bool keep_aspect, bool maximize) {
+void Surface::softStretch(uint16_t x, uint16_t y, bool keep_aspect, bool maximize) {
 	if (!maximize && raw->w <= x && raw->h <= y) return;
 	if (keep_aspect) {
-		if (raw->w > raw->h) {
+		if (x < y) {
 			y = x * raw->h / raw->w;
 		} else {
-			x = y * raw->w / raw->h;
+			x = y * raw->h / raw->w;
 		}
 	}
 
