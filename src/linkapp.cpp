@@ -216,7 +216,9 @@ int LinkApp::clock() {
 }
 
 void LinkApp::setCPU(int mhz) {
-	iclock = constrain(mhz, gmenu2x->confInt["cpuMin"], gmenu2x->confInt["cpuMax"]);
+	// if (mhz == 0) iclock = 0;
+	// else 
+	constrain(mhz, gmenu2x->confInt["cpuMin"], gmenu2x->confInt["cpuMax"]);
 	edited = true;
 }
 

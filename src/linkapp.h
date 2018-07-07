@@ -38,7 +38,7 @@ class LinkApp : public Link {
 private:
 	InputManager &inputMgr;
 	// string svolume, sclock, svolume;
-	int iclock, ivolume;
+	int iclock = 0, ivolume = 0;
 
 	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath;
 	bool selectorbrowser, useRamTimings, useGinge;

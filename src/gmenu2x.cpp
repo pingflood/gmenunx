@@ -428,6 +428,29 @@ void GMenu2X::main() {
 
 	if (curMMCStatus == MMC_INSERT) mountSd();
 
+// WARNING("ALL APPS:");
+// for (uint32_t i = 0; i < menu->getSections().size(); i++) {
+// 	for (uint32_t x = 0; x < menu->sectionLinks(i)->size(); x++) {
+// 		// bool islink = menu->sectionLinks(i)->at(x)->getFile(); != NULL;
+// 		menu->setSectionIndex(i);
+// 		menu->setLinkIndex(x);
+// 		bool islink = menu->selLinkApp() != NULL;
+// 		ERROR("APP: %d %d %d %s", i, x, islink, menu->sectionLinks(i)->at(x)->getTitle().c_str());
+// 		if (!islink) continue;
+
+// 		// menu->selLinkApp()->setIcon(linkIcon);
+// 		// menu->selLinkApp()->setBackdrop(linkBackdrop);
+// 		menu->selLinkApp()->setCPU(0);
+// 		// menu->selLinkApp()->setVolume(linkVolume);
+// 		menu->selLinkApp()->save();
+// 	}
+
+// 		// menu->setSectionIndex(0);
+// 		// menu->setLinkIndex(0);
+
+// }
+
+
 	while (!quit) {
 		tickNow = SDL_GetTicks();
 

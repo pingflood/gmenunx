@@ -25,7 +25,7 @@
 class MenuSettingInt : public MenuSetting {
 private:
 	int originalValue;
-	int *_value;
+	int _value;
 	std::string strvalue;
 	int def, min, max, delta;
 
