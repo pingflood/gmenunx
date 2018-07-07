@@ -202,7 +202,7 @@ public:
 	 */
 	uint32_t resX, resY, halfX, halfY;
 	// uint32_t bottomBarIconY, bottomBarTextY
-	uint32_t linkColumns, linkRows;
+	uint32_t linkColumns, linkRows, linkWidth, linkHeight, sectionLinkPadding = 4;
 	SDL_Rect listRect, linksRect, sectionBarRect;
 	/*!
 	Retrieves the parent directory of GMenu2X.

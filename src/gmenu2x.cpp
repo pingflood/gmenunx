@@ -380,10 +380,8 @@ void GMenu2X::main() {
 	uint32_t sectionLinkPadding = 4;
 
 	bool quit = false;
-	int i = 0, x = 0, y = 0, ix = 0, iy = 0; //, helpBoxHeight = fwType=="open2x" ? 154 : 139;//, offset = menu->sectionLinks()->size()>linksPerPage ? 2 : 6;
-	int linkWidth = linksRect.w/linkColumns - 2 * sectionLinkPadding;
-	int linkHeight = linksRect.h/linkRows - 2 * sectionLinkPadding;
-	uint32_t tickBattery = -4800, tickNow, tickMMC = 0; //, tickUSB = 0;
+	int i = 0, x = 0, y = 0, ix = 0, iy = 0;
+	uint32_t tickBattery = -4800, tickNow; //, tickMMC = 0; //, tickUSB = 0;
 	string prevBackdrop = confStr["wallpaper"], currBackdrop = confStr["wallpaper"];
 
 	int8_t brightnessIcon = 5;
@@ -463,7 +461,6 @@ void GMenu2X::main() {
 		s->setClipRect(linksRect);
 		s->box(linksRect, skinConfColors[COLOR_LIST_BG]);
 
-		// int linkColumns = 0;
 		i = menu->firstDispRow() * linkColumns;
 
 		if (linkColumns == 1) {
@@ -474,13 +471,10 @@ void GMenu2X::main() {
 			ix = linksRect.x;
 			for (y = 0; y < linkRows && i < menu->sectionLinks()->size(); y++, i++) {
 				iy = linksRect.y + y * linkHeight; // + (y + 1) * sectionLinkPadding;
-				// s->setClipRect({ix, iy, linkWidth, linkHeight});
-				menu->sectionLinks()->at(i)->setPosition(x,y);
 
 				if (i == (uint32_t)menu->selLinkIndex())
 					s->box(ix, iy, linksRect.w, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 
-				// sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, ix + sectionLinkPadding, iy + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, linkHeight - 2 * sectionLinkPadding);
 				sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix + sectionLinkPadding, iy + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, linkHeight - 2 * sectionLinkPadding}, HAlignLeft | VAlignMiddle);
 				s->write(titlefont, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + sectionLinkPadding + 36, iy + titlefont->getHeight()/2, VAlignMiddle);
 				s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + sectionLinkPadding + 36, iy + linkHeight - sectionLinkPadding/2, VAlignBottom);
@@ -488,24 +482,17 @@ void GMenu2X::main() {
 		} else {
 			for (y = 0; y < linkRows; y++) {
 				for (x = 0; x < linkColumns && i < menu->sectionLinks()->size(); x++, i++) {
-
-					// INFO("I: %d, X: %d, Y: %d, size: %d", i, x, y, menu->sectionLinks()->size());
-
-					ix = linksRect.x + x * linkWidth  + (x + 1) * sectionLinkPadding;
-					iy = linksRect.y + y * linkHeight + (y + 1) * sectionLinkPadding;
+					ix = linksRect.x + x * linkWidth  + sectionLinkPadding * (x + 1);
+					iy = linksRect.y + y * linkHeight + sectionLinkPadding + (y + 1);
 
 					s->setClipRect({ix, iy, linkWidth, linkHeight});
-		
-					menu->sectionLinks()->at(i)->setPosition(x,y);
-		
+
 					if (i == (uint32_t)menu->selLinkIndex())
 						s->box(ix, iy, linkWidth, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
-		
-					// sc[menu->sectionLinks()->at(i)->getIconPath()]->blitCenter(s, ix + linkWidth/2, iy + linkHeight/2, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding, skinConfInt["linkItemHeight"] - 2 * sectionLinkPadding);
-					sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix, iy, linkWidth, linkHeight}, HAlignCenter | VAlignMiddle);
 
-					s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - sectionLinkPadding, HAlignCenter | VAlignBottom);
-					// s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + sectionLinkPadding + 36, iy + skinConfInt["linkItemHeight"] - sectionLinkPadding/2, HAlignLeft, VAlignBottom);
+					sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix, iy - sectionLinkPadding, linkWidth, linkHeight}, HAlignCenter | VAlignMiddle);
+
+					s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - 2, HAlignCenter | VAlignBottom);
 				}
 			}
 		}
@@ -571,7 +558,7 @@ void GMenu2X::main() {
 			}
 
 			if (iconTrayShift < 2) {
-				// menu indicator
+				// Menu indicator
 				iconMenu->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 				iconTrayShift++;
 			}
@@ -583,7 +570,6 @@ void GMenu2X::main() {
 				iconTrayShift++;
 			}
 		}
-
 		s->flip();
 
 		bool inputAction = input.update();
@@ -629,7 +615,7 @@ void GMenu2X::main() {
 		// VOLUME SCALE MODIFIER
 #if defined(TARGET_GP2X)
 		else if ( fwType=="open2x" && input[CANCEL] ) {
-			volumeMode = constrain(volumeMode-1, -VOLUME_MODE_MUTE-1, VOLUME_MODE_NORMAL);
+			volumeMode = constrain(volumeMode - 1, -VOLUME_MODE_MUTE - 1, VOLUME_MODE_NORMAL);
 			if (volumeMode < VOLUME_MODE_MUTE)
 				volumeMode = VOLUME_MODE_NORMAL;
 			switch(volumeMode) {
@@ -876,6 +862,23 @@ void GMenu2X::initLayout() {
 	}
 
 	listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
+
+//recalculate some coordinates based on the new element sizes
+	// linkRows = resY/skinConfInt["linkItemHeight"];
+	// needed until refactor menu.cpp
+	// linkRows = linksRect.h / skinConfInt["linkItemHeight"];
+	// linkColumns = 4;//(resX-10)/skinConfInt["linkWidth"];
+
+	// LIST
+	// linkColumns = 1;
+	// linkRows = resY / skinConfInt["linkItemHeight"];
+
+	// WIP
+	linkColumns = 1;
+	linkRows = 6;
+
+	linkWidth = linksRect.w/linkColumns - (linkColumns != 1) * 3 * sectionLinkPadding / 2;
+	linkHeight = (linksRect.h - (linkColumns != 1) * 2 * sectionLinkPadding)/linkRows - 1;
 }
 
 void GMenu2X::initFont() {
@@ -1287,20 +1290,6 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 	evalIntConf( &skinConfInt["fontSize"], 9, 6, 60);
 	evalIntConf( &skinConfInt["fontSizeTitle"], 14, 6, 60);
 
-//recalculate some coordinates based on the new element sizes
-	// linkRows = resY/skinConfInt["linkItemHeight"];
-	// needed until refactor menu.cpp
-	// linkRows = linksRect.h / skinConfInt["linkItemHeight"];
-	// linkColumns = 4;//(resX-10)/skinConfInt["linkWidth"];
-
-	// LIST
-	// linkColumns = 1;
-	// linkRows = resY / skinConfInt["linkItemHeight"];
-
-	// WIP
-	linkColumns = 1;
-	linkRows = 4;
-
 	if (menu != NULL && clearSC) menu->loadIcons();
 
 //font
@@ -1466,7 +1455,7 @@ void GMenu2X::explorer() {
 	BrowseDialog fd(this, tr["Explorer"], tr["Select a file or application"]);
 	fd.showDirectories = true;
 	fd.showFiles = true;
-	fd.setFilter(".dge,.gpu,.gpe,.sh,");
+	fd.setFilter(".dge,.gpu,.gpe,.sh,.bin,.elf,");
 	// dd.setPath(_value);
 	// if (dd.exec()) setValue( dd.getPath() );
 	// FileDialog fd(this, tr["Select an application"], ".gpu,.gpe,.sh,", "", tr["Explorer"]);
@@ -1828,7 +1817,7 @@ void GMenu2X::addLink() {
 	BrowseDialog fd(this, tr["Add link"], tr["Select an application"]);
 	fd.showDirectories = true;
 	fd.showFiles = true;
-	fd.setFilter(".dge,.gpu,.gpe,.sh,");
+	fd.setFilter(".dge,.gpu,.gpe,.sh,.bin,.elf");
 	// FileDialog fd(this, tr["Select an application"], "", "", tr["File Dialog"]);
 	if (fd.exec()) {
 		ledOn();
