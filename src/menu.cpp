@@ -199,7 +199,7 @@ bool Menu::addLink(string path, string file, string section) {
 	}
 
 	//if the extension is not equal to gpu or gpe then enable the wrapper by default
-	bool wrapper = true;
+	// bool wrapper = true;
 
 	//strip the extension from the filename
 	string title = file;
@@ -207,7 +207,7 @@ bool Menu::addLink(string path, string file, string section) {
 	if (pos != string::npos && pos > 0) {
 		string ext = title.substr(pos, title.length());
 		transform(ext.begin(), ext.end(), ext.begin(), (int(*)(int)) tolower);
-		if (ext == ".gpu" || ext == ".gpe") wrapper = false;
+		// if (ext == ".gpu" || ext == ".gpe") wrapper = false;
 		title = title.substr(0, pos);
 	}
 
@@ -275,7 +275,7 @@ bool Menu::addLink(string path, string file, string section) {
 		f << "exec=" << exec << endl;
 		if (!icon.empty()) f << "icon=" << icon << endl;
 		if (!manual.empty()) f << "manual=" << manual << endl;
-		if (wrapper) f << "wrapper=true" << endl;
+		// if (wrapper) f << "wrapper=true" << endl;
 		f.close();
 
 		isection = find(sections.begin(),sections.end(),section) - sections.begin();

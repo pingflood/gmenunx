@@ -1869,11 +1869,11 @@ void GMenu2X::editLink() {
 	string linkSelFilter = menu->selLinkApp()->getSelectorFilter();
 	string linkSelDir = menu->selLinkApp()->getSelectorDir();
 	bool linkSelBrowser = menu->selLinkApp()->getSelectorBrowser();
-	bool linkUseRamTimings = menu->selLinkApp()->getUseRamTimings();
+	// bool linkUseRamTimings = menu->selLinkApp()->getUseRamTimings();
 	string linkSelScreens = menu->selLinkApp()->getSelectorScreens();
 	string linkSelAliases = menu->selLinkApp()->getAliasFile();
 	int linkClock = menu->selLinkApp()->clock();
-	int linkVolume = menu->selLinkApp()->volume();
+	// int linkVolume = menu->selLinkApp()->volume();
 	string linkBackdrop = menu->selLinkApp()->getBackdrop();
 
 	string diagTitle = tr.translate("Edit $1", linkTitle.c_str(), NULL);
@@ -1911,7 +1911,7 @@ void GMenu2X::editLink() {
 #endif
 
 	//G
-	sd.addSetting(new MenuSettingBool(        this, tr["Wrapper"],              tr["Relaunch GMenu2X after this link's execution ends"], &menu->selLinkApp()->needsWrapperRef() ));
+	// sd.addSetting(new MenuSettingBool(        this, tr["Wrapper"],              tr["Relaunch GMenu2X after this link's execution ends"], &menu->selLinkApp()->needsWrapperRef() ));
 	//sd.addSetting(new MenuSettingBool(        this, tr["Don't Leave"],          tr["Don't quit GMenu2X when launching this link"], &menu->selLinkApp()->runsInBackgroundRef() ));
 
 	if (sd.exec() && sd.edited() && sd.save) {
@@ -1925,12 +1925,12 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setSelectorFilter(linkSelFilter);
 		menu->selLinkApp()->setSelectorDir(linkSelDir);
 		menu->selLinkApp()->setSelectorBrowser(linkSelBrowser);
-		menu->selLinkApp()->setUseRamTimings(linkUseRamTimings);
+		// menu->selLinkApp()->setUseRamTimings(linkUseRamTimings);
 		menu->selLinkApp()->setSelectorScreens(linkSelScreens);
 		menu->selLinkApp()->setAliasFile(linkSelAliases);
 		menu->selLinkApp()->setBackdrop(linkBackdrop);
 		menu->selLinkApp()->setCPU(linkClock);
-		menu->selLinkApp()->setVolume(linkVolume);
+		// menu->selLinkApp()->setVolume(linkVolume);
 		//G
 #if defined(TARGET_GP2X)
 		menu->selLinkApp()->setGamma(linkGamma);

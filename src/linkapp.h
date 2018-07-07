@@ -38,17 +38,16 @@ class LinkApp : public Link {
 private:
 	InputManager &inputMgr;
 	// string svolume, sclock, svolume;
-	int iclock = 0, ivolume = 0;
+	int iclock = 0; //, ivolume = 0;
 
 	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath;
-	bool selectorbrowser, useRamTimings, useGinge;
+	bool selectorbrowser;
 	// void drawRun();
 
 	string aliasfile;
 	string file;
 
-	bool wrapper;
-	bool dontleave;
+	// bool wrapper, dontleave, useRamTimings, useGinge;
 
 public:
 	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* linkfile);
@@ -70,10 +69,6 @@ public:
 	void setSelectorDir(const string &selectordir);
 	bool getSelectorBrowser();
 	void setSelectorBrowser(bool value);
-	bool getUseRamTimings();
-	void setUseRamTimings(bool value);
-	bool getUseGinge();
-	void setUseGinge(bool value);
 	const string &getSelectorScreens();
 	void setSelectorScreens(const string &selectorscreens);
 	const string &getSelectorFilter();
@@ -85,9 +80,14 @@ public:
 	// const string &clockStr(int maxClock);
 	void setCPU(int mhz);
 
-	int volume();
+	// int volume();
 	// const string &volumeStr();
-	void setVolume(int vol);
+	// void setVolume(int vol);
+	// bool getUseRamTimings();
+	// void setUseRamTimings(bool value);
+	// bool getUseGinge();
+	// void setUseGinge(bool value);
+	// const string &clockStr(int maxClock);
 
 #if defined(TARGET_GP2X)
 	//G
@@ -115,8 +115,8 @@ public:
 	void setBackdrop(const string selectedFile="");
 
 	void renameFile(const string &name);
-	bool &needsWrapperRef() { return wrapper; }
-	bool &runsInBackgroundRef() { return dontleave; }
+	// bool &needsWrapperRef() { return wrapper; }
+	// bool &runsInBackgroundRef() { return dontleave; }
 };
 
 #endif
