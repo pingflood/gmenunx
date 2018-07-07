@@ -27,16 +27,9 @@ using namespace std;
 #include <fstream>
 #include <sstream>
 
-// static SDL_Rect rect;
-
 TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop)
 	: Dialog(gmenu2x), title(title), description(description), icon(icon), backdrop(backdrop)
-{
-	// this->text = text;
-	// this->title = title;
-	// this->description = description;
-	// this->icon = icon;
-}
+{}
 
 void TextDialog::preProcess() {
 	uint32_t i = 0;
@@ -119,9 +112,11 @@ void TextDialog::exec() {
 		drawTitleIcon(icon, this->bg);
 
 	drawBottomBar(this->bg);
-	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
+
 	gmenu2x->drawButton(this->bg, "down", gmenu2x->tr["Scroll"],
-	gmenu2x->drawButton(this->bg, "up", "", 5)-10));
+	gmenu2x->drawButton(this->bg, "up", "",
+	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
+	5))-10);
 
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
