@@ -428,29 +428,6 @@ void GMenu2X::main() {
 
 	if (curMMCStatus == MMC_INSERT) mountSd();
 
-// WARNING("ALL APPS:");
-// for (uint32_t i = 0; i < menu->getSections().size(); i++) {
-// 	for (uint32_t x = 0; x < menu->sectionLinks(i)->size(); x++) {
-// 		// bool islink = menu->sectionLinks(i)->at(x)->getFile(); != NULL;
-// 		menu->setSectionIndex(i);
-// 		menu->setLinkIndex(x);
-// 		bool islink = menu->selLinkApp() != NULL;
-// 		ERROR("APP: %d %d %d %s", i, x, islink, menu->sectionLinks(i)->at(x)->getTitle().c_str());
-// 		if (!islink) continue;
-
-// 		// menu->selLinkApp()->setIcon(linkIcon);
-// 		// menu->selLinkApp()->setBackdrop(linkBackdrop);
-// 		menu->selLinkApp()->setCPU(0);
-// 		// menu->selLinkApp()->setVolume(linkVolume);
-// 		menu->selLinkApp()->save();
-// 	}
-
-// 		// menu->setSectionIndex(0);
-// 		// menu->setLinkIndex(0);
-
-// }
-
-
 	while (!quit) {
 		tickNow = SDL_GetTicks();
 
@@ -931,7 +908,7 @@ void GMenu2X::initMenu() {
 	for (uint32_t i = 0; i < menu->getSections().size(); i++) {
 		//Add virtual links in the applications section
 		if (menu->getSections()[i] == "applications") {
-			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Launch an application"], "skin:icons/explorer.png");
+			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Browse files and launch apps"], "skin:icons/explorer.png");
 #if !defined(TARGET_PC)
 			if (getBatteryLevel() > 5) // show only if charging
 #endif
@@ -963,6 +940,7 @@ void GMenu2X::initMenu() {
 
 			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "skin:icons/about.png");
 			// menu->addActionLink(i, "Reboot", MakeDelegate(this, &GMenu2X::reboot), tr["Reboot device"], "skin:icons/reboot.png");
+			menu->addActionLink(i, tr["Factory Defaults"], MakeDelegate(this, &GMenu2X::resetSettings), tr["Reset settings to factory defaults"], "skin:icons/reboot.png");
 			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroffDialog), tr["Power menu"], "skin:icons/exit.png");
 		}
 	}
@@ -1073,6 +1051,71 @@ void GMenu2X::settings() {
 		if (prevSkinBackdrops != confInt["skinBackdrops"] || prevDateTime != confStr["datetime"]) restartDialog();
 	}
 }
+
+void GMenu2X::resetSettings() {
+	bool	reset_gmenu = true, 
+			reset_skin = true, 
+			reset_icon = false, 
+			reset_manual = false, 
+			reset_parameter = false, 
+			reset_backdrop = true,
+			reset_filter = false,
+			reset_directory = false,
+			reset_preview = false,
+			reset_cpu = false;
+
+	string tmppath = "";
+
+	SettingsDialog sd(this, ts, tr["Reset Settings"], "skin:icons/configure.png");
+	sd.addSetting(new MenuSettingBool(this, tr["GMenuNext"], tr["Reset GMenuNext settings"], &reset_gmenu));
+	sd.addSetting(new MenuSettingBool(this, tr["Skin"], tr["Reset Default skin settings back to default"], &reset_skin));
+	sd.addSetting(new MenuSettingBool(this, tr["Icons"], tr["Reset link's icon back to default"], &reset_icon));
+	sd.addSetting(new MenuSettingBool(this, tr["Manuals"], tr["Unset link's manual"], &reset_manual));
+	sd.addSetting(new MenuSettingBool(this, tr["Parameters"], tr["Unset link's additional parameters"], &reset_parameter));
+	sd.addSetting(new MenuSettingBool(this, tr["Backdrops"], tr["Unset link's backdrops"], &reset_backdrop));
+	sd.addSetting(new MenuSettingBool(this, tr["Filters"], tr["Unset link's selector file filters"], &reset_filter));
+	sd.addSetting(new MenuSettingBool(this, tr["Directories"], tr["Unset link's selector directory"], &reset_directory));
+	sd.addSetting(new MenuSettingBool(this, tr["Previews"], tr["Unset link's selector previews path"], &reset_preview));
+	sd.addSetting(new MenuSettingBool(this, tr["CPU speed"], tr["Reset link's custom CPU speed back to default"], &reset_cpu));
+
+	if (sd.exec() && sd.save) {
+		MessageBox mb(this, tr["Changes will be applied to ALL\napps and GMenuNext. Are you sure?"], "skin:icons/exit.png");
+		mb.setButton(CONFIRM, tr["Cancel"]);
+		mb.setButton(SETTINGS,  tr["Confirm"]);
+		if (mb.exec() == CANCEL) return;
+
+		for (uint32_t s = 0; s < menu->getSections().size(); s++) {
+			for (uint32_t l = 0; l < menu->sectionLinks(s)->size(); l++) {
+				menu->setSectionIndex(s);
+				menu->setLinkIndex(l);
+				bool islink = menu->selLinkApp() != NULL;
+				// WARNING("APP: %d %d %d %s", s, l, islink, menu->sectionLinks(s)->at(l)->getTitle().c_str());
+				if (!islink) continue;
+				if (reset_cpu)			menu->selLinkApp()->setCPU(0);
+				if (reset_icon)			menu->selLinkApp()->setIcon("");
+				if (reset_manual)		menu->selLinkApp()->setManual("");
+				if (reset_parameter) 	menu->selLinkApp()->setParams("");
+				if (reset_filter) 		menu->selLinkApp()->setSelectorFilter("");
+				if (reset_directory) 	menu->selLinkApp()->setSelectorDir("");
+				if (reset_preview) 		menu->selLinkApp()->setSelectorScreens("");
+				if (reset_backdrop) 	menu->selLinkApp()->setBackdrop("");
+				if (reset_icon || reset_manual || reset_parameter || reset_backdrop || reset_filter || reset_directory || reset_preview )
+					menu->selLinkApp()->save();
+
+			}
+		}
+		if (reset_skin) {
+			tmppath = path + "skins/Default/skin.conf";
+			unlink(tmppath.c_str());
+		}
+		if (reset_gmenu) {
+			tmppath = path + "gmenu2x.conf";
+			unlink(tmppath.c_str());
+		}
+		restartDialog();
+	}
+}
+
 
 void GMenu2X::readTmp() {
 	lastSelectorElement = -1;
@@ -1204,7 +1247,7 @@ void GMenu2X::writeConfig() {
 
 void GMenu2X::writeSkinConfig() {
 	ledOn();
-	string conffile = path+"skins/"+confStr["skin"]+"/skin.conf";
+	string conffile = path + "skins/" + confStr["skin"] + "/skin.conf";
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for (ConfStrHash::iterator curr = skinConfStr.begin(); curr != skinConfStr.end(); curr++)
@@ -1310,8 +1353,8 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 	evalIntConf( &skinConfInt["selectorPreviewY"], 56, 1, resY);
 	evalIntConf( &skinConfInt["selectorPreviewWidth"], 128, 32, resY);
 	evalIntConf( &skinConfInt["selectorPreviewHeight"], 128, 32, resX);
-	evalIntConf( &skinConfInt["fontSize"], 9, 6, 60);
-	evalIntConf( &skinConfInt["fontSizeTitle"], 14, 6, 60);
+	evalIntConf( &skinConfInt["fontSize"], 12, 6, 60);
+	evalIntConf( &skinConfInt["fontSizeTitle"], 20, 6, 60);
 
 	if (menu != NULL && clearSC) menu->loadIcons();
 

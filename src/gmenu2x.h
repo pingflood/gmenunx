@@ -243,6 +243,7 @@ public:
 	void settings();
 	void restartDialog(bool showDialog = false);
 	void poweroffDialog();
+	void resetSettings();
 
 	/*!
 	Reads the current battery state and returns a number representing it's level of charge
@@ -303,7 +304,7 @@ public:
 
 	void writeConfig();
 	void writeSkinConfig();
-	void writeTmp(int selelem=-1, const string &selectordir="");
+	void writeTmp(int selelem = -1, const string &selectordir = "");
 
 	void ledOn();
 	void ledOff();
