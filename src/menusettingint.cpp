@@ -31,13 +31,13 @@ MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &name, const strin
 	: MenuSetting(gmenu2x,name,description) {
 	IconButton *btn;
 
-	_value = evalIntConf(value, def, min, max);
+	_value = value;
 	originalValue = *value;
 	this->def = def;
 	this->min = min;
 	this->max = max;
 	this->delta = delta;
-	setValue(this->value());
+	setValue(evalIntConf(value, def, min, max));
 
 	//Delegates
 	ButtonAction actionInc = MakeDelegate(this, &MenuSettingInt::inc);
@@ -78,9 +78,9 @@ void MenuSettingInt::dec() {
 }
 
 void MenuSettingInt::setValue(int value) {
-	_value = constrain(value,min,max);
+	*_value = constrain(value,min,max);
 	stringstream ss;
-	ss << _value;
+	ss << *_value;
 	strvalue = "";
 	ss >> strvalue;
 }
@@ -90,7 +90,7 @@ void MenuSettingInt::setDefault() {
 }
 
 int MenuSettingInt::value() {
-	return _value;
+	return *_value;
 }
 
 // void MenuSettingInt::adjustInput() {

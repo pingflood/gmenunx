@@ -46,12 +46,12 @@ bool case_less::operator()(const string &left, const string &right) const {
 }
 
 // General tool to strip spaces from both ends:
-string trim(const string& s) {
-  if(s.length() == 0)
+string trim(const string &s) {
+  if (s.length() == 0)
     return s;
   int b = s.find_first_not_of(" \t\r");
   int e = s.find_last_not_of(" \t\r");
-  if(b == -1) // No non-spaces
+  if (b == -1) // No non-spaces
     return "";
   return string(s, b, e - b + 1);
 }
@@ -61,7 +61,7 @@ void string_copy(const string &s, char **cs) {
 	strcpy(*cs, s.c_str());
 }
 
-char * string_copy(const string &s) {
+char *string_copy(const string &s) {
 	char *cs = NULL;
 	string_copy(s, &cs);
 	return cs;
@@ -105,47 +105,46 @@ bool rmtree(string path) {
 	return rmdir(path.c_str())==0;
 }
 
-int max (int a, int b) {
-	return a>b ? a : b;
+int max(int a, int b) {
+	return a > b ? a : b;
 }
-int min (int a, int b) {
-	return a<b ? a : b;
+float max(float a, float b) {
+	return a > b ? a : b;
+}
+int min(int a, int b) {
+	return a < b ? a : b;
+}
+float min(float a, float b) {
+	return a < b ? a : b;
 }
 int constrain(int x, int imin, int imax) {
-	return min( imax, max(imin,x) );
+	return min(imax, max(imin, x));
+}
+float constrain(float x, float imin, float imax) {
+	return min(imax, max(imin, x));
 }
 
 //Configuration parsing utilities
-int evalIntConf (int val, int def, int imin, int imax) {
-	if (val==0 && (val<imin || val>imax))
-		return def;
-	val = constrain(val, imin, imax);
-	return val;
+int evalIntConf(int val, int def, int imin, int imax) {
+	return evalIntConf(&val, def, imin, imax);
 }
-int evalIntConf (int *val, int def, int imin, int imax) {
-	*val = evalIntConf(*val, def, imin, imax);
+int evalIntConf(int *val, int def, int imin, int imax) {
+	if (*val == 0 && (*val < imin || *val > imax))
+		*val = def;
+	else
+		*val = constrain(*val, imin, imax);
 	return *val;
 }
 
-const string &evalStrConf (const string &val, const string &def) {
+const string &evalStrConf(const string &val, const string &def) {
 	return val.empty() ? def : val;
 }
-const string &evalStrConf (string *val, const string &def) {
+const string &evalStrConf(string *val, const string &def) {
 	*val = evalStrConf(*val, def);
 	return *val;
 }
 
-float max (float a, float b) {
-	return a>b ? a : b;
-}
-float min (float a, float b) {
-	return a<b ? a : b;
-}
-float constrain (float x, float imin, float imax) {
-	return min( imax, max(imin,x) );
-}
-
-bool split (vector<string> &vec, const string &str, const string &delim, bool destructive) {
+bool split(vector<string> &vec, const string &str, const string &delim, bool destructive) {
 	vec.clear();
 
 	if (delim.empty()) {
@@ -156,9 +155,9 @@ bool split (vector<string> &vec, const string &str, const string &delim, bool de
 	std::string::size_type i = 0;
 	std::string::size_type j = 0;
 
-	while(1) {
+	while (true) {
 		j = str.find(delim,i);
-		if (j==std::string::npos) {
+		if (j == std::string::npos) {
 			vec.push_back(str.substr(i));
 			break;
 		}
@@ -171,7 +170,7 @@ bool split (vector<string> &vec, const string &str, const string &delim, bool de
 		if (destructive)
 			i = j + delim.size();
 
-		if (i==str.size()) {
+		if (i == str.size()) {
 			vec.push_back(std::string());
 			break;
 		}
@@ -180,29 +179,29 @@ bool split (vector<string> &vec, const string &str, const string &delim, bool de
 	return true;
 }
 
-string strreplace (string orig, const string &search, const string &replace) {
-	string::size_type pos = orig.find( search, 0 );
+string strreplace(string orig, const string &search, const string &replace) {
+	string::size_type pos = orig.find(search, 0);
 	while (pos != string::npos) {
-		orig.replace(pos,search.length(),replace);
-		pos = orig.find( search, pos+replace.length() );
+		orig.replace(pos, search.length(), replace);
+		pos = orig.find(search, pos + replace.length());
 	}
 	return orig;
 }
 
-string cmdclean (string cmdline) {
+string cmdclean(string cmdline) {
 	string spchars = "\\`$();|{}&'\"*?<>[]!^~-#\n\r ";
-	for (uint32_t i=0; i<spchars.length(); i++) {
-		string curchar = spchars.substr(i,1);
-		cmdline = strreplace(cmdline, curchar, "\\"+curchar);
+	for (uint32_t i = 0; i < spchars.length(); i++) {
+		string curchar = spchars.substr(i, 1);
+		cmdline = strreplace(cmdline, curchar, "\\" + curchar);
 	}
 	return cmdline;
 }
 
 int intTransition(int from, int to, int32_t tickStart, int32_t duration, int32_t tickNow) {
-	if (tickNow<0) tickNow = SDL_GetTicks();
-	float elapsed = (float)(tickNow-tickStart)/duration;
+	if (tickNow < 0) tickNow = SDL_GetTicks();
+	float elapsed = (float)(tickNow - tickStart) / duration;
 	//                    elapsed                 increments
-	return min((int)round(elapsed*(to-from)), (int)max(from, to));
+	return min((int)round(elapsed * (to - from)), (int)max(from, to));
 }
 
 string exec(const char* cmd) {
