@@ -37,19 +37,19 @@ protected:
 	virtual void onChangeDir() {};
 
 	FileLister *fl;
-	uint32_t selected;
+	int32_t selected;
 
 private:
-	enum Action {
-		ACT_NONE,
-		ACT_SELECT,
-		ACT_CLOSE,
-		ACT_UP,
-		ACT_DOWN,
-		ACT_SCROLLUP,
-		ACT_SCROLLDOWN,
-		ACT_GOUP,
-		ACT_CONFIRM,
+	enum bd_action_t {
+		BD_NO_ACTION,
+		BD_ACTION_SELECT,
+		BD_ACTION_CLOSE,
+		BD_ACTION_UP,
+		BD_ACTION_DOWN,
+		BD_ACTION_PAGEUP,
+		BD_ACTION_PAGEDOWN,
+		BD_ACTION_GOUP,
+		BD_ACTION_CONFIRM,
 	};
 
 	bool close, result;
@@ -71,8 +71,8 @@ private:
 
 	ButtonBox buttonBox;
 
-	Action getAction();
-	void handleInput();
+	uint32_t getAction();
+	// void handleInput();
 
 	// void paint();
 

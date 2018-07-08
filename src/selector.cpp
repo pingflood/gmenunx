@@ -65,30 +65,8 @@ int Selector::exec(int startSelection) {
 
 	screendir = link->getSelectorScreens();
 
-	// SDL_Rect rect;
-
-	// if (screendir == "") {
-		// drawTopBar(this->bg);
-		// rect = gmenu2x->listRect; //{0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
-	// } else {
-		// this->bg->box(0, 0, gmenu2x->skinConfInt["previewWidth"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-		// this->bg->setClipRect(0, 0, gmenu2x->skinConfInt["previewWidth"] - 4, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]);
-		// rect = (SDL_Rect){gmenu2x->skinConfInt["previewWidth"], 0, gmenu2x->resX - gmenu2x->skinConfInt["previewWidth"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]};
-	// }
-
-	// dc: adjust rowHeight with font
-	uint32_t rowHeight = gmenu2x->font->getHeight() + 1; // gp2x=15+1 / pandora=19+1
+	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
 	uint32_t numRows = gmenu2x->listRect.h / rowHeight - 1;
-
-	// drawTitleIcon(link->getIconPath(), this->bg);
-	// writeTitle(link->getTitle(), this->bg);
-	// writeSubTitle(link->getDescription(), this->bg);
-
-	// this->bg->clearClipRect();
-
-	// this->bg->box(rect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-	// drawBottomBar(this->bg);
-
 
 	drawTopBar(this->bg, link->getTitle(), link->getDescription(), link->getIconPath());
 	drawBottomBar(this->bg);
@@ -119,31 +97,25 @@ int Selector::exec(int startSelection) {
 	while (!close) {
 		this->bg->blit(gmenu2x->s, 0, 0);
 
-		if (selected > firstElement + numRows) firstElement = selected - numRows;
+		//Selection
+		if (selected >= firstElement + numRows) firstElement = selected - numRows;
 		if (selected < firstElement) firstElement = selected;
-
 		iY = selected - firstElement;
-		iY = gmenu2x->listRect.y + (iY * rowHeight);
+		iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
+		gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
-		// if (selected < fl.size()) {
-			gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-		// }
-
-
-		//Files & Dirs
+		//Files & Directories
 		iY = gmenu2x->listRect.y + 1;
-
 		for (i = firstElement; i < fl.size() && i <= firstElement + numRows; i++) {
 			if (fl.isDirectory(i)) {
 				if (fl[i] == "..")
 					iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 				else
-					// iconFolder->blitCenter(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2);
 					iconFolder->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 			} else {
 				iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 			}
-			gmenu2x->s->write(gmenu2x->font, fl[i], gmenu2x->listRect.x + 21, iY + 4, VAlignMiddle);
+			gmenu2x->s->write(gmenu2x->font, fl[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
 
 			iY += rowHeight;
 		}
@@ -154,7 +126,6 @@ int Selector::exec(int startSelection) {
 
 			// gmenu2x->sc[screens[selected - fl.dirCount()]]->softStretch(50, 50);
 			gmenu2x->sc[screens[selected - fl.dirCount()]]->blit(gmenu2x->s, {320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
-			// gmenu2x->s->clearClipRect();
 
 			if (animation < gmenu2x->skinConfInt["previewWidth"]) {
 				animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
@@ -170,19 +141,8 @@ int Selector::exec(int startSelection) {
 				gmenu2x->input.setWakeUpInterval(45);
 				continue;
 			}
-			// animation = 0;
 		}
 		gmenu2x->input.setWakeUpInterval(1000);
-
-		// if (screendir != "") {
-		// 	if (selected - fl.dirCount() < screens.size() && screens[selected - fl.dirCount()] != "") {
-		// 		gmenu2x->sc[screens[selected - fl.dirCount()]]->blitCenter(gmenu2x->s, gmenu2x->skinConfInt["selectorPreviewX"] + gmenu2x->skinConfInt["selectorPreviewWidth"]/2, gmenu2x->skinConfInt["selectorPreviewY"] + gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
-		// 	} else {
-		// 		if (gmenu2x->sc.skinRes("imgs/preview.png") != NULL)
-		// 			iconPreview->blitCenter(gmenu2x->s, gmenu2x->skinConfInt["selectorPreviewX"] + gmenu2x->skinConfInt["selectorPreviewWidth"]/2, gmenu2x->skinConfInt["selectorPreviewY"] + gmenu2x->skinConfInt["selectorPreviewHeight"]/2, gmenu2x->skinConfInt["selectorPreviewWidth"], gmenu2x->skinConfInt["selectorPreviewHeight"]);
-		// 	}
-		// }
-
 
 		gmenu2x->s->clearClipRect();
 		gmenu2x->drawScrollBar(numRows, fl.size(), firstElement, gmenu2x->listRect);
@@ -194,7 +154,7 @@ int Selector::exec(int startSelection) {
 		if ( gmenu2x->input[UP] ) {
 			tickStart = SDL_GetTicks();
 			selected -= 1;
-			if (selected < 0) selected = fl.size()-1;
+			if (selected < 0) selected = fl.size() - 1;
 		} else if ( gmenu2x->input[DOWN] ) {
 			tickStart = SDL_GetTicks();
 			selected += 1;
@@ -206,7 +166,7 @@ int Selector::exec(int startSelection) {
 		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
 			tickStart = SDL_GetTicks();
 			selected += numRows;
-			if (selected > fl.size()) selected = fl.size() - 1;
+			if (selected >= fl.size()) selected = fl.size() - 1;
 		} else if ( gmenu2x->input[SETTINGS] ) {
 			close = true; result = false;
 		// } else if ( gmenu2x->input[MENU] ) {

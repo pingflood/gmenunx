@@ -21,11 +21,6 @@
 #ifndef SETTINGSDIALOG_H_
 #define SETTINGSDIALOG_H_
 
-#define SD_NO_ACTION 0
-#define SD_ACTION_CLOSE 1
-#define SD_ACTION_UP 2
-#define SD_ACTION_DOWN 3
-#define SD_ACTION_SAVE 4
 
 #include <string>
 #include "gmenu2x.h"
@@ -39,6 +34,15 @@ class Touchscreen;
 
 class SettingsDialog : protected Dialog {
 private:
+	enum sd_action_t {
+		SD_NO_ACTION,
+		SD_ACTION_CLOSE,
+		SD_ACTION_UP,
+		SD_ACTION_DOWN,
+		SD_ACTION_SAVE,
+		SD_ACTION_PAGEUP,
+		SD_ACTION_PAGEDOWN,
+	};
 	Touchscreen &ts;
 	vector<MenuSetting *> voices;
 	string text, icon;

@@ -34,14 +34,14 @@ SettingsDialog::SettingsDialog(
 	, ts(ts_)
 	, text(text_)
 {
-	if (icon!="" && gmenu2x->sc[icon] != NULL)
+	if (icon != "" && gmenu2x->sc[icon] != NULL)
 		this->icon = icon;
 	else
 		this->icon = "icons/generic.png";
 }
 
 SettingsDialog::~SettingsDialog() {
-	for (uint32_t i=0; i<voices.size(); i++)
+	for (uint32_t i = 0; i < voices.size(); i++)
 		delete voices[i];
 }
 
@@ -49,47 +49,44 @@ bool SettingsDialog::exec() {
 	// gmenu2x->initBG();
 
 	bool close = false, ts_pressed = false;
-	uint32_t i, sel = 0, iY, firstElement = 0, action;
-	voices[sel]->adjustInput();
+	uint32_t i, iY, firstElement = 0, action = SD_NO_ACTION, rowHeight, numRows;
+	int32_t selected = 0;
+	voices[selected]->adjustInput();
+
+
 
 	while (!close) {
 		gmenu2x->initLayout();
 		gmenu2x->font->setSize(gmenu2x->skinConfInt["fontSize"])->setColor(gmenu2x->skinConfColors[COLOR_FONT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_OUTLINE]);
 		gmenu2x->titlefont->setSize(gmenu2x->skinConfInt["fontSizeTitle"])->setColor(gmenu2x->skinConfColors[COLOR_FONT_ALT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 
-		uint32_t rowHeight = gmenu2x->font->getHeight();
-		uint32_t numRows = gmenu2x->listRect.h/rowHeight;
+		rowHeight = gmenu2x->font->getHeight() + 1;
+		numRows = gmenu2x->listRect.h / rowHeight - 1;
 
 		this->bg->blit(gmenu2x->s,0,0);
 
 		// redraw to due to realtime skin
-		drawTopBar(gmenu2x->s, text, voices[sel]->getDescription(), icon);
+		drawTopBar(gmenu2x->s, text, voices[selected]->getDescription(), icon);
 		drawBottomBar(gmenu2x->s);
 		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-		if (sel>firstElement+numRows-1) firstElement=sel-numRows+1;
-		if (sel<firstElement) firstElement=sel;
-
-		//selection
-		iY = sel-firstElement;
-		iY = gmenu2x->listRect.y + (iY*rowHeight);
-
-		if (sel<voices.size())
-			gmenu2x->s->box(gmenu2x->listRect.x, iY+2, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		//Selection
+		if (selected >= firstElement + numRows) firstElement = selected - numRows;
+		if (selected < firstElement) firstElement = selected;
+		iY = selected - firstElement;
+		iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
+		gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//selected option
-		voices[sel]->drawSelected(iY);
+		voices[selected]->drawSelected(iY);
 
-		if (ts_pressed && !ts.pressed()) ts_pressed = false;
-		if (gmenu2x->f200 && ts.pressed() && !ts.inRect(gmenu2x->listRect)) ts_pressed = false;
+		// if (ts_pressed && !ts.pressed()) ts_pressed = false;
+		// if (gmenu2x->f200 && ts.pressed() && !ts.inRect(gmenu2x->listRect)) ts_pressed = false;
 
-		for (i=firstElement; i<voices.size() && i<firstElement+numRows; i++) {
-			iY = i-firstElement;
-			voices[i]->draw(iY*rowHeight+gmenu2x->listRect.y);
-			if (gmenu2x->f200 && ts.pressed() && ts.inRect(gmenu2x->listRect.x, gmenu2x->listRect.y+(iY*rowHeight), gmenu2x->listRect.w, rowHeight)) {
-				ts_pressed = true;
-				sel = i;
-			}
+		iY = gmenu2x->listRect.y + 1;
+		for (i = firstElement; i < voices.size() && i <= firstElement + numRows; i++) {
+			voices[i]->draw(iY);
+			iY += rowHeight;
 		}
 
 		gmenu2x->drawScrollBar(numRows, voices.size(), firstElement, gmenu2x->listRect);
@@ -104,27 +101,39 @@ bool SettingsDialog::exec() {
 		else if ( gmenu2x->input[CANCEL] ) action = SD_ACTION_CLOSE;
 		else if ( gmenu2x->input[UP      ] ) action = SD_ACTION_UP;
 		else if ( gmenu2x->input[DOWN    ] ) action = SD_ACTION_DOWN;
-		else if ( gmenu2x->input[PAGEUP  ] ) sel = (sel < numRows) ? sel = 0 : sel - numRows + 1;
-		else if ( gmenu2x->input[PAGEDOWN] ) sel = (sel + numRows >= voices.size()) ? voices.size() - 1 : sel + numRows - 1;
-		else action = voices[sel]->manageInput();
+		else if ( gmenu2x->input[PAGEUP  ] ) action = SD_ACTION_PAGEUP;
+		else if ( gmenu2x->input[PAGEDOWN] ) action = SD_ACTION_PAGEDOWN;
+		else action = voices[selected]->manageInput();
 
 		switch (action) {
-			case SD_ACTION_SAVE: save = true; close = true; break;
-			case SD_ACTION_CLOSE: save = false; close = true; break;
-			case SD_ACTION_UP: {
-				if (sel==0)
-					sel = voices.size()-1;
-				else
-					sel -= 1;
+			case SD_ACTION_SAVE:
+				save = true;
+				close = true;
+				break;
+			case SD_ACTION_CLOSE:
+				save = false;
+				close = true;
+				break;
+			case SD_ACTION_UP:
+				selected -= 1;
+				if (selected < 0) selected = voices.size() - 1;
 				gmenu2x->setInputSpeed();
-				voices[sel]->adjustInput();
-			} break;
-			case SD_ACTION_DOWN: {
-				sel += 1;
-				if (sel>=voices.size()) sel = 0;
+				voices[selected]->adjustInput();
+				break;
+			case SD_ACTION_DOWN:
+				selected += 1;
+				if (selected >= voices.size()) selected = 0;
 				gmenu2x->setInputSpeed();
-				voices[sel]->adjustInput();
-			} break;
+				voices[selected]->adjustInput();
+				break;
+			case SD_ACTION_PAGEUP:
+				selected -= numRows;
+				if (selected < 0) selected = 0;
+				break;
+			case SD_ACTION_PAGEDOWN:
+				selected += numRows;
+				if (selected >= voices.size()) selected = voices.size() - 1;
+				break;
 		}
 	}
 
@@ -138,8 +147,7 @@ void SettingsDialog::addSetting(MenuSetting* set) {
 }
 
 bool SettingsDialog::edited() {
-	// WARNING("EDITED!!");
-	for (uint32_t i=0; i<voices.size(); i++)
+	for (uint32_t i = 0; i < voices.size(); i++)
 		if (voices[i]->edited()) return true;
 	return false;
 }
