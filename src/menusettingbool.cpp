@@ -61,7 +61,15 @@ void MenuSettingBool::initButton()
 void MenuSettingBool::draw(int y)
 {
 	MenuSetting::draw(y);
-	gmenu2x->s->write( gmenu2x->font, strvalue, 155, y+gmenu2x->font->getHalfHeight(), VAlignMiddle );
+
+	RGBAColor color;
+	if (value()) color = (RGBAColor) {0, 255, 0, 255};
+	else color = (RGBAColor){255, 0, 0, 255};
+
+	gmenu2x->s->box(155, y + (gmenu2x->font->getHeight()/2) - 6, 12, 12, color);
+	gmenu2x->s->rectangle(155, y + (gmenu2x->font->getHeight()/2) - 6, 12, 12, 0, 0, 0, 255);
+
+	gmenu2x->s->write( gmenu2x->font, strvalue, 169, y + gmenu2x->font->getHalfHeight(), VAlignMiddle );
 }
 
 uint32_t MenuSettingBool::manageInput()
