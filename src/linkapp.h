@@ -75,10 +75,8 @@ public:
 	void setSelectorFilter(const string &selectorfilter);
 	const string &getAliasFile();
 	void setAliasFile(const string &aliasfile);
-
 	int clock();
-	// const string &clockStr(int maxClock);
-	void setCPU(int mhz);
+	void setCPU(int mhz = 0);
 
 	// int volume();
 	// const string &volumeStr();

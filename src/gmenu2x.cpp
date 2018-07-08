@@ -1091,7 +1091,7 @@ void GMenu2X::resetSettings() {
 				bool islink = menu->selLinkApp() != NULL;
 				// WARNING("APP: %d %d %d %s", s, l, islink, menu->sectionLinks(s)->at(l)->getTitle().c_str());
 				if (!islink) continue;
-				if (reset_cpu)			menu->selLinkApp()->setCPU(0);
+				if (reset_cpu)			menu->selLinkApp()->setCPU();
 				if (reset_icon)			menu->selLinkApp()->setIcon("");
 				if (reset_manual)		menu->selLinkApp()->setManual("");
 				if (reset_parameter) 	menu->selLinkApp()->setParams("");
