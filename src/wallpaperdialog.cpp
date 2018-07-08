@@ -22,7 +22,7 @@
 
 #include "wallpaperdialog.h"
 #include "filelister.h"
-#include "debug.h"
+// #include "debug.h"
 #include "messagebox.h"
 
 using namespace std;
@@ -38,26 +38,25 @@ bool WallpaperDialog::exec()
 {
 	bool close = false, result = true;
 
-	uint32_t i, firstElement = 0, iY;
+	uint32_t i, iY, firstElement = 0;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
-	uint32_t numRows = gmenu2x->listRect.h / rowHeight - 1;
+	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
 	int32_t selected = 0;
 
-	FileLister fl("skins/"+gmenu2x->confStr["skin"]+"/wallpapers");
+	FileLister fl("skins/" + gmenu2x->confStr["skin"] + "/wallpapers");
 	fl.setFilter(".png,.jpg,.jpeg,.bmp");
 	vector<string> wallpapers;
-	if (dirExists("skins/"+gmenu2x->confStr["skin"]+"/wallpapers")) {
+	if (dirExists("skins/" + gmenu2x->confStr["skin"] + "/wallpapers")) {
 		fl.browse();
 		wallpapers = fl.getFiles();
 	}
 	if (gmenu2x->confStr["skin"] != "Default") {
-		fl.setPath("skins/Default/wallpapers",true);
-		for (uint32_t i=0; i<fl.getFiles().size(); i++)
+		fl.setPath("skins/Default/wallpapers", true);
+		for (uint32_t i = 0; i < fl.getFiles().size(); i++)
 			wallpapers.push_back(fl.getFiles()[i]);
 	}
 
-	DEBUG("Wallpapers: %i", wallpapers.size());
-
+	// DEBUG("Wallpapers: %i", wallpapers.size());
 	while (!close) {
 		bool inputAction = gmenu2x->input.update();
 		if (gmenu2x->inputCommonActions(inputAction)) continue;

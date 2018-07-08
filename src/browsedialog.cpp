@@ -40,11 +40,6 @@ BrowseDialog::~BrowseDialog() {
 }
 
 bool BrowseDialog::exec() {
-	// gmenu2x->initBG();
-
-	// moved out of the loop to fix weird scroll behavior
-	uint32_t i, iY, firstElement = 0, offsetY, animation = 0, padding = 6;
-
 	if (!fl)
 		return false;
 
@@ -54,23 +49,20 @@ bool BrowseDialog::exec() {
 
 	fl->browse();
 
-	rowHeight = gmenu2x->font->getHeight() + 1;
-	numRows = gmenu2x->listRect.h/rowHeight - 1;
-
 	selected = 0;
 	close = false;
+
+	uint32_t i, iY, firstElement = 0, animation = 0, padding = 6;
+	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
+	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
 
 	drawTopBar(this->bg, title, subtitle, "icons/explorer.png");
 	drawBottomBar(this->bg);
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	// this->bg->setClipRect(gmenu2x->listRect);
 	uint32_t tickStart = SDL_GetTicks();
-
 	while (!close) {
-
 		this->bg->blit(gmenu2x->s, 0, 0);
-
 		buttonBox.paint(5);
 
 		//Selection

@@ -57,16 +57,15 @@ int Selector::exec(int startSelection) {
 	bool close = false, result = true;
 	vector<string> screens, titles;
 
-	uint32_t i, firstElement = 0, iY, animation = 0, padding = 6;
-
 	FileLister fl(dir, link->getSelectorBrowser());
 	fl.setFilter(link->getSelectorFilter());
 	fl.browse();
 
 	screendir = link->getSelectorScreens();
 
+	uint32_t i, firstElement = 0, iY, animation = 0, padding = 6;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
-	uint32_t numRows = gmenu2x->listRect.h / rowHeight - 1;
+	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
 
 	drawTopBar(this->bg, link->getTitle(), link->getDescription(), link->getIconPath());
 	drawBottomBar(this->bg);
@@ -74,11 +73,11 @@ int Selector::exec(int startSelection) {
 
 	if (link->getSelectorBrowser()) {
 		gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
-			gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Folder up"],
-				gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5)));
+		gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Folder up"],
+		gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5)));
 	} else {
 		gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
-			gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"], 5));
+		gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"], 5));
 	}
 
 	prepare(&fl, &screens, &titles);

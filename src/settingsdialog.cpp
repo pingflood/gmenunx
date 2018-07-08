@@ -46,14 +46,10 @@ SettingsDialog::~SettingsDialog() {
 }
 
 bool SettingsDialog::exec() {
-	// gmenu2x->initBG();
-
 	bool close = false, ts_pressed = false;
 	uint32_t i, iY, firstElement = 0, action = SD_NO_ACTION, rowHeight, numRows;
 	int32_t selected = 0;
 	voices[selected]->adjustInput();
-
-
 
 	while (!close) {
 		gmenu2x->initLayout();
@@ -61,7 +57,7 @@ bool SettingsDialog::exec() {
 		gmenu2x->titlefont->setSize(gmenu2x->skinConfInt["fontSizeTitle"])->setColor(gmenu2x->skinConfColors[COLOR_FONT_ALT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 
 		rowHeight = gmenu2x->font->getHeight() + 1;
-		numRows = gmenu2x->listRect.h / rowHeight - 1;
+		numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
 
 		this->bg->blit(gmenu2x->s,0,0);
 

@@ -60,9 +60,6 @@ private:
 	// SDL_Rect clipRect;
 	// SDL_Rect touchRect;
 
-	uint32_t numRows;
-	uint32_t rowHeight;
-
 	bool ts_pressed;
 
 	Surface *iconGoUp;
