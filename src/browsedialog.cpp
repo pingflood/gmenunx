@@ -111,21 +111,21 @@ bool BrowseDialog::exec() {
 		string ext = getExt();
 
 		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif") {
-			gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+			gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 
-			gmenu2x->sc[filename]->softStretch(gmenu2x->skinConfInt["selectorX"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
-			gmenu2x->sc[filename]->blit(gmenu2x->s, {320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["selectorX"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 240);
+			gmenu2x->sc[filename]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
+			gmenu2x->sc[filename]->blit(gmenu2x->s, {320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 240);
 
-			if (animation < gmenu2x->skinConfInt["selectorX"]) {
-				animation = intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 110);
+			if (animation < gmenu2x->skinConfInt["previewWidth"]) {
+				animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
 				gmenu2x->s->flip();
 				gmenu2x->input.setWakeUpInterval(45);
 				continue;
 			}
 		} else {
 			if (animation > 0) {
-				gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-				animation = gmenu2x->skinConfInt["selectorX"] - intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 80);
+				gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+				animation = gmenu2x->skinConfInt["previewWidth"] - intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 80);
 				gmenu2x->s->flip();
 				gmenu2x->input.setWakeUpInterval(45);
 				continue;

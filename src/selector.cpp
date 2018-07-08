@@ -71,9 +71,9 @@ int Selector::exec(int startSelection) {
 		// drawTopBar(this->bg);
 		// rect = gmenu2x->listRect; //{0, gmenu2x->skinConfInt["topBarHeight"], gmenu2x->resX, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"] - gmenu2x->skinConfInt["topBarHeight"]};
 	// } else {
-		// this->bg->box(0, 0, gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-		// this->bg->setClipRect(0, 0, gmenu2x->skinConfInt["selectorX"] - 4, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]);
-		// rect = (SDL_Rect){gmenu2x->skinConfInt["selectorX"], 0, gmenu2x->resX - gmenu2x->skinConfInt["selectorX"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]};
+		// this->bg->box(0, 0, gmenu2x->skinConfInt["previewWidth"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+		// this->bg->setClipRect(0, 0, gmenu2x->skinConfInt["previewWidth"] - 4, gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]);
+		// rect = (SDL_Rect){gmenu2x->skinConfInt["previewWidth"], 0, gmenu2x->resX - gmenu2x->skinConfInt["previewWidth"], gmenu2x->resY - gmenu2x->skinConfInt["bottomBarHeight"]};
 	// }
 
 	// dc: adjust rowHeight with font
@@ -150,22 +150,22 @@ int Selector::exec(int startSelection) {
 
 		//Screenshot
 		if (selected - fl.dirCount() < screens.size() && screens[selected - fl.dirCount()] != "") {
-			gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+			gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 
 			// gmenu2x->sc[screens[selected - fl.dirCount()]]->softStretch(50, 50);
-			gmenu2x->sc[screens[selected - fl.dirCount()]]->blit(gmenu2x->s, {320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["selectorX"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
+			gmenu2x->sc[screens[selected - fl.dirCount()]]->blit(gmenu2x->s, {320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
 			// gmenu2x->s->clearClipRect();
 
-			if (animation < gmenu2x->skinConfInt["selectorX"]) {
-				animation = intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 110);
+			if (animation < gmenu2x->skinConfInt["previewWidth"]) {
+				animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
 				gmenu2x->s->flip();
 				gmenu2x->input.setWakeUpInterval(45);
 				continue;
 			}
 		} else {
 			if (animation > 0) {
-				gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["selectorX"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-				animation = gmenu2x->skinConfInt["selectorX"] - intTransition(0, gmenu2x->skinConfInt["selectorX"], tickStart, 80);
+				gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+				animation = gmenu2x->skinConfInt["previewWidth"] - intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 80);
 				gmenu2x->s->flip();
 				gmenu2x->input.setWakeUpInterval(45);
 				continue;

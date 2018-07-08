@@ -1185,7 +1185,7 @@ void GMenu2X::readConfig() {
 	if (confStr["TVOut"] != "PAL") confStr["TVOut"] = "NTSC";
 	if (!confStr["lang"].empty()) tr.setLang(confStr["lang"]);
 	if (!confStr["wallpaper"].empty() && !fileExists(confStr["wallpaper"])) confStr["wallpaper"] = "";
-	if (confStr["skin"].empty() || !dirExists("skins/"+confStr["skin"])) confStr["skin"] = "Default";
+	if (confStr["skin"].empty() || !dirExists("skins/" + confStr["skin"])) confStr["skin"] = "Default";
 
 	// evalIntConf( &confInt["batteryLog"], 0, 0, 1 );
 	evalIntConf( &confInt["backlightTimeout"], 30, 10, 300);
@@ -1254,7 +1254,7 @@ void GMenu2X::writeSkinConfig() {
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 
 		for (ConfIntHash::iterator curr = skinConfInt.begin(); curr != skinConfInt.end(); curr++) {
-			if (curr->first == "titleFontSize" || curr->first == "sectionBarHeight" || curr->first == "linkHeight" ) continue;
+			if (curr->first == "titleFontSize" || curr->first == "sectionBarHeight" || curr->first == "linkHeight" || curr->first == "selectorPreviewX" || curr->first == "selectorPreviewY" || curr->first == "selectorPreviewWidth" || curr->first == "selectorPreviewHeight"  || curr->first == "selectorX" ) continue;
 			inf << curr->first << "=" << curr->second << endl;
 		}
 
@@ -1290,12 +1290,11 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 	skinConfColors[COLOR_MESSAGE_BOX_SELECTION] = (RGBAColor){160,160,160,255};
 	skinConfColors[COLOR_FONT] = (RGBAColor){255,255,255,255};
 	skinConfColors[COLOR_FONT_OUTLINE] = (RGBAColor){0,0,0,200};
-
 	skinConfColors[COLOR_FONT_ALT] = (RGBAColor){253,1,252,0};
 	skinConfColors[COLOR_FONT_ALT_OUTLINE] = (RGBAColor){253,1,252,0};
 
-//load skin settings
-	string skinconfname = "skins/"+skin+"/skin.conf";
+	// load skin settings
+	string skinconfname = "skins/" + skin + "/skin.conf";
 	if (fileExists(skinconfname)) {
 		ifstream skinconf(skinconfname.c_str(), ios_base::in);
 		if (skinconf.is_open()) {
@@ -1343,18 +1342,19 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 	if (!skinConfInt["fontSizeTitle"] && skinConfInt["titleFontSize"] > 0) skinConfInt["fontSizeTitle"] = skinConfInt["titleFontSize"];
 
 	evalIntConf( &skinConfInt["topBarHeight"], 40, 1, resY);
-	// evalIntConf( &skinConfInt["sectionBarHeight"], 200, 32, resY);
 	evalIntConf( &skinConfInt["sectionBarSize"], 40, 1, resX);
-	// evalIntConf( &skinConfInt["linkHeight"], 40, 16, resY);
 	evalIntConf( &skinConfInt["linkItemHeight"], 40, 32, resY);
 	evalIntConf( &skinConfInt["bottomBarHeight"], 16, 1, resY);
-	evalIntConf( &skinConfInt["selectorX"], 142, 1, resX);
-	evalIntConf( &skinConfInt["selectorPreviewX"], 7, 1, resX);
-	evalIntConf( &skinConfInt["selectorPreviewY"], 56, 1, resY);
-	evalIntConf( &skinConfInt["selectorPreviewWidth"], 128, 32, resY);
-	evalIntConf( &skinConfInt["selectorPreviewHeight"], 128, 32, resX);
+	evalIntConf( &skinConfInt["previewWidth"], 142, 1, resX);
 	evalIntConf( &skinConfInt["fontSize"], 12, 6, 60);
 	evalIntConf( &skinConfInt["fontSizeTitle"], 20, 6, 60);
+	// evalIntConf( &skinConfInt["sectionBarHeight"], 200, 32, resY);
+	// evalIntConf( &skinConfInt["linkHeight"], 40, 16, resY);
+	// evalIntConf( &skinConfInt["selectorX"], 142, 1, resX);
+	// evalIntConf( &skinConfInt["selectorPreviewX"], 7, 1, resX);
+	// evalIntConf( &skinConfInt["selectorPreviewY"], 56, 1, resY);
+	// evalIntConf( &skinConfInt["selectorPreviewWidth"], 128, 32, resY);
+	// evalIntConf( &skinConfInt["selectorPreviewHeight"], 128, 32, resX);
 
 	if (menu != NULL && clearSC) menu->loadIcons();
 
