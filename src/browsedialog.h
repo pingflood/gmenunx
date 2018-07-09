@@ -24,7 +24,6 @@
 #include <string>
 #include "filelister.h"
 #include "gmenu2x.h"
-#include "buttonbox.h"
 #include "dialog.h"
 
 class FileLister;
@@ -54,8 +53,8 @@ private:
 	};
 
 	bool close, result, ts_pressed;
-	string title, subtitle;
-	ButtonBox buttonBox;
+	string title, description, icon;
+	// ButtonBox buttonBox;
 
 	// SDL_Rect clipRect;
 	// SDL_Rect touchRect;
@@ -69,7 +68,7 @@ private:
 	void cancel();
 
 public:
-	BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &subtitle);
+	BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon = "icons/explorer.png");
 	virtual ~BrowseDialog();
 
 	bool exec();
