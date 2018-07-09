@@ -27,21 +27,21 @@ bool BrowseDialog::exec() {
 	Surface *iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
 	Surface *iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
 	Surface *iconFile = gmenu2x->sc.skinRes("imgs/file.png");
-	IconButton *btn;
+	// IconButton *btn;
 
-	if (!showFiles && allowSelectDirectory) {
-		btn = new IconButton(gmenu2x, "skin:imgs/buttons/start.png", gmenu2x->tr["Select"]);
-	} else {
-		btn = new IconButton(gmenu2x, "skin:imgs/buttons/start.png", gmenu2x->tr["Exit"]);
-	}
-	btn->setAction(MakeDelegate(this, &BrowseDialog::cancel));
-	buttonBox.add(btn);
+	// if (!showFiles && allowSelectDirectory) {
+	// 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/start.png", gmenu2x->tr["Select"]);
+	// } else {
+	// 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/start.png", gmenu2x->tr["Exit"]);
+	// }
+	// btn->setAction(MakeDelegate(this, &BrowseDialog::cancel));
+	// buttonBox.add(btn);
 
-	if (showFiles) {
-		btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Select"]);
-		btn->setAction(MakeDelegate(this, &BrowseDialog::directoryEnter));
-		buttonBox.add(btn);
-	}
+	// if (showFiles) {
+	// 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Select"]);
+	// 	btn->setAction(MakeDelegate(this, &BrowseDialog::directoryEnter));
+	// 	buttonBox.add(btn);
+	// }
 
 	string path = fl->getPath();
 	if (path.empty() || !dirExists(path) || path.compare(0,CARD_ROOT_LEN,CARD_ROOT)!=0)
@@ -60,9 +60,15 @@ bool BrowseDialog::exec() {
 	drawBottomBar(this->bg);
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
+	if (!showFiles && allowSelectDirectory) {
+		gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Select"]);
+	} else {
+		gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
+		gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5));
+	}
 	uint32_t tickStart = SDL_GetTicks();
 	while (!close) {
-		this->bg->blit(gmenu2x->s, 0, 0);
+		this->bg->blit(gmenu2x->s,0,0);
 		buttonBox.paint(5);
 
 		//Selection
