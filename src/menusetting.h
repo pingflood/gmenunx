@@ -34,10 +34,10 @@ protected:
 
 	ButtonBox buttonBox;
 
-	std::string name, description;
+	std::string title, description;
 
 public:
-	MenuSetting(GMenu2X *gmenu2x, const std::string &name, const std::string &description);
+	MenuSetting(GMenu2X *gmenu2x, const std::string &title, const std::string &description);
 	virtual ~MenuSetting();
 
 	virtual void draw(int y);

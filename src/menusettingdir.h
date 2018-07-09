@@ -29,7 +29,7 @@ protected:
 	std::string startPath;
 
 public:
-	MenuSettingDir(GMenu2X *gmenu2x, const std::string &name, const std::string &description, std::string *value, const std::string &startPath="");
+	MenuSettingDir(GMenu2X *gmenu2x, const std::string &title, const std::string &description, std::string *value, const std::string &startPath="");
 	virtual ~MenuSettingDir() {}
 };
 

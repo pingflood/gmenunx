@@ -27,8 +27,8 @@ using std::string;
 using std::stringstream;
 using fastdelegate::MakeDelegate;
 
-MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &name, const string &description, int *value, int def, int min, int max, int delta)
-	: MenuSetting(gmenu2x,name,description) {
+MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &title, const string &description, int *value, int def, int min, int max, int delta)
+	: MenuSetting(gmenu2x, title, description) {
 	IconButton *btn;
 
 	_value = value;

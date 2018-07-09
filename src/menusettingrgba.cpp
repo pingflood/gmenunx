@@ -26,8 +26,8 @@ using std::string;
 using std::stringstream;
 using fastdelegate::MakeDelegate;
 
-MenuSettingRGBA::MenuSettingRGBA(GMenu2X *gmenu2x, const string &name, const string &description, RGBAColor *value)
-	: MenuSetting(gmenu2x,name,description) {
+MenuSettingRGBA::MenuSettingRGBA(GMenu2X *gmenu2x, const string &title, const string &description, RGBAColor *value)
+	: MenuSetting(gmenu2x, title, description) {
 	IconButton *btn;
 
 	selPart = 0;

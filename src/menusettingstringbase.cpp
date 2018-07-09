@@ -23,9 +23,9 @@
 using std::string;
 
 MenuSettingStringBase::MenuSettingStringBase(
-		GMenu2X *gmenu2x, const string &name,
+		GMenu2X *gmenu2x, const string &title,
 		const string &description, string *value)
-	: MenuSetting(gmenu2x, name, description)
+	: MenuSetting(gmenu2x, title, description)
 	, originalValue(*value)
 	, _value(value)
 {

@@ -48,12 +48,12 @@ private:
 
 public:
 	MenuSettingMultiString(
-			GMenu2X *gmenu2x, const std::string &name,
+			GMenu2X *gmenu2x, const std::string &title,
 			const std::string &description, std::string *value,
 			const std::vector<std::string> *choices);
 
 	MenuSettingMultiString(
-			GMenu2X *gmenu2x, const std::string &name,
+			GMenu2X *gmenu2x, const std::string &title,
 			const std::string &description, std::string *value,
 			const std::vector<std::string> *choices, cbAction cbOnChange);
 

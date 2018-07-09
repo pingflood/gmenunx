@@ -1891,12 +1891,12 @@ void GMenu2X::editLink() {
 	// int linkVolume = menu->selLinkApp()->volume();
 	string linkBackdrop = menu->selLinkApp()->getBackdrop();
 
-	string diagTitle = tr.translate("Edit $1", linkTitle.c_str(), NULL);
-	string diagIcon = menu->selLinkApp()->getIconPath();
+	string dialogTitle = tr.translate("Edit $1", linkTitle.c_str(), NULL);
+	string dialogIcon = menu->selLinkApp()->getIconPath();
 
-	SettingsDialog sd(this, ts, diagTitle, diagIcon);
-	sd.addSetting(new MenuSettingString(      this, tr["Title"],                tr["Link title"], &linkTitle, diagTitle, diagIcon ));
-	sd.addSetting(new MenuSettingString(      this, tr["Description"],          tr["Link description"], &linkDescription, diagTitle, diagIcon ));
+	SettingsDialog sd(this, ts, dialogTitle, dialogIcon);
+	sd.addSetting(new MenuSettingString(      this, tr["Title"],                tr["Link title"], &linkTitle, dialogTitle, dialogIcon ));
+	sd.addSetting(new MenuSettingString(      this, tr["Description"],          tr["Link description"], &linkDescription, dialogTitle, dialogIcon ));
 	sd.addSetting(new MenuSettingMultiString( this, tr["Section"],              tr["The section this link belongs to"], &newSection, &menu->getSections() ));
 	sd.addSetting(new MenuSettingImage(       this, tr["Icon"],                 tr["Select an icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg", dir_name(linkIcon) ));
 	sd.addSetting(new MenuSettingFile(        this, tr["Manual"],               tr["Select a manual or README file"], &linkManual, ".man.png,.txt", dir_name(linkManual)));
@@ -1905,11 +1905,11 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingInt(         this, tr["CPU Clock"], tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
 	//sd.addSetting(new MenuSettingBool(        this, tr["Tweak RAM Timings"],    tr["This usually speeds up the application at the cost of stability"], &linkUseRamTimings ));
 	//sd.addSetting(new MenuSettingInt(         this, tr["Volume"],               tr["Volume to set for this link"], &linkVolume, 0, 1 ));
-	sd.addSetting(new MenuSettingString(      this, tr["Parameters"],           tr["Parameters to pass to the application"], &linkParams, diagTitle, diagIcon ));
+	sd.addSetting(new MenuSettingString(      this, tr["Parameters"],           tr["Parameters to pass to the application"], &linkParams, dialogTitle, dialogIcon ));
 
 	sd.addSetting(new MenuSettingBool(        this, tr["Selector Browser"],     tr["Allow the selector to change directory"], &linkSelBrowser ));
 	sd.addSetting(new MenuSettingDir(         this, tr["Selector Directory"],   tr["Directory to scan for the selector"], &linkSelDir, real_path(linkSelDir) ));
-	sd.addSetting(new MenuSettingString(      this, tr["Selector Filter"],      tr["Filter file type (separate with commas)"], &linkSelFilter, diagTitle, diagIcon ));
+	sd.addSetting(new MenuSettingString(      this, tr["Selector Filter"],      tr["Filter file type (separate with commas)"], &linkSelFilter, dialogTitle, dialogIcon ));
 	sd.addSetting(new MenuSettingDir(         this, tr["Selector Screenshots"], tr["Directory of the screenshots for the selector"], &linkSelScreens, dir_name(linkSelScreens) ));
 	sd.addSetting(new MenuSettingFile(        this, tr["Selector Aliases"],     tr["File containing a list of aliases for the selector"], &linkSelAliases, dir_name(linkSelAliases) ));
 	sd.addSetting(new MenuSettingImage(       this, tr["Backdrop"],             tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", real_path(linkBackdrop)));

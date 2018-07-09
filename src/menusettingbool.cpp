@@ -24,8 +24,8 @@
 // using std::string;
 using fastdelegate::MakeDelegate;
 
-MenuSettingBool::MenuSettingBool(GMenu2X *gmenu2x, const string &name, const string &description, int *value)
-	: MenuSetting(gmenu2x, name, description)
+MenuSettingBool::MenuSettingBool(GMenu2X *gmenu2x, const string &title, const string &description, int *value)
+	: MenuSetting(gmenu2x, title, description)
 {
 	_ivalue = value;
 	_value = NULL;
@@ -34,8 +34,8 @@ MenuSettingBool::MenuSettingBool(GMenu2X *gmenu2x, const string &name, const str
 	initButton();
 }
 
-MenuSettingBool::MenuSettingBool(GMenu2X *gmenu2x, const string &name, const string &description, bool *value)
-	: MenuSetting(gmenu2x, name, description)
+MenuSettingBool::MenuSettingBool(GMenu2X *gmenu2x, const string &title, const string &description, bool *value)
+	: MenuSetting(gmenu2x, title, description)
 {
 	_value = value;
 	_ivalue = NULL;

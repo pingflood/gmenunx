@@ -29,10 +29,10 @@ using namespace std;
 
 SettingsDialog::SettingsDialog(
 		GMenu2X *gmenu2x_, Touchscreen &ts_,
-		const string &text_, const string &icon)
+		const string &title, const string &icon)
 	: Dialog(gmenu2x_)
 	, ts(ts_)
-	, text(text_)
+	, title(title)
 {
 	if (icon != "" && gmenu2x->sc[icon] != NULL)
 		this->icon = icon;
@@ -62,7 +62,7 @@ bool SettingsDialog::exec() {
 		this->bg->blit(gmenu2x->s,0,0);
 
 		// redraw to due to realtime skin
-		drawTopBar(gmenu2x->s, text, voices[selected]->getDescription(), icon);
+		drawTopBar(gmenu2x->s, title, voices[selected]->getDescription(), icon);
 		drawBottomBar(gmenu2x->s);
 		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 

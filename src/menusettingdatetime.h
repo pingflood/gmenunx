@@ -39,7 +39,7 @@ private:
 	void rightComponent();
 
 public:
-	MenuSettingDateTime(GMenu2X *gmenu2x, const std::string &name, const std::string &description, std::string *value);
+	MenuSettingDateTime(GMenu2X *gmenu2x, const std::string &title, const std::string &description, std::string *value);
 	virtual ~MenuSettingDateTime() {};
 
 	virtual void draw(int y);

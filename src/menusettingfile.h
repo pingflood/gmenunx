@@ -26,12 +26,11 @@ class MenuSettingFile : public MenuSettingStringBase {
 protected:
 	virtual void edit();
 
-	std::string filter;
-	std::string startPath;
+	std::string filter, startPath;
 
 public:
 	MenuSettingFile(
-			GMenu2X *gmenu2x, const std::string &name, const std::string &description, std::string *value, const std::string &filter="", const std::string &startPath="");
+			GMenu2X *gmenu2x, const std::string &title, const std::string &description, std::string *value, const std::string &filter="", const std::string &startPath="");
 	virtual ~MenuSettingFile() {}
 };
 

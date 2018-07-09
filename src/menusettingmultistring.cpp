@@ -29,21 +29,21 @@ using std::string;
 using std::vector;
 
 MenuSettingMultiString::MenuSettingMultiString(
-		GMenu2X *gmenu2x, const string &name,
+		GMenu2X *gmenu2x, const string &title,
 		const string &description, string *value,
 		const vector<string> *choices_)
 	: MenuSettingMultiString(
-		gmenu2x, name,
+		gmenu2x, title,
 		description, value,
 		choices_, MakeDelegate(this, &MenuSettingMultiString::voidAction)
 	){ };
 
 
 MenuSettingMultiString::MenuSettingMultiString(
-		GMenu2X *gmenu2x, const string &name,
+		GMenu2X *gmenu2x, const string &title,
 		const string &description, string *value,
 		const vector<string> *choices_, cbAction cbOnChange)
-	: MenuSettingStringBase(gmenu2x, name, description, value)
+	: MenuSettingStringBase(gmenu2x, title, description, value)
 	, choices(choices_)
 {
 	this->onChange = cbOnChange;

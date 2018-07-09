@@ -27,8 +27,8 @@
 using std::string;
 using fastdelegate::MakeDelegate;
 
-MenuSettingFile::MenuSettingFile(GMenu2X *gmenu2x, const string &name, const string &description, string *value, const string &filter_, const string &startPath_)
-	: MenuSettingStringBase(gmenu2x, name, description, value)
+MenuSettingFile::MenuSettingFile(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const string &filter_, const string &startPath_)
+	: MenuSettingStringBase(gmenu2x, title, description, value)
 	, filter(filter_), startPath(startPath_)
 {
 	IconButton *btn;
@@ -49,10 +49,7 @@ void MenuSettingFile::edit() {
 
 	_value = dir_name(_value);
 
-	// FileDialog fd(gmenu2x, description, filter, _value);
-	// BrowseDialog fd(gmenu2x, gmenu2x->tr["File Browser"], description, filter, _value);
-
-	BrowseDialog fd(gmenu2x, gmenu2x->tr["File Browser"], description);
+	BrowseDialog fd(gmenu2x, title, description);
 	fd.showDirectories = true;
 	fd.showFiles = true;
 	fd.setFilter(filter);

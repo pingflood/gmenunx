@@ -21,7 +21,6 @@
 #ifndef SETTINGSDIALOG_H_
 #define SETTINGSDIALOG_H_
 
-
 #include <string>
 #include "gmenu2x.h"
 #include "menusetting.h"
@@ -45,10 +44,10 @@ private:
 	};
 	Touchscreen &ts;
 	vector<MenuSetting *> voices;
-	string text, icon;
+	string title, icon;
 
 public:
-	SettingsDialog(GMenu2X *gmenu2x, Touchscreen &ts, const string &text, const string &icon="skin:sections/settings.png");
+	SettingsDialog(GMenu2X *gmenu2x, Touchscreen &ts, const string &title, const string &icon = "skin:sections/settings.png");
 	~SettingsDialog();
 	bool save = false;
 	bool edited();

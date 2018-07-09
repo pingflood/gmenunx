@@ -27,7 +27,7 @@ class MenuSettingImage : public MenuSettingFile {
 	// virtual void edit();
 
 public:
-	MenuSettingImage(GMenu2X *gmenu2x, const std::string &name, const std::string &description, std::string *value, const std::string &filter = "", const std::string &startPath="");
+	MenuSettingImage(GMenu2X *gmenu2x, const std::string &title, const std::string &description, std::string *value, const std::string &filter = "", const std::string &startPath="");
 	virtual ~MenuSettingImage() {}
 
 	virtual void setValue(const std::string &value);

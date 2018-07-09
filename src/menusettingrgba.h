@@ -39,7 +39,7 @@ private:
 	void rightComponent();
 
 public:
-	MenuSettingRGBA(GMenu2X *gmenu2x, const std::string &name, const std::string &description, RGBAColor *value);
+	MenuSettingRGBA(GMenu2X *gmenu2x, const std::string &title, const std::string &description, RGBAColor *value);
 	virtual ~MenuSettingRGBA() {};
 
 	virtual void draw(int y);

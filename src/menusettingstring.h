@@ -26,13 +26,13 @@ class MenuSettingString : public MenuSettingStringBase {
 protected:
 	virtual void edit();
 
-	std::string diagTitle, diagIcon;
+	std::string dialogTitle, dialogIcon;
 
 public:
-	MenuSettingString(GMenu2X *gmenu2x, const std::string &name,
+	MenuSettingString(GMenu2X *gmenu2x, const std::string &title,
 					  const std::string &description, std::string *value,
-					  const std::string &diagTitle = "",
-					  const std::string &diagIcon = "");
+					  const std::string &dialogTitle = "",
+					  const std::string &dialogIcon = "");
 	virtual ~MenuSettingString() {}
 };
 
