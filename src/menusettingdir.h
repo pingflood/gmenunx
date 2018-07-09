@@ -26,10 +26,10 @@ class MenuSettingDir : public MenuSettingStringBase {
 protected:
 	virtual void edit();
 
-	std::string startPath;
+	std::string startPath, dialogTitle, dialogIcon;
 
 public:
-	MenuSettingDir(GMenu2X *gmenu2x, const std::string &title, const std::string &description, std::string *value, const std::string &startPath="");
+	MenuSettingDir(GMenu2X *gmenu2x, const std::string &title, const std::string &description, std::string *value, const std::string &startPath, const std::string &dialogTitle, const std::string &dialogIcon);
 	virtual ~MenuSettingDir() {}
 };
 

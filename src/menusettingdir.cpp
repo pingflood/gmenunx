@@ -26,9 +26,10 @@
 using std::string;
 using fastdelegate::MakeDelegate;
 
-MenuSettingDir::MenuSettingDir(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const std::string &startPath_)
-	: MenuSettingStringBase(gmenu2x, title, description, value)
-	, startPath(startPath_)
+MenuSettingDir::MenuSettingDir(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const std::string &startPath, const std::string &dialogTitle, const std::string &dialogIcon)
+	: MenuSettingStringBase(gmenu2x, title, description, value),
+	startPath(startPath),
+	dialogTitle(dialogTitle), dialogIcon(dialogIcon)
 {
 	IconButton *btn;
 
@@ -47,7 +48,7 @@ void MenuSettingDir::edit() {
 		_value = startPath+"/";
 
 	// DirDialog dd(gmenu2x, description, _value);
-	BrowseDialog dd(gmenu2x, this->title, this->description);
+	BrowseDialog dd(gmenu2x, dialogTitle, description, dialogIcon);
 	dd.showDirectories = true;
 	dd.showFiles = false;
 	dd.allowSelectDirectory = true;
