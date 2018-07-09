@@ -1,19 +1,17 @@
 #include "imageviewerdialog.h"
 #include "debug.h"
 
-ImageViewerDialog::ImageViewerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &manual)
-: Dialog(gmenu2x), title(title), description(description), icon(icon), manual(manual)
+ImageViewerDialog::ImageViewerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &path)
+: Dialog(gmenu2x), title(title), description(description), icon(icon), path(path)
 {}
 
 void ImageViewerDialog::exec() {
-	Surface pngman(manual);
+	Surface image(path);
 
 	bool close = false, repaint = true;
-
 	int offsetX = 0, offsetY = 0;
 
 	drawTopBar(this->bg, title, description, icon);
-
 	drawBottomBar(this->bg);
 
 	gmenu2x->drawButton(this->bg, "right", gmenu2x->tr["Pan"],
@@ -23,9 +21,7 @@ void ImageViewerDialog::exec() {
 	gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"],
 	5))-12)-14)-12);
 
-	this->bg->blit(gmenu2x->s, 0, 0);
-
-	gmenu2x->s->setClipRect(gmenu2x->listRect);
+	this->bg->blit(gmenu2x->s,0,0);
 
 	while (!close) {
 		bool inputAction = gmenu2x->input.update();
@@ -33,8 +29,10 @@ void ImageViewerDialog::exec() {
 
 		if (repaint) {
 			this->bg->blit(gmenu2x->s, 0, 0);
-			pngman.blit(gmenu2x->s, gmenu2x->listRect.x + offsetX, gmenu2x->listRect.y + offsetY);
+			gmenu2x->s->setClipRect(gmenu2x->listRect);
+			image.blit(gmenu2x->s, gmenu2x->listRect.x + offsetX, gmenu2x->listRect.y + offsetY);
 			gmenu2x->s->flip();
+			gmenu2x->s->clearClipRect();
 			repaint = false;
 		}
 
@@ -44,9 +42,9 @@ void ImageViewerDialog::exec() {
 			if (offsetX > 0) offsetX = 0;
 			repaint=true;
 		}
-		else if ( gmenu2x->input[RIGHT] && pngman.raw->w + offsetX > gmenu2x->listRect.w) {
+		else if ( gmenu2x->input[RIGHT] && image.raw->w + offsetX > gmenu2x->listRect.w) {
 			offsetX -=  gmenu2x->listRect.w/3;
-			if (pngman.raw->w + offsetX < gmenu2x->listRect.w) offsetX = gmenu2x->listRect.w - pngman.raw->w;
+			if (image.raw->w + offsetX < gmenu2x->listRect.w) offsetX = gmenu2x->listRect.w - image.raw->w;
 			repaint=true;
 		}
 		else if ( gmenu2x->input[UP] && offsetY < 0) {
@@ -54,13 +52,12 @@ void ImageViewerDialog::exec() {
 			if (offsetY > 0) offsetY = 0;
 			repaint=true;
 		}
-		else if ( gmenu2x->input[DOWN] && pngman.raw->w + offsetY > gmenu2x->listRect.h) {
+		else if ( gmenu2x->input[DOWN] && image.raw->w + offsetY > gmenu2x->listRect.h) {
 			offsetY -=  gmenu2x->listRect.h/3;
-			if (pngman.raw->h + offsetY < gmenu2x->listRect.h) offsetY = gmenu2x->listRect.h - pngman.raw->h;
+			if (image.raw->h + offsetY < gmenu2x->listRect.h) offsetY = gmenu2x->listRect.h - image.raw->h;
 			repaint=true;
 		}
 	}
-	gmenu2x->s->clearClipRect();
 
 	return;
 }

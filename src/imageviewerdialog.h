@@ -36,10 +36,10 @@ using std::ios_base;
 
 class ImageViewerDialog : protected Dialog {
 protected:
-	string title, description, icon, manual;
+	string title, description, icon, path;
 
 public:
-	ImageViewerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon = "icons/ebook.png", const string &manual = "");
+	ImageViewerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon = "icons/ebook.png", const string &path = "");
 	void exec();
 };
 
