@@ -1525,10 +1525,7 @@ void GMenu2X::explorer() {
 	BrowseDialog fd(this, tr["Explorer"], tr["Select a file or application"]);
 	fd.showDirectories = true;
 	fd.showFiles = true;
-	fd.setFilter(".dge,.gpu,.gpe,.sh,.bin,.elf,");
-	// dd.setPath(_value);
-	// if (dd.exec()) setValue( dd.getPath() );
-	// FileDialog fd(this, tr["Select an application"], ".gpu,.gpe,.sh,", "", tr["Explorer"]);
+
 	bool loop = true;
 	while (fd.exec() && loop) {
 		string ext = fd.getExt();
@@ -1536,7 +1533,7 @@ void GMenu2X::explorer() {
 			ImageViewerDialog im(this, tr["Image viewer"], fd.getFile(), "icons/explorer.png", fd.getPath() + "/" + fd.getFile());
 			im.exec();
 			continue;
-		} else if (ext == ".txt" || ext == ".conf" || ext == ".me" || ext == ".md") {
+		} else if (ext == ".txt" || ext == ".conf" || ext == ".me" || ext == ".md" || ext == ".xml" || ext == ".log") {
 			TextDialog td(this, tr["Text viewer"], fd.getFile(), "skin:icons/ebook.png");
 			td.appendFile(fd.getPath() + "/" + fd.getFile());
 			td.exec();
@@ -1898,8 +1895,8 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingString(      this, tr["Title"],                tr["Link title"], &linkTitle, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingString(      this, tr["Description"],          tr["Link description"], &linkDescription, dialogTitle, dialogIcon ));
 	sd.addSetting(new MenuSettingMultiString( this, tr["Section"],              tr["The section this link belongs to"], &newSection, &menu->getSections() ));
-	sd.addSetting(new MenuSettingImage(       this, tr["Icon"],                 tr["Select an icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg", dir_name(linkIcon), dialogTitle, dialogIcon ));
-	sd.addSetting(new MenuSettingFile(        this, tr["Manual"],               tr["Select a manual or README file"], &linkManual, ".man.png,.txt", dir_name(linkManual), dialogTitle, dialogIcon ));
+	sd.addSetting(new MenuSettingImage(       this, tr["Icon"],                 tr["Select an icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", dir_name(linkIcon), dialogTitle, dialogIcon ));
+	sd.addSetting(new MenuSettingFile(        this, tr["Manual"],               tr["Select a manual or README file"], &linkManual, ".man.png,.txt,.me", dir_name(linkManual), dialogTitle, dialogIcon ));
 
 	// sd.addSetting(new MenuSettingInt(         this, tr.translate("Clock (default: $1)","528", NULL), tr["Cpu clock frequency to set when launching this link"], &linkClock, 50, confInt["cpuMax"] ));
 	sd.addSetting(new MenuSettingInt(         this, tr["CPU Clock"], tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
@@ -1911,7 +1908,7 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingDir(         this, tr["Selector Directory"],   tr["Directory to scan for the selector"], &linkSelDir, real_path(linkSelDir), dialogTitle, dialogIcon ));
 	sd.addSetting(new MenuSettingString(      this, tr["Selector Filter"],      tr["Filter file type (separate with commas)"], &linkSelFilter, dialogTitle, dialogIcon ));
 	sd.addSetting(new MenuSettingDir(         this, tr["Selector Screenshots"], tr["Directory of the screenshots for the selector"], &linkSelScreens, dir_name(linkSelScreens), dialogTitle, dialogIcon ));
-	sd.addSetting(new MenuSettingFile(        this, tr["Selector Aliases"],     tr["File containing a list of aliases for the selector"], &linkSelAliases,  "", dir_name(linkSelAliases), dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingFile(        this, tr["Selector Aliases"],     tr["File containing a list of aliases for the selector"], &linkSelAliases,  ".txt,.dat", dir_name(linkSelAliases), dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingImage(       this, tr["Backdrop"],             tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", real_path(linkBackdrop), dialogTitle, dialogIcon));
 
 #if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
