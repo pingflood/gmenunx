@@ -24,24 +24,11 @@ BrowseDialog::~BrowseDialog() {
 bool BrowseDialog::exec() {
 	if (!fl) return false;
 
+	this->bg = new Surface(gmenu2x->bg); // needed to redraw on child screen return
+
 	Surface *iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
 	Surface *iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
 	Surface *iconFile = gmenu2x->sc.skinRes("imgs/file.png");
-	// IconButton *btn;
-
-	// if (!showFiles && allowSelectDirectory) {
-	// 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/start.png", gmenu2x->tr["Select"]);
-	// } else {
-	// 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/start.png", gmenu2x->tr["Exit"]);
-	// }
-	// btn->setAction(MakeDelegate(this, &BrowseDialog::cancel));
-	// buttonBox.add(btn);
-
-	// if (showFiles) {
-	// 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Select"]);
-	// 	btn->setAction(MakeDelegate(this, &BrowseDialog::directoryEnter));
-	// 	buttonBox.add(btn);
-	// }
 
 	string path = fl->getPath();
 	if (path.empty() || !dirExists(path) || path.compare(0,CARD_ROOT_LEN,CARD_ROOT)!=0)
@@ -66,6 +53,7 @@ bool BrowseDialog::exec() {
 		gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
 		gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5));
 	}
+
 	uint32_t tickStart = SDL_GetTicks();
 	while (!close) {
 		this->bg->blit(gmenu2x->s,0,0);
@@ -127,14 +115,6 @@ bool BrowseDialog::exec() {
 		bool inputAction = gmenu2x->input.update();
 		if (gmenu2x->inputCommonActions(inputAction)) continue;
 		if (inputAction) tickStart = SDL_GetTicks();
-
-	// if (gmenu2x->powerManager(inputAction)) return;
-		// if (ts_pressed && !gmenu2x->ts.pressed()) {
-		// 	action = BD_ACTION_SELECT;
-		// 	ts_pressed = false;
-		// } else {
-		// 	action = getAction();
-		// }
 
 		uint32_t action = getAction();
 
