@@ -59,6 +59,8 @@ void FileLister::browse() {
 	directories.clear();
 	files.clear();
 
+	if (showDirectories && path != "/") directories.push_back("..");
+
 	if (showDirectories || showFiles) {
 		DIR *dirp;
 		if ((dirp = opendir(path.c_str())) == NULL) {
@@ -75,8 +77,8 @@ void FileLister::browse() {
 
 		while ((dptr = readdir(dirp))) {
 			file = dptr->d_name;
-			if ((file[0]=='.' && file!="..") || (path=="/" && file=="..")) continue;
-			filepath = path+"/"+file;
+			if (file[0] == '.') continue;
+			filepath = path + "/" + file;
 			int statRet = stat(filepath.c_str(), &st);
 			if (statRet == -1) {
 				ERROR("Stat failed on '%s' with error '%s'", filepath.c_str(), strerror(errno));
@@ -87,10 +89,7 @@ void FileLister::browse() {
 
 			if (S_ISDIR(st.st_mode)) {
 				if (!showDirectories) continue;
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-				if (!(path==CARD_ROOT && (file!="sd" && file!="ext" && file!="nand")))
-#endif
-					directories.push_back(file);
+				directories.push_back(file);
 			} else {
 				if (!showFiles) continue;
 				for (vector<string>::iterator it = vfilter.begin(); it != vfilter.end(); ++it) {
@@ -111,7 +110,7 @@ void FileLister::browse() {
 }
 
 uint32_t FileLister::size() {
-	return files.size()+directories.size();
+	return files.size() + directories.size();
 }
 uint32_t FileLister::dirCount() {
 	return directories.size();
@@ -125,11 +124,11 @@ string FileLister::operator[](uint32_t x) {
 }
 
 string FileLister::at(uint32_t x) {
-	if (x>=size()) return "";
-	if (x<directories.size())
+	if (x >= size()) return "";
+	if (x < directories.size())
 		return directories[x];
 	else
-		return files[x-directories.size()];
+		return files[x - directories.size()];
 }
 
 bool FileLister::isFile(uint32_t x) {
