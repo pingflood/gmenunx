@@ -135,7 +135,8 @@ char *ms2hms(uint32_t t, bool mm = true, bool ss = true) {
 	return buf;
 };
 
-void printbin(int n) {
+void printbin(const char *id, int n) {
+	printf("%s: 0x%08x ", id, n);
 	for(int i = 31; i >= 0; i--) {
 		printf("%d", !!(n & 1 << i));
 		if (!(i % 8)) printf(" ");
@@ -180,6 +181,12 @@ int16_t curMMCStatus, preMMCStatus, MMCToggle = MMC_REMOVE;
 bool getTVOutStatus() {
 	if (memdev > 0) return !(memregs[0x10300 >> 2] >> 25 & 0b1);
 	return false;
+}
+
+uint8_t getVolumeMode(uint8_t vol) {
+	if (!vol) return VOLUME_MODE_MUTE;
+	else if (memdev > 0 && !(memregs[0x10300 >> 2] >> 6 & 0b1)) return VOLUME_MODE_PHONES;
+	return VOLUME_MODE_NORMAL;
 }
 
 GMenu2X::~GMenu2X() {
@@ -258,9 +265,6 @@ GMenu2X::GMenu2X() {
 #else
 	f200 = true;
 #endif
-
-	volumeMode = VOLUME_MODE_NORMAL;
-
 	//load config data
 	readConfig();
 
@@ -364,6 +368,7 @@ GMenu2X::GMenu2X() {
 	preMMCStatus = curMMCStatus = getMMCStatus();
 	udcConnectedOnBoot = getUDCStatus();
 #endif
+	volumeMode = getVolumeMode(confInt["globalVolume"]);
 
 	readTmp();
 	setCPU(confInt["cpuMenu"]);
@@ -1573,48 +1578,14 @@ void GMenu2X::ledOff() {
 
 void GMenu2X::hwCheck() {
 	if (memdev > 0) {
-		INFO("\e[1;0fA: 0x%x 0x%x B: 0x%x 0x%x C: 0x%x 0x%x D: 0x%x 0x%x E: 0x%x 0x%x F: 0x%x 0x%x\e[0K",
-			memregs[0x10000 >> 2], memregs[0x10010 >> 2],
-			memregs[0x10100 >> 2], memregs[0x10110 >> 2],
-			memregs[0x10200 >> 2], memregs[0x10210 >> 2],
-			memregs[0x10300 >> 2], memregs[0x10310 >> 2],
-			memregs[0x10400 >> 2], memregs[0x10410 >> 2],
-			memregs[0x10500 >> 2], memregs[0x10510 >> 2]
-		);
-
-		printf("A: ");
-		printbin(memregs[0x10000 >> 2]);
-
-		printf("B: ");
-		printbin(memregs[0x10100 >> 2]);
-
-		printf("C: ");
-		printbin(memregs[0x10200 >> 2]);
-
-		printf("D: ");
-		printbin(memregs[0x10300 >> 2]);
-
-		printf("E: ");
-		printbin(memregs[0x10400 >> 2]);
-
-		printf("F: ");
-		printbin(memregs[0x10500 >> 2]);
-
-		// INFO("D: 0x%x 8>0x%x 16>0x%x 24>0x%x 32>0x%x 40>0x%x 48>0x%x",
-		// 	memregs[0x10300 >> 2],
-		// 	memregs[0x10300 >> 2] >> 8 & 0b1,
-		// 	memregs[0x10300 >> 2] >> 16 & 0b1,
-		// 	memregs[0x10300 >> 2] >> 24 & 0b1,
-		// 	memregs[0x10300 >> 2] >> 32 & 0b1,
-		// 	memregs[0x10300 >> 2] >> 40 & 0b1,
-		// 	memregs[0x10300 >> 2] >> 28 & 0b1
-		// );
-
-		// INFO("UDC: 0b%d",
-		// 	memregs[0x10300 >> 2] >> 7 & 0b1
-		// );
-
-		// tvOutConnected = !(memregs[0x10300 >> 2] >> 25 & 0b1);
+		printf("\e[s\e[1;0f");
+		printbin("A", memregs[0x10000 >> 2]);
+		printbin("B", memregs[0x10100 >> 2]);
+		printbin("C", memregs[0x10200 >> 2]);
+		printbin("D", memregs[0x10300 >> 2]);
+		printbin("E", memregs[0x10400 >> 2]);
+		printbin("F", memregs[0x10500 >> 2]);
+		printf("\n\e[K\e[u");
 
 		curMMCStatus = getMMCStatus();
 		if (preMMCStatus != curMMCStatus) {
@@ -1627,6 +1598,8 @@ void GMenu2X::hwCheck() {
 			tvOutPrev = tvOutConnected;
 			tvOutToggle = 1;
 		}
+
+		volumeMode = getVolumeMode(confInt["globalVolume"]);
 	}
 }
 
@@ -2281,7 +2254,7 @@ int GMenu2X::setVolume(int val, bool popup) {
 		powerManager->clearTimer();
 		while (!close) {
 			input.setWakeUpInterval(3000);
-			drawSlider(val, 0, 100, *iconVolume[val > 0 ? 2 : 0], bg);
+			drawSlider(val, 0, 100, *iconVolume[getVolumeMode(val)], bg);
 
 			close = !input.update();
 
@@ -2309,9 +2282,8 @@ int GMenu2X::setVolume(int val, bool popup) {
 #endif
 		close(soundDev);
 
-		volumeMode = vol ? VOLUME_MODE_NORMAL : VOLUME_MODE_MUTE;
 	}
-
+	volumeMode = getVolumeMode(val);
 	return val;
 }
 
