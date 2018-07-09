@@ -14,10 +14,6 @@ using namespace std;
 
 BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &subtitle)
 : Dialog(gmenu2x), title(title), subtitle(subtitle), ts_pressed(false), buttonBox(gmenu2x) {
-	iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
-	iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
-	iconFile = gmenu2x->sc.skinRes("imgs/file.png");
-
 	fl = new FileLister(CARD_ROOT, true, false);
 }
 
@@ -28,6 +24,9 @@ BrowseDialog::~BrowseDialog() {
 bool BrowseDialog::exec() {
 	if (!fl) return false;
 
+	Surface *iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
+	Surface *iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
+	Surface *iconFile = gmenu2x->sc.skinRes("imgs/file.png");
 	IconButton *btn;
 
 	if (!showFiles && allowSelectDirectory) {
