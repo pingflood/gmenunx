@@ -239,3 +239,20 @@ const std::string BrowseDialog::getExt() {
 	}
 	return ext;
 }
+
+void BrowseDialog::setPath(const string &path) {
+	fl->showDirectories = showDirectories;
+	fl->showFiles = showFiles;
+	fl->setPath(path);
+	onChangeDir();
+}
+
+const std::string &BrowseDialog::getPath() {
+	return fl->getPath();
+}
+std::string BrowseDialog::getFile() {
+	return (*fl)[selected];
+}
+void BrowseDialog::setFilter(const string &filter) {
+	fl->setFilter(filter);
+}

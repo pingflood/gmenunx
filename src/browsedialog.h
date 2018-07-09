@@ -53,23 +53,16 @@ private:
 		BD_ACTION_CANCEL,
 	};
 
-	bool close, result;
-
-	string title;
-	string subtitle;
+	bool close, result, ts_pressed;
+	string title, subtitle;
+	ButtonBox buttonBox;
 
 	// SDL_Rect clipRect;
 	// SDL_Rect touchRect;
-
-	bool ts_pressed;
-
-	ButtonBox buttonBox;
-
-	uint32_t getAction();
 	// void handleInput();
-
 	// void paint();
 
+	uint32_t getAction();
 	void directoryUp();
 	void directoryEnter();
 	void confirm();
@@ -81,27 +74,16 @@ public:
 
 	bool exec();
 
-	const std::string &getPath() {
-		return fl->getPath();
-	}
-	std::string getFile() {
-		return (*fl)[selected];
-	}
+	const std::string &getPath();
+	std::string getFile();
 
 	const std::string getExt();
 
-	void setFilter(const string &filter) {
-		fl->setFilter(filter);
-	}
+	void setFilter(const string &filter);
 
 	bool showDirectories, showFiles, allowSelectDirectory = false;
 
-	void setPath(const string &path) {
-		fl->showDirectories = showDirectories;
-		fl->showFiles = showFiles;
-		fl->setPath(path);
-		onChangeDir();
-	}
+	void setPath(const string &path);
 };
 
 #endif /*INPUTDIALOG_H_*/
