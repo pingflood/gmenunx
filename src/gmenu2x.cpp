@@ -1087,7 +1087,7 @@ void GMenu2X::resetSettings() {
 		MessageBox mb(this, tr["Changes will be applied to ALL\napps and GMenuNext. Are you sure?"], "skin:icons/exit.png");
 		mb.setButton(CONFIRM, tr["Cancel"]);
 		mb.setButton(SETTINGS,  tr["Confirm"]);
-		if (mb.exec() == CANCEL) return;
+		if (mb.exec() != SETTINGS) return;
 
 		for (uint32_t s = 0; s < menu->getSections().size(); s++) {
 			for (uint32_t l = 0; l < menu->sectionLinks(s)->size(); l++) {
