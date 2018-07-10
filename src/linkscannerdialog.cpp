@@ -22,7 +22,7 @@ void LinkScannerDialog::exec() {
 	drawBottomBar(this->bg);
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Back"]);
+	gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"]);
 
 	this->bg->blit(gmenu2x->s,0,0);
 
