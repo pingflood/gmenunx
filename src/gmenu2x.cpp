@@ -1058,12 +1058,12 @@ void GMenu2X::settings() {
 }
 
 void GMenu2X::resetSettings() {
-	bool	reset_gmenu = true, 
-			reset_skin = true, 
-			reset_icon = false, 
-			reset_manual = false, 
-			reset_parameter = false, 
-			reset_backdrop = true,
+	bool	reset_gmenu = true,
+			reset_skin = true,
+			reset_icon = false,
+			reset_manual = false,
+			reset_parameter = false,
+			reset_backdrop = false,
 			reset_filter = false,
 			reset_directory = false,
 			reset_preview = false,
