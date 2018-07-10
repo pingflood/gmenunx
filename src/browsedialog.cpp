@@ -38,6 +38,7 @@ bool BrowseDialog::exec() {
 
 	selected = 0;
 	close = false;
+	bool inputAction = false;
 
 	uint32_t i, iY, firstElement = 0, animation = 0, padding = 6;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
@@ -112,59 +113,56 @@ bool BrowseDialog::exec() {
 		gmenu2x->drawScrollBar(numRows, fl->size(), firstElement, gmenu2x->listRect);
 		gmenu2x->s->flip();
 
-		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->inputCommonActions(inputAction)) continue;
-		if (inputAction) tickStart = SDL_GetTicks();
+		do {
+			inputAction = gmenu2x->input.update();
+			if (gmenu2x->inputCommonActions(inputAction)) continue;
+			if (inputAction) tickStart = SDL_GetTicks();
 
-		uint32_t action = getAction();
+			uint32_t action = getAction();
 
-		// if (gmenu2x->f200 && gmenu2x->ts.pressed() && !gmenu2x->ts.inRect(gmenu2x->listRect)) ts_pressed = false;
-	// if (action == BD_ACTION_SELECT && (*fl)[selected] == "..")
-		// action = BD_ACTION_GOUP;
-		switch (action) {
-			case BD_ACTION_CANCEL:
-				cancel();
-				break;
-			case BD_ACTION_CLOSE:
-				if (allowSelectDirectory && fl->isDirectory(selected)) confirm();
-				else cancel();
-				break;
-			case BD_ACTION_UP:
-				selected -= 1;
-				if (selected < 0) selected = fl->size() - 1;
-				break;
-			case BD_ACTION_DOWN:
-				selected += 1;
-				if (selected >= fl->size()) selected = 0;
-				break;
-			case BD_ACTION_PAGEUP:
-				selected -= numRows;
-				if (selected < 0) selected = 0;
-				break;
-			case BD_ACTION_PAGEDOWN:
-				selected += numRows;
-				if (selected >= fl->size()) selected = fl->size() - 1;
-				break;
-			case BD_ACTION_GOUP:
-				directoryUp();
-				break;
-			case BD_ACTION_SELECT:
-				if (fl->isDirectory(selected)) {
-					directoryEnter();
+		// if (action == BD_ACTION_SELECT && (*fl)[selected] == "..")
+			// action = BD_ACTION_GOUP;
+			switch (action) {
+				case BD_ACTION_CANCEL:
+					cancel();
 					break;
-				}
-		/* Falltrough */
-			case BD_ACTION_CONFIRM:
-				confirm();
-				break;
-			default:
-				break;
-		}
-
-		// if (gmenu2x->f200) gmenu2x->ts.poll();
-		// buttonBox.handleTS();
+				case BD_ACTION_CLOSE:
+					if (allowSelectDirectory && fl->isDirectory(selected)) confirm();
+					else cancel();
+					break;
+				case BD_ACTION_UP:
+					selected -= 1;
+					if (selected < 0) selected = fl->size() - 1;
+					break;
+				case BD_ACTION_DOWN:
+					selected += 1;
+					if (selected >= fl->size()) selected = 0;
+					break;
+				case BD_ACTION_PAGEUP:
+					selected -= numRows;
+					if (selected < 0) selected = 0;
+					break;
+				case BD_ACTION_PAGEDOWN:
+					selected += numRows;
+					if (selected >= fl->size()) selected = fl->size() - 1;
+					break;
+				case BD_ACTION_GOUP:
+					directoryUp();
+					break;
+				case BD_ACTION_SELECT:
+					if (fl->isDirectory(selected)) {
+						directoryEnter();
+						break;
+					}
+			/* Falltrough */
+				case BD_ACTION_CONFIRM:
+					confirm();
+					break;
+				default:
+					break;
+			}
+		} while (!inputAction);
 	}
-	// gmenu2x->s->clearClipRect();
 	return result;
 }
 

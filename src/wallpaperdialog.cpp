@@ -18,11 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <iostream>
-
+// #include <iostream>
 #include "wallpaperdialog.h"
 #include "filelister.h"
-// #include "debug.h"
+#include "debug.h"
 #include "messagebox.h"
 
 using namespace std;
@@ -36,7 +35,7 @@ WallpaperDialog::WallpaperDialog(GMenu2X *gmenu2x, const string &title, const st
 
 bool WallpaperDialog::exec()
 {
-	bool close = false, result = true;
+	bool close = false, result = true, inputAction = false;
 
 	uint32_t i, iY, firstElement = 0;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
@@ -58,9 +57,6 @@ bool WallpaperDialog::exec()
 
 	// DEBUG("Wallpapers: %i", wallpapers.size());
 	while (!close) {
-		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->inputCommonActions(inputAction)) continue;
-
 		//Wallpaper
 		if (selected < wallpapers.size() - fl.getFiles().size())
 			gmenu2x->sc["skins/"+gmenu2x->confStr["skin"] + "/wallpapers/" + wallpapers[selected]]->blit(gmenu2x->s,0,0);
@@ -92,32 +88,37 @@ bool WallpaperDialog::exec()
 
 		gmenu2x->s->flip();
 
-		if ( gmenu2x->input[UP] ) {
-			selected -= 1;
-			if (selected < 0) selected = wallpapers.size() - 1;
-		} else if ( gmenu2x->input[DOWN] ) {
-			selected += 1;
-			if (selected >= wallpapers.size()) selected = 0;
-		} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
-			selected -= numRows;
-			if (selected < 0) selected = 0;
-		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
-			selected += numRows;
-			if (selected >= wallpapers.size()) selected = wallpapers.size() - 1;
-		} else if ( gmenu2x->input[MENU] || gmenu2x->input[CANCEL] ) {
-			close = true;
-			result = false;
-		} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) {
-			close = true;
-			if (wallpapers.size() > 0) {
-				if (selected < wallpapers.size() - fl.getFiles().size())
-					wallpaper = "skins/" + gmenu2x->confStr["skin"] + "/wallpapers/" + wallpapers[selected];
-				else
-					wallpaper = "skins/Default/wallpapers/" + wallpapers[selected];
-			} else {
+		do {
+			inputAction = gmenu2x->input.update();
+			if (gmenu2x->inputCommonActions(inputAction)) continue;
+
+			if ( gmenu2x->input[UP] ) {
+				selected -= 1;
+				if (selected < 0) selected = wallpapers.size() - 1;
+			} else if ( gmenu2x->input[DOWN] ) {
+				selected += 1;
+				if (selected >= wallpapers.size()) selected = 0;
+			} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
+				selected -= numRows;
+				if (selected < 0) selected = 0;
+			} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
+				selected += numRows;
+				if (selected >= wallpapers.size()) selected = wallpapers.size() - 1;
+			} else if ( gmenu2x->input[MENU] || gmenu2x->input[CANCEL] ) {
+				close = true;
 				result = false;
+			} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) {
+				close = true;
+				if (wallpapers.size() > 0) {
+					if (selected < wallpapers.size() - fl.getFiles().size())
+						wallpaper = "skins/" + gmenu2x->confStr["skin"] + "/wallpapers/" + wallpapers[selected];
+					else
+						wallpaper = "skins/Default/wallpapers/" + wallpapers[selected];
+				} else {
+					result = false;
+				}
 			}
-		}
+		} while (!inputAction);
 	}
 
 	for (uint32_t i = 0; i < wallpapers.size(); i++)

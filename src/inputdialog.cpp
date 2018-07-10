@@ -133,8 +133,6 @@ bool InputDialog::exec() {
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	while (!close) {
-		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->inputCommonActions(inputAction)) continue;
 		gmenu2x->input.setWakeUpInterval(500);
 
 		this->bg->blit(gmenu2x->s,0,0);
@@ -157,6 +155,9 @@ bool InputDialog::exec() {
 		if (gmenu2x->f200) ts.poll();
 		action = drawVirtualKeyboard();
 		gmenu2x->s->flip();
+
+		bool inputAction = gmenu2x->input.update();
+		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 		if ( gmenu2x->input[CANCEL] || gmenu2x->input[MENU] ) action = ID_ACTION_CLOSE;
 		else if ( gmenu2x->input[SETTINGS] ) action = ID_ACTION_SAVE;

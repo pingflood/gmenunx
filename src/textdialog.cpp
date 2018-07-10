@@ -101,7 +101,7 @@ void TextDialog::exec() {
 
 	preProcess();
 
-	bool close = false;
+	bool close = false, inputAction = false;
 
 	drawTopBar(this->bg, title, description);
 
@@ -126,24 +126,26 @@ void TextDialog::exec() {
 		drawText(&text, firstRow, rowsPerPage);
 		gmenu2x->s->flip();
 
-		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->inputCommonActions(inputAction)) continue;
+		do {
+			inputAction = gmenu2x->input.update();
+			if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-		if ( gmenu2x->input[UP  ] && firstRow > 0 ) firstRow--;
-		else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < text.size() ) firstRow++;
-		else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT]) {
-			if (firstRow >= rowsPerPage - 1)
-				firstRow -= rowsPerPage - 1;
-			else
-				firstRow = 0;
-		}
-		else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT]) {
-			if (firstRow + rowsPerPage * 2 - 1 < text.size())
-				firstRow += rowsPerPage - 1;
-			else
-				firstRow = max(0,text.size()-rowsPerPage);
-		}
-		else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
+			if ( gmenu2x->input[UP  ] && firstRow > 0 ) firstRow--;
+			else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < text.size() ) firstRow++;
+			else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT]) {
+				if (firstRow >= rowsPerPage - 1)
+					firstRow -= rowsPerPage - 1;
+				else
+					firstRow = 0;
+			}
+			else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT]) {
+				if (firstRow + rowsPerPage * 2 - 1 < text.size())
+					firstRow += rowsPerPage - 1;
+				else
+					firstRow = max(0, text.size() - rowsPerPage);
+			}
+			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
+		} while (!inputAction);
 	}
 }
 

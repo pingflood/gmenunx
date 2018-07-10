@@ -46,7 +46,7 @@ SettingsDialog::~SettingsDialog() {
 }
 
 bool SettingsDialog::exec() {
-	bool close = false, ts_pressed = false;
+	bool close = false, ts_pressed = false, inputAction = false;
 	uint32_t i, iY, firstElement = 0, action = SD_NO_ACTION, rowHeight, numRows;
 	int32_t selected = 0;
 	voices[selected]->adjustInput();
@@ -88,49 +88,50 @@ bool SettingsDialog::exec() {
 		gmenu2x->drawScrollBar(numRows, voices.size(), firstElement, gmenu2x->listRect);
 
 		gmenu2x->s->flip();
+		do {
+			inputAction = gmenu2x->input.update();
+			if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->inputCommonActions(inputAction)) continue;
+			action = SD_NO_ACTION;
+			if ( gmenu2x->input[SETTINGS] ) action = SD_ACTION_SAVE;
+			else if ( gmenu2x->input[CANCEL] ) action = SD_ACTION_CLOSE;
+			else if ( gmenu2x->input[UP      ] ) action = SD_ACTION_UP;
+			else if ( gmenu2x->input[DOWN    ] ) action = SD_ACTION_DOWN;
+			else if ( gmenu2x->input[PAGEUP  ] ) action = SD_ACTION_PAGEUP;
+			else if ( gmenu2x->input[PAGEDOWN] ) action = SD_ACTION_PAGEDOWN;
+			else action = voices[selected]->manageInput();
 
-		action = SD_NO_ACTION;
-		if ( gmenu2x->input[SETTINGS] ) action = SD_ACTION_SAVE;
-		else if ( gmenu2x->input[CANCEL] ) action = SD_ACTION_CLOSE;
-		else if ( gmenu2x->input[UP      ] ) action = SD_ACTION_UP;
-		else if ( gmenu2x->input[DOWN    ] ) action = SD_ACTION_DOWN;
-		else if ( gmenu2x->input[PAGEUP  ] ) action = SD_ACTION_PAGEUP;
-		else if ( gmenu2x->input[PAGEDOWN] ) action = SD_ACTION_PAGEDOWN;
-		else action = voices[selected]->manageInput();
-
-		switch (action) {
-			case SD_ACTION_SAVE:
-				save = true;
-				close = true;
-				break;
-			case SD_ACTION_CLOSE:
-				save = false;
-				close = true;
-				break;
-			case SD_ACTION_UP:
-				selected -= 1;
-				if (selected < 0) selected = voices.size() - 1;
-				gmenu2x->setInputSpeed();
-				voices[selected]->adjustInput();
-				break;
-			case SD_ACTION_DOWN:
-				selected += 1;
-				if (selected >= voices.size()) selected = 0;
-				gmenu2x->setInputSpeed();
-				voices[selected]->adjustInput();
-				break;
-			case SD_ACTION_PAGEUP:
-				selected -= numRows;
-				if (selected < 0) selected = 0;
-				break;
-			case SD_ACTION_PAGEDOWN:
-				selected += numRows;
-				if (selected >= voices.size()) selected = voices.size() - 1;
-				break;
-		}
+			switch (action) {
+				case SD_ACTION_SAVE:
+					save = true;
+					close = true;
+					break;
+				case SD_ACTION_CLOSE:
+					save = false;
+					close = true;
+					break;
+				case SD_ACTION_UP:
+					selected -= 1;
+					if (selected < 0) selected = voices.size() - 1;
+					gmenu2x->setInputSpeed();
+					voices[selected]->adjustInput();
+					break;
+				case SD_ACTION_DOWN:
+					selected += 1;
+					if (selected >= voices.size()) selected = 0;
+					gmenu2x->setInputSpeed();
+					voices[selected]->adjustInput();
+					break;
+				case SD_ACTION_PAGEUP:
+					selected -= numRows;
+					if (selected < 0) selected = 0;
+					break;
+				case SD_ACTION_PAGEDOWN:
+					selected += numRows;
+					if (selected >= voices.size()) selected = voices.size() - 1;
+					break;
+			}
+		} while (!inputAction);
 	}
 
 	gmenu2x->setInputSpeed();

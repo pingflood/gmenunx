@@ -54,7 +54,7 @@ Dialog(gmenu2x)
 int Selector::exec(int startSelection) {
 	if (gmenu2x->sc[link->getBackdrop()] != NULL) gmenu2x->sc[link->getBackdrop()]->blit(this->bg,0,0);
 
-	bool close = false, result = true;
+	bool close = false, result = true, inputAction = false;
 	vector<string> screens, titles;
 
 	FileLister fl(dir, link->getSelectorBrowser());
@@ -140,56 +140,58 @@ int Selector::exec(int startSelection) {
 		gmenu2x->s->clearClipRect();
 		gmenu2x->drawScrollBar(numRows, fl.size(), firstElement, gmenu2x->listRect);
 		gmenu2x->s->flip();
-		
-		bool inputAction = gmenu2x->input.update();
-		if (gmenu2x->inputCommonActions(inputAction)) continue;
-		if (inputAction) tickStart = SDL_GetTicks();
 
-		if ( gmenu2x->input[UP] ) {
-			selected -= 1;
-			if (selected < 0) selected = fl.size() - 1;
-		} else if ( gmenu2x->input[DOWN] ) {
-			selected += 1;
-			if (selected >= fl.size()) selected = 0;
-		} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
-			selected -= numRows;
-			if (selected < 0) selected = 0;
-		} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
-			selected += numRows;
-			if (selected >= fl.size()) selected = fl.size() - 1;
-		} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) {
-			close = true;
-			result = false;
-		// } else if ( gmenu2x->input[MENU] ) {
-			// gmenu2x->editLink();
-		// } else if ( gmenu2x->input[CANCEL] ) {
-			// if (link->getSelectorBrowser()) {
-			// 	string::size_type p = dir.rfind("/", dir.size() - 2);
-			// 	if (p == string::npos || dir.compare(0, CARD_ROOT_LEN, CARD_ROOT) != 0 || p < 4) {
-			// 		close = true;
-			// 		result = false;
-			// 	} else {
-			// 		dir = dir.substr(0, p + 1);
-			// 		// INFO("%s", dir.c_str());
-			// 		selected = 0;
-			// 		firstElement = 0;
-			// 		prepare(&fl, &screens, &titles);
-			// 	}
-			// } else {
-				// close = true;
-				// result = false;
-			// }
-		} else if ( gmenu2x->input[CONFIRM] ) {
-			if (fl.isFile(selected)) {
-				file = fl[selected];
+		do {
+			inputAction = gmenu2x->input.update();
+			if (gmenu2x->inputCommonActions(inputAction)) continue;
+			if (inputAction) tickStart = SDL_GetTicks();
+
+			if ( gmenu2x->input[UP] ) {
+				selected -= 1;
+				if (selected < 0) selected = fl.size() - 1;
+			} else if ( gmenu2x->input[DOWN] ) {
+				selected += 1;
+				if (selected >= fl.size()) selected = 0;
+			} else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT] ) {
+				selected -= numRows;
+				if (selected < 0) selected = 0;
+			} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
+				selected += numRows;
+				if (selected >= fl.size()) selected = fl.size() - 1;
+			} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) {
 				close = true;
-			} else {
-				dir = real_path(dir + "/" + fl[selected]);//+"/";
-				selected = 0;
-				firstElement = 0;
-				prepare(&fl, &screens, &titles);
+				result = false;
+			// } else if ( gmenu2x->input[MENU] ) {
+				// gmenu2x->editLink();
+			// } else if ( gmenu2x->input[CANCEL] ) {
+				// if (link->getSelectorBrowser()) {
+				// 	string::size_type p = dir.rfind("/", dir.size() - 2);
+				// 	if (p == string::npos || dir.compare(0, CARD_ROOT_LEN, CARD_ROOT) != 0 || p < 4) {
+				// 		close = true;
+				// 		result = false;
+				// 	} else {
+				// 		dir = dir.substr(0, p + 1);
+				// 		// INFO("%s", dir.c_str());
+				// 		selected = 0;
+				// 		firstElement = 0;
+				// 		prepare(&fl, &screens, &titles);
+				// 	}
+				// } else {
+					// close = true;
+					// result = false;
+				// }
+			} else if ( gmenu2x->input[CONFIRM] ) {
+				if (fl.isFile(selected)) {
+					file = fl[selected];
+					close = true;
+				} else {
+					dir = real_path(dir + "/" + fl[selected]);//+"/";
+					selected = 0;
+					firstElement = 0;
+					prepare(&fl, &screens, &titles);
+				}
 			}
-		}
+		} while (!inputAction);
 	}
 
 	gmenu2x->sc.defaultAlpha = true;
