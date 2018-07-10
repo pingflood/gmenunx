@@ -100,7 +100,7 @@ bool SettingsDialog::exec() {
 			else if ( gmenu2x->input[PAGEUP  ] ) action = SD_ACTION_PAGEUP;
 			else if ( gmenu2x->input[PAGEDOWN] ) action = SD_ACTION_PAGEDOWN;
 			else action = voices[selected]->manageInput();
-
+DEBUG("ACTION: %d", action);
 			switch (action) {
 				case SD_ACTION_SAVE:
 					save = true;

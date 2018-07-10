@@ -62,11 +62,12 @@ void MenuSettingInt::draw(int y) {
 }
 
 uint32_t MenuSettingInt::manageInput() {
-	if ( gmenu2x->input[LEFT ] ) dec();
-	if ( gmenu2x->input[RIGHT] ) inc();
-	if ( gmenu2x->input[DEC] ) setValue(value() - 10 * delta);
-	if ( gmenu2x->input[INC] ) setValue(value() + 10 * delta);
-	if ( gmenu2x->input[MENU] ) setDefault();
+	if (gmenu2x->input[LEFT])		dec();
+	else if (gmenu2x->input[RIGHT])	inc();
+	else if (gmenu2x->input[DEC])	setValue(value() - 10 * delta);
+	else if (gmenu2x->input[INC])	setValue(value() + 10 * delta);
+	else if (gmenu2x->input[MENU])	setDefault();
+	return 0; // SD_NO_ACTION
 }
 
 void MenuSettingInt::inc() {

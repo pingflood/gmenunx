@@ -84,6 +84,7 @@ uint32_t MenuSettingRGBA::manageInput() {
 	if (gmenu2x->input[DEC]) dec();
 	if (gmenu2x->input[LEFT]) leftComponent();
 	if (gmenu2x->input[RIGHT]) rightComponent();
+	return 0; // SD_NO_ACTION
 }
 
 void MenuSettingRGBA::dec() {

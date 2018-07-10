@@ -72,6 +72,7 @@ uint32_t MenuSettingDateTime::manageInput() {
 	if (gmenu2x->input[DEC]) dec();
 	if (gmenu2x->input[LEFT]) leftComponent();
 	if (gmenu2x->input[RIGHT]) rightComponent();
+	return 0; // SD_NO_ACTION
 }
 
 void MenuSettingDateTime::dec() {
@@ -87,7 +88,7 @@ void MenuSettingDateTime::leftComponent() {
 }
 
 void MenuSettingDateTime::rightComponent() {
-	selPart = constrain(selPart+1,0,4);
+	selPart = constrain(selPart + 1, 0, 4);
 }
 
 void MenuSettingDateTime::setYear(int16_t i) {
