@@ -1162,6 +1162,7 @@ void GMenu2X::readConfig() {
 	// Defaults
 	confStr["batteryType"] = "BL-5B";
 	confStr["datetime"] = __BUILDTIME__;
+	confInt["saveSelection"] = 1;
 
 	if (fileExists(conffile)) {
 		ifstream inf(conffile.c_str(), ios_base::in);
