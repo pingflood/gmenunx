@@ -59,7 +59,7 @@ void FileLister::browse() {
 	directories.clear();
 	files.clear();
 
-	if (showDirectories && path != "/") directories.push_back("..");
+	if (showDirectories && path != "/" && allowDirUp) directories.push_back("..");
 
 	if (showDirectories || showFiles) {
 		DIR *dirp;
@@ -144,5 +144,6 @@ void FileLister::insertFile(const string &file) {
 }
 
 void FileLister::addExclude(const string &exclude) {
+	if (exclude == "..") allowDirUp = false;
 	excludes.push_back(exclude);
 }

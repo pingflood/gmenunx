@@ -33,7 +33,7 @@ private:
 	vector<string> directories, files, excludes;
 
 public:
-	bool showDirectories, showFiles;
+	bool showDirectories, showFiles, allowDirUp = true;
 	FileLister(const string &startPath = "/mnt/", bool showDirectories = true, bool showFiles = true);
 	void browse();
 
