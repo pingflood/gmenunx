@@ -89,6 +89,7 @@ public:
 	const vector<string> &getSections() { return sections; }
 	void renameSection(int index, const string &name);
 	int getSectionIndex(const string &name);
+	const string getSectionIcon(int i);
 };
 
 #endif

@@ -444,11 +444,6 @@ void GMenu2X::main() {
 
 			x = sectionBarRect.x; y = sectionBarRect.y;
 			for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
-				string sectionIcon = "skin:sections/" + menu->getSections()[i] + ".png";
-				if (!sc.exists(sectionIcon)) {
-					sectionIcon = "skin:icons/section.png";
-				}
-
 				if (confInt["sectionBar"] == SB_LEFT || confInt["sectionBar"] == SB_RIGHT) {
 					y = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
 				} else {
@@ -458,7 +453,7 @@ void GMenu2X::main() {
 				if (menu->selSectionIndex() == (int)i)
 					s->box(x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
 
-				sc[sectionIcon]->blit(s, {x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"]}, HAlignCenter | VAlignMiddle);
+				sc[menu->getSectionIcon(i)]->blit(s, {x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"]}, HAlignCenter | VAlignMiddle);
 			}
 		}
 
@@ -2009,7 +2004,7 @@ void GMenu2X::addSection() {
 }
 
 void GMenu2X::renameSection() {
-	InputDialog id(this, ts, tr["Insert a new name for this section"], menu->selSection(), tr["Rename section"], "skin:sections/" + menu->selSection() + ".png");
+	InputDialog id(this, ts, tr["Insert a new name for this section"], menu->selSection(), tr["Rename section"], menu->getSectionIcon(menu->selSectionIndex()));
 	if (id.exec()) {
 		// only if a section with the same name does not exist & !samename
 		if (menu->selSection() != id.getInput() && find(menu->getSections().begin(),menu->getSections().end(), id.getInput()) == menu->getSections().end()) {

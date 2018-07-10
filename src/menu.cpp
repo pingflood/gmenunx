@@ -487,3 +487,13 @@ void Menu::renameSection(int index, const string &name) {
 int Menu::getSectionIndex(const string &name) {
 	return distance(sections.begin(), find(sections.begin(), sections.end(), name));
 }
+
+const string Menu::getSectionIcon(int i) {
+	string sectionIcon = "skin:sections/" + sections[i] + ".png";
+	if (!gmenu2x->sc.exists(sectionIcon)) {
+		sectionIcon = "skin:icons/section.png";
+	}
+	return sectionIcon;
+}
+
+
