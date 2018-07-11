@@ -93,6 +93,7 @@ void FileLister::browse() {
 			} else {
 				if (!showFiles) continue;
 				for (vector<string>::iterator it = vfilter.begin(); it != vfilter.end(); ++it) {
+					if (it->length() == 0 && (int32_t)file.rfind(".") >= 0) break;
 					if (it->length() <= file.length()) {
 						if (file.compare(file.length() - it->length(), it->length(), *it) == 0) {
 							files.push_back(file);
