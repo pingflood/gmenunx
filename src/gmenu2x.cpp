@@ -69,6 +69,7 @@
 #include "menusettingfile.h"
 #include "menusettingimage.h"
 #include "menusettingdir.h"
+#include "menusettingdelegate.h"
 
 #include "imageviewerdialog.h"
 #include "batteryloggerdialog.h"
@@ -940,7 +941,7 @@ void GMenu2X::initMenu() {
 
 			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "skin:icons/about.png");
 			// menu->addActionLink(i, "Reboot", MakeDelegate(this, &GMenu2X::reboot), tr["Reboot device"], "skin:icons/reboot.png");
-			menu->addActionLink(i, tr["Factory Defaults"], MakeDelegate(this, &GMenu2X::resetSettings), tr["Reset settings to factory defaults"], "skin:icons/reboot.png");
+			// menu->addActionLink(i, tr["Factory Defaults"], MakeDelegate(this, &GMenu2X::resetSettings), tr["Reset settings to factory defaults"], "skin:icons/reboot.png");
 			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroffDialog), tr["Power menu"], "skin:icons/exit.png");
 		}
 	}
@@ -1013,6 +1014,7 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this,tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
 	sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 60, 0, 100));
 	// sd.addSetting(new MenuSettingBool(this,tr["Show root"], tr["Show root folder in the file selection dialogs"],&showRootFolder));
+	sd.addSetting(new MenuSettingDelegate(this, tr["Factory defaults"], tr["Reset settings to factory defaults"], ">", MakeDelegate(this, &GMenu2X::resetSettings)));
 
 	if (sd.exec() && sd.edited() && sd.save) {
 
