@@ -29,7 +29,6 @@ using fastdelegate::MakeDelegate;
 
 MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &title, const string &description, int *value, int def, int min, int max, int delta)
 	: MenuSetting(gmenu2x, title, description) {
-	IconButton *btn;
 
 	_value = value;
 	originalValue = *value;
@@ -51,7 +50,7 @@ MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &title, const stri
 	btn->setAction(actionDec);
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change value"]);
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change"]);
 	btn->setAction(actionInc);
 	buttonBox.add(btn);
 }

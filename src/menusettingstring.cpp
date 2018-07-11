@@ -32,8 +32,6 @@ MenuSettingString::MenuSettingString(
 	, dialogTitle(dialogTitle)
 	, dialogIcon(dialogIcon)
 {
-	IconButton *btn;
-
 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/select.png", gmenu2x->tr["Clear"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingString::clear));
 	buttonBox.add(btn);

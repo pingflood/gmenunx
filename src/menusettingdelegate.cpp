@@ -25,7 +25,6 @@ MenuSettingDelegate::MenuSettingDelegate(GMenu2X *gmenu2x, const std::string &ti
 	const std::string &description, const std::string &_value, msd_callback_t callback)
 	: MenuSetting(gmenu2x, title, description), _value(_value), callback(callback)
 {
-	IconButton *btn;
 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Select"]);
 	// btn->setAction(MakeDelegate(this, &this->onChange));
 	buttonBox.add(btn);

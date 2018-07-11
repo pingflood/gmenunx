@@ -29,8 +29,6 @@ using fastdelegate::MakeDelegate;
 
 MenuSettingDateTime::MenuSettingDateTime(GMenu2X *gmenu2x, const string &title, const string &description, string *value)
 	: MenuSetting(gmenu2x, title, description) {
-	IconButton *btn;
-
 	_value = value;
 	originalValue = *value;
 

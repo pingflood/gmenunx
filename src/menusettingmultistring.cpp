@@ -50,13 +50,11 @@ MenuSettingMultiString::MenuSettingMultiString(
 
 	setSel(find(choices->begin(), choices->end(), *value) - choices->begin());
 
-	IconButton *btn;
-
 	btn = new IconButton(gmenu2x, "skin:imgs/buttons/left.png");
 	btn->setAction(MakeDelegate(this, &MenuSettingMultiString::decSel));
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change value"]);
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingMultiString::incSel));
 	buttonBox.add(btn);
 }
@@ -74,7 +72,6 @@ void MenuSettingMultiString::incSel() {
 void MenuSettingMultiString::decSel() {
 	setSel(selected - 1);
 }
-
 
 void MenuSettingMultiString::setSel(int sel)
 {
