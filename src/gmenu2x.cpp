@@ -1083,8 +1083,8 @@ void GMenu2X::resetSettings() {
 	if (sd.exec() && sd.save) {
 		MessageBox mb(this, tr["Changes will be applied to ALL\napps and GMenuNext. Are you sure?"], "skin:icons/exit.png");
 		mb.setButton(CONFIRM, tr["Cancel"]);
-		mb.setButton(SETTINGS,  tr["Confirm"]);
-		if (mb.exec() != SETTINGS) return;
+		mb.setButton(SECTION_NEXT,  tr["Confirm"]);
+		if (mb.exec() != SECTION_NEXT) return;
 
 		for (uint32_t s = 0; s < menu->getSections().size(); s++) {
 			for (uint32_t l = 0; l < menu->sectionLinks(s)->size(); l++) {
@@ -1103,7 +1103,6 @@ void GMenu2X::resetSettings() {
 				if (reset_backdrop) 	menu->selLinkApp()->setBackdrop("");
 				if (reset_icon || reset_manual || reset_parameter || reset_backdrop || reset_filter || reset_directory || reset_preview )
 					menu->selLinkApp()->save();
-
 			}
 		}
 		if (reset_skin) {
