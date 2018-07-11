@@ -1012,9 +1012,9 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Seconds to turn display off if inactive"], &confInt["backlightTimeout"], 30, 10, 300));
 	sd.addSetting(new MenuSettingInt(this,tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
 	sd.addSetting(new MenuSettingInt(this,tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
-	sd.addSetting(new MenuSettingInt(this, tr["Global volume"], tr["Set the default volume for the soundcard"], &confInt["globalVolume"], 60, 0, 100));
+	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
 	// sd.addSetting(new MenuSettingBool(this,tr["Show root"], tr["Show root folder in the file selection dialogs"],&showRootFolder));
-	sd.addSetting(new MenuSettingDelegate(this, tr["Factory defaults"], tr["Reset settings to factory defaults"], ">", MakeDelegate(this, &GMenu2X::resetSettings)));
+	sd.addSetting(new MenuSettingDelegate(this, tr["Factory defaults"], tr["Choose settings to reset back to defaults"], ">>", MakeDelegate(this, &GMenu2X::resetSettings)));
 
 	if (sd.exec() && sd.edited() && sd.save) {
 
