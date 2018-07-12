@@ -19,7 +19,6 @@
  ***************************************************************************/
 #include "menusettingdir.h"
 #include "iconbutton.h"
-// #include "dirdialog.h"
 #include "browsedialog.h"
 #include "debug.h"
 
@@ -45,7 +44,6 @@ void MenuSettingDir::edit() {
 	if (_value.empty())
 		_value = startPath+"/";
 
-	// DirDialog dd(gmenu2x, description, _value);
 	BrowseDialog dd(gmenu2x, dialogTitle, description, dialogIcon);
 	dd.showDirectories = true;
 	dd.showFiles = false;
