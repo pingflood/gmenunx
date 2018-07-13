@@ -64,13 +64,14 @@ bool BrowseDialog::exec() {
 		//Selection
 		if (selected >= firstElement + numRows) firstElement = selected - numRows;
 		if (selected < firstElement) firstElement = selected;
-		iY = selected - firstElement;
-		iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
-		gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		// iY = selected - firstElement;
+		// iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
+		// gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//Files & Directories
 		iY = gmenu2x->listRect.y + 1;
-		for (i = firstElement; i < fl->size() && i <= firstElement + numRows; i++) {
+		for (i = firstElement; i < fl->size() && i <= firstElement + numRows; i++, iY += rowHeight) {
+			if (i == selected) gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 			if (fl->isDirectory(i)) {
 				if ((*fl)[i] == "..")
 					iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
@@ -80,8 +81,7 @@ bool BrowseDialog::exec() {
 				iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 			}
 			gmenu2x->s->write(gmenu2x->font, (*fl)[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
-
-			iY += rowHeight;
+			// iY += rowHeight;
 		}
 
 		// preview

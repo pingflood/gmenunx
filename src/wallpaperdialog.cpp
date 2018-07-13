@@ -73,15 +73,15 @@ bool WallpaperDialog::exec()
 		//Selection
 		if (selected >= firstElement + numRows) firstElement = selected - numRows;
 		if (selected < firstElement) firstElement = selected;
-		iY = selected - firstElement;
-		iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
-		gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		// iY = selected - firstElement;
+		// iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
 
 		//Files & Directories
 		iY = gmenu2x->listRect.y + 1;
-		for (i = firstElement; i < wallpapers.size() && i <= firstElement + numRows; i++) {
+		for (i = firstElement; i < wallpapers.size() && i <= firstElement + numRows; i++, iY += rowHeight) {
+			if (i == selected) gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 			gmenu2x->s->write(gmenu2x->font, wallpapers[i], gmenu2x->listRect.x + 5, iY + rowHeight/2, VAlignMiddle);
-			iY += rowHeight;
+			// iY += rowHeight;
 		}
 
 		gmenu2x->drawScrollBar(numRows, wallpapers.size(), firstElement, gmenu2x->listRect);

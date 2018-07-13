@@ -69,20 +69,21 @@ bool SettingsDialog::exec() {
 		//Selection
 		if (selected >= firstElement + numRows) firstElement = selected - numRows;
 		if (selected < firstElement) firstElement = selected;
-		iY = selected - firstElement;
-		iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
-		gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-
-		//selected option
-		voices[selected]->drawSelected(iY);
-
+		// iY = selected - firstElement;
+		// iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
 		// if (ts_pressed && !ts.pressed()) ts_pressed = false;
 		// if (gmenu2x->f200 && ts.pressed() && !ts.inRect(gmenu2x->listRect)) ts_pressed = false;
 
+		//selected option
+
 		iY = gmenu2x->listRect.y + 1;
-		for (i = firstElement; i < voices.size() && i <= firstElement + numRows; i++) {
+		for (i = firstElement; i < voices.size() && i <= firstElement + numRows; i++, iY += rowHeight) {
+			if (i == selected) {
+				gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+				voices[selected]->drawSelected(iY);
+			}
 			voices[i]->draw(iY);
-			iY += rowHeight;
+			// iY += rowHeight;
 		}
 
 		gmenu2x->drawScrollBar(numRows, voices.size(), firstElement, gmenu2x->listRect);

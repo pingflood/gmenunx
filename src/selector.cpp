@@ -28,7 +28,7 @@
 #include <fstream>
 
 #include "messagebox.h"
-#include "menu.h"
+// #include "menu.h"
 #include "linkapp.h"
 #include "selector.h"
 #include "filelister.h"
@@ -90,56 +90,64 @@ int Selector::exec(int startSelection) {
 	while (!close) {
 		this->bg->blit(gmenu2x->s, 0, 0);
 
-		//Selection
-		if (selected >= firstElement + numRows) firstElement = selected - numRows;
-		if (selected < firstElement) firstElement = selected;
-		iY = selected - firstElement;
-		iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
-		gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+// WARNING("selected: %d", selected);
 
-		//Files & Directories
-		iY = gmenu2x->listRect.y + 1;
-		for (i = firstElement; i < fl.size() && i <= firstElement + numRows; i++) {
-			if (fl.isDirectory(i)) {
-				if (fl[i] == "..")
-					iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
-				else
-					iconFolder->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
-			} else {
-				iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
-			}
-			gmenu2x->s->write(gmenu2x->font, fl[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
-
-			iY += rowHeight;
-		}
-
-		//Screenshot
-		if (selected - fl.dirCount() < screens.size() && screens[selected - fl.dirCount()] != "") {
-			gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-
-			// gmenu2x->sc[screens[selected - fl.dirCount()]]->softStretch(50, 50);
-			gmenu2x->sc[screens[selected - fl.dirCount()]]->blit(gmenu2x->s, {320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
-
-			if (animation < gmenu2x->skinConfInt["previewWidth"]) {
-				animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
-				gmenu2x->s->flip();
-				gmenu2x->input.setWakeUpInterval(45);
-				continue;
-			}
+		if (!fl.size()) {
+			MessageBox mb(gmenu2x, gmenu2x->tr["This directory is empty"]);
+			mb.setAutoHide(1);
+			mb.setBgAlpha(0);
+			mb.exec();
 		} else {
-			if (animation > 0) {
-				gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-				animation = gmenu2x->skinConfInt["previewWidth"] - intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 80);
-				gmenu2x->s->flip();
-				gmenu2x->input.setWakeUpInterval(45);
-				continue;
-			}
-		}
-		gmenu2x->input.setWakeUpInterval(1000);
+			//Selection
+			if (selected >= firstElement + numRows) firstElement = selected - numRows;
+			if (selected < firstElement) firstElement = selected;
+			// iY = selected - firstElement;
+			// iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
+			// gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
-		gmenu2x->s->clearClipRect();
-		gmenu2x->drawScrollBar(numRows, fl.size(), firstElement, gmenu2x->listRect);
-		gmenu2x->s->flip();
+			//Files & Directories
+			iY = gmenu2x->listRect.y + 1;
+			for (i = firstElement; i < fl.size() && i <= firstElement + numRows; i++, iY += rowHeight) {
+				if (i == selected) gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+				if (fl.isDirectory(i)) {
+					if (fl[i] == "..")
+						iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
+					else
+						iconFolder->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
+				} else {
+					iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
+				}
+				gmenu2x->s->write(gmenu2x->font, fl[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
+				// iY += rowHeight;
+			}
+
+			//Screenshot
+			if (selected - fl.dirCount() < screens.size() && screens[selected - fl.dirCount()] != "") {
+				gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+
+				// gmenu2x->sc[screens[selected - fl.dirCount()]]->softStretch(50, 50);
+				gmenu2x->sc[screens[selected - fl.dirCount()]]->blit(gmenu2x->s, {320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
+
+				if (animation < gmenu2x->skinConfInt["previewWidth"]) {
+					animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
+					gmenu2x->s->flip();
+					gmenu2x->input.setWakeUpInterval(45);
+					continue;
+				}
+			} else {
+				if (animation > 0) {
+					gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+					animation = gmenu2x->skinConfInt["previewWidth"] - intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 80);
+					gmenu2x->s->flip();
+					gmenu2x->input.setWakeUpInterval(45);
+					continue;
+				}
+			}
+			gmenu2x->input.setWakeUpInterval(1000);
+			gmenu2x->s->clearClipRect();
+			gmenu2x->drawScrollBar(numRows, fl.size(), firstElement, gmenu2x->listRect);
+			gmenu2x->s->flip();
+		}
 
 		do {
 			inputAction = gmenu2x->input.update();
