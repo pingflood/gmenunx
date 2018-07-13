@@ -549,7 +549,7 @@ void GMenu2X::main() {
 						iconTrayShift++;
 					}
 
-					if (iconTrayShift < 2) {
+					if (menu->selLinkApp()->clock() != confInt["cpuMenu"] && iconTrayShift < 2) {
 						// CPU indicator
 						iconCPU->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 						iconTrayShift++;
