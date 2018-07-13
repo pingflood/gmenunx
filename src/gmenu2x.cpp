@@ -275,7 +275,7 @@ GMenu2X::GMenu2X() {
 		//	VOLUME MODIFIER
 		switch(volumeMode) {
 			case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
-			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones);	break;
+			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones); break;
 			case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
 		}
 	}
@@ -534,7 +534,6 @@ void GMenu2X::main() {
 			if (batteryIcon > 5) batteryIcon = 6;
 			iconBattery[batteryIcon]->blit(s, sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38);
 
-
 			// TRAY iconTrayShift,1
 			int iconTrayShift = 0;
 			if (curMMCStatus == MMC_INSERT) {
@@ -559,15 +558,14 @@ void GMenu2X::main() {
 			}
 
 			if (iconTrayShift < 2) {
-				// Menu indicator
-				iconMenu->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
-				iconTrayShift++;
-			}
-
-			if (iconTrayShift < 2) {
 				brightnessIcon = confInt["backlight"]/20;
 				if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
 				iconBrightness[brightnessIcon]->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+				iconTrayShift++;
+			}
+			if (iconTrayShift < 2) {
+				// Menu indicator
+				iconMenu->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 				iconTrayShift++;
 			}
 		}
@@ -688,7 +686,10 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		mb.setAutoHide(1000);
 		mb.exec();
 
-		if (curMMCStatus == MMC_INSERT) mountSd();
+		if (curMMCStatus == MMC_INSERT) {
+			mountSd();
+			menu->addActionLink(menu->getSectionIndex("settings"), tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
+		}
 		else umountSd();
 	}
 
@@ -932,7 +933,8 @@ void GMenu2X::initMenu() {
 			//menu->addActionLink(i, "Speaker", MakeDelegate(this, &GMenu2X::toggleSpeaker), tr["Activate/deactivate Speaker"], "skin:icons/speaker.png");
 #elif defined(TARGET_RS97)
 			//menu->addActionLink(i, "Format", MakeDelegate(this, &GMenu2X::formatSd), tr["Format internal SD"], "skin:icons/format.png");
-			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
+			if (curMMCStatus == MMC_INSERT)
+				menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
 #endif
 
 			if (fileExists(path + "log.txt"))
@@ -1708,14 +1710,16 @@ void GMenu2X::umountSd() {
 
 #if defined(TARGET_RS97)
 void GMenu2X::umountSdDialog() {
-	MessageBox mb(this, tr["Umount external SD card?"], "skin:icons/eject.png");
+	MessageBox mb(this, tr["Umount SD card?"], "skin:icons/eject.png");
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() == CONFIRM) {
 		umountSd();
-		MessageBox mb(this, tr["Complete!"], "skin:icons/eject.png");
+		menu->deleteSelectedLink();
+		sc[confStr["wallpaper"]]->blit(s,0,0);
+		MessageBox mb(this, tr["SD card umounted"], "skin:icons/eject.png");
+		mb.setAutoHide(1000);
 		mb.exec();
-		// menu->deleteSelectedLink();
 	}
 }
 
