@@ -28,15 +28,15 @@ using std::find;
 using std::string;
 using std::vector;
 
-MenuSettingMultiString::MenuSettingMultiString(
-		GMenu2X *gmenu2x, const string &title,
-		const string &description, string *value,
-		const vector<string> *choices_)
-	: MenuSettingMultiString(
-		gmenu2x, title,
-		description, value,
-		choices_, MakeDelegate(this, &MenuSettingMultiString::voidAction)
-	){ };
+// MenuSettingMultiString::MenuSettingMultiString(
+// 		GMenu2X *gmenu2x, const string &title,
+// 		const string &description, string *value,
+// 		const vector<string> *choices_)
+// 	: MenuSettingMultiString(
+// 		gmenu2x, title,
+// 		description, value,
+// 		choices_, MakeDelegate(this, &MenuSettingMultiString::voidAction)
+// 	){ };
 
 
 MenuSettingMultiString::MenuSettingMultiString(
@@ -60,8 +60,8 @@ MenuSettingMultiString::MenuSettingMultiString(
 }
 
 uint32_t MenuSettingMultiString::manageInput() {
-	if (gmenu2x->input[LEFT]) { decSel(); return this->onChange();}
-	else if (gmenu2x->input[RIGHT]) { incSel(); return this->onChange();}
+	if (gmenu2x->input[LEFT]) { decSel(); return this->onChange && this->onChange();}
+	else if (gmenu2x->input[RIGHT]) { incSel(); return this->onChange && this->onChange();}
 	return 0; // SD_NO_ACTION
 }
 
