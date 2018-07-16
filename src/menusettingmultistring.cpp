@@ -20,13 +20,13 @@
 #include "menusettingmultistring.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
-#include "FastDelegate.h"
+// #include "FastDelegate.h"
 
 #include <algorithm>
 
 using std::find;
-using std::string;
-using std::vector;
+// using std::string;
+// using std::vector;
 
 // MenuSettingMultiString::MenuSettingMultiString(
 // 		GMenu2X *gmenu2x, const string &title,
@@ -42,26 +42,35 @@ using std::vector;
 MenuSettingMultiString::MenuSettingMultiString(
 		GMenu2X *gmenu2x, const string &title,
 		const string &description, string *value,
-		const vector<string> *choices_, msms_callback_t cbOnChange)
-	: MenuSettingStringBase(gmenu2x, title, description, value)
-	, choices(choices_)
+		const vector<string> *choices_,
+		msms_onchange_t onChange, msms_onselect_t onSelect)
+	: MenuSettingStringBase(gmenu2x, title, description, value), choices(choices_),
+	onChange(onChange), onSelect(onSelect)
 {
-	this->onChange = cbOnChange;
-
 	setSel(find(choices->begin(), choices->end(), *value) - choices->begin());
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/left.png");
-	btn->setAction(MakeDelegate(this, &MenuSettingMultiString::decSel));
-	buttonBox.add(btn);
+	if (choices->size() > 1) {
+		btn = new IconButton(gmenu2x, "skin:imgs/buttons/left.png");
+		btn->setAction(MakeDelegate(this, &MenuSettingMultiString::decSel));
+		buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingMultiString::incSel));
-	buttonBox.add(btn);
+		btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change"]);
+		btn->setAction(MakeDelegate(this, &MenuSettingMultiString::incSel));
+		buttonBox.add(btn);
+	}
+
+	if (this->onSelect) {
+		btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Open"]);
+		// btn->setAction(MakeDelegate(this, &MenuSettingMultiString::incSel));
+		buttonBox.add(btn);
+	}
+
 }
 
 uint32_t MenuSettingMultiString::manageInput() {
 	if (gmenu2x->input[LEFT]) { decSel(); return this->onChange && this->onChange();}
 	else if (gmenu2x->input[RIGHT]) { incSel(); return this->onChange && this->onChange();}
+	else if (gmenu2x->input[CONFIRM] && this->onSelect) this->onSelect();
 	return 0; // SD_NO_ACTION
 }
 
