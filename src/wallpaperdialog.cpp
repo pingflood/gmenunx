@@ -55,7 +55,6 @@ bool WallpaperDialog::exec()
 			wallpapers.push_back(fl.getFiles()[i]);
 	}
 
-
 	wallpaper = base_name(gmenu2x->confStr["wallpaper"]);
 
 	for (uint32_t i = 0; i < wallpapers.size(); i++) {
@@ -135,6 +134,5 @@ bool WallpaperDialog::exec()
 			gmenu2x->sc.del("skins/Default/wallpapers/" + wallpapers[i]);
 
 	gmenu2x->confStr["wallpaper"] = wallpaper;
-WARNING("WP SELECTED: %s", gmenu2x->confStr["wallpaper"].c_str());
 	return result;
 }
