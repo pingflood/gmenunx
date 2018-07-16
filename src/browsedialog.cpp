@@ -53,7 +53,8 @@ bool BrowseDialog::exec() {
 		gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Select"]);
 	} else {
 		gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
-		gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5));
+		gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Folder up"],
+		gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5)));
 	}
 
 	uint32_t tickStart = SDL_GetTicks();
@@ -175,7 +176,7 @@ uint32_t BrowseDialog::getAction() {
 	else if (gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT]) action = BD_ACTION_PAGEUP;
 	else if (gmenu2x->input[DOWN]) action = BD_ACTION_DOWN;
 	else if (gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT]) action = BD_ACTION_PAGEDOWN;
-	// else if (gmenu2x->input[CANCEL]) action = BD_ACTION_GOUP;
+	else if (gmenu2x->input[CANCEL]) action = BD_ACTION_GOUP;
 	else if (gmenu2x->input[CONFIRM]) action = BD_ACTION_SELECT;
 	else if (gmenu2x->input[CANCEL] || gmenu2x->input[MENU]) action = BD_ACTION_CANCEL;
 	return action;
@@ -189,13 +190,13 @@ void BrowseDialog::directoryUp() {
 		p = path.rfind("/", p - 1);
 
 	// if (p == string::npos || p < 4 || path.compare(0, CARD_ROOT_LEN, CARD_ROOT) != 0) {
-	if (p == string::npos || p < 4) {
-		close = true;
-		result = false;
-	} else {
+	// if (p == string::npos || p < 4) {
+		// close = true;
+		// result = false;
+	// } else {
 		selected = 0;
 		setPath("/"+path.substr(0, p));
-	}
+	// }
 }
 
 void BrowseDialog::directoryEnter() {

@@ -71,8 +71,14 @@ int Selector::exec(int startSelection) {
 	drawBottomBar(this->bg);
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
-	gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5));
+	if (link->getSelectorBrowser()) {
+		gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
+		gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Folder up"],
+		gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5)));
+	} else {
+		gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
+		gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5));
+	}
 
 	prepare(&fl, &screens, &titles);
 	int selected = constrain(startSelection, 0, fl.size() - 1);
@@ -166,23 +172,23 @@ int Selector::exec(int startSelection) {
 			} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
 				selected += numRows;
 				if (selected >= fl.size()) selected = fl.size() - 1;
-			} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) {
+			} else if ( gmenu2x->input[SETTINGS] ) {
 				close = true;
 				result = false;
 			// } else if ( gmenu2x->input[MENU] ) {
 				// gmenu2x->editLink();
-			// } else if ( gmenu2x->input[CANCEL] ) {
+			} else if ( gmenu2x->input[CANCEL] ) {
 				// if (link->getSelectorBrowser()) {
-				// 	string::size_type p = dir.rfind("/", dir.size() - 2);
+					string::size_type p = dir.rfind("/", dir.size() - 2);
 				// 	if (p == string::npos || dir.compare(0, CARD_ROOT_LEN, CARD_ROOT) != 0 || p < 4) {
 				// 		close = true;
 				// 		result = false;
 				// 	} else {
-				// 		dir = dir.substr(0, p + 1);
+						dir = dir.substr(0, p + 1);
 				// 		// INFO("%s", dir.c_str());
 				// 		selected = 0;
 				// 		firstElement = 0;
-				// 		prepare(&fl, &screens, &titles);
+						prepare(&fl, &screens, &titles);
 				// 	}
 				// } else {
 					// close = true;
