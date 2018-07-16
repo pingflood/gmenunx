@@ -53,6 +53,7 @@ public:
 	bool edited();
 	bool exec();
 	void addSetting(MenuSetting* set);
+	int32_t selected = 0;
 };
 
 #endif /*SETTINGSDIALOG_H_*/

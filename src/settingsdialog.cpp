@@ -48,7 +48,6 @@ SettingsDialog::~SettingsDialog() {
 bool SettingsDialog::exec() {
 	bool close = false, ts_pressed = false, inputAction = false;
 	uint32_t i, iY, firstElement = 0, action = SD_NO_ACTION, rowHeight, numRows;
-	int32_t selected = 0;
 	voices[selected]->adjustInput();
 
 	while (!close) {

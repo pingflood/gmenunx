@@ -64,13 +64,25 @@ MenuSettingMultiString::MenuSettingMultiString(
 		// btn->setAction(MakeDelegate(this, &MenuSettingMultiString::incSel));
 		buttonBox.add(btn);
 	}
-
 }
 
 uint32_t MenuSettingMultiString::manageInput() {
-	if (gmenu2x->input[LEFT]) { decSel(); return this->onChange && this->onChange();}
-	else if (gmenu2x->input[RIGHT]) { incSel(); return this->onChange && this->onChange();}
-	else if (gmenu2x->input[CONFIRM] && this->onSelect) this->onSelect();
+	if (gmenu2x->input[LEFT]) {
+		decSel();
+		return this->onChange && this->onChange();
+	}
+	else if (gmenu2x->input[RIGHT]) {
+		incSel();
+		return this->onChange && this->onChange();
+	}
+	else if (gmenu2x->input[CONFIRM] && this->onSelect) {
+		this->onSelect();
+		return this->onChange && this->onChange();
+	}
+	else if (gmenu2x->input[MENU]) {
+		setSel(0);
+		return this->onChange && this->onChange();
+	}
 	return 0; // SD_NO_ACTION
 }
 
