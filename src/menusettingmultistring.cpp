@@ -42,7 +42,7 @@ MenuSettingMultiString::MenuSettingMultiString(
 MenuSettingMultiString::MenuSettingMultiString(
 		GMenu2X *gmenu2x, const string &title,
 		const string &description, string *value,
-		const vector<string> *choices_, cbAction cbOnChange)
+		const vector<string> *choices_, msms_callback_t cbOnChange)
 	: MenuSettingStringBase(gmenu2x, title, description, value)
 	, choices(choices_)
 {

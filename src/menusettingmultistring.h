@@ -29,7 +29,7 @@
 using namespace fastdelegate;
 using fastdelegate::MakeDelegate;
 
-typedef FastDelegate0<uint32_t> cbAction;
+typedef FastDelegate0<uint32_t> msms_callback_t;
 
 class MenuSettingMultiString : public MenuSettingStringBase {
 private:
@@ -44,7 +44,7 @@ private:
 	void decSel();
 	void setSel(int sel);
 
-	cbAction onChange; // variable to store function pointer type
+	msms_callback_t onChange; // variable to store function pointer type
 
 public:
 	MenuSettingMultiString(
@@ -55,7 +55,7 @@ public:
 	MenuSettingMultiString(
 			GMenu2X *gmenu2x, const std::string &title,
 			const std::string &description, std::string *value,
-			const std::vector<std::string> *choices, cbAction cbOnChange);
+			const std::vector<std::string> *choices, msms_callback_t cbOnChange);
 
 	uint32_t voidAction() { return 0; };
 

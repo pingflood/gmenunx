@@ -36,7 +36,7 @@ public:
 	virtual ~MenuSettingDelegate() {}
 	MenuSettingDelegate(GMenu2X *gmenu2x, const std::string &title,
 		const std::string &description, const std::string &value,
-		msd_callback_t cbOnChange);
+		msd_callback_t callback);
 	virtual void drawSelected(int y);
 	virtual void draw(int y);
 	virtual uint32_t manageInput();
