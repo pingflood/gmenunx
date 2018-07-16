@@ -52,7 +52,11 @@ void MenuSettingBool::initButton()
 	btn->setAction(actionToggle);
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change"]);
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png");
+	btn->setAction(actionToggle);
+	buttonBox.add(btn);
+
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Change"]);
 	btn->setAction(actionToggle);
 	buttonBox.add(btn);
 }
@@ -72,7 +76,7 @@ void MenuSettingBool::draw(int y)
 
 uint32_t MenuSettingBool::manageInput()
 {
-	if ( gmenu2x->input[LEFT] || gmenu2x->input[RIGHT] ) toggle();
+	if ( gmenu2x->input[LEFT] || gmenu2x->input[RIGHT] || gmenu2x->input[CONFIRM] ) toggle();
 	return 0; // SD_NO_ACTION
 }
 
