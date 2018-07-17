@@ -161,6 +161,7 @@ enum mmc_status {
 	MMC_REMOVE, MMC_INSERT, MMC_ERROR
 };
 
+int16_t curMMCStatus, preMMCStatus, MMCToggle = MMC_REMOVE;
 int16_t getMMCStatus(void) {
 	if (memdev > 0) return !(memregs[0x10500 >> 2] >> 0 & 0b1);
 	return MMC_ERROR;
@@ -177,13 +178,15 @@ int16_t getUDCStatus(void) {
 }
 
 int16_t tvOutPrev, tvOutConnected, tvOutToggle = 0;
-int16_t curMMCStatus, preMMCStatus, MMCToggle = MMC_REMOVE;
-
 bool getTVOutStatus() {
 	if (memdev > 0) return !(memregs[0x10300 >> 2] >> 25 & 0b1);
 	return false;
 }
 
+enum vol_mode_t {
+	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
+};
+int16_t volumeModePrev, volumeMode = VOLUME_MODE_NORMAL;
 uint8_t getVolumeMode(uint8_t vol) {
 	if (!vol) return VOLUME_MODE_MUTE;
 	else if (memdev > 0 && !(memregs[0x10300 >> 2] >> 6 & 0b1)) return VOLUME_MODE_PHONES;
@@ -1670,14 +1673,14 @@ void GMenu2X::ledOff() {
 
 void GMenu2X::hwCheck() {
 	if (memdev > 0) {
-		printf("\e[s\e[1;0f");
-		printbin("A", memregs[0x10000 >> 2]);
-		printbin("B", memregs[0x10100 >> 2]);
-		printbin("C", memregs[0x10200 >> 2]);
-		printbin("D", memregs[0x10300 >> 2]);
-		printbin("E", memregs[0x10400 >> 2]);
-		printbin("F", memregs[0x10500 >> 2]);
-		printf("\n\e[K\e[u");
+		// printf("\e[s\e[1;0f");
+		// printbin("A", memregs[0x10000 >> 2]);
+		// printbin("B", memregs[0x10100 >> 2]);
+		// printbin("C", memregs[0x10200 >> 2]);
+		// printbin("D", memregs[0x10300 >> 2]);
+		// printbin("E", memregs[0x10400 >> 2]);
+		// printbin("F", memregs[0x10500 >> 2]);
+		// printf("\n\e[K\e[u");
 
 		curMMCStatus = getMMCStatus();
 		if (preMMCStatus != curMMCStatus) {
@@ -1692,6 +1695,11 @@ void GMenu2X::hwCheck() {
 		}
 
 		volumeMode = getVolumeMode(confInt["globalVolume"]);
+		if (volumeModePrev != volumeMode && volumeMode == VOLUME_MODE_PHONES) {
+			volumeModePrev = volumeMode;
+			setVolume(70, true);
+		}
+
 	}
 }
 
