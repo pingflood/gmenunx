@@ -17,6 +17,20 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+/*	RS97 Key Codes. 2018, pingflood
+	BUTTON     GMENU          SDL             NUMERIC
+	-------------------------------------------------
+	X          MODIFIER       SDLK_SPACE      32
+	A          CONFIRM        SDLK_LCTRL      306
+	B          CANCEL         SDLK_LALT       308
+	Y          MANUAL         SDLK_LSHIFT     304
+	L          SECTION_PREV   SDLK_TAB        9
+	R          SECTION_NEXT   SDLK_BACKSPACE  8
+	START      SETTINGS       SDLK_RETURN     13
+	SELECT     MENU)          SDLK_ESCAPE     27
+	BACKLIGHT  BACKLIGHT      SDLK_3          51
+	POWER      POWER          SDLK_END        279
+*/
 
 #include "debug.h"
 #include "inputmanager.h"
@@ -29,8 +43,6 @@ using namespace std;
 
 InputManager::InputManager()
 	: wakeUpTimer(NULL) {
-
-// konami[20] = {UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, CANCEL, CONFIRM}; // eegg
 input_combo[20] = {POWER}; // eegg
 }
 

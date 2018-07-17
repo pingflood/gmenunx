@@ -13,18 +13,6 @@
 using std::vector;
 using std::string;
 
-// enum FHHAlign {
-// 	HAlignLeft,
-// 	HAlignRight,
-// 	HAlignCenter
-// };
-
-// enum FHVAlign {
-// 	VAlignTop,
-// 	VAlignBottom,
-// 	VAlignMiddle
-// };
-
 class Surface;
 
 class FontHelper {
@@ -47,11 +35,6 @@ public:
 
 	void write(Surface *surface, vector<string> *text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor);
 	void write(Surface *surface, vector<string> *text, int x, int y, const uint8_t align = HAlignLeft | VAlignTop);
-
-	// void write(Surface *surface, const string &text, int x, int y);
-
-	// void write(Surface* surface, const string& text, int x, int y, const uint16_t halign, const uint16_t valign = 0);
-	// void write(Surface* surface, const string& text, int x, int y, const uint16_t halign, const uint16_t valign, RGBAColor fgColor, RGBAColor bgColor);
 
 	uint32_t getLineWidth(const string &text);
 	uint32_t getTextWidth(const string &text);

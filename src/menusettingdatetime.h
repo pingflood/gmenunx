@@ -44,7 +44,6 @@ public:
 
 	virtual void draw(int y);
 	virtual uint32_t manageInput();
-	// virtual void adjustInput();
 	virtual void drawSelected(int y);
 	virtual bool edited();
 

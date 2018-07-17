@@ -20,24 +20,8 @@
 #include "menusettingmultistring.h"
 #include "gmenu2x.h"
 #include "iconbutton.h"
-// #include "FastDelegate.h"
-
 #include <algorithm>
-
 using std::find;
-// using std::string;
-// using std::vector;
-
-// MenuSettingMultiString::MenuSettingMultiString(
-// 		GMenu2X *gmenu2x, const string &title,
-// 		const string &description, string *value,
-// 		const vector<string> *choices_)
-// 	: MenuSettingMultiString(
-// 		gmenu2x, title,
-// 		description, value,
-// 		choices_, MakeDelegate(this, &MenuSettingMultiString::voidAction)
-// 	){ };
-
 
 MenuSettingMultiString::MenuSettingMultiString(
 		GMenu2X *gmenu2x, const string &title,

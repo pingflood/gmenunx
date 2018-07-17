@@ -44,7 +44,7 @@ MenuSettingFile::MenuSettingFile(GMenu2X *gmenu2x, const string &title, const st
 void MenuSettingFile::edit() {
 	string _value = value();
 	if (_value.empty())
-		_value = startPath+"/";
+		_value = startPath + "/";
 
 	_value = dir_name(_value);
 

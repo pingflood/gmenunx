@@ -19,9 +19,6 @@
  ***************************************************************************/
 #include "menusettingbool.h"
 #include "gmenu2x.h"
-// #include "utilities.h"
-// #include <sstream>
-// using std::string;
 using fastdelegate::MakeDelegate;
 
 MenuSettingBool::MenuSettingBool(GMenu2X *gmenu2x, const string &title, const string &description, int *value)

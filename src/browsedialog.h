@@ -54,12 +54,6 @@ private:
 
 	bool close, result, ts_pressed;
 	string title, description, icon;
-	// ButtonBox buttonBox;
-
-	// SDL_Rect clipRect;
-	// SDL_Rect touchRect;
-	// void handleInput();
-	// void paint();
 
 	uint32_t getAction();
 	void directoryUp();

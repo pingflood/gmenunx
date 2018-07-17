@@ -42,7 +42,7 @@ MenuSettingDir::MenuSettingDir(GMenu2X *gmenu2x, const string &title, const stri
 void MenuSettingDir::edit() {
 	string _value = value();
 	if (_value.empty())
-		_value = startPath+"/";
+		_value = startPath + "/";
 
 	BrowseDialog dd(gmenu2x, dialogTitle, description, dialogIcon);
 	dd.showDirectories = true;

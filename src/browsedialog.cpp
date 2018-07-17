@@ -1,12 +1,6 @@
-// #include <string>
-// #include <iostream>
 #include "browsedialog.h"
 #include "FastDelegate.h"
-// #include "filelister.h"
-// #include "gmenu2x.h"
-// #include "messagebox.h"
-
-#include "debug.h"
+// #include "debug.h"
 #include <algorithm>
 
 using namespace fastdelegate;
@@ -65,9 +59,6 @@ bool BrowseDialog::exec() {
 		//Selection
 		if (selected >= firstElement + numRows) firstElement = selected - numRows;
 		if (selected < firstElement) firstElement = selected;
-		// iY = selected - firstElement;
-		// iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
-		// gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		//Files & Directories
 		iY = gmenu2x->listRect.y + 1;
@@ -82,7 +73,6 @@ bool BrowseDialog::exec() {
 				iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 			}
 			gmenu2x->s->write(gmenu2x->font, (*fl)[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
-			// iY += rowHeight;
 		}
 
 		// preview

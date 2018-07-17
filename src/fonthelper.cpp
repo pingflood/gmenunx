@@ -174,21 +174,3 @@ void FontHelper::write(Surface *surface, const string &text, int x, int y, RGBAC
 
 	bg.blit(surface, x, y);
 }
-
-
-// void FontHelper::write(Surface* surface, const string& text, int x, int y, const uint16_t halign, const uint16_t valign, RGBAColor fgColor, RGBAColor bgColor) {
-// 	if (text.find("\n",0)!=string::npos) {
-// 		vector<string> textArr;
-// 		split(textArr,text,"\n");
-// 		write(surface, &textArr, x, y, halign, valign, fgColor, bgColor);
-// 	} else
-// 		write(surface, text, x, y, halign, valign, fgColor, bgColor);
-// }
-
-// void FontHelper::write(Surface* surface, const string& text, int x, int y, const uint16_t halign, const uint16_t valign) {
-// 	write(surface, text, x, y, halign, valign, textColor, outlineColor);
-// }
-
-// void FontHelper::write(Surface *surface, const string &text, int x, int y) {
-// 	write(surface, text, x, y, textColor, outlineColor);
-// }
