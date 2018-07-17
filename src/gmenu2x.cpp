@@ -186,7 +186,7 @@ bool getTVOutStatus() {
 enum vol_mode_t {
 	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
 };
-int16_t volumeModePrev, volumeMode = VOLUME_MODE_NORMAL;
+int16_t volumeModePrev, volumeMode;
 uint8_t getVolumeMode(uint8_t vol) {
 	if (!vol) return VOLUME_MODE_MUTE;
 	else if (memdev > 0 && !(memregs[0x10300 >> 2] >> 6 & 0b1)) return VOLUME_MODE_PHONES;
@@ -241,17 +241,20 @@ void* mainThread(void* param) {
 GMenu2X::GMenu2X() {
 	// instance = this;
 	//Detect firmware version and type
+
+	//load config data
+	readConfig();
+
+#if defined(TARGET_GP2X)
 	if (fileExists("/etc/open2x")) fwType = "open2x";
 	else fwType = "gph";
 
-#if defined(TARGET_GP2X)
 	f200 = fileExists("/dev/touchscreen/wm97xx");
 
 	//open2x
 	savedVolumeMode = 0;
 	volumeScalerNormal = VOLUME_SCALER_NORMAL;
 	volumeScalerPhones = VOLUME_SCALER_PHONES;
-
 	o2x_usb_net_on_boot = false;
 	o2x_usb_net_ip = "";
 	o2x_ftp_on_boot = false;
@@ -260,19 +263,7 @@ GMenu2X::GMenu2X() {
 	o2x_usb_host_on_boot = false;
 	o2x_usb_hid_on_boot = false;
 	o2x_usb_storage_on_boot = false;
-
 	usbnet = samba = inet = web = false;
-
-	// useSelectionPng = false;
-#elif defined(TARGET_RS97)
-	fwType = "rs97";
-#else
-	f200 = true;
-#endif
-	//load config data
-	readConfig();
-
-#if defined(TARGET_GP2X)
 	if (fwType=="open2x") {
 		readConfigOpen2x();
 		//	VOLUME MODIFIER
@@ -285,11 +276,11 @@ GMenu2X::GMenu2X() {
 	readCommonIni();
 	cx25874 = 0;
 	batteryHandle = 0;
+	// useSelectionPng = false;
 #endif
 
 	halfX = resX/2;
 	halfY = resY/2;
-	// bottomBarIconY = resY-18;
 
 	path = "";
 	getExePath();
@@ -312,25 +303,22 @@ GMenu2X::GMenu2X() {
 
 	s = new Surface();
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	{
-		//I'm forced to use SW surfaces since with HW there are issuse with changing the clock frequency
-		SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_SWSURFACE);
-		s->enableVirtualDoubleBuffer(dbl);
-		SDL_ShowCursor(0);
-	}
+	//I'm forced to use SW surfaces since with HW there are issuse with changing the clock frequency
+	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_SWSURFACE);
+	s->enableVirtualDoubleBuffer(dbl);
+	SDL_ShowCursor(0);
 #elif defined(TARGET_RS97)
 	SDL_ShowCursor(0);
 	s->ScreenSurface = SDL_SetVideoMode(320, 480, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
 	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
-
 #else
 	s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
 #endif
 
 	// btnContextMenu = NULL;
-	bg = NULL;
-	font = NULL;
-	menu = NULL;
+	// bg = NULL;
+	// font = NULL;
+	// menu = NULL;
 
 	initBG(confStr["wallpaper"]);
 
@@ -343,7 +331,6 @@ GMenu2X::GMenu2X() {
 	mb.exec();
 
 	setBacklight(confInt["backlight"]);
-
 
 	initMenu();
 
@@ -359,7 +346,7 @@ GMenu2X::GMenu2X() {
 	preMMCStatus = curMMCStatus = getMMCStatus();
 	udcConnectedOnBoot = getUDCStatus();
 #endif
-	volumeMode = getVolumeMode(confInt["globalVolume"]);
+	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
 
 	readTmp();
 	setCPU(confInt["cpuMenu"]);
@@ -368,7 +355,7 @@ GMenu2X::GMenu2X() {
 
 	//recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
-		menu->selLinkApp()->selector(lastSelectorElement,lastSelectorDir);
+		menu->selLinkApp()->selector(lastSelectorElement, lastSelectorDir);
 }
 
 void GMenu2X::main() {
@@ -417,9 +404,7 @@ void GMenu2X::main() {
 	}
 
 #if defined(TARGET_RS97)
-	if (udcConnectedOnBoot == UDC_CONNECT) {
-		checkUDC();
-	}
+	if (udcConnectedOnBoot == UDC_CONNECT) checkUDC();
 #endif
 
 	if (curMMCStatus == MMC_INSERT) mountSd();
@@ -884,20 +869,15 @@ void GMenu2X::initLayout() {
 }
 
 void GMenu2X::initFont() {
-	if (font != NULL) {
-		delete font;
-		font = NULL;
-	}
-	if (titlefont != NULL) {
-		delete titlefont;
-		titlefont = NULL;
-	}
+	if (font != NULL) delete font;
+	if (titlefont != NULL) delete titlefont;
 
 	font = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
 	titlefont = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSizeTitle"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
 }
 
 void GMenu2X::initMenu() {
+	if (menu != NULL) delete menu;
 	initLayout();
 
 	// Menu structure handler
@@ -1165,7 +1145,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 }
 
 void GMenu2X::readConfig() {
-	string conffile = path+"gmenu2x.conf";
+	string conffile = path + "gmenu2x.conf";
 
 	// Defaults
 	confStr["batteryType"] = "BL-5B";
@@ -1178,10 +1158,10 @@ void GMenu2X::readConfig() {
 			string line;
 			while (getline(inf, line, '\n')) {
 				string::size_type pos = line.find("=");
-				string name = trim(line.substr(0,pos));
-				string value = trim(line.substr(pos+1,line.length()));
+				string name = trim(line.substr(0, pos));
+				string value = trim(line.substr(pos + 1, line.length()));
 
-				if (value.length()>1 && value.at(0)=='"' && value.at(value.length()-1)=='"')
+				if (value.length() > 1 && value.at(0) == '"' && value.at(value.length() - 1) == '"')
 					confStr[name] = value.substr(1,value.length()-2);
 				else
 					confInt[name] = atoi(value.c_str());
