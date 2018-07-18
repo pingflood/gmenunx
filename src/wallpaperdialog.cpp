@@ -110,10 +110,10 @@ bool WallpaperDialog::exec()
 			} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
 				selected += numRows;
 				if (selected >= wallpapers.size()) selected = wallpapers.size() - 1;
-			} else if ( gmenu2x->input[MENU] || gmenu2x->input[CANCEL] ) {
+			} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[MENU] || gmenu2x->input[CANCEL] ) {
 				close = true;
 				result = false;
-			} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) {
+			} else if ( gmenu2x->input[CONFIRM] ) {
 				close = true;
 				if (wallpapers.size() > 0) {
 					if (selected < wallpapers.size() - fl.getFiles().size())
