@@ -96,8 +96,6 @@ int Selector::exec(int startSelection) {
 	while (!close) {
 		this->bg->blit(gmenu2x->s, 0, 0);
 
-// WARNING("selected: %d", selected);
-
 		if (!fl.size()) {
 			MessageBox mb(gmenu2x, gmenu2x->tr["This directory is empty"]);
 			mb.setAutoHide(1);
@@ -120,7 +118,7 @@ int Selector::exec(int startSelection) {
 				} else {
 					iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 				}
-				gmenu2x->s->write(gmenu2x->font, fl[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
+				gmenu2x->s->write(gmenu2x->font, titles[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
 			}
 
 			//Screenshot
@@ -215,16 +213,19 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 	fl->setPath(dir);
 	freeScreenshots(screens);
 	screens->resize(fl->getFiles().size());
-	titles->resize(fl->getFiles().size());
+	titles->resize(fl->dirCount()+fl->getFiles().size());
 
 	string noext, realdir;
 	string::size_type pos;
+	for (uint32_t i = 0; i < fl->dirCount(); i++) {
+		titles->at(i) = fl->getDirectories()[i];
+	}
+
 	for (uint32_t i = 0; i < fl->getFiles().size(); i++) {
 		noext = fl->getFiles()[i];
 		pos = noext.rfind(".");
 		if (pos != string::npos && pos > 0) noext = noext.substr(0, pos);
-		titles->at(i) = getAlias(noext);
-
+		titles->at(fl->dirCount()+i) = getAlias(noext);
 		if (screendir != "") {
 			if (screendir[0] == '.') realdir = real_path(fl->getPath() + "/" + screendir) + "/"; // allow "." as "current directory", therefore, relative paths
 			else realdir = real_path(screendir) + "/";
