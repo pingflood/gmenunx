@@ -36,7 +36,7 @@ MenuSettingFile::MenuSettingFile(GMenu2X *gmenu2x, const string &title, const st
 	btn->setAction(MakeDelegate(this, &MenuSettingFile::clear));
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Select a file"]);
+	btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Select"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingFile::edit));
 	buttonBox.add(btn);
 }
