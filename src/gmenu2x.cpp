@@ -1667,9 +1667,9 @@ void GMenu2X::hwCheck() {
 
 		volumeMode = getVolumeMode(confInt["globalVolume"]);
 		if (volumeModePrev != volumeMode && volumeMode == VOLUME_MODE_PHONES) {
-			volumeModePrev = volumeMode;
 			setVolume(min(70, confInt["globalVolume"]), true);
 		}
+		volumeModePrev = volumeMode;
 	}
 #endif
 }
