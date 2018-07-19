@@ -960,7 +960,7 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
 	// sd.addSetting(new MenuSettingBool(this,tr["Show root"], tr["Show root folder in the file selection dialogs"],&showRootFolder));
 	// sd.addSetting(new MenuSettingDelegate(this, tr["Factory defaults"], tr["Choose settings to reset back to defaults"], ">>", MakeDelegate(this, &GMenu2X::resetSettings)));
-	sd.addSetting(new MenuSettingMultiString(this, tr["Factory defaults"], tr["Choose settings to reset back to defaults"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::resetSettings)));
+	sd.addSetting(new MenuSettingMultiString(this, tr["Reset settings"], tr["Choose settings to reset back to defaults"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::resetSettings)));
 	// sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal encoding"],                              &confStr["TVOut"], &encodings));
 
 	if (sd.exec() && sd.edited() && sd.save) {
@@ -1016,7 +1016,7 @@ void GMenu2X::resetSettings() {
 
 	string tmppath = "";
 
-	SettingsDialog sd(this, ts, tr["Reset Settings"], "skin:icons/configure.png");
+	SettingsDialog sd(this, ts, tr["Reset settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingBool(this, tr["GMenuNext"], tr["Reset GMenuNext settings"], &reset_gmenu));
 	sd.addSetting(new MenuSettingBool(this, tr["Skin"], tr["Reset Default skin settings back to default"], &reset_skin));
 	sd.addSetting(new MenuSettingBool(this, tr["Icons"], tr["Reset link's icon back to default"], &reset_icon));
