@@ -1,6 +1,5 @@
 #include "powermanager.h"
 #include "messagebox.h"
-// #include "debug.h"
 
 PowerManager *PowerManager::instance = NULL;
 
@@ -70,13 +69,8 @@ uint32_t PowerManager::doSuspend(uint32_t interval, void *param) {
 };
 
 uint32_t PowerManager::doPowerOff(uint32_t interval, void *param) {
-	// if (interval > 0) {
 #if !defined(TARGET_PC)
-	system("poweroff");
+	system("sync; poweroff");
 #endif
 	return interval;
-	// }
-
-	// PowerManager::instance->gmenu2x->poweroffDialog();
-	// return 0;
 };

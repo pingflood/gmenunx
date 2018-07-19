@@ -18,12 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-// #include <SDL.h>
-// #include <SDL_gfxPrimitives.h>
-
 #include "settingsdialog.h"
 #include "messagebox.h"
-// #include "debug.h"
 
 using namespace std;
 
@@ -46,7 +42,7 @@ SettingsDialog::~SettingsDialog() {
 }
 
 bool SettingsDialog::exec() {
-	bool close = false, ts_pressed = false, inputAction = false;
+	bool ts_pressed = false, inputAction = false;
 	uint32_t i, iY, firstElement = 0, action = SD_NO_ACTION, rowHeight, numRows;
 	voices[selected]->adjustInput();
 
@@ -68,12 +64,6 @@ bool SettingsDialog::exec() {
 		//Selection
 		if (selected >= firstElement + numRows) firstElement = selected - numRows;
 		if (selected < firstElement) firstElement = selected;
-		// iY = selected - firstElement;
-		// iY = gmenu2x->listRect.y + (iY * rowHeight) + 1;
-		// if (ts_pressed && !ts.pressed()) ts_pressed = false;
-		// if (gmenu2x->f200 && ts.pressed() && !ts.inRect(gmenu2x->listRect)) ts_pressed = false;
-
-		//selected option
 
 		iY = gmenu2x->listRect.y + 1;
 		for (i = firstElement; i < voices.size() && i <= firstElement + numRows; i++, iY += rowHeight) {
@@ -82,7 +72,6 @@ bool SettingsDialog::exec() {
 				voices[selected]->drawSelected(iY);
 			}
 			voices[i]->draw(iY);
-			// iY += rowHeight;
 		}
 
 		gmenu2x->drawScrollBar(numRows, voices.size(), firstElement, gmenu2x->listRect);
@@ -94,7 +83,7 @@ bool SettingsDialog::exec() {
 
 			action = SD_NO_ACTION;
 			if ( gmenu2x->input[SETTINGS] ) action = SD_ACTION_SAVE;
-			else if ( gmenu2x->input[CANCEL] ) action = SD_ACTION_CLOSE;
+			else if ( gmenu2x->input[CANCEL] && allowCancel) action = SD_ACTION_CLOSE;
 			else if ( gmenu2x->input[UP      ] ) action = SD_ACTION_UP;
 			else if ( gmenu2x->input[DOWN    ] ) action = SD_ACTION_DOWN;
 			else if ( gmenu2x->input[PAGEUP  ] ) action = SD_ACTION_PAGEUP;
@@ -106,8 +95,14 @@ bool SettingsDialog::exec() {
 					close = true;
 					break;
 				case SD_ACTION_CLOSE:
-					save = false;
 					close = true;
+					if (allowCancel) {
+						if (edited()) {
+							MessageBox mb(gmenu2x, gmenu2x->tr["Save changes?"], this->icon);
+							mb.setButton(CONFIRM, gmenu2x->tr["Yes"]);
+							mb.setButton(CANCEL,  gmenu2x->tr["No"]);
+							save = (mb.exec() == CONFIRM);
+						}}
 					break;
 				case SD_ACTION_UP:
 					selected -= 1;

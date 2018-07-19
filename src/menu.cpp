@@ -175,11 +175,11 @@ string Menu::sectionPath(int section) {
 
 // LINKS MANAGEMENT
 bool Menu::addActionLink(uint32_t section, const string &title, fastdelegate::FastDelegate0<> action, const string &description, const string &icon) {
-	if (section >= sections.size()) return false;
+	if (section >= sections.size()) {
+		return false;
+	}
 
 	Link *linkact = new Link(gmenu2x, action);
-	// linkact->setSize(gmenu2x->resX - gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]);
-	// linkact->setSize(gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]);
 	linkact->setTitle(title);
 	linkact->setDescription(description);
 	if (gmenu2x->sc.exists(icon) || (icon.substr(0,5) == "skin:" && !gmenu2x->sc.getSkinFilePath(icon.substr(5, icon.length())).empty()) || fileExists(icon))
@@ -225,44 +225,12 @@ bool Menu::addLink(string path, string file, string section) {
 	INFO("Adding link: '%s'", linkpath.c_str());
 
 	if (path[path.length() - 1] != '/') path += "/";
-	//search for a manual
-	pos = file.rfind(".");
-	string exename = path + file.substr(0,pos);
-	string manual = "";
-	if (fileExists(exename + ".man.png")) {
-		manual = exename + ".man.png";
-	} else if (fileExists(exename + ".man.jpg")) {
-		manual = exename + ".man.jpg";
-	} else if (fileExists(exename + ".man.jpeg")) {
-		manual = exename + ".man.jpeg";
-	} else if (fileExists(exename + ".man.bmp")) {
-		manual = exename + ".man.bmp";
-	} else if (fileExists(exename + ".man.txt")) {
-		manual = exename + ".man.txt";
-	} else {
-		//scan directory for a file like *readme*
-		FileLister fl(path, false);
-		fl.setFilter(".txt");
-		fl.browse();
-		bool found = false;
-		for (uint32_t x = 0; x < fl.size() && !found; x++) {
-			string lcfilename = fl[x];
 
-			if (lcfilename.find("readme") != string::npos) {
-				found = true;
-				manual = path + fl.getFiles()[x];
-			}
-		}
-	}
-
-	INFO("Manual: '%s'", manual.c_str());
-
-	string shorttitle = title, exec = path+file, icon="";
-	if (fileExists(exename+".png")) icon = exename+".png";
+	string shorttitle = title, exec = path + file;
 
 	//Reduce title length to fit the link width
-	if ((int)gmenu2x->font->getTextWidth(shorttitle) > gmenu2x->linksRect.w) {
-		while ((int)gmenu2x->font->getTextWidth(shorttitle + "..") > gmenu2x->linksRect.w) {
+	if ((int)gmenu2x->font->getTextWidth(shorttitle) > gmenu2x->linkWidth) {
+		while ((int)gmenu2x->font->getTextWidth(shorttitle + "..") > gmenu2x->linkWidth) {
 			shorttitle = shorttitle.substr(0, shorttitle.length() - 1);
 		}
 		shorttitle += "..";
@@ -273,19 +241,14 @@ bool Menu::addLink(string path, string file, string section) {
 	if (f.is_open()) {
 		f << "title=" << shorttitle << endl;
 		f << "exec=" << exec << endl;
-		if (!icon.empty()) f << "icon=" << icon << endl;
-		if (!manual.empty()) f << "manual=" << manual << endl;
-		// if (wrapper) f << "wrapper=true" << endl;
 		f.close();
 
-		isection = find(sections.begin(),sections.end(),section) - sections.begin();
+		isection = find(sections.begin(), sections.end(), section) - sections.begin();
 
 		if (isection >= 0 && isection < (int)sections.size()) {
 			INFO("Section: '%s(%i)'", sections[isection].c_str(), isection);
 
 			LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkpath.c_str());
-			// link->setSize(gmenu2x->resX - gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]);
-			// link->setSize(gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]);
 			if (link->targetExists())
 				links[isection].push_back( link );
 			else
@@ -374,39 +337,39 @@ void Menu::pageDown() {
 }
 
 void Menu::linkLeft() {
-	// if (iLink % gmenu2x->linkColumns == 0)
-		// setLinkIndex(sectionLinks()->size() > iLink + gmenu2x->linkColumns - 1 ? iLink + gmenu2x->linkColumns - 1 : sectionLinks()->size() - 1 );
+	// if (iLink % gmenu2x->linkCols == 0)
+		// setLinkIndex(sectionLinks()->size() > iLink + gmenu2x->linkCols - 1 ? iLink + gmenu2x->linkCols - 1 : sectionLinks()->size() - 1 );
 	// else
 		setLinkIndex(iLink - 1);
 }
 
 void Menu::linkRight() {
-	// if (iLink % gmenu2x->linkColumns == (gmenu2x->linkColumns - 1) || iLink == (int)sectionLinks()->size() - 1)
-		// setLinkIndex(iLink - iLink % gmenu2x->linkColumns);
+	// if (iLink % gmenu2x->linkCols == (gmenu2x->linkCols - 1) || iLink == (int)sectionLinks()->size() - 1)
+		// setLinkIndex(iLink - iLink % gmenu2x->linkCols);
 	// else
 		setLinkIndex(iLink + 1);
 }
 
 void Menu::linkUp() {
-	int l = iLink - gmenu2x->linkColumns;
+	int l = iLink - gmenu2x->linkCols;
 	if (l < 0) {
-		uint32_t rows = (uint32_t)ceil(sectionLinks()->size() / (double)gmenu2x->linkColumns);
-		l += (rows * gmenu2x->linkColumns);
+		uint32_t rows = (uint32_t)ceil(sectionLinks()->size() / (double)gmenu2x->linkCols);
+		l += (rows * gmenu2x->linkCols);
 		if (l >= (int)sectionLinks()->size())
-			l -= gmenu2x->linkColumns;
+			l -= gmenu2x->linkCols;
 	}
 	setLinkIndex(l);
 }
 
 void Menu::linkDown() {
-	uint32_t l = iLink + gmenu2x->linkColumns;
+	uint32_t l = iLink + gmenu2x->linkCols;
 	if (l >= sectionLinks()->size()) {
-		uint32_t rows = (uint32_t)ceil(sectionLinks()->size() / (double)gmenu2x->linkColumns);
-		uint32_t curCol = (uint32_t)ceil((iLink+1) / (double)gmenu2x->linkColumns);
+		uint32_t rows = (uint32_t)ceil(sectionLinks()->size() / (double)gmenu2x->linkCols);
+		uint32_t curCol = (uint32_t)ceil((iLink+1) / (double)gmenu2x->linkCols);
 		if (rows > curCol)
 			l = sectionLinks()->size() - 1;
 		else
-			l %= gmenu2x->linkColumns;
+			l %= gmenu2x->linkCols;
 	}
 	setLinkIndex(l);
 }
@@ -430,10 +393,10 @@ void Menu::setLinkIndex(int i) {
 	else if (i >= (int)sectionLinks()->size())
 		i = 0;
 
-	if (i >= (int)(iFirstDispRow * gmenu2x->linkColumns + gmenu2x->linkColumns * gmenu2x->linkRows))
-		iFirstDispRow = i / gmenu2x->linkColumns - gmenu2x->linkRows + 1;
-	else if (i < (int)(iFirstDispRow * gmenu2x->linkColumns))
-		iFirstDispRow = i / gmenu2x->linkColumns;
+	if (i >= (int)(iFirstDispRow * gmenu2x->linkCols + gmenu2x->linkCols * gmenu2x->linkRows))
+		iFirstDispRow = i / gmenu2x->linkCols - gmenu2x->linkRows + 1;
+	else if (i < (int)(iFirstDispRow * gmenu2x->linkCols))
+		iFirstDispRow = i / gmenu2x->linkCols;
 
 	iLink = i;
 }
@@ -468,8 +431,6 @@ void Menu::readLinks() {
 		sort(linkfiles.begin(), linkfiles.end(),case_less());
 		for (uint32_t x = 0; x < linkfiles.size(); x++) {
 			LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkfiles[x].c_str());
-			// link->setSize(gmenu2x->resX - gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]);
-			// link->setSize(gmenu2x->linksRect.w, gmenu2x->skinConfInt["linkItemHeight"]);
 			if (link->targetExists())
 				links[i].push_back( link );
 			else

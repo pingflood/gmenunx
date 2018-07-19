@@ -81,7 +81,7 @@ private:
 	SDL_Event *fakeEventForAction(int action);
 
 	const char konami[10] = {UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, CANCEL, CONFIRM}; // eegg
-	char input_combo[10];// = {POWER}; // eegg
+	char input_combo[10] = {POWER}; // eegg
 
 public:
 	static const int MAPPING_TYPE_UNDEFINED = -1;

@@ -25,7 +25,6 @@ bool BrowseDialog::exec() {
 	Surface *iconFile = gmenu2x->sc.skinRes("imgs/file.png");
 
 	string path = fl->getPath();
-	// if (path.empty() || !dirExists(path) || path.compare(0,CARD_ROOT_LEN,CARD_ROOT)!=0)
 	if (path.empty() || !dirExists(path))
 		setPath(CARD_ROOT);
 
@@ -175,18 +174,9 @@ uint32_t BrowseDialog::getAction() {
 void BrowseDialog::directoryUp() {
 	string path = fl->getPath();
 	string::size_type p = path.rfind("/");
-
-	if (p == path.size() - 1)
-		p = path.rfind("/", p - 1);
-
-	// if (p == string::npos || p < 4 || path.compare(0, CARD_ROOT_LEN, CARD_ROOT) != 0) {
-	// if (p == string::npos || p < 4) {
-		// close = true;
-		// result = false;
-	// } else {
-		selected = 0;
-		setPath("/"+path.substr(0, p));
-	// }
+	if (p == path.size() - 1) p = path.rfind("/", p - 1);
+	selected = 0;
+	setPath("/"+path.substr(0, p));
 }
 
 void BrowseDialog::directoryEnter() {
@@ -209,7 +199,6 @@ const std::string BrowseDialog::getExt() {
 	string filename = (*fl)[selected];
 	string ext = "";
 	string::size_type pos = filename.rfind(".");
-	// DEBUG("filename: %s", filename.c_str());
 	if (pos != string::npos && pos > 0) {
 		ext = filename.substr(pos, filename.length());
 		transform(ext.begin(), ext.end(), ext.begin(), (int(*)(int)) tolower);

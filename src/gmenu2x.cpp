@@ -26,8 +26,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
-// #include <SDL.h>
-// #include <SDL_gfxPrimitives.h>
 #include <signal.h>
 
 #include <sys/statvfs.h>
@@ -45,11 +43,9 @@
 #include <linux/soundcard.h>
 
 #include "linkapp.h"
-// #include "linkaction.h"
 #include "menu.h"
 #include "fonthelper.h"
 #include "surface.h"
-// #include "filedialog.h"
 #include "browsedialog.h"
 #include "powermanager.h"
 #include "gmenu2x.h"
@@ -69,19 +65,18 @@
 #include "menusettingfile.h"
 #include "menusettingimage.h"
 #include "menusettingdir.h"
-// #include "menusettingdelegate.h"
-
 #include "imageviewerdialog.h"
 #include "batteryloggerdialog.h"
 #include "linkscannerdialog.h"
 #include "menusettingdatetime.h"
-
 #include "debug.h"
 
 #include <sys/mman.h>
 
 #include <ctime>
 #include <sys/time.h>   /* for settimeofday() */
+
+#define sync() sync(); system("sync");
 
 const char *CARD_ROOT = "/mnt/"; //Note: Add a trailing /!
 const int CARD_ROOT_LEN = 1;
@@ -177,7 +172,7 @@ int16_t getUDCStatus(void) {
 	return UDC_ERROR;
 }
 
-int16_t tvOutPrev, tvOutConnected;
+int16_t tvOutPrev = false, tvOutConnected;
 bool getTVOutStatus() {
 	if (memdev > 0) return !(memregs[0x10300 >> 2] >> 25 & 0b1);
 	return false;
@@ -241,43 +236,8 @@ void* mainThread(void* param) {
 GMenu2X::GMenu2X() {
 	// instance = this;
 	//Detect firmware version and type
-
 	//load config data
 	readConfig();
-
-#if defined(TARGET_GP2X)
-	if (fileExists("/etc/open2x")) fwType = "open2x";
-	else fwType = "gph";
-
-	f200 = fileExists("/dev/touchscreen/wm97xx");
-
-	//open2x
-	savedVolumeMode = 0;
-	volumeScalerNormal = VOLUME_SCALER_NORMAL;
-	volumeScalerPhones = VOLUME_SCALER_PHONES;
-	o2x_usb_net_on_boot = false;
-	o2x_usb_net_ip = "";
-	o2x_ftp_on_boot = false;
-	o2x_telnet_on_boot = false;
-	o2x_gp2xjoy_on_boot = false;
-	o2x_usb_host_on_boot = false;
-	o2x_usb_hid_on_boot = false;
-	o2x_usb_storage_on_boot = false;
-	usbnet = samba = inet = web = false;
-	if (fwType=="open2x") {
-		readConfigOpen2x();
-		//	VOLUME MODIFIER
-		switch(volumeMode) {
-			case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
-			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones); break;
-			case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
-		}
-	}
-	readCommonIni();
-	cx25874 = 0;
-	batteryHandle = 0;
-	// useSelectionPng = false;
-#endif
 
 	halfX = resX/2;
 	halfY = resY/2;
@@ -292,7 +252,7 @@ GMenu2X::GMenu2X() {
 #if !defined(TARGET_PC)
 	setenv("SDL_NOMOUSE", "1", 1);
 #endif
-
+	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 	setDateTime();
 
 	//Screen
@@ -315,12 +275,7 @@ GMenu2X::GMenu2X() {
 	s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
 #endif
 
-	// btnContextMenu = NULL;
-	// bg = NULL;
-	// font = NULL;
-	// menu = NULL;
-
-	initBG(confStr["wallpaper"]);
+	setWallpaper(confStr["wallpaper"]);
 
 	setSkin(confStr["skin"], false, true);
 
@@ -332,8 +287,6 @@ GMenu2X::GMenu2X() {
 
 	setBacklight(confInt["backlight"]);
 
-	initMenu();
-
 	input.init(path + "input.conf");
 	setInputSpeed();
 
@@ -342,12 +295,14 @@ GMenu2X::GMenu2X() {
 	setGamma(confInt["gamma"]);
 	applyDefaultTimings();
 #elif defined(TARGET_RS97)
-	tvOutPrev = tvOutConnected = getTVOutStatus();
+	system("ln -sf $(mount | grep int_sd | cut -f 1 -d ' ') /tmp/.int_sd");
+	tvOutConnected = getTVOutStatus();
 	preMMCStatus = curMMCStatus = getMMCStatus();
 	udcConnectedOnBoot = getUDCStatus();
 #endif
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
-
+	
+	initMenu();
 	readTmp();
 	setCPU(confInt["cpuMenu"]);
 
@@ -360,7 +315,6 @@ GMenu2X::GMenu2X() {
 
 void GMenu2X::main() {
 	pthread_t thread_id;
-	uint32_t sectionLinkPadding = 4;
 
 	bool quit = false;
 	int i = 0, x = 0, y = 0, ix = 0, iy = 0;
@@ -407,11 +361,12 @@ void GMenu2X::main() {
 	if (udcConnectedOnBoot == UDC_CONNECT) checkUDC();
 #endif
 
-	if (curMMCStatus == MMC_INSERT) mountSd();
+	if (curMMCStatus == MMC_INSERT) mountSd(true);
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();
 
+		s->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
 		sc[currBackdrop]->blit(s,0,0);
 
 		// SECTIONS
@@ -437,36 +392,33 @@ void GMenu2X::main() {
 		s->setClipRect(linksRect);
 		s->box(linksRect, skinConfColors[COLOR_LIST_BG]);
 
-		i = menu->firstDispRow() * linkColumns;
+		i = menu->firstDispRow() * linkCols;
 
-		if (linkColumns == 1) {
+		if (linkCols == 1) {
 			// LIST
-			linkHeight = skinConfInt["linkItemHeight"];
-			linkRows = linksRect.h / linkHeight;
-
 			ix = linksRect.x;
 			for (y = 0; y < linkRows && i < menu->sectionLinks()->size(); y++, i++) {
-				iy = linksRect.y + y * linkHeight; // + (y + 1) * sectionLinkPadding;
+				iy = linksRect.y + y * linkHeight;
 
 				if (i == (uint32_t)menu->selLinkIndex())
 					s->box(ix, iy, linksRect.w, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 
-				sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix + sectionLinkPadding, iy + sectionLinkPadding, linksRect.w - 2 * sectionLinkPadding, linkHeight - 2 * sectionLinkPadding}, HAlignLeft | VAlignMiddle);
-				s->write(titlefont, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + sectionLinkPadding + 36, iy + titlefont->getHeight()/2, VAlignMiddle);
-				s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + sectionLinkPadding + 36, iy + linkHeight - sectionLinkPadding/2, VAlignBottom);
+				sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix, iy, 36, linkHeight}, HAlignCenter | VAlignMiddle);
+				s->write(titlefont, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkSpacing + 36, iy + titlefont->getHeight()/2, VAlignMiddle);
+				s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + linkSpacing + 36, iy + linkHeight - linkSpacing/2, VAlignBottom);
 			}
 		} else {
 			for (y = 0; y < linkRows; y++) {
-				for (x = 0; x < linkColumns && i < menu->sectionLinks()->size(); x++, i++) {
-					ix = linksRect.x + x * linkWidth  + sectionLinkPadding * (x + 1);
-					iy = linksRect.y + y * linkHeight + sectionLinkPadding + (y + 1);
+				for (x = 0; x < linkCols && i < menu->sectionLinks()->size(); x++, i++) {
+					ix = linksRect.x + x * linkWidth  + (x + 1) * linkSpacing;
+					iy = linksRect.y + y * linkHeight + (y + 1) * linkSpacing;
 
 					s->setClipRect({ix, iy, linkWidth, linkHeight});
 
 					if (i == (uint32_t)menu->selLinkIndex())
 						s->box(ix, iy, linkWidth, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 
-					sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix, iy - sectionLinkPadding, linkWidth, linkHeight}, HAlignCenter | VAlignMiddle);
+					sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix + 2, iy + 2, linkWidth - 4, linkHeight - 4}, HAlignCenter | VAlignMiddle);
 
 					s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - 2, HAlignCenter | VAlignBottom);
 				}
@@ -474,7 +426,7 @@ void GMenu2X::main() {
 		}
 		s->clearClipRect();
 
-		drawScrollBar(linkRows, menu->sectionLinks()->size()/linkColumns + ((menu->sectionLinks()->size()%linkColumns==0) ? 0 : 1), menu->firstDispRow(), linksRect);
+		drawScrollBar(linkRows, menu->sectionLinks()->size()/linkCols + ((menu->sectionLinks()->size()%linkCols==0) ? 0 : 1), menu->firstDispRow(), linksRect);
 
 		// TRAY DEBUG
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38 + 0 * 20, sectionBarRect.y + sectionBarRect.h - 18,16,16, strtorgba("ffff00ff"));
@@ -576,8 +528,8 @@ void GMenu2X::main() {
 		else if ( input[SETTINGS] ) settings();
 		else if ( input[MENU]     ) contextMenu();
 		// LINK NAVIGATION
-		else if ( input[LEFT ] && linkColumns == 1) menu->pageUp();
-		else if ( input[RIGHT] && linkColumns == 1) menu->pageDown();
+		else if ( input[LEFT ] && linkCols == 1) menu->pageUp();
+		else if ( input[RIGHT] && linkCols == 1) menu->pageDown();
 		else if ( input[LEFT ] ) menu->linkLeft();
 		else if ( input[RIGHT] ) menu->linkRight();
 		else if ( input[UP   ] ) menu->linkUp();
@@ -730,6 +682,38 @@ void GMenu2X::hwInit() {
 	}
 
 #if defined(TARGET_GP2X)
+	if (fileExists("/etc/open2x")) fwType = "open2x";
+	else fwType = "gph";
+
+	f200 = fileExists("/dev/touchscreen/wm97xx");
+
+	//open2x
+	savedVolumeMode = 0;
+	volumeScalerNormal = VOLUME_SCALER_NORMAL;
+	volumeScalerPhones = VOLUME_SCALER_PHONES;
+	o2x_usb_net_on_boot = false;
+	o2x_usb_net_ip = "";
+	o2x_ftp_on_boot = false;
+	o2x_telnet_on_boot = false;
+	o2x_gp2xjoy_on_boot = false;
+	o2x_usb_host_on_boot = false;
+	o2x_usb_hid_on_boot = false;
+	o2x_usb_storage_on_boot = false;
+	usbnet = samba = inet = web = false;
+	if (fwType=="open2x") {
+		readConfigOpen2x();
+		//	VOLUME MODIFIER
+		switch(volumeMode) {
+			case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
+			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones); break;
+			case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
+		}
+	}
+	readCommonIni();
+	cx25874 = 0;
+	batteryHandle = 0;
+	// useSelectionPng = false;
+
 	batteryHandle = open(f200 ? "/dev/mmsp2adc" : "/dev/batt", O_RDONLY);
 	//if wm97xx fails to open, set f200 to false to prevent any further access to the touchscreen
 	if (f200) f200 = ts.init();
@@ -762,7 +746,7 @@ void GMenu2X::hwDeinit() {
 #endif
 }
 
-void GMenu2X::initBG(const string &wallpaper) {
+void GMenu2X::setWallpaper(const string &wallpaper) {
 	if (bg != NULL) delete bg;
 
 	bg = new Surface(s);
@@ -780,7 +764,7 @@ void GMenu2X::initBG(const string &wallpaper) {
 		if (fl.getFiles().size() > 0)
 			confStr["wallpaper"] = fl.getPath() + "/" + fl.getFiles()[0];
 	}
-	sc[confStr["wallpaper"]]->blit(bg, 0, 0);
+	sc[wallpaper]->blit(bg, 0, 0);
 }
 
 void GMenu2X::initLayout() {
@@ -811,22 +795,12 @@ void GMenu2X::initLayout() {
 
 	listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
 
-//recalculate some coordinates based on the new element sizes
-	// linkRows = resY/skinConfInt["linkItemHeight"];
-	// needed until refactor menu.cpp
-	// linkRows = linksRect.h / skinConfInt["linkItemHeight"];
-	// linkColumns = 4;//(resX-10)/skinConfInt["linkWidth"];
-
-	// LIST
-	// linkColumns = 1;
-	// linkRows = resY / skinConfInt["linkItemHeight"];
-
 	// WIP
-	linkColumns = 1;
-	linkRows = 6;
+	linkCols = confInt["linkCols"];
+	linkRows = confInt["linkRows"];
 
-	linkWidth = linksRect.w/linkColumns - (linkColumns != 1) * 3 * sectionLinkPadding / 2;
-	linkHeight = (linksRect.h - (linkColumns != 1) * 2 * sectionLinkPadding)/linkRows - 1;
+	linkWidth  = (linksRect.w - (linkCols + 1 ) * linkSpacing) / linkCols;
+	linkHeight = (linksRect.h - (linkCols > 1) * (linkRows + 1 ) * linkSpacing) / linkRows;
 }
 
 void GMenu2X::initFont() {
@@ -858,16 +832,12 @@ void GMenu2X::initMenu() {
 		else if (menu->getSections()[i] == "settings") {
 			menu->addActionLink(i, tr["Settings"], MakeDelegate(this, &GMenu2X::settings), tr["Configure system"], "skin:icons/configure.png");
 			menu->addActionLink(i, tr["Skin"], MakeDelegate(this, &GMenu2X::skinMenu), tr["Appearance & skin settings"], "skin:icons/skin.png");
-			// menu->addActionLink(i, tr["Wallpaper"], MakeDelegate(this, &GMenu2X::changeWallpaper), tr["Set background image"], "skin:icons/wallpaper.png");
 #if defined(TARGET_GP2X)
 			if (fwType == "open2x")
 				menu->addActionLink(i, "Open2x", MakeDelegate(this, &GMenu2X::settingsOpen2x), tr["Configure Open2x system settings"], "skin:icons/o2xconfigure.png");
-			// menu->addActionLink(i, "TV", MakeDelegate(this, &GMenu2X::toggleTvOut), tr["Activate/deactivate tv-out"], "skin:icons/tv.png");
 			menu->addActionLink(i, "USB SD", MakeDelegate(this, &GMenu2X::activateSdUsb), tr["Activate USB on SD"], "skin:icons/usb.png");
 			if (fwType == "gph" && !f200)
 				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "skin:icons/usb.png");
-			//menu->addActionLink(i, "USB Root", MakeDelegate(this, &GMenu2X::activateRootUsb), tr["Activate USB on the root of the Gp2x Filesystem"], "skin:icons/usb.png");
-			//menu->addActionLink(i, "Speaker", MakeDelegate(this, &GMenu2X::toggleSpeaker), tr["Activate/deactivate Speaker"], "skin:icons/speaker.png");
 #elif defined(TARGET_RS97)
 			//menu->addActionLink(i, "Format", MakeDelegate(this, &GMenu2X::formatSd), tr["Format internal SD"], "skin:icons/format.png");
 			if (curMMCStatus == MMC_INSERT)
@@ -877,10 +847,7 @@ void GMenu2X::initMenu() {
 			if (fileExists(path + "log.txt"))
 				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "skin:icons/ebook.png");
 
-
 			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "skin:icons/about.png");
-			// menu->addActionLink(i, "Reboot", MakeDelegate(this, &GMenu2X::reboot), tr["Reboot device"], "skin:icons/reboot.png");
-			// menu->addActionLink(i, tr["Factory Defaults"], MakeDelegate(this, &GMenu2X::resetSettings), tr["Reset settings to factory defaults"], "skin:icons/reboot.png");
 			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroffDialog), tr["Power menu"], "skin:icons/exit.png");
 		}
 	}
@@ -890,7 +857,6 @@ void GMenu2X::initMenu() {
 }
 
 void GMenu2X::settings() {
-	int curMenuClock = confInt["cpuMenu"];
 	int curGlobalVolume = confInt["globalVolume"];
 //G
 	// int prevgamma = confInt["gamma"];
@@ -900,6 +866,7 @@ void GMenu2X::settings() {
 	fl_tr.browse();
 	fl_tr.insertFile("English");
 	string lang = tr.lang();
+	if (lang == "") lang = "English";
 
 	vector<string> encodings;
 	// encodings.push_back("OFF");
@@ -910,62 +877,30 @@ void GMenu2X::settings() {
 	batteryType.push_back("BL-5B");
 	batteryType.push_back("Linear");
 
-	// int prevSkinBackdrops = confInt["skinBackdrops"];
-
-	// vector<string> sbStr;
-	// sbStr.push_back("OFF");
-	// sbStr.push_back("Left");
-	// sbStr.push_back("Bottom");
-	// sbStr.push_back("Right");
-	// sbStr.push_back("Top");
-
-	// int sbPrev = confInt["sectionBar"];
-	// string sectionBar = sbStr[confInt["sectionBar"]];
-
 	vector<string> opFactory;
 	opFactory.push_back(">>");
-	string tmp;
-
+	string tmp = ">>";
 
 	string prevDateTime = confStr["datetime"] = getDateTime();
 
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
 	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
-	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &sectionBar, &sbStr));
 	sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
-	// sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &confInt["skinBackdrops"]));
-	// sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &confInt["sectionBar"], &sectionBar));
-
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
 	sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the link's output to read with Log Viewer"], &confInt["outputLogs"]));
-
-#if defined(TARGET_GP2X)
-	sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["cpuMenu"], 140, 50, 325));
-	// sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["cpuMax"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX));
-//G
-//sd.addSetting(new MenuSettingInt(this, tr["Gamma"], tr["Set gp2x gamma value (default: 10)"], &confInt["gamma"], 1, 100));
-#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["cpuMenu"], 200, 50, 900, 10));
-	// sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["cpuMax"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX, 10));
-#elif defined(TARGET_RS97)
-	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal encoding"], &confStr["TVOut"], &encodings));
-	// string tvOutPrev = TVOut;
-	// sd.addSetting(new MenuSettingInt(this, tr["Maximum overclock"], tr["Set the maximum overclock for launching links"], &confInt["cpuMax"], 528, 528, 642, 6));
-	// sd.addSetting(new MenuSettingInt(this, tr["Clock for GMenu2X"], tr["Set the cpu working frequency when running GMenu2X"], &confInt["cpuMenu"], CPU_CLK_DEFAULT, CPU_CLK_MIN, CPU_CLK_MAX, 6));
-#endif
 	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Seconds to turn display off if inactive"], &confInt["backlightTimeout"], 30, 10, 300));
 	sd.addSetting(new MenuSettingInt(this,tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
 	sd.addSetting(new MenuSettingInt(this,tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
 	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
-	// sd.addSetting(new MenuSettingBool(this,tr["Show root"], tr["Show root folder in the file selection dialogs"],&showRootFolder));
-	// sd.addSetting(new MenuSettingDelegate(this, tr["Factory defaults"], tr["Choose settings to reset back to defaults"], ">>", MakeDelegate(this, &GMenu2X::resetSettings)));
+
+#if defined(TARGET_RS97)
+	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal encoding"], &confStr["TVOut"], &encodings));
+	sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
+#endif
 	sd.addSetting(new MenuSettingMultiString(this, tr["Reset settings"], tr["Choose settings to reset back to defaults"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::resetSettings)));
-	// sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal encoding"],                              &confStr["TVOut"], &encodings));
 
 	if (sd.exec() && sd.edited() && sd.save) {
-
-		if (curMenuClock != confInt["cpuMenu"]) setCPU(confInt["cpuMenu"]);
 		if (curGlobalVolume != confInt["globalVolume"]) setVolume(confInt["globalVolume"]);
 
 		if (lang == "English") lang = "";
@@ -973,13 +908,6 @@ void GMenu2X::settings() {
 			confStr["lang"] = lang;
 			tr.setLang(lang);
 		}
-
-		// if (sectionBar == "OFF") confInt["sectionBar"] = SB_OFF;
-		// else if (sectionBar == "Right") confInt["sectionBar"] = SB_RIGHT;
-		// else if (sectionBar == "Top") confInt["sectionBar"] = SB_TOP;
-		// else if (sectionBar == "Bottom") confInt["sectionBar"] = SB_BOTTOM;
-		// else confInt["sectionBar"] = SB_LEFT;
-		// if (sbPrev != confInt["sectionBar"]) initMenu();
 
 		setBacklight(confInt["backlight"], false);
 		writeConfig();
@@ -989,15 +917,9 @@ void GMenu2X::settings() {
 		powerManager->setPowerTimeout(confInt["powerTimeout"]);
 
 #if defined(TARGET_GP2X)
-//G
 		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
-		// if (fileExists("/mnt/root") && !showRootFolder)
-			// unlink("/mnt/root");
-		// else if (!fileExists("/mnt/root") && showRootFolder)
-			// symlink("/","/mnt/root");
 #endif
 
-		// if (prevSkinBackdrops != confInt["skinBackdrops"] || prevDateTime != confStr["datetime"]) restartDialog();
 		if (prevDateTime != confStr["datetime"]) restartDialog();
 	}
 }
@@ -1017,8 +939,8 @@ void GMenu2X::resetSettings() {
 	string tmppath = "";
 
 	SettingsDialog sd(this, ts, tr["Reset settings"], "skin:icons/configure.png");
-	sd.addSetting(new MenuSettingBool(this, tr["GMenuNext"], tr["Reset GMenuNext settings"], &reset_gmenu));
-	sd.addSetting(new MenuSettingBool(this, tr["Skin"], tr["Reset Default skin settings back to default"], &reset_skin));
+	sd.addSetting(new MenuSettingBool(this, tr["GMenuNX"], tr["Reset GMenuNX settings"], &reset_gmenu));
+	sd.addSetting(new MenuSettingBool(this, tr["Default skin"], tr["Reset Default skin settings back to default"], &reset_skin));
 	sd.addSetting(new MenuSettingBool(this, tr["Icons"], tr["Reset link's icon back to default"], &reset_icon));
 	sd.addSetting(new MenuSettingBool(this, tr["Manuals"], tr["Unset link's manual"], &reset_manual));
 	sd.addSetting(new MenuSettingBool(this, tr["Parameters"], tr["Unset link's additional parameters"], &reset_parameter));
@@ -1028,8 +950,8 @@ void GMenu2X::resetSettings() {
 	sd.addSetting(new MenuSettingBool(this, tr["Previews"], tr["Unset link's selector previews path"], &reset_preview));
 	sd.addSetting(new MenuSettingBool(this, tr["CPU speed"], tr["Reset link's custom CPU speed back to default"], &reset_cpu));
 
-	if (sd.exec() && sd.save) {
-		MessageBox mb(this, tr["Changes will be applied to ALL\napps and GMenuNext. Are you sure?"], "skin:icons/exit.png");
+	if (sd.exec() && sd.edited() && sd.save) {
+		MessageBox mb(this, tr["Changes will be applied to ALL\napps and GMenuNX. Are you sure?"], "skin:icons/exit.png");
 		mb.setButton(CONFIRM, tr["Cancel"]);
 		mb.setButton(SECTION_NEXT,  tr["Confirm"]);
 		if (mb.exec() != SECTION_NEXT) return;
@@ -1065,28 +987,38 @@ void GMenu2X::resetSettings() {
 	}
 }
 
+void GMenu2X::cpuSettings() {
+	SettingsDialog sd(this, ts, tr["CPU settings"], "skin:icons/configure.png");
+	sd.addSetting(new MenuSettingInt(this, tr["Default CPU clock"], tr["Set the default working CPU frequency"], &confInt["cpuMenu"], 528, 528, 600, 6));
+	sd.addSetting(new MenuSettingInt(this, tr["Maximum CPU clock "], tr["Maximum overclock for launching links"], &confInt["cpuMax"], 624, 600, 1200, 6));
+	sd.addSetting(new MenuSettingInt(this, tr["Minimum CPU clock "], tr["Minimum underclock used in Suspend mode"], &confInt["cpuMin"], 342, 200, 528, 6));
+
+	if (sd.exec() && sd.edited() && sd.save) {
+		setCPU(confInt["cpuMenu"]);
+		writeConfig();
+	}
+}
+
 void GMenu2X::readTmp() {
 	lastSelectorElement = -1;
 	if (!fileExists("/tmp/gmenu2x.tmp")) return;
 	ifstream inf("/tmp/gmenu2x.tmp", ios_base::in);
 	if (!inf.is_open()) return;
-	string line;
-	string section = "";
+	string line, name, value;
 
 	while (getline(inf, line, '\n')) {
 		string::size_type pos = line.find("=");
-		string name = trim(line.substr(0,pos));
-		string value = trim(line.substr(pos+1,line.length()));
-
+		name = trim(line.substr(0,pos));
+		value = trim(line.substr(pos+1,line.length()));
 		if (name == "section") menu->setSectionIndex(atoi(value.c_str()));
 		else if (name == "link") menu->setLinkIndex(atoi(value.c_str()));
 		else if (name == "selectorelem") lastSelectorElement = atoi(value.c_str());
 		else if (name == "selectordir") lastSelectorDir = value;
 		else if (name == "TVOut") TVOut = value;
-		else if (name == "udcConnectedOnBoot") udcConnectedOnBoot = false;
+		else if (name == "tvOutPrev") tvOutPrev = atoi(value.c_str());
 	}
 	if (TVOut != "NTSC" && TVOut != "PAL") TVOut = "OFF";
-
+	udcConnectedOnBoot = 0;
 	inf.close();
 	unlink("/tmp/gmenu2x.tmp");
 }
@@ -1099,8 +1031,8 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 		inf << "link=" << menu->selLinkIndex() << endl;
 		if (selelem >- 1) inf << "selectorelem=" << selelem << endl;
 		if (selectordir != "") inf << "selectordir=" << selectordir << endl;
+		inf << "tvOutPrev=" << tvOutPrev << endl;
 		inf << "TVOut=" << TVOut << endl;
-		inf << "udcConnectedOnBoot=false" << endl;
 		inf.close();
 	}
 }
@@ -1136,24 +1068,20 @@ void GMenu2X::readConfig() {
 	if (!confStr["wallpaper"].empty() && !fileExists(confStr["wallpaper"])) confStr["wallpaper"] = "";
 	if (confStr["skin"].empty() || !dirExists("skins/" + confStr["skin"])) confStr["skin"] = "Default";
 
-	// evalIntConf( &confInt["batteryLog"], 0, 0, 1 );
 	evalIntConf( &confInt["backlightTimeout"], 30, 10, 300);
 	evalIntConf( &confInt["powerTimeout"], 10, 1, 300);
 	evalIntConf( &confInt["outputLogs"], 0, 0, 1 );
-
 	evalIntConf( &confInt["cpuMax"], 642, 200, 1200 );
 	evalIntConf( &confInt["cpuMin"], 342, 200, 1200 );
-	evalIntConf( &confInt["cpuMenu"], 528, 200, 1200 );
-
+	evalIntConf( &confInt["cpuMenu"], 600, 200, 1200 );
 	evalIntConf( &confInt["globalVolume"], 60, 1, 100 );
-	evalIntConf( &confInt["gamma"], 10, 1, 100 );
 	evalIntConf( &confInt["videoBpp"], 16, 8, 32 );
 	evalIntConf( &confInt["backlight"], 70, 1, 100);
-
 	evalIntConf( &confInt["minBattery"], 0, 1, 10000);
 	evalIntConf( &confInt["maxBattery"], 4500, 1, 10000);
-
 	evalIntConf( &confInt["sectionBar"], SB_LEFT, 1, 4);
+	evalIntConf( &confInt["linkCols"], 1, 1, 8);
+	evalIntConf( &confInt["linkRows"], 6, 1, 8);
 
 	if (!confInt["saveSelection"]) {
 		confInt["section"] = 0;
@@ -1203,7 +1131,7 @@ void GMenu2X::writeSkinConfig() {
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 
 		for (ConfIntHash::iterator curr = skinConfInt.begin(); curr != skinConfInt.end(); curr++) {
-			if (curr->first == "titleFontSize" || curr->first == "sectionBarHeight" || curr->first == "linkHeight" || curr->first == "selectorPreviewX" || curr->first == "selectorPreviewY" || curr->first == "selectorPreviewWidth" || curr->first == "selectorPreviewHeight"  || curr->first == "selectorX" ) continue;
+			if (curr->first == "titleFontSize" || curr->first == "sectionBarHeight" || curr->first == "linkHeight" || curr->first == "selectorPreviewX" || curr->first == "selectorPreviewY" || curr->first == "selectorPreviewWidth" || curr->first == "selectorPreviewHeight" || curr->first == "selectorX" || curr->first == "linkItemHeight" ) continue;
 			inf << curr->first << "=" << curr->second << endl;
 		}
 
@@ -1217,7 +1145,7 @@ void GMenu2X::writeSkinConfig() {
 	ledOff();
 }
 
-void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
+void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 	confStr["skin"] = skin;
 
 	// Clear previous skin settings
@@ -1276,9 +1204,10 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 			}
 			skinconf.close();
 
-			if (setWallpaper && !skinConfStr["wallpaper"].empty() && fileExists("skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"])) {
-				confStr["wallpaper"] = "skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"];
-				sc[confStr["wallpaper"]]->blit(bg,0,0);
+			if (resetWallpaper && !skinConfStr["wallpaper"].empty() && fileExists("skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"])) {
+				setWallpaper("skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"]);
+				// confStr["wallpaper"] = "skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"];
+				// sc[confStr["wallpaper"]]->blit(bg,0,0);
 			}
 		}
 	}
@@ -1292,18 +1221,10 @@ void GMenu2X::setSkin(const string &skin, bool setWallpaper, bool clearSC) {
 
 	evalIntConf( &skinConfInt["topBarHeight"], 40, 1, resY);
 	evalIntConf( &skinConfInt["sectionBarSize"], 40, 1, resX);
-	evalIntConf( &skinConfInt["linkItemHeight"], 40, 32, resY);
 	evalIntConf( &skinConfInt["bottomBarHeight"], 16, 1, resY);
 	evalIntConf( &skinConfInt["previewWidth"], 142, 1, resX);
 	evalIntConf( &skinConfInt["fontSize"], 12, 6, 60);
 	evalIntConf( &skinConfInt["fontSizeTitle"], 20, 6, 60);
-	// evalIntConf( &skinConfInt["sectionBarHeight"], 200, 32, resY);
-	// evalIntConf( &skinConfInt["linkHeight"], 40, 16, resY);
-	// evalIntConf( &skinConfInt["selectorX"], 142, 1, resX);
-	// evalIntConf( &skinConfInt["selectorPreviewX"], 7, 1, resX);
-	// evalIntConf( &skinConfInt["selectorPreviewY"], 56, 1, resY);
-	// evalIntConf( &skinConfInt["selectorPreviewWidth"], 128, 32, resY);
-	// evalIntConf( &skinConfInt["selectorPreviewHeight"], 128, 32, resX);
 
 	if (menu != NULL && clearSC) menu->loadIcons();
 
@@ -1327,7 +1248,7 @@ void GMenu2X::skinMenu() {
 
 	vector<string> wpLabel;
 	wpLabel.push_back(">>");
-	string tmp;
+	string tmp = ">>";
 
 	vector<string> sbStr;
 	sbStr.push_back("OFF");
@@ -1364,32 +1285,19 @@ void GMenu2X::skinMenu() {
 
 		SettingsDialog sd(this, ts, tr["Skin"], "skin:icons/skin.png");
 		sd.selected = selected;
+		sd.allowCancel = false;
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
-		// sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories()));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &confStr["wallpaper"], &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin colors"], tr["Customize skin colors"], &tmp, &wpLabel, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::skinColors)));
-		// sd.addSetting(new MenuSettingRGBA(this, tr["Top/Section Bar"], tr["Color of the top and section bar"], &skinConfColors[COLOR_TOP_BAR_BG]));
-		// sd.addSetting(new MenuSettingRGBA(this, tr["List Body"], tr["Color of the list body"], &skinConfColors[COLOR_LIST_BG]));
-		// sd.addSetting(new MenuSettingRGBA(this, tr["Bottom Bar"], tr["Color of the bottom bar"], &skinConfColors[COLOR_BOTTOM_BAR_BG]));
-		// sd.addSetting(new MenuSettingRGBA(this, tr["Selection"], tr["Color of the selection and other interface details"], &skinConfColors[COLOR_SELECTION_BG]));
-		// sd.addSetting(new MenuSettingRGBA(this, tr["Message Box"], tr["Background color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BG]));
-		// sd.addSetting(new MenuSettingRGBA(this, tr["Msg Box Border"], tr["Border color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BORDER]));
-		// sd.addSetting(new MenuSettingRGBA(this, tr["Msg Box Selection"], tr["Color of the selection of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_SELECTION]));
-		// sd.addSetting(new MenuSettingRGBA(this, tr["Font"], tr["Color of the font"], &skinConfColors[COLOR_FONT]));
-		// sd.addSetting(new MenuSettingRGBA(this, tr["Font Outline"], tr["Color of the font's outline"], &skinConfColors[COLOR_FONT_OUTLINE]));
-		// sd.addSetting(new MenuSettingRGBA(this, tr["Alt Font"], tr["Color of the alternative font"], &skinConfColors[COLOR_FONT_ALT]));
-		// sd.addSetting(new MenuSettingRGBA(this, tr["Alt Font Outline"], tr["Color of the alternative font outline"], &skinConfColors[COLOR_FONT_ALT_OUTLINE]));
-
-		sd.addSetting(new MenuSettingMultiString(this, tr["Section Bar Postition"], tr["Set the position of the Section Bar"], &sectionBar, &sbStr));
 		sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &confInt["skinBackdrops"]));
-
-		sd.addSetting(new MenuSettingInt(this, tr["Font Size"], tr["Size of text font"], &skinConfInt["fontSize"], 12, 6, 60));
-		sd.addSetting(new MenuSettingInt(this, tr["Title Font Size"], tr["Size of title's text font"], &skinConfInt["fontSizeTitle"], 20, 6, 60));
-		sd.addSetting(new MenuSettingInt(this, tr["Top Bar Height"], tr["Height of top bar"], &skinConfInt["topBarHeight"], 40, 1, resY));
-		sd.addSetting(new MenuSettingInt(this, tr["Bottom Bar Height"], tr["Height of bottom bar"], &skinConfInt["bottomBarHeight"], 16, 1, resY));
-		sd.addSetting(new MenuSettingInt(this, tr["Link Height"], tr["Height of link item"], &skinConfInt["linkItemHeight"], 40, 16, resY));
-		sd.addSetting(new MenuSettingInt(this, tr["Section Bar Size"], tr["Size of section bar"], &skinConfInt["sectionBarSize"], 40, 1, resX));
-
+		sd.addSetting(new MenuSettingInt(this, tr["Font size"], tr["Size of text font"], &skinConfInt["fontSize"], 12, 6, 60));
+		sd.addSetting(new MenuSettingInt(this, tr["Title font size"], tr["Size of title's text font"], &skinConfInt["fontSizeTitle"], 20, 6, 60));
+		sd.addSetting(new MenuSettingInt(this, tr["Top bar height"], tr["Height of top bar"], &skinConfInt["topBarHeight"], 40, 1, resY));
+		sd.addSetting(new MenuSettingInt(this, tr["Bottom bar height"], tr["Height of bottom bar"], &skinConfInt["bottomBarHeight"], 16, 1, resY));
+		sd.addSetting(new MenuSettingInt(this, tr["Section bar size"], tr["Size of section bar"], &skinConfInt["sectionBarSize"], 40, 1, resX));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Section bar position"], tr["Set the position of the Section Bar"], &sectionBar, &sbStr));
+		sd.addSetting(new MenuSettingInt(this, tr["Menu columns"], tr["Number of columns of links in main menu"], &confInt["linkCols"], 1, 1, 8));
+		sd.addSetting(new MenuSettingInt(this, tr["Menu rows"], tr["Number of rows of links in main menu"], &confInt["linkRows"], 6, 1, 8));
 		sd.exec();
 
 		if (sc.add("skins/" + confStr["skin"] + "/wallpapers/" + confStr["wallpaper"]) != NULL)
@@ -1397,7 +1305,7 @@ void GMenu2X::skinMenu() {
 		else if (sc.add("skins/Default/wallpapers/" + confStr["wallpaper"]) != NULL)
 			confStr["wallpaper"] = "skins/Default/wallpapers/" + confStr["wallpaper"];
 
-		initBG(confStr["wallpaper"]);
+		setWallpaper(confStr["wallpaper"]);
 
 		selected = sd.selected;
 		save = sd.save;
@@ -1412,27 +1320,10 @@ void GMenu2X::skinMenu() {
 	writeSkinConfig();
 	writeConfig();
 
-	// if (prevSkin != confStr["skin"]) restartDialog();
 	if (prevSkinBackdrops != confInt["skinBackdrops"] || prevSkin != confStr["skin"]) restartDialog();
 	if (sbPrev != confInt["sectionBar"]) initMenu();
+	initLayout();
 }
-
-// void GMenu2X::setWallpaper(string &wallpaper) {
-// 	if (sc.add(wallpaper) == NULL) {
-// 		DEBUG("Searching wallpaper");
-
-// 		FileLister fl("skins/" + confStr["skin"] + "/wallpapers", false, true);
-// 		fl.setFilter(".png,.jpg,.jpeg,.bmp");
-// 		fl.browse();
-// 		if (fl.getFiles().size() <= 0 && confStr["skin"] != "Default")
-// 			fl.setPath("skins/Default/wallpapers", true);
-// 		if (fl.getFiles().size() > 0)
-// 			wallpaper = fl.getPath() + "/" + fl.getFiles()[0];
-// 	}
-
-// 	confStr["wallpaper"] = wallpaper;
-// 	sc[confStr["wallpaper"]]->blit(bg, 0, 0);
-// }
 
 void GMenu2X::skinColors() {
 	bool save = false;
@@ -1440,6 +1331,7 @@ void GMenu2X::skinColors() {
 		setSkin(confStr["skin"], false, false);
 
 		SettingsDialog sd(this, ts, tr["Skin Colors"], "skin:icons/skin.png");
+		sd.allowCancel = false;
 		sd.addSetting(new MenuSettingRGBA(this, tr["Top/Section Bar"], tr["Color of the top and section bar"], &skinConfColors[COLOR_TOP_BAR_BG]));
 		sd.addSetting(new MenuSettingRGBA(this, tr["List Body"], tr["Color of the list body"], &skinConfColors[COLOR_LIST_BG]));
 		sd.addSetting(new MenuSettingRGBA(this, tr["Bottom Bar"], tr["Color of the bottom bar"], &skinConfColors[COLOR_BOTTOM_BAR_BG]));
@@ -1475,7 +1367,7 @@ void GMenu2X::about() {
 	// temp += "\n    " + tr["External: "] + getDiskFree("/mnt/ext_sd");
 	temp += "\n----\n";
 
-	TextDialog td(this, "GMenuNext", tr["Info about system"], "skin:icons/about.png");
+	TextDialog td(this, "GMenuNX", tr["Info about GMenuNX"], "skin:icons/about.png");
 
 // #if defined(TARGET_CAANOO)
 // 	string versionFile = "";
@@ -1535,7 +1427,8 @@ void GMenu2X::linkScanner() {
 void GMenu2X::changeWallpaper() {
 	WallpaperDialog wp(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], "skin:icons/wallpaper.png");
 	if (wp.exec() && confStr["wallpaper"] != wp.wallpaper) {
-		initBG(wp.wallpaper);
+		confStr["wallpaper"] = wp.wallpaper;
+		setWallpaper(wp.wallpaper);
 		writeConfig();
 	}
 }
@@ -1637,10 +1530,10 @@ void GMenu2X::hwCheck() {
 			mb.exec();
 
 			if (curMMCStatus == MMC_INSERT) {
-				mountSd();
+				mountSd(true);
 				menu->addActionLink(menu->getSectionIndex("settings"), tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
 			} else {
-				umountSd();
+				umountSd(true);
 			}
 		}
 
@@ -1730,7 +1623,7 @@ bool GMenu2X::saveScreenshot() {
 
 void GMenu2X::restartDialog(bool showDialog) {
 	if (showDialog) {
-		MessageBox mb(this, tr["GMenuNext will restart to apply\nthe settings. Continue?"], "skin:icons/exit.png");
+		MessageBox mb(this, tr["GMenuNX will restart to apply\nthe settings. Continue?"], "skin:icons/exit.png");
 		mb.setButton(CONFIRM, tr["Restart"]);
 		mb.setButton(CANCEL,  tr["Cancel"]);
 		if (mb.exec() == CANCEL) return;
@@ -1754,7 +1647,7 @@ void GMenu2X::poweroffDialog() {
 		mb.exec();
 		setBacklight(0);
 #if !defined(TARGET_PC)
-		system("poweroff");
+		system("sync; poweroff");
 #endif
 	}
 	else if (response == SECTION_NEXT) {
@@ -1763,7 +1656,7 @@ void GMenu2X::poweroffDialog() {
 		mb.exec();
 		setBacklight(0);
 #if !defined(TARGET_PC)
-		system("reboot");
+		system("sync; reboot");
 #endif
 	}
 }
@@ -1776,12 +1669,14 @@ void GMenu2X::setTVOut(string TVOut) {
 #endif
 }
 
-void GMenu2X::mountSd() {
-	system("sleep 1; mount -t vfat -o rw,utf8 /dev/mmcblk$(( $(readlink /dev/root | head -c -3 | tail -c1) ^ 1 ))p1 /mnt/ext_sd");
+void GMenu2X::mountSd(bool ext) {
+	if (ext)	system("par=$(( $(readlink /tmp/.int_sd | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/ext_sd; mount -t vfat -o rw,utf8 $par /mnt/ext_sd");
+	else		system("par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/int_sd; mount -t vfat -o rw,utf8 $par /mnt/int_sd");
 }
 
-void GMenu2X::umountSd() {
-	system("umount -fl /mnt/ext_sd");
+void GMenu2X::umountSd(bool ext) {
+	if (ext)	system("sync; umount -fl /mnt/ext_sd");
+	else		system("sync; umount -fl /mnt/int_sd");
 }
 
 #if defined(TARGET_RS97)
@@ -1790,9 +1685,8 @@ void GMenu2X::umountSdDialog() {
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() == CONFIRM) {
-		umountSd();
+		umountSd(true);
 		menu->deleteSelectedLink();
-		sc[confStr["wallpaper"]]->blit(s,0,0);
 		MessageBox mb(this, tr["SD card umounted"], "skin:icons/eject.png");
 		mb.setAutoHide(1000);
 		mb.exec();
@@ -1805,21 +1699,23 @@ void GMenu2X::checkUDC() {
 		mb.setButton(CONFIRM, tr["USB Drive"]);
 		mb.setButton(CANCEL,  tr["Charger"]);
 		if (mb.exec() == CONFIRM) {
-			system("umount -fl /dev/mmcblk$(readlink /dev/root | head -c -3 | tail -c 1)p4");
-			system("echo \"/dev/mmcblk$(readlink /dev/root | head -c -3 | tail -c 1)p4\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
+			umountSd(false);
+			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 			INFO("%s, connect USB disk for internal SD", __func__);
 
 			if (getMMCStatus() == MMC_INSERT) {
-				umountSd();
-				system("echo '/dev/mmcblk$(( $(readlink /dev/root | head -c -3 | tail -c1) ^ 1 ))p1' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
+				umountSd(true);
+				system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file; par=$(( $(readlink /tmp/.int_sd | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
 				INFO("%s, connect USB disk for external SD", __func__);
 			}
 
 			sc[confStr["wallpaper"]]->blit(s,0,0);
 
-			MessageBox mb(this, tr["USB Drive Connected"], "skin:icons/usb.png");
-			mb.setAutoHide(500);
-			mb.exec();
+			{
+				MessageBox mb(this, tr["USB Drive Connected"], "skin:icons/usb.png");
+				mb.setAutoHide(500);
+				mb.exec();
+			}
 
 			powerManager->clearTimer();
 
@@ -1828,15 +1724,23 @@ void GMenu2X::checkUDC() {
 				if ( input[MENU] && input[POWER]) udcConnectedOnBoot = UDC_REMOVE;
 			}
 
+			{
+				MessageBox mb(this, tr["USB disconnected. Rebooting..."], "skin:icons/usb.png");
+				mb.setAutoHide(200);
+				mb.exec();
+			}
+
+			system("sync; reboot & sleep 1m");
+
 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
-			system("mount /dev/mmcblk$(readlink /dev/root | head -c -3 | tail -c 1)p4 /mnt/int_sd -t vfat -o rw,utf8");
+			mountSd(false);
 			INFO("%s, disconnect usbdisk for internal sd", __func__);
 			if (getMMCStatus() == MMC_INSERT) {
 				system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
-				mountSd();
+				mountSd(true);
 				INFO("%s, disconnect USB disk for external SD", __func__);
 			}
-			powerManager->resetSuspendTimer();
+			// powerManager->resetSuspendTimer();
 		}
 	}
 }
@@ -1908,7 +1812,6 @@ void GMenu2X::contextMenu() {
 			fadeAlpha = intTransition(0, 200, tickStart, 200);
 			continue;
 		}
-		// input.setWakeUpInterval(0);
 		do {
 			inputAction = input.update();
 
@@ -1929,7 +1832,6 @@ void GMenu2X::addLink() {
 	fd.showDirectories = true;
 	fd.showFiles = true;
 	fd.setFilter(".dge,.gpu,.gpe,.sh,.bin,.elf,");
-	// FileDialog fd(this, tr["Select an application"], "", "", tr["File Dialog"]);
 	if (fd.exec()) {
 		ledOn();
 		if (menu->addLink(fd.getPath(), fd.getFile())) {
@@ -1949,6 +1851,7 @@ void GMenu2X::editLink() {
 	if (pathV.size() > 1) oldSection = pathV[pathV.size()-2];
 	string newSection = oldSection;
 
+	string linkExec = menu->selLinkApp()->getExec();
 	string linkTitle = menu->selLinkApp()->getTitle();
 	string linkDescription = menu->selLinkApp()->getDescription();
 	string linkIcon = menu->selLinkApp()->getIcon();
@@ -1957,35 +1860,28 @@ void GMenu2X::editLink() {
 	string linkSelFilter = menu->selLinkApp()->getSelectorFilter();
 	string linkSelDir = menu->selLinkApp()->getSelectorDir();
 	bool linkSelBrowser = menu->selLinkApp()->getSelectorBrowser();
-	// bool linkUseRamTimings = menu->selLinkApp()->getUseRamTimings();
 	string linkSelScreens = menu->selLinkApp()->getSelectorScreens();
 	string linkSelAliases = menu->selLinkApp()->getAliasFile();
 	int linkClock = menu->selLinkApp()->clock();
-	// int linkVolume = menu->selLinkApp()->volume();
 	string linkBackdrop = menu->selLinkApp()->getBackdrop();
-
 	string dialogTitle = tr.translate("Edit $1", linkTitle.c_str(), NULL);
 	string dialogIcon = menu->selLinkApp()->getIconPath();
 
 	SettingsDialog sd(this, ts, dialogTitle, dialogIcon);
-	sd.addSetting(new MenuSettingString(      this, tr["Title"],                tr["Link title"], &linkTitle, dialogTitle, dialogIcon));
-	sd.addSetting(new MenuSettingString(      this, tr["Description"],          tr["Link description"], &linkDescription, dialogTitle, dialogIcon ));
-	sd.addSetting(new MenuSettingMultiString( this, tr["Section"],              tr["The section this link belongs to"], &newSection, &menu->getSections() ));
-	sd.addSetting(new MenuSettingImage(       this, tr["Icon"],                 tr["Select an icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", dir_name(linkIcon), dialogTitle, dialogIcon ));
-	sd.addSetting(new MenuSettingFile(        this, tr["Manual"],               tr["Select a manual or README file"], &linkManual, ".man.png,.txt,.me", dir_name(linkManual), dialogTitle, dialogIcon ));
-
-	// sd.addSetting(new MenuSettingInt(         this, tr.translate("Clock (default: $1)","528", NULL), tr["Cpu clock frequency to set when launching this link"], &linkClock, 50, confInt["cpuMax"] ));
-	sd.addSetting(new MenuSettingInt(         this, tr["CPU Clock"], tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
-	//sd.addSetting(new MenuSettingBool(        this, tr["Tweak RAM Timings"],    tr["This usually speeds up the application at the cost of stability"], &linkUseRamTimings ));
-	//sd.addSetting(new MenuSettingInt(         this, tr["Volume"],               tr["Volume to set for this link"], &linkVolume, 0, 1 ));
-	sd.addSetting(new MenuSettingString(      this, tr["Parameters"],           tr["Parameters to pass to the application"], &linkParams, dialogTitle, dialogIcon ));
-
-	sd.addSetting(new MenuSettingBool(        this, tr["Selector Browser"],     tr["Allow the selector to change directory"], &linkSelBrowser ));
-	sd.addSetting(new MenuSettingDir(         this, tr["Selector Directory"],   tr["Directory to scan for the selector"], &linkSelDir, CARD_ROOT, dialogTitle, dialogIcon ));
-	sd.addSetting(new MenuSettingString(      this, tr["Selector Filter"],      tr["Filter file type (separate with commas)"], &linkSelFilter, dialogTitle, dialogIcon ));
-	sd.addSetting(new MenuSettingDir(         this, tr["Selector Screenshots"], tr["Directory of the screenshots for the selector"], &linkSelScreens, CARD_ROOT, dialogTitle, dialogIcon ));
-	sd.addSetting(new MenuSettingFile(        this, tr["Selector Aliases"],     tr["File containing a list of aliases for the selector"], &linkSelAliases,  ".txt,.dat", CARD_ROOT, dialogTitle, dialogIcon));
-	sd.addSetting(new MenuSettingImage(       this, tr["Backdrop"],             tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", CARD_ROOT, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingFile(			this, tr["Executable"],		tr["Application this link points to"], &linkExec, ".dge,.gpu,.gpe,.sh,.bin,.elf,", CARD_ROOT, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingString(		this, tr["Title"],			tr["Link title"], &linkTitle, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingString(		this, tr["Description"],	tr["Link description"], &linkDescription, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingMultiString(	this, tr["Section"],		tr["The section this link belongs to"], &newSection, &menu->getSections()));
+	sd.addSetting(new MenuSettingImage(			this, tr["Icon"],			tr["Select a custom icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", dir_name(linkIcon), dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
+	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingDir(			this, tr["Selector Path"],	tr["Directory to start the selector"], &linkSelDir, CARD_ROOT, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingBool(			this, tr["Show Folders"],	tr["Allow the selector to change directory"], &linkSelBrowser));
+	sd.addSetting(new MenuSettingString(		this, tr["File Filter"],	tr["Filter by file extension (separate with commas)"], &linkSelFilter, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingDir(			this, tr["Screenshots"],	tr["Directory of the screenshots for the selector"], &linkSelScreens, CARD_ROOT, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingFile(			this, tr["Aliases"],		tr["File containing a list of aliases for the selector"], &linkSelAliases, ".txt,.dat", CARD_ROOT, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingImage(			this, tr["Backdrop"],		tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", CARD_ROOT, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingFile(			this, tr["Manual"],   		tr["Select a Manual or Readme file"], &linkManual, ".man.png,.txt,.me", dir_name(linkManual), dialogTitle, dialogIcon));
 
 #if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	bool linkUseGinge = menu->selLinkApp()->getUseGinge();
@@ -1998,13 +1894,10 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingInt(         this, tr["Gamma (default: 0)"],   tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
 #endif
 
-	//G
-	// sd.addSetting(new MenuSettingBool(        this, tr["Wrapper"],              tr["Relaunch GMenu2X after this link's execution ends"], &menu->selLinkApp()->needsWrapperRef() ));
-	//sd.addSetting(new MenuSettingBool(        this, tr["Don't Leave"],          tr["Don't quit GMenu2X when launching this link"], &menu->selLinkApp()->runsInBackgroundRef() ));
-
 	if (sd.exec() && sd.edited() && sd.save) {
 		ledOn();
 
+		menu->selLinkApp()->setExec(linkExec);
 		menu->selLinkApp()->setTitle(linkTitle);
 		menu->selLinkApp()->setDescription(linkDescription);
 		menu->selLinkApp()->setIcon(linkIcon);
@@ -2013,12 +1906,10 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setSelectorFilter(linkSelFilter);
 		menu->selLinkApp()->setSelectorDir(linkSelDir);
 		menu->selLinkApp()->setSelectorBrowser(linkSelBrowser);
-		// menu->selLinkApp()->setUseRamTimings(linkUseRamTimings);
 		menu->selLinkApp()->setSelectorScreens(linkSelScreens);
 		menu->selLinkApp()->setAliasFile(linkSelAliases);
 		menu->selLinkApp()->setBackdrop(linkBackdrop);
 		menu->selLinkApp()->setCPU(linkClock);
-		// menu->selLinkApp()->setVolume(linkVolume);
 		//G
 #if defined(TARGET_GP2X)
 		menu->selLinkApp()->setGamma(linkGamma);
@@ -2026,9 +1917,7 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setUseGinge(linkUseGinge);
 #endif
 
-		INFO("New Section: '%s'", newSection.c_str());
-
-		//if section changed move file and update link->file
+		// if section changed move file and update link->file
 		if (oldSection != newSection) {
 			vector<string>::const_iterator newSectionIndex = find(menu->getSections().begin(), menu->getSections().end(), newSection);
 			if (newSectionIndex == menu->getSections().end()) return;
@@ -2040,18 +1929,20 @@ void GMenu2X::editLink() {
 				newFileName = "sections/" + newSection + "/" + linkTitle + id;
 				x++;
 			}
-			rename(menu->selLinkApp()->getFile().c_str(),newFileName.c_str());
+			rename(menu->selLinkApp()->getFile().c_str(), newFileName.c_str());
 			menu->selLinkApp()->renameFile(newFileName);
 
-			INFO("New section index: %i.", newSectionIndex - menu->getSections().begin());
+			INFO("New section: (%i) %s", newSectionIndex - menu->getSections().begin(), newSection.c_str());
 
 			menu->linkChangeSection(menu->selLinkIndex(), menu->selSectionIndex(), newSectionIndex - menu->getSections().begin());
 		}
 		menu->selLinkApp()->save();
 		sync();
-
 		ledOff();
 	}
+	confInt["section"] = menu->selSectionIndex();
+	confInt["link"] = menu->selLinkIndex();
+	initMenu();
 }
 
 void GMenu2X::deleteLink() {
@@ -2229,21 +2120,21 @@ if (confStr["batteryType"] == "BL-5B") {
 
 void GMenu2X::setInputSpeed() {
 	input.setInterval(180);
-	// input.setInterval(30,  VOLDOWN);
-	// input.setInterval(30,  VOLUP);
 	input.setInterval(1000, SETTINGS);
 	input.setInterval(1000, MENU);
+	input.setInterval(1000, CONFIRM);
+	input.setInterval(1500, POWER);
+	// input.setInterval(30,  VOLDOWN);
+	// input.setInterval(30,  VOLUP);
 	// input.setInterval(300, CANCEL);
 	// input.setInterval(300, MANUAL);
 	// input.setInterval(100, INC);
 	// input.setInterval(100, DEC);
-	input.setInterval(1000, CONFIRM);
 	// input.setInterval(500, SECTION_PREV);
 	// input.setInterval(500, SECTION_NEXT);
 	// input.setInterval(500, PAGEUP);
 	// input.setInterval(500, PAGEDOWN);
 	// input.setInterval(200, BACKLIGHT);
-	input.setInterval(1500, POWER);
 }
 
 void GMenu2X::setCPU(uint32_t mhz) {
@@ -2340,7 +2231,6 @@ int GMenu2X::setVolume(int val, bool popup) {
 			}
 		}
 		powerManager->resetSuspendTimer();
-		// input.setWakeUpInterval(0);
 		confInt["globalVolume"] = val;
 		writeConfig();
 	}
@@ -2418,16 +2308,6 @@ int GMenu2X::setBacklight(int val, bool popup) {
 	char buf[34] = {0};
 	sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
 	system(buf);
-
-	// char buf[4];
-	// FILE *f = fopen("/proc/jz/lcd_backlight", "w");
-	// if (f) {
-	// 	sprintf(buf, "%d", val);
-	 // fprintf(f, "%d", val);
-	// 	fputs(buf, f);
-	// }
-	// fflush(f);
-	// fclose(f);
 #endif
 
 	return val;
@@ -2506,16 +2386,17 @@ int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, 
 void GMenu2X::drawScrollBar(uint32_t pagesize, uint32_t totalsize, uint32_t pagepos, SDL_Rect scrollRect) {
 	if (totalsize <= pagesize) return;
 
-	//internal bar total height = height-2
-	//bar size
-	uint32_t bs = (scrollRect.h - 4) * pagesize / totalsize;
-	//bar y position
-	uint32_t by = (scrollRect.h - 4) * pagepos / totalsize;
-	by = scrollRect.y + 4 + by;
-	if ( by + bs > scrollRect.y + scrollRect.h - 4) by = scrollRect.y + scrollRect.h - 4 - bs;
+	// internal bar total height = height-2
+	// bar size
+	uint32_t bs = (scrollRect.h - 3) * pagesize / totalsize;
+	// bar y position
+	uint32_t by = (scrollRect.h - 3) * pagepos / totalsize;
+	by = scrollRect.y + 3 + by;
+	if (by + bs > scrollRect.y + scrollRect.h - 4)
+		by = scrollRect.y + scrollRect.h - 4 - bs;
 
-	s->rectangle(scrollRect.x + scrollRect.w - 5, by, 5, bs, skinConfColors[COLOR_LIST_BG]);
-	s->box(scrollRect.x + scrollRect.w - 4, by + 1, 2, bs - 2, skinConfColors[COLOR_SELECTION_BG]);
+	s->rectangle(scrollRect.x + scrollRect.w - 4, by, 4, bs, skinConfColors[COLOR_LIST_BG]);
+	s->box(scrollRect.x + scrollRect.w - 3, by + 1, 2, bs - 2, skinConfColors[COLOR_SELECTION_BG]);
 }
 
 void GMenu2X::drawSlider(int val, int min, int max, Surface &icon, Surface &bg) {
@@ -2763,4 +2644,3 @@ void GMenu2X::initServices() {
 	}
 }
 #endif
-

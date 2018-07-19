@@ -10,8 +10,6 @@ LinkScannerDialog::LinkScannerDialog(GMenu2X *gmenu2x, const string &title, cons
 }
 
 void LinkScannerDialog::exec() {
-	// gmenu2x->initBG();
-
 	bool close = false;
 	string str = "";
 	stringstream ss;
@@ -25,13 +23,6 @@ void LinkScannerDialog::exec() {
 	gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"]);
 
 	this->bg->blit(gmenu2x->s,0,0);
-
-	// ss << gmenu2x->confInt["cpuMax"];
-	// ss >> str;
-	// gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("Set CPU clock to $1MHz",  str.c_str(),  NULL), gmenu2x->listRect.x + 4, lineY);
-	// gmenu2x->s->flip();
-	// gmenu2x->setCPU(gmenu2x->confInt["cpuMax"]);
-	// lineY += gmenu2x->font->getHeight();
 
 	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Scanning..."], gmenu2x->listRect.x + 4, lineY);
 
@@ -86,23 +77,13 @@ void LinkScannerDialog::exec() {
 		gmenu2x->s->flip();
 	}
 
-	// ss << gmenu2x->confInt["cpuMenu"];
-	// ss >> str;
-
-	// lineY += gmenu2x->font->getHeight();
-	// gmenu2x->s->write(gmenu2x->font, gmenu2x->tr.translate("Set CPU clock to $1MHz",  str.c_str(),  NULL), gmenu2x->listRect.x + 4, lineY);
-	// gmenu2x->s->flip();
-	// gmenu2x->setCPU(gmenu2x->confInt["cpuMenu"]);
-
 	sync();
 
 	while (!close) {
 		bool inputAction = gmenu2x->input.update();
-		// if (gmenu2x->powerManager(inputAction) || gmenu2x->inputCommonActions()) continue;
 		if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
 	}
 }
-
 
 void LinkScannerDialog::scanPath(string path, vector<string> *files) {
 	DIR *dirp;
@@ -128,6 +109,5 @@ void LinkScannerDialog::scanPath(string path, vector<string> *files) {
 				files->push_back(filepath);
 		}
 	}
-
 	closedir(dirp);
 }

@@ -27,16 +27,9 @@
 #include "linkapp.h"
 #include "menu.h"
 #include "selector.h"
-// #include "textdialog.h"
-// #include "imageviewerdialog.h"
 #include "debug.h"
 
 using namespace std;
-
-// #include "FastDelegate.h"
-// using namespace fastdelegate;
-// using fastdelegate::FastDelegate0;
-// typedef FastDelegate0<> Action;
 
 LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfile):
 	Link(gmenu2x_, MakeDelegate(this, &LinkApp::run)),
@@ -216,15 +209,6 @@ void LinkApp::setCPU(int mhz) {
 	edited = true;
 }
 
-// int LinkApp::volume() {
-// 	return ivolume;
-// }
-
-// void LinkApp::setVolume(int vol) {
-// 	ivolume = constrain(vol, -1, 100);
-// 	edited = true;
-// }
-
 #if defined(TARGET_GP2X)
 int LinkApp::gamma() {
 	return igamma;
@@ -277,6 +261,7 @@ bool LinkApp::save() {
 
 		if (selectordir != ""    ) f << "selectordir="     << selectordir     << endl;
 		if (selectorbrowser      ) f << "selectorbrowser=true"                << endl;
+		if (!selectorbrowser     ) f << "selectorbrowser=false"               << endl;
 		if (selectorfilter != "" ) f << "selectorfilter="  << selectorfilter  << endl;
 		if (selectorscreens != "") f << "selectorscreens=" << selectorscreens << endl;
 		if (aliasfile != ""      ) f << "selectoraliases=" << aliasfile       << endl;
@@ -366,7 +351,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		// string ginge_prep = gmenu2x->getExePath() + "/ginge/ginge_prep";
 		// if (fileExists(ginge_prep)) command = cmdclean(ginge_prep) + " " + command;
 	// }
-	if (gmenu2x->confInt["outputLogs"]) command += " &> " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
+	if (gmenu2x->confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 	// if (wrapper) command += "; sync & cd " + cmdclean(gmenu2x->getExePath()) + "; exec ./gmenu2x";
 	// if (dontleave) {
 		// system(command.c_str());
@@ -470,24 +455,6 @@ void LinkApp::setSelectorBrowser(bool value) {
 	edited = true;
 }
 
-// bool LinkApp::getUseRamTimings() {
-// 	return useRamTimings;
-// }
-
-// void LinkApp::setUseRamTimings(bool value) {
-// 	useRamTimings = value;
-// 	edited = true;
-// }
-
-// bool LinkApp::getUseGinge() {
-// 	return useGinge;
-// }
-
-// void LinkApp::setUseGinge(bool value) {
-// 	useGinge = value;
-// 	edited = true;
-// }
-
 const string &LinkApp::getSelectorFilter() {
 	return selectorfilter;
 }
@@ -520,3 +487,21 @@ void LinkApp::setAliasFile(const string &aliasfile) {
 void LinkApp::renameFile(const string &name) {
 	file = name;
 }
+
+// bool LinkApp::getUseRamTimings() {
+// 	return useRamTimings;
+// }
+
+// void LinkApp::setUseRamTimings(bool value) {
+// 	useRamTimings = value;
+// 	edited = true;
+// }
+
+// bool LinkApp::getUseGinge() {
+// 	return useGinge;
+// }
+
+// void LinkApp::setUseGinge(bool value) {
+// 	useGinge = value;
+// 	edited = true;
+// }

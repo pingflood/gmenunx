@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include "menusettingstringbase.h"
 #include "gmenu2x.h"
+#include "debug.h"
 
 using std::string;
 

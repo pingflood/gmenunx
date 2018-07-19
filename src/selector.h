@@ -26,8 +26,6 @@
 #include "utilities.h"
 #include "dialog.h"
 
-// #define SELECTOR_ELEMENTS 11
-
 class LinkApp;
 class FileLister;
 

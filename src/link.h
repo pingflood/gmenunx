@@ -54,17 +54,10 @@ protected:
 
 public:
 	// linkaction
-	// Link(GMenu2X *gmenu2x);
 	Link(GMenu2X *gmenu2x, LinkAction action);
 
 	virtual ~Link() {};
 	void updateSurfaces();
-
-	// virtual void paint();
-	// virtual bool paintHover();
-
-	// void setSize(int w, int h);
-	// void setPosition(int x, int y);
 
 	const string &getTitle();
 	void setTitle(const string &title);

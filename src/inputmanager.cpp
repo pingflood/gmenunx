@@ -43,7 +43,6 @@ using namespace std;
 
 InputManager::InputManager()
 	: wakeUpTimer(NULL) {
-input_combo[20] = {POWER}; // eegg
 }
 
 InputManager::~InputManager() {
@@ -62,7 +61,7 @@ void InputManager::initJoysticks() {
 	//SDL_JoystickEventState(SDL_IGNORE);
 
 	int numJoy = SDL_NumJoysticks();
-	INFO("%d joysticks found", numJoy);
+	// INFO("%d joysticks found", numJoy);
 	for (int x = 0; x < numJoy; x++) {
 		SDL_Joystick *joy = SDL_JoystickOpen(x);
 		if (joy) {

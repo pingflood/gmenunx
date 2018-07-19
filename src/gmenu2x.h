@@ -46,26 +46,6 @@ const int VOLUME_SCALER_PHONES = 65;
 const int VOLUME_SCALER_NORMAL = 100;
 const int BATTERY_READS = 10;
 
-// const int LOOP_DELAY = 50000;
-
-// #if defined(TARGET_GP2X)
-// 	#define CPU_CLK_MIN 50
-// 	#define CPU_CLK_MAX 325
-// 	#define CPU_CLK_DEFAULT 200
-// #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-// 	#define CPU_CLK_MIN 50
-// 	#define CPU_CLK_MAX 900
-// 	#define CPU_CLK_DEFAULT 200
-// #elif defined(TARGET_RS97)
-// 	#define CPU_CLK_MIN 210
-// 	#define CPU_CLK_MAX 642
-// 	#define CPU_CLK_DEFAULT 528
-// #else
-// 	#define CPU_CLK_MIN 200
-// 	#define CPU_CLK_MAX 1200
-// 	#define CPU_CLK_DEFAULT 528
-// #endif
-
 extern const char *CARD_ROOT;
 extern const int CARD_ROOT_LEN;
 
@@ -123,10 +103,7 @@ private:
 	@return String containing a human readable representation of the free disk space
 	*/
 	string getDiskFree(const char *path);
-	// uint16_t cpuX; //!< Offset for displaying cpu clock information
-	// uint16_t volumeX; //!< Offset for displaying volume level
-	// uint16_t manualX; //!< Offset for displaying the manual indicator in the taskbar
-	// void browsePath(const string &path, vector<string>* directories, vector<string>* files);
+
 	/*!
 	Starts the scanning of the nand and sd filesystems, searching for gpe and gpu files and creating the links in 2 dedicated sections.
 	*/
@@ -178,8 +155,8 @@ private:
 	void checkUDC();
 	void umountSdDialog();
 #endif
-	void umountSd();
-	void mountSd();
+	void umountSd(bool ext);
+	void mountSd(bool ext);
 
 	// void toggleTvOut();
 	void hwDeinit();
@@ -197,7 +174,7 @@ public:
 	 */
 	uint32_t resX, resY, halfX, halfY;
 	// uint32_t bottomBarIconY, bottomBarTextY
-	uint32_t linkColumns, linkRows, linkWidth, linkHeight, sectionLinkPadding = 4;
+	uint32_t linkCols, linkRows, linkWidth, linkHeight, linkSpacing = 4;
 	SDL_Rect listRect, linksRect, sectionBarRect;
 	/*!
 	Retrieves the parent directory of GMenu2X.
@@ -215,14 +192,10 @@ public:
 	//Configuration hashes
 	ConfStrHash confStr, skinConfStr;
 	ConfIntHash confInt, skinConfInt;
-	// ConfColorHash skinConfColor;
 
 	RGBAColor skinConfColors[NUM_COLORS];
 
-	//Configuration settings
-	// bool useSelectionPng;
-
-	void setSkin(const string &skin, bool setWallpaper = true, bool clearSC = true);
+	void setSkin(const string &skin, bool resetWallpaper = true, bool clearSC = true);
 	//firmware type and version
 	string fwType = ""; //, fwVersion;
 	//gp2x type
@@ -239,6 +212,7 @@ public:
 	void restartDialog(bool showDialog = false);
 	void poweroffDialog();
 	void resetSettings();
+	void cpuSettings();
 
 	/*!
 	Reads the current battery state and returns a number representing it's level of charge
@@ -283,7 +257,7 @@ public:
 	string TVOut = "OFF";
 	void about();
 	void viewLog();
-	void batteryLogger();
+	// void batteryLogger();
 	void contextMenu();
 	void changeWallpaper();
 
@@ -291,10 +265,10 @@ public:
 	const string getDateTime();
 	void setDateTime();
 
-	void drawSlider(int val, int min, int max, Surface &icon, Surface &bg);
 	bool saveScreenshot();
 	int setVolume(int val, bool popup = false);
 	int setBacklight(int val, bool popup = false);
+	void drawSlider(int val, int min, int max, Surface &icon, Surface &bg);
 
 	void setInputSpeed();
 
@@ -312,7 +286,7 @@ public:
 	void renameSection();
 	void deleteSection();
 
-	void initBG(const string &wallpaper = "");
+	void setWallpaper(const string &wallpaper = "");
 
 	int drawButton(Button *btn, int x=5, int y=-10);
 	int drawButton(Surface *s, const string &btn, const string &text, int x=5, int y=-10);

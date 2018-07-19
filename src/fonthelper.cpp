@@ -42,7 +42,6 @@ void FontHelper::loadFont(const string &fontName, int fontSize) {
 	halfHeight = height/2;
 }
 
-
 bool FontHelper::utf8Code(uint8_t c) {
 	return (c >= 194 && c <= 198) || c == 208 || c == 209;
 }
@@ -117,7 +116,6 @@ void FontHelper::write(Surface *surface, vector<string> *text, int x, int y, con
 	}
 }
 
-
 void FontHelper::write(Surface* surface, const string &text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor) {
 	if (text.find("\n", 0) != string::npos) {
 		vector<string> textArr;
@@ -148,29 +146,17 @@ void FontHelper::write(Surface *surface, const string &text, int x, int y, const
 void FontHelper::write(Surface *surface, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor) {
 	if (text.empty()) return;
 
-	Surface bg;
-	bg.raw = TTF_RenderUTF8_Blended(fontOutline, text.c_str(), rgbatosdl(bgColor));
+	if (bgColor.a > 0) {
+		Surface bg;
+		bg.raw = TTF_RenderUTF8_Blended(fontOutline, text.c_str(), rgbatosdl(bgColor));
+		bg.setAlpha(bgColor.a);
+		bg.blit(surface, x - TTF_GetFontOutline(fontOutline), y - TTF_GetFontOutline(fontOutline));
+	}
 
-	Surface fg;
-	fg.raw = TTF_RenderUTF8_Blended(font, text.c_str(), rgbatosdl(fgColor));
-
-	// Modify alpha channel of outline and text and merge them in the process
-	RGBAColor fgcol, bgcol;
-	for (int iy = 0; iy < bg.raw->h; iy++)
-		for (int ix = 0; ix < bg.raw->w; ix++) {
-			bgcol = bg.pixelColor(ix, iy);
-			if (bgcol.a != 0) {
-				bgcol.a = bgcol.a * bgColor.a / 255;
-			}
-			if (ix > 0 && ix - 1 < fg.raw->w && iy > 0 && iy - 1 < fg.raw->h) {
-				fgcol = fg.pixelColor(ix - 1, iy - 1);
-				if (fgcol.a > 50) {
-					bgcol = fgcol;
-					bgcol.a = bgcol.a * fgColor.a / 255;
-				}
-			}
-			bg.putPixel(ix, iy, bgcol);
-		}
-
-	bg.blit(surface, x, y);
+	if (fgColor.a > 0) {
+		Surface fg;
+		fg.raw = TTF_RenderUTF8_Blended(font, text.c_str(), rgbatosdl(fgColor));
+		fg.setAlpha(fgColor.a);
+		fg.blit(surface, x, y);
+	}
 }

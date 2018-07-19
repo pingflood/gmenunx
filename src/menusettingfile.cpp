@@ -19,7 +19,6 @@
  ***************************************************************************/
 #include "menusettingfile.h"
 #include "iconbutton.h"
-// #include "filedialog.h"
 #include "browsedialog.h"
 #include "utilities.h"
 #include "debug.h"

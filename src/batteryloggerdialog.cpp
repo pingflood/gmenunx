@@ -1,4 +1,6 @@
 #include "batteryloggerdialog.h"
+#include "powermanager.h"
+// #include "debug.h"
 
 BatteryLoggerDialog::BatteryLoggerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
 	: Dialog(gmenu2x)
@@ -24,16 +26,15 @@ void BatteryLoggerDialog::exec() {
 	this->bg->blit(gmenu2x->s,0,0);
 
 	gmenu2x->setBacklight(100);
-	gmenu2x->setCPU(gmenu2x->confInt["cpuMax"]);
 
 	gmenu2x->s->flip();
 
 	MessageBox mb(gmenu2x, gmenu2x->tr["Welcome to the Battery Logger.\nMake sure the battery is fully charged.\nAfter pressing OK, leave the device ON until\nthe battery has been fully discharged.\nThe log will be saved in 'battery.csv'."]);
 	mb.exec();
 
-	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
+	uint32_t rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 
-	int32_t tickNow = 0, tickStart = SDL_GetTicks(), tickBatteryLogger = -1000000;
+	int32_t firstRow = 0, tickNow = 0, tickStart = SDL_GetTicks(), tickBatteryLogger = -1000000;
 	string logfile = gmenu2x->getExePath()+"battery.csv";
 
 	char buf[100];
@@ -46,6 +47,8 @@ void BatteryLoggerDialog::exec() {
 	if (!inf.is_open()) return;
 	vector<string> log;
 
+	gmenu2x->powerManager->clearTimer();
+
 	string line;
 	while (getline(inf, line, '\n'))
 		log.push_back(line);
@@ -56,14 +59,12 @@ void BatteryLoggerDialog::exec() {
 		if ((tickNow - tickBatteryLogger) >= 60000) {
 			tickBatteryLogger = tickNow;
 
-			char buf[100];
 			sprintf(buf, "echo '%s,%d,%d' >> %s/battery.csv; sync", ms2hms(tickNow - tickStart, true, false), gmenu2x->getBatteryStatus(), gmenu2x->getBatteryLevel(), cmdclean(gmenu2x->getExePath()).c_str());
 			system(buf);
 
 			ifstream inf(logfile.c_str(), ios_base::in);
 			log.clear();
 
-			// string line;
 			while (getline(inf, line, '\n'))
 				log.push_back(line);
 			inf.close();
@@ -73,7 +74,7 @@ void BatteryLoggerDialog::exec() {
 
 		for (uint32_t i = firstRow; i < firstRow + rowsPerPage && i < log.size(); i++) {
 			int rowY, j = log.size() - i - 1;
-			if (log.at(j) == "----") { //draw a line
+			if (log.at(j) == "----") { // draw a line
 				rowY = 42 + (int)((i - firstRow + 0.5) * gmenu2x->font->getHeight());
 				gmenu2x->s->box(5, rowY, gmenu2x->resX - 16, 1, 255, 255, 255, 130);
 				gmenu2x->s->box(5, rowY + 1, gmenu2x->resX - 16, 1, 0, 0, 0, 130);
@@ -88,22 +89,16 @@ void BatteryLoggerDialog::exec() {
 		gmenu2x->s->flip();
 
 		bool inputAction = gmenu2x->input.update(false);
-
-		if (gmenu2x->inputCommonActions(inputAction)) continue;
-
+		// if (gmenu2x->inputCommonActions(inputAction)) continue;
 		if ( gmenu2x->input[UP  ] && firstRow > 0 ) firstRow--;
 		else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < log.size() ) firstRow++;
 		else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT]) {
-			if (firstRow >= rowsPerPage - 1)
-				firstRow -= rowsPerPage - 1;
-			else
-				firstRow = 0;
+			firstRow -= rowsPerPage - 1;
+			if (firstRow < 0) firstRow = 0;
 		}
 		else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT]) {
-			if (firstRow + rowsPerPage * 2 - 1 < log.size())
-				firstRow += rowsPerPage - 1;
-			else
-				firstRow = max(0, log.size() - rowsPerPage);
+			firstRow += rowsPerPage - 1;
+			if (firstRow + rowsPerPage >= log.size()) firstRow = max(0, log.size() - rowsPerPage);
 		}
 		else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
 		else if (gmenu2x->input[MENU]) {
@@ -116,6 +111,5 @@ void BatteryLoggerDialog::exec() {
 			}
 		}
 	}
-	gmenu2x->setCPU(gmenu2x->confInt["cpuMenu"]);
 	gmenu2x->setBacklight(gmenu2x->confInt["backlight"]);
 }

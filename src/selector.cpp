@@ -18,9 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-// #include <SDL.h>
-// #include <SDL_gfxPrimitives.h>
-
 //for browsing the filesystem
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -28,7 +25,6 @@
 #include <fstream>
 
 #include "messagebox.h"
-// #include "menu.h"
 #include "linkapp.h"
 #include "selector.h"
 #include "filelister.h"
@@ -171,23 +167,10 @@ int Selector::exec(int startSelection) {
 				result = false;
 			// } else if ( gmenu2x->input[MENU] ) {
 				// gmenu2x->editLink();
-			} else if ( gmenu2x->input[CANCEL] ) {
-				// if (link->getSelectorBrowser()) {
-					string::size_type p = dir.rfind("/", dir.size() - 2);
-				// 	if (p == string::npos || dir.compare(0, CARD_ROOT_LEN, CARD_ROOT) != 0 || p < 4) {
-				// 		close = true;
-				// 		result = false;
-				// 	} else {
-						dir = dir.substr(0, p + 1);
-				// 		// INFO("%s", dir.c_str());
-				// 		selected = 0;
-				// 		firstElement = 0;
-						prepare(&fl, &screens, &titles);
-				// 	}
-				// } else {
-					// close = true;
-					// result = false;
-				// }
+			} else if ( gmenu2x->input[CANCEL] && link->getSelectorBrowser()) {
+				string::size_type p = dir.rfind("/", dir.size() - 2);
+				dir = dir.substr(0, p + 1);
+				prepare(&fl, &screens, &titles);
 			} else if ( gmenu2x->input[CONFIRM] ) {
 				if (fl.isFile(selected)) {
 					file = fl[selected];
@@ -204,7 +187,6 @@ int Selector::exec(int startSelection) {
 
 	gmenu2x->sc.defaultAlpha = true;
 	freeScreenshots(&screens);
-	// gmenu2x->input.setWakeUpInterval(0);
 
 	return result ? (int)selected : -1;
 }

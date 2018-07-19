@@ -20,15 +20,10 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-// #include <SDL.h>
-// #include <SDL_gfxPrimitives.h>
 
 #include "messagebox.h"
-#include "debug.h"
-
 #include "powermanager.h"
-// #include "gmenu2x.h"
-
+// #include "debug.h"
 
 using namespace std;
 
@@ -96,7 +91,6 @@ int MessageBox::exec() {
 
 	// Surface bg(gmenu2x->s);
 	//Darken background
-	// gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0,bgalpha);
 	gmenu2x->s->box((SDL_Rect){0, 0, gmenu2x->resX, gmenu2x->resY}, (RGBAColor){0,0,0,bgalpha});
 
 	SDL_Rect box;
@@ -155,7 +149,6 @@ int MessageBox::exec() {
 		bool inputAction = gmenu2x->input.update();
 		if (inputAction) {
 			// if (gmenu2x->inputCommonActions(inputAction)) continue; // causes power button bounce
-
 			for (uint32_t i = 0; i < buttons.size(); i++) {
 				if (buttons[i] != "" && gmenu2x->input[i]) {
 					result = i;

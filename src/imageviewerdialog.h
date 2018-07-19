@@ -26,7 +26,6 @@
 
 #include "gmenu2x.h"
 #include "dialog.h"
-// #include "messagebox.h"
 
 using namespace std;
 using std::string;
