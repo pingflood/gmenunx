@@ -215,17 +215,17 @@ void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *
 	screens->resize(fl->getFiles().size());
 	titles->resize(fl->dirCount()+fl->getFiles().size());
 
-	string noext, realdir;
+	string fname, noext, realdir;
 	string::size_type pos;
 	for (uint32_t i = 0; i < fl->dirCount(); i++) {
 		titles->at(i) = fl->getDirectories()[i];
 	}
 
 	for (uint32_t i = 0; i < fl->getFiles().size(); i++) {
-		noext = fl->getFiles()[i];
-		pos = noext.rfind(".");
-		if (pos != string::npos && pos > 0) noext = noext.substr(0, pos);
-		titles->at(fl->dirCount()+i) = getAlias(noext);
+		fname = fl->getFiles()[i];
+		pos = fname.rfind(".");
+		if (pos != string::npos && pos > 0) noext = fname.substr(0, pos);
+		titles->at(fl->dirCount() + i) = getAlias(noext, fname);
 		if (screendir != "") {
 			if (screendir[0] == '.') realdir = real_path(fl->getPath() + "/" + screendir) + "/"; // allow "." as "current directory", therefore, relative paths
 			else realdir = real_path(screendir) + "/";
@@ -270,10 +270,10 @@ void Selector::loadAliases() {
 	}
 }
 
-string Selector::getAlias(const string &key) {
+string Selector::getAlias(const string &key, const string &fname) {
 	unordered_map<string, string>::iterator i = aliases.find(key);
 	if (i == aliases.end())
-		return key;
+		return fname;
 	else
 		return i->second;
 }
