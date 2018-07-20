@@ -180,9 +180,9 @@ void Surface::flip() {
 	{
 #if defined(TARGET_RS97)
     SDL_SoftStretch(raw, NULL, ScreenSurface, NULL);
-		SDL_Flip(ScreenSurface);
+	SDL_Flip(ScreenSurface);
 #else
-		SDL_Flip(raw);
+	SDL_Flip(raw);
 #endif
 	}
 }
