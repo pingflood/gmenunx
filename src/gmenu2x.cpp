@@ -2342,10 +2342,10 @@ int GMenu2X::setBacklight(int val, bool popup) {
 
 			close = !input.update();
 
-			if ( input[SETTINGS] || input[MENU] || input[CONFIRM] || input[CANCEL] ) close = true;
+			if ( input[SETTINGS] || input[CONFIRM] || input[CANCEL] ) close = true;
 			if ( input[LEFT] || input[DEC] )			val = setBacklight(max(1, val - backlightStep), false);
 			else if ( input[RIGHT] || input[INC] )		val = setBacklight(min(100, val + backlightStep), false);
-			else if ( input[BACKLIGHT] )				val = setBacklight(val + backlightStep, false);
+			else if ( input[BACKLIGHT] || input[SECTION_NEXT] )	val = setBacklight(val + backlightStep, false);
 		}
 		powerManager->resetSuspendTimer();
 		// input.setWakeUpInterval(0);
