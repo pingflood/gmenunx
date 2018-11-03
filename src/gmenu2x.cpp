@@ -80,7 +80,7 @@
 
 const char *CARD_ROOT = "/mnt/"; //Note: Add a trailing /!
 const int CARD_ROOT_LEN = 1;
-int FB_HEIGHTSCALER = 1;
+int FB_SCREENPITCH = 1;
 
 static GMenu2X *app;
 
@@ -286,7 +286,7 @@ GMenu2X::GMenu2X() {
 	s->enableVirtualDoubleBuffer(dbl);
 #else
 	// if (FB_DOUBLELINES) {
-		s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_HEIGHTSCALER, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
+		s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
 		s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
 	// } else {
 		// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
@@ -1124,7 +1124,7 @@ void GMenu2X::readConfig() {
 #if defined(TARGET_RS97)
 	if (resX == 320 && resY == 480) {
 		resY = 240;
-		FB_HEIGHTSCALER = 2;
+		FB_SCREENPITCH = 2;
 	}
 #endif
 

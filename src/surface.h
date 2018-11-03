@@ -24,8 +24,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-extern int FB_HEIGHTSCALER;
-
 using std::string;
 
 const int	HAlignLeft		= 1,
