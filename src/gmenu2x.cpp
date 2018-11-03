@@ -640,12 +640,15 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	while (input[MENU]) {
 		wasActive = true;
 		input.update();
-		if (input[SECTION_NEXT]) {
+		if (input[SETTINGS]) {
 			// SCREENSHOT
 			if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
 			MessageBox mb(this, tr["Screenshot saved"]);
 			mb.setAutoHide(1000);
 			mb.exec();
+			return true;
+		} else if (input[SECTION_NEXT]) {
+			setBacklight(confInt["backlight"], true);
 			return true;
 		} else if (input[SECTION_PREV]) {
 			// VOLUME / MUTE
