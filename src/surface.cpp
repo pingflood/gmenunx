@@ -175,17 +175,23 @@ void Surface::flip() {
 		// this->blit(dblbuffer,0,0);
 		// SDL_Flip(dblbuffer);
 	// } else 
-	{
-#if defined(TARGET_RS97)
-	// SDL_SoftStretch(raw, NULL, ScreenSurface, NULL);
-	// SDL_Flip(ScreenSurface);
-	uint32_t *s = (uint32_t*)raw->pixels;
-	uint32_t *d = (uint32_t*)ScreenSurface->pixels;
-	for(uint8_t y = 0; y < 240; y++, s += 160, d += 320) memmove(d, s, 1280);
-#else
-	SDL_Flip(raw);
-#endif
-	}
+
+		SDL_SoftStretch(raw, NULL, ScreenSurface, NULL);
+		SDL_Flip(ScreenSurface);
+
+	// if (FB_DOUBLELINES) {
+	// 	// SDL_SoftStretch(raw, NULL, ScreenSurface, NULL);
+	// 	// SDL_Flip(ScreenSurface);
+	// 		uint32_t *s = (uint32_t*)raw->pixels;
+	// 		uint32_t *d = (uint32_t*)ScreenSurface->pixels;
+	// 		for(uint8_t y = 0; y < 240; y++, s += 160, d += 320) memmove(d, s, 1280);
+	// } else {
+	// 	#if !defined(TARGET_RS97)
+	// 	SDL_Flip(raw);
+	// 	#endif
+	// }
+
+
 }
 
 void Surface::putPixel(int x, int y, RGBAColor color) {

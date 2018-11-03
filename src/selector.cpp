@@ -119,10 +119,10 @@ int Selector::exec(int startSelection) {
 
 			//Screenshot
 			if (selected - fl.dirCount() < screens.size() && screens[selected - fl.dirCount()] != "") {
-				gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+				gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 
 				// gmenu2x->sc[screens[selected - fl.dirCount()]]->softStretch(50, 50);
-				gmenu2x->sc[screens[selected - fl.dirCount()]]->blit(gmenu2x->s, {320 - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
+				gmenu2x->sc[screens[selected - fl.dirCount()]]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
 
 				if (animation < gmenu2x->skinConfInt["previewWidth"]) {
 					animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
@@ -132,7 +132,7 @@ int Selector::exec(int startSelection) {
 				}
 			} else {
 				if (animation > 0) {
-					gmenu2x->s->box(320 - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+					gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 					animation = gmenu2x->skinConfInt["previewWidth"] - intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 80);
 					gmenu2x->s->flip();
 					gmenu2x->input.setWakeUpInterval(45);

@@ -80,6 +80,7 @@
 
 const char *CARD_ROOT = "/mnt/"; //Note: Add a trailing /!
 const int CARD_ROOT_LEN = 1;
+int FB_HEIGHTSCALER = 1;
 
 static GMenu2X *app;
 
@@ -278,17 +279,19 @@ GMenu2X::GMenu2X() {
 	}
 
 	s = new Surface();
+	SDL_ShowCursor(0);
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	//I'm forced to use SW surfaces since with HW there are issuse with changing the clock frequency
 	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_SWSURFACE);
 	s->enableVirtualDoubleBuffer(dbl);
-	SDL_ShowCursor(0);
-#elif defined(TARGET_RS97)
-	SDL_ShowCursor(0);
-	s->ScreenSurface = SDL_SetVideoMode(320, 480, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
-	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
 #else
-	s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
+	// if (FB_DOUBLELINES) {
+		s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_HEIGHTSCALER, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
+		s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
+	// } else {
+		// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
+		// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
+	// }
 #endif
 
 	setWallpaper(confStr["wallpaper"]);
@@ -1104,8 +1107,24 @@ void GMenu2X::readConfig() {
 		confInt["link"] = 0;
 	}
 
-	resX = constrain( confInt["resolutionX"], 320, 1920 );
-	resY = constrain( confInt["resolutionY"], 240, 1200 );
+	// resX = constrain( confInt["resolutionX"], 320, 1920 );
+	// resY = constrain( confInt["resolutionY"], 240, 1200 );
+
+	int fd, n;
+	char str[64];
+	fd = open("/sys/class/graphics/fb0/virtual_size", O_RDONLY);
+	n = read(fd, str, sizeof(str));
+	str[n] = '\0';
+	resX  = atoi(strtok(str, ","));
+	resY = atoi(strtok(NULL, ","));
+	close(fd);
+#if defined(TARGET_RS97)
+	if (resX == 320 && resY == 480) {
+		resY = 240;
+		FB_HEIGHTSCALER = 2;
+	}
+#endif
+
 }
 
 void GMenu2X::writeConfig() {
