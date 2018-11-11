@@ -622,10 +622,10 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	hwCheck();
 
 	bool wasActive = false;
-	while (input[POWER]) {
+	while (input[POWER] || input[SETTINGS]) {
 		wasActive = true;
 		input.update();
-		if (input[POWER]) {
+		if (input[POWER] || input[SETTINGS]) {
 			// HOLD POWER BUTTON
 			poweroffDialog();
 			return true;
@@ -1550,14 +1550,26 @@ void GMenu2X::ledOff() {
 void GMenu2X::hwCheck() {
 #if defined(TARGET_RS97)
 	if (memdev > 0) {
-		// printf("\e[s\e[1;0f");
+		// printf("\e[s\e[1;0f\e[1;32m");
+		// printbin("0", memregs[0x09600 >> 2]);
+		// printbin("1", memregs[0x09700 >> 2]);
+		// printbin("2", memregs[0x09800 >> 2]);
+		// printbin("3", memregs[0x09900 >> 2]);
+		// printbin("4", memregs[0x09a00 >> 2]);
+		// printbin("5", memregs[0x09b00 >> 2]);
+		// printbin("6", memregs[0x09c00 >> 2]);
+		// printbin("7", memregs[0x09d00 >> 2]);
+		// printbin("8", memregs[0x09e00 >> 2]);
+		// printbin("9", memregs[0x09f00 >> 2]);
+
 		// printbin("A", memregs[0x10000 >> 2]);
 		// printbin("B", memregs[0x10100 >> 2]);
 		// printbin("C", memregs[0x10200 >> 2]);
 		// printbin("D", memregs[0x10300 >> 2]);
 		// printbin("E", memregs[0x10400 >> 2]);
 		// printbin("F", memregs[0x10500 >> 2]);
-		// printf("\n\e[K\e[u");
+
+		// printf("\n\e[30;0m\e[K\e[u");
 
 		curMMCStatus = getMMCStatus();
 		if (preMMCStatus != curMMCStatus) {
