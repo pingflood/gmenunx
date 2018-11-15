@@ -623,7 +623,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 
 	bool wasActive = false;
 	while (input[POWER] || input[SETTINGS]) {
-		wasActive = true;
+		wasActive = true && input[POWER];
 		input.update();
 		if (input[POWER] || input[SETTINGS]) {
 			// HOLD POWER BUTTON
