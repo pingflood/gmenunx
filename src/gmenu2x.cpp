@@ -913,10 +913,6 @@ void GMenu2X::settings() {
 	encodings.push_back("NTSC");
 	encodings.push_back("PAL");
 
-	vector<string> batteryType;
-	batteryType.push_back("BL-5B");
-	batteryType.push_back("Linear");
-
 	vector<string> opFactory;
 	opFactory.push_back(">>");
 	string tmp = ">>";
@@ -926,7 +922,14 @@ void GMenu2X::settings() {
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
 	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
-	sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
+
+	if (fwType != "RS-07") {
+		vector<string> batteryType;
+		batteryType.push_back("BL-5B");
+		batteryType.push_back("Linear");
+		sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
+	}
+
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
 	sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the link's output to read with Log Viewer"], &confInt["outputLogs"]));
 	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Seconds to turn display off if inactive"], &confInt["backlightTimeout"], 30, 10, 300));
@@ -1081,8 +1084,9 @@ void GMenu2X::readConfig() {
 	string conffile = path + "gmenu2x.conf";
 
 	// Defaults
-	confStr["batteryType"] = "BL-5B";
 	confStr["datetime"] = __BUILDTIME__;
+	if (fwType != "RS-07") confStr["batteryType"] = "BL-5B";
+	else confStr["batteryType"] = "Linear";
 	confInt["saveSelection"] = 1;
 
 	if (fileExists(conffile)) {
@@ -2094,15 +2098,15 @@ int32_t GMenu2X::getBatteryStatus() {
 uint16_t GMenu2X::getBatteryLevel() {
 	int32_t val = getBatteryStatus();
 
-if (confStr["batteryType"] == "BL-5B") {
-	if ((val > 10000) || (val < 0)) return 6;
-	else if (val > 4000) return 5; // 100%
-	else if (val > 3900) return 4; // 80%
-	else if (val > 3800) return 3; // 60%
-	else if (val > 3730) return 2; // 40%
-	else if (val > 3600) return 1; // 20%
-	return 0; // 0% :(
-}
+	if (fwType != "RS-07" && confStr["batteryType"] == "BL-5B") {
+		if ((val > 10000) || (val < 0)) return 6;
+		else if (val > 4000) return 5; // 100%
+		else if (val > 3900) return 4; // 80%
+		else if (val > 3800) return 3; // 60%
+		else if (val > 3730) return 2; // 40%
+		else if (val > 3600) return 1; // 20%
+		return 0; // 0% :(
+	}
 
 #if defined(TARGET_GP2X)
 	//if (batteryHandle<=0) return 6; //AC Power
