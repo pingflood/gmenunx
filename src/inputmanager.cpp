@@ -35,6 +35,7 @@
 #include "debug.h"
 #include "inputmanager.h"
 #include "utilities.h"
+#include "gmenu2x.h"
 
 #include <iostream>
 #include <fstream>
@@ -97,7 +98,10 @@ bool InputManager::readConfFile(const string &conffile) {
 		name = trim(line.substr(0,pos));
 		value = trim(line.substr(pos + 1,line.length()));
 
+
 		if (name == "up")                action = UP;
+		else if (fwType == "RS-07" && name == "cancel")   action = CONFIRM;
+		else if (fwType == "RS-07" && name == "confirm")  action = CANCEL;
 		else if (name == "down")         action = DOWN;
 		else if (name == "left")         action = LEFT;
 		else if (name == "right")        action = RIGHT;

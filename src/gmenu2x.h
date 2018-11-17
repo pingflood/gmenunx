@@ -196,8 +196,6 @@ public:
 	RGBAColor skinConfColors[NUM_COLORS];
 
 	void setSkin(const string &skin, bool resetWallpaper = true, bool clearSC = true);
-	//firmware type and version
-	string fwType = ""; //, fwVersion;
 	//gp2x type
 	bool f200 = true;
 

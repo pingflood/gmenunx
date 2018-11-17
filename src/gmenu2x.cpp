@@ -81,6 +81,7 @@
 const char *CARD_ROOT = "/mnt/"; //Note: Add a trailing /!
 const int CARD_ROOT_LEN = 1;
 int FB_SCREENPITCH = 1;
+string fwType = "";
 
 static GMenu2X *app;
 
@@ -252,9 +253,11 @@ void* mainThread(void* param) {
 // GMenu2X *GMenu2X::instance = NULL;
 GMenu2X::GMenu2X() {
 	// instance = this;
-	//Detect firmware version and type
 	//load config data
 	readConfig();
+#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
+	hwInit();
+#endif
 
 	halfX = resX/2;
 	halfY = resY/2;
@@ -262,9 +265,6 @@ GMenu2X::GMenu2X() {
 	path = "";
 	getExePath();
 
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
-	hwInit();
-#endif
 
 #if !defined(TARGET_PC)
 	setenv("SDL_NOMOUSE", "1", 1);
@@ -756,6 +756,10 @@ void GMenu2X::hwInit() {
 	if (resX == 320 && resY == 480) {
 		resY = 240;
 		FB_SCREENPITCH = 2;
+		fwType = "RS-97";
+	}
+	else if (resX == 480 && resY == 272) {
+		fwType = "RS-07";
 	}
 #endif
 	INFO("System Init Done!");

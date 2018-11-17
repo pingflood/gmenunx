@@ -63,6 +63,10 @@ enum InputManagerActionState {
 	IM_UNCHANGED
 };
 
+//firmware type and version
+extern string fwType; //, fwVersion;
+
+
 /**
 Manages all input peripherals
 @author Massimiliano Torromeo <massimiliano.torromeo@gmail.com>

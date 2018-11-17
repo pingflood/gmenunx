@@ -362,12 +362,11 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	}
 
 #if defined(TARGET_GP2X)
-		if (gmenu2x->fwType == "open2x") // && gmenu2x->savedVolumeMode != gmenu2x->volumeMode)
-			gmenu2x->writeConfigOpen2x();
+	if (fwType == "open2x") gmenu2x->writeConfigOpen2x();
 #endif
-		if (selectedFile == "") gmenu2x->writeTmp();
+	if (selectedFile == "") gmenu2x->writeTmp();
 
-		gmenu2x->quit();
+	gmenu2x->quit();
 
 	if (clock() != gmenu2x->confInt["cpuMenu"]) gmenu2x->setCPU(clock());
 
