@@ -621,24 +621,24 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 
 	hwCheck();
 
-	bool wasActive = false;
+	int wasActive = 0;
 	while (input[POWER] || input[SETTINGS]) {
-		wasActive = true && input[POWER];
+		if (input[POWER]) wasActive = POWER;
+		else if (input[SETTINGS]) wasActive = SETTINGS;
+
 		input.update();
 		if (input[POWER] || input[SETTINGS]) {
 			// HOLD POWER BUTTON
 			poweroffDialog();
 			return true;
+		} else if (wasActive == POWER) {
+			powerManager->doSuspend(1);
+			return true;
 		}
 	}
 
-	if (wasActive) {
-		powerManager->doSuspend(1);
-		return true;
-	}
-
 	while (input[MENU]) {
-		wasActive = true;
+		wasActive = MENU;
 		input.update();
 		if (input[SETTINGS]) {
 			// SCREENSHOT
@@ -663,13 +663,12 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		}
 	}
 
-	input[MENU] = wasActive; // Key was active but no combo was pressed
-
 	if ( input[BACKLIGHT] ) {
 		setBacklight(confInt["backlight"], true);
 		return true;
 	}
 
+	input[wasActive] = true;
 	return false;
 }
 
