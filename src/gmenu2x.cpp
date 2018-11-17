@@ -743,6 +743,21 @@ void GMenu2X::hwInit() {
 	/* get access to battery device */
 	batteryHandle = open("/dev/pollux_batt", O_RDONLY);
 #endif
+
+	int fd, n;
+	char str[64];
+	fd = open("/sys/class/graphics/fb0/virtual_size", O_RDONLY);
+	n = read(fd, str, sizeof(str));
+	str[n] = '\0';
+	resX  = atoi(strtok(str, ","));
+	resY = atoi(strtok(NULL, ","));
+	close(fd);
+#if defined(TARGET_RS97)
+	if (resX == 320 && resY == 480) {
+		resY = 240;
+		FB_SCREENPITCH = 2;
+	}
+#endif
 	INFO("System Init Done!");
 }
 
@@ -1109,25 +1124,6 @@ void GMenu2X::readConfig() {
 		confInt["section"] = 0;
 		confInt["link"] = 0;
 	}
-
-	// resX = constrain( confInt["resolutionX"], 320, 1920 );
-	// resY = constrain( confInt["resolutionY"], 240, 1200 );
-
-	int fd, n;
-	char str[64];
-	fd = open("/sys/class/graphics/fb0/virtual_size", O_RDONLY);
-	n = read(fd, str, sizeof(str));
-	str[n] = '\0';
-	resX  = atoi(strtok(str, ","));
-	resY = atoi(strtok(NULL, ","));
-	close(fd);
-#if defined(TARGET_RS97)
-	if (resX == 320 && resY == 480) {
-		resY = 240;
-		FB_SCREENPITCH = 2;
-	}
-#endif
-
 }
 
 void GMenu2X::writeConfig() {
