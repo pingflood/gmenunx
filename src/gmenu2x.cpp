@@ -118,21 +118,21 @@ static const char *colorToString(enum color c) {
 	return colorNames[c];
 }
 
-char *hwVersion() {
-	static char buf[10] = { 0 };
-	FILE *f = fopen("/dev/mmcblk0", "r");
-	fseek(f, 440, SEEK_SET); // Set the new position at 10
-	if (f) {
-		for (int i = 0; i < 4; i++) {
-			int c = fgetc(f); // Get character
-			snprintf(buf + strlen(buf), sizeof(buf), "%02X", c);
-		}
-	}
-	fclose(f);
+// char *hwVersion() {
+// 	static char buf[10] = { 0 };
+// 	FILE *f = fopen("/dev/mmcblk0", "r");
+// 	fseek(f, 440, SEEK_SET); // Set the new position at 10
+// 	if (f) {
+// 		for (int i = 0; i < 4; i++) {
+// 			int c = fgetc(f); // Get character
+// 			snprintf(buf + strlen(buf), sizeof(buf), "%02X", c);
+// 		}
+// 	}
+// 	fclose(f);
 
-	// printf("FW Checksum: %s\n", buf);
-	return buf;
-}
+// 	// printf("FW Checksum: %s\n", buf);
+// 	return buf;
+// }
 
 char *ms2hms(uint32_t t, bool mm = true, bool ss = true) {
 	static char buf[10];
@@ -1396,7 +1396,7 @@ void GMenu2X::about() {
 
 	char *hms = ms2hms(SDL_GetTicks());
 	int32_t battlevel = getBatteryStatus();
-	char *hwv = hwVersion();
+	// char *hwv = hwVersion();
 
 	stringstream ss; ss << battlevel; ss >> batt;
 
@@ -1404,7 +1404,7 @@ void GMenu2X::about() {
 	temp += tr["Uptime: "] + hms + "\n";
 #ifdef TARGET_RS97
 	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : batt) + "\n";
-	temp += tr["Checksum: 0x"] + hwv + "\n";
+	// temp += tr["Checksum: 0x"] + hwv + "\n";
 #endif
 	// temp += tr["Storage:"];
 	// temp += "\n    " + tr["Root: "] + getDiskFree("/");
