@@ -1508,7 +1508,7 @@ void GMenu2X::explorer() {
 	bool loop = true;
 	while (fd.exec() && loop) {
 		string ext = fd.getExt();
-		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif") {
+		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp") {
 			ImageViewerDialog im(this, tr["Image viewer"], fd.getFile(), "icons/explorer.png", fd.getPath() + "/" + fd.getFile());
 			im.exec();
 			continue;
