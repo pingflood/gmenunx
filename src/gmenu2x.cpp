@@ -339,7 +339,7 @@ void GMenu2X::main() {
 	bool quit = false;
 	int i = 0, x = 0, y = 0, ix = 0, iy = 0;
 	uint32_t tickBattery = -4800, tickNow; //, tickMMC = 0; //, tickUSB = 0;
-	string prevBackdrop = confStr["wallpaper"], currBackdrop = confStr["wallpaper"];
+	string prevBackdrop = "", currBackdrop = "";
 
 	int8_t brightnessIcon = 5;
 	Surface *iconBrightness[6] = {
@@ -387,6 +387,18 @@ void GMenu2X::main() {
 		tickNow = SDL_GetTicks();
 
 		s->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
+
+		//Background
+		currBackdrop = confStr["wallpaper"];
+		if (menu->selLink() != NULL && menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdropPath().empty() && sc.add(menu->selLinkApp()->getBackdropPath()) != NULL) {
+			currBackdrop = menu->selLinkApp()->getBackdropPath();
+		}
+		if (prevBackdrop != currBackdrop) {
+			INFO("New backdrop: %s", currBackdrop.c_str());
+			sc.del(prevBackdrop);
+			prevBackdrop = currBackdrop;
+			sc[currBackdrop]->softStretch(resX, resY, false, true);
+		}
 		sc[currBackdrop]->blit(s,0,0);
 
 		// SECTIONS
@@ -454,19 +466,6 @@ void GMenu2X::main() {
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("0000ffff"));
 		// s->box(sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("ff00ffff"));
 
-		currBackdrop = confStr["wallpaper"];
-		if (menu->selLink() != NULL && menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdropPath().empty() && sc.add(menu->selLinkApp()->getBackdropPath()) != NULL) {
-			currBackdrop = menu->selLinkApp()->getBackdropPath();
-		}
-
-		//Background
-		if (prevBackdrop != currBackdrop) {
-			INFO("New backdrop: %s", currBackdrop.c_str());
-			sc.del(prevBackdrop);
-			prevBackdrop = currBackdrop;
-			// input.setWakeUpInterval(1);
-			continue;
-		}
 
 		if (confInt["sectionBar"]) {
 			// TRAY 0,0
@@ -805,7 +804,6 @@ void GMenu2X::setWallpaper(const string &wallpaper) {
 		if (fl.getFiles().size() > 0)
 			confStr["wallpaper"] = fl.getPath() + "/" + fl.getFiles()[0];
 	}
-
 	sc[wallpaper]->softStretch(resX, resY, false, true);
 	sc[wallpaper]->blit(bg, 0, 0);
 }
