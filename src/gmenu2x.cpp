@@ -863,6 +863,10 @@ void GMenu2X::initMenu() {
 		//Add virtual links in the applications section
 		if (menu->getSections()[i] == "applications") {
 			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Browse files and launch apps"], "skin:icons/explorer.png");
+			//menu->addActionLink(i, "Format", MakeDelegate(this, &GMenu2X::formatSd), tr["Format internal SD"], "skin:icons/format.png");
+			// if (curMMCStatus == MMC_INSERT)
+			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external media device"], "skin:icons/eject.png");
+
 #if !defined(TARGET_PC)
 			if (getBatteryLevel() > 5) // show only if charging
 #endif
@@ -879,10 +883,6 @@ void GMenu2X::initMenu() {
 			menu->addActionLink(i, "USB SD", MakeDelegate(this, &GMenu2X::activateSdUsb), tr["Activate USB on SD"], "skin:icons/usb.png");
 			if (fwType == "gph" && !f200)
 				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "skin:icons/usb.png");
-#elif defined(TARGET_RS97)
-			//menu->addActionLink(i, "Format", MakeDelegate(this, &GMenu2X::formatSd), tr["Format internal SD"], "skin:icons/format.png");
-			if (curMMCStatus == MMC_INSERT)
-				menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
 #endif
 
 			if (fileExists(path + "log.txt"))
@@ -1589,7 +1589,7 @@ void GMenu2X::hwCheck() {
 
 			if (curMMCStatus == MMC_INSERT) {
 				mountSd(true);
-				menu->addActionLink(menu->getSectionIndex("settings"), tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
+				// menu->addActionLink(menu->getSectionIndex("settings"), tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
 			} else {
 				umountSd(true);
 			}
@@ -1739,16 +1739,24 @@ void GMenu2X::umountSd(bool ext) {
 
 #if defined(TARGET_RS97)
 void GMenu2X::umountSdDialog() {
-	MessageBox mb(this, tr["Umount SD card?"], "skin:icons/eject.png");
-	mb.setButton(CONFIRM, tr["Yes"]);
-	mb.setButton(CANCEL,  tr["No"]);
-	if (mb.exec() == CONFIRM) {
-		umountSd(true);
-		menu->deleteSelectedLink();
-		MessageBox mb(this, tr["SD card umounted"], "skin:icons/eject.png");
-		mb.setAutoHide(1000);
-		mb.exec();
-	}
+	BrowseDialog fd(this, tr["Umount"], tr["Umount external media device"], "skin:icons/eject.png");
+	fd.showDirectories = true;
+	fd.showFiles = false;
+	fd.allowDirUp = false;
+	fd.allowEnterDirectory = false;
+	fd.setPath("/media");
+	fd.exec();
+
+	// MessageBox mb(this, tr["Umount SD card?"], "skin:icons/eject.png");
+	// mb.setButton(CONFIRM, tr["Yes"]);
+	// mb.setButton(CANCEL,  tr["No"]);
+	// if (mb.exec() == CONFIRM) {
+	// 	umountSd(true);
+	// 	menu->deleteSelectedLink();
+	// 	MessageBox mb(this, tr["SD card umounted"], "skin:icons/eject.png");
+	// 	mb.setAutoHide(1000);
+	// 	mb.exec();
+	// }
 }
 
 void GMenu2X::checkUDC() {

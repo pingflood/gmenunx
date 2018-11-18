@@ -49,6 +49,7 @@ private:
 		BD_ACTION_GOUP,
 		BD_ACTION_CONFIRM,
 		BD_ACTION_CANCEL,
+		BD_ACTION_UMOUNT,
 	};
 
 	bool close, result, ts_pressed;
@@ -73,7 +74,7 @@ public:
 
 	void setFilter(const string &filter);
 
-	bool showDirectories, showFiles, allowSelectDirectory = false;
+	bool showDirectories, showFiles, allowSelectDirectory = false, allowDirUp = true, allowEnterDirectory = true;
 
 	void setPath(const string &path);
 };
