@@ -804,6 +804,8 @@ void GMenu2X::setWallpaper(const string &wallpaper) {
 		if (fl.getFiles().size() > 0)
 			confStr["wallpaper"] = fl.getPath() + "/" + fl.getFiles()[0];
 	}
+
+	sc[wallpaper]->softStretch(resX, resY, false, true);
 	sc[wallpaper]->blit(bg, 0, 0);
 }
 
