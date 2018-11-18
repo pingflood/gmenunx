@@ -121,7 +121,7 @@ int Selector::exec(int startSelection) {
 			if (selected - fl.dirCount() < screens.size() && screens[selected - fl.dirCount()] != "") {
 				gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 
-				// gmenu2x->sc[screens[selected - fl.dirCount()]]->softStretch(50, 50);
+				gmenu2x->sc[screens[selected - fl.dirCount()]]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
 				gmenu2x->sc[screens[selected - fl.dirCount()]]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
 
 				if (animation < gmenu2x->skinConfInt["previewWidth"]) {
@@ -140,7 +140,7 @@ int Selector::exec(int startSelection) {
 				}
 			}
 			gmenu2x->input.setWakeUpInterval(1000);
-			gmenu2x->s->clearClipRect();
+			// gmenu2x->s->clearClipRect();
 			gmenu2x->drawScrollBar(numRows, fl.size(), firstElement, gmenu2x->listRect);
 			gmenu2x->s->flip();
 		}
