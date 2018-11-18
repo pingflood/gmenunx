@@ -1122,8 +1122,8 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["globalVolume"], 60, 1, 100 );
 	evalIntConf( &confInt["videoBpp"], 16, 8, 32 );
 	evalIntConf( &confInt["backlight"], 70, 1, 100);
-	evalIntConf( &confInt["minBattery"], 0, 1, 10000);
-	evalIntConf( &confInt["maxBattery"], 4500, 1, 10000);
+	evalIntConf( &confInt["minBattery"], 3550, 1, 10000);
+	evalIntConf( &confInt["maxBattery"], 3720, 1, 10000);
 	evalIntConf( &confInt["sectionBar"], SB_LEFT, 1, 4);
 	evalIntConf( &confInt["linkCols"], 1, 1, 8);
 	evalIntConf( &confInt["linkRows"], 6, 1, 8);
