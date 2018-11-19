@@ -1578,14 +1578,14 @@ void GMenu2X::hwCheck() {
 		curMMCStatus = getMMCStatus();
 		if (preMMCStatus != curMMCStatus) {
 			preMMCStatus = curMMCStatus;
-			string msg;
+			// string msg;
 
-			if (curMMCStatus == MMC_INSERT) msg = tr["SD card connected"];
-			else msg = tr["SD card removed"];
+			// if (curMMCStatus == MMC_INSERT) msg = tr["SD card connected"];
+			// else msg = tr["SD card removed"];
 
-			MessageBox mb(this, msg, "skin:icons/eject.png");
-			mb.setAutoHide(1000);
-			mb.exec();
+			// MessageBox mb(this, msg, "skin:icons/eject.png");
+			// mb.setAutoHide(1000);
+			// mb.exec();
 
 			if (curMMCStatus == MMC_INSERT) {
 				mountSd(true);
