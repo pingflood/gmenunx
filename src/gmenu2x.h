@@ -74,6 +74,13 @@ enum sb {
 	SB_TOP,
 };
 
+enum tvout {
+	TV_OFF,
+	TV_PAL,
+	TV_NTSC,
+};
+
+
 using std::string;
 using std::vector;
 using fastdelegate::FastDelegate0;
@@ -251,8 +258,8 @@ public:
 	int getVolumeScaler();
 #endif
 
-	void setTVOut(string _TVOut);
-	string TVOut = "OFF";
+	void setTVOut(unsigned int _TVOut);
+	unsigned int TVOut = 0;
 	void about();
 	void viewLog();
 	// void batteryLogger();

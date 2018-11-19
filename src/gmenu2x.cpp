@@ -909,10 +909,10 @@ void GMenu2X::settings() {
 	string lang = tr.lang();
 	if (lang == "") lang = "English";
 
-	vector<string> encodings;
-	// encodings.push_back("OFF");
-	encodings.push_back("NTSC");
-	encodings.push_back("PAL");
+	// vector<string> encodings;
+	// // encodings.push_back("OFF");
+	// encodings.push_back("NTSC");
+	// encodings.push_back("PAL");
 
 	vector<string> opFactory;
 	opFactory.push_back(">>");
@@ -939,7 +939,7 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
 
 #if defined(TARGET_RS97)
-	sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal encoding"], &confStr["TVOut"], &encodings));
+	// sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal encoding"], &confStr["TVOut"], &encodings));
 	sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
 #endif
 	sd.addSetting(new MenuSettingMultiString(this, tr["Reset settings"], tr["Choose settings to reset back to defaults"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::resetSettings)));
@@ -1058,10 +1058,10 @@ void GMenu2X::readTmp() {
 		else if (name == "link") menu->setLinkIndex(atoi(value.c_str()));
 		else if (name == "selectorelem") lastSelectorElement = atoi(value.c_str());
 		else if (name == "selectordir") lastSelectorDir = value;
-		else if (name == "TVOut") TVOut = value;
+		else if (name == "TVOut") TVOut = atoi(value.c_str());
 		else if (name == "tvOutPrev") tvOutPrev = atoi(value.c_str());
 	}
-	if (TVOut != "NTSC" && TVOut != "PAL") TVOut = "OFF";
+	if (TVOut > 2) TVOut = 0;
 	udcConnectedOnBoot = 0;
 	inf.close();
 	unlink("/tmp/gmenu2x.tmp");
@@ -1108,7 +1108,6 @@ void GMenu2X::readConfig() {
 		}
 	}
 
-	if (confStr["TVOut"] != "PAL") confStr["TVOut"] = "NTSC";
 	if (!confStr["lang"].empty()) tr.setLang(confStr["lang"]);
 	if (!confStr["wallpaper"].empty() && !fileExists(confStr["wallpaper"])) confStr["wallpaper"] = "";
 	if (confStr["skin"].empty() || !dirExists("skins/" + confStr["skin"])) confStr["skin"] = "Default";
@@ -1150,7 +1149,7 @@ void GMenu2X::writeConfig() {
 		}
 
 		for (ConfIntHash::iterator curr = confInt.begin(); curr != confInt.end(); curr++) {
-			if (curr->first == "batteryLog" || curr->first == "maxClock" || curr->first == "minClock" || curr->first == "menuClock") continue;
+			if (curr->first == "batteryLog" || curr->first == "maxClock" || curr->first == "minClock" || curr->first == "menuClock" || curr->first == "TVOut") continue;
 			inf << curr->first << "=" << curr->second << endl;
 		}
 		inf.close();
@@ -1599,21 +1598,32 @@ void GMenu2X::hwCheck() {
 		if (tvOutPrev != tvOutConnected) {
 			tvOutPrev = tvOutConnected;
 
-			TVOut = "OFF";
-			int lcd_brightness = confInt["backlight"];
-
 			if (tvOutConnected) {
-				MessageBox mb(this, tr["TV-out connected.\nContinue?"], "skin:icons/tv.png");
-				mb.setButton(SETTINGS, tr["Yes"]);
-				mb.setButton(CONFIRM,  tr["No"]);
-
-				if (mb.exec() == SETTINGS) {
-					TVOut = confStr["TVOut"];
-					lcd_brightness = 0;
+				MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
+				mb.setButton(CONFIRM, tr["NTSC"]);
+				mb.setButton(MANUAL,  tr["PAL"]);
+				mb.setButton(CANCEL,  tr["OFF"]);
+				int op = mb.exec();
+				switch (op) {
+				    case CONFIRM:
+			    		TVOut = TV_NTSC;
+						setTVOut(TVOut);
+						setBacklight(0);
+						return;
+						break;
+				    case MANUAL:
+				    	TVOut = TV_PAL;
+						setTVOut(TVOut);
+						setBacklight(0);
+						return;
+						break;
+				    default:
+				    	TVOut = TV_OFF;
+						setTVOut(TVOut);
+						setBacklight(confInt["backlight"]);
+						break;
 				}
 			}
-			setTVOut(TVOut);
-			setBacklight(lcd_brightness);
 		}
 
 		volumeMode = getVolumeMode(confInt["globalVolume"]);
@@ -1719,11 +1729,11 @@ void GMenu2X::poweroffDialog() {
 	}
 }
 
-void GMenu2X::setTVOut(string TVOut) {
+void GMenu2X::setTVOut(unsigned int TVOut) {
 #if defined(TARGET_RS97)
-	system("echo 0 > /proc/jz/tvselect"); // always reset tv out
-	if (TVOut == "NTSC")		system("echo 2 > /proc/jz/tvselect");
-	else if (TVOut == "PAL")	system("echo 1 > /proc/jz/tvselect");
+	system("echo 0 > /proc/jz/tvselect; echo 0 > /proc/jz/tvout"); // always reset tv out
+	if (TVOut == TV_NTSC)		system("echo 2 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
+	else if (TVOut == TV_PAL)	system("echo 1 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
 #endif
 }
 
