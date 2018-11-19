@@ -89,7 +89,7 @@ int MessageBox::exec() {
 
 	gmenu2x->powerManager->clearTimer();
 
-	// Surface bg(gmenu2x->s);
+	Surface bg(gmenu2x->s);
 	//Darken background
 	gmenu2x->s->box((SDL_Rect){0, 0, gmenu2x->resX, gmenu2x->resY}, (RGBAColor){0,0,0,bgalpha});
 
@@ -116,6 +116,7 @@ int MessageBox::exec() {
 		gmenu2x->s->flip();
 		SDL_Delay(this->autohide);
 		gmenu2x->powerManager->resetSuspendTimer(); // = SDL_GetTicks(); // prevent immediate suspend
+		bg.blit(gmenu2x->s,0,0);
 		return -1;
 	}
 	//draw buttons rectangle
@@ -160,5 +161,6 @@ int MessageBox::exec() {
 
 	gmenu2x->input.dropEvents(); // prevent passing input away
 	gmenu2x->powerManager->resetSuspendTimer();
+	bg.blit(gmenu2x->s,0,0);
 	return result;
 }
