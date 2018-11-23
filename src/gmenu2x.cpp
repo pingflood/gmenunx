@@ -256,9 +256,9 @@ GMenu2X::GMenu2X() {
 	// instance = this;
 	//load config data
 	readConfig();
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
+// #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
 	hwInit();
-#endif
+// #endif
 
 	halfX = resX/2;
 	halfY = resY/2;
@@ -751,6 +751,7 @@ void GMenu2X::hwInit() {
 	resX  = atoi(strtok(str, ","));
 	resY = atoi(strtok(NULL, ","));
 	close(fd);
+
 #if defined(TARGET_RS97)
 	if (resX == 320 && resY == 480) {
 		resY = 240;
@@ -761,6 +762,15 @@ void GMenu2X::hwInit() {
 		fwType = "RS-07";
 	}
 #endif
+
+#if defined(TARGET_PC)
+	// resX = constrain( resX, 320, 640 );
+	// resY = constrain( resY, 240, 480 );
+	resX = 320;
+	resY = 240;
+#endif
+
+	INFO("Resolution: %dx%d", resX, resY);
 	INFO("System Init Done!");
 }
 

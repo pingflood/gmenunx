@@ -1,3 +1,4 @@
+#include "messagebox.h"
 #include "browsedialog.h"
 #include "FastDelegate.h"
 #include "debug.h"
@@ -37,6 +38,7 @@ bool BrowseDialog::exec() {
 	uint32_t i, iY, firstElement = 0, animation = 0, padding = 6;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
 	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
+	string filename;
 
 	drawTopBar(this->bg, title, description, icon);
 	drawBottomBar(this->bg);
@@ -55,59 +57,66 @@ bool BrowseDialog::exec() {
 		this->bg->blit(gmenu2x->s,0,0);
 		// buttonBox.paint(5);
 
-		//Selection
-		if (selected >= firstElement + numRows) firstElement = selected - numRows;
-		if (selected < firstElement) firstElement = selected;
-
-		if (fl->getPath() == "/media" && getFile() != ".." && fl->isDirectory(selected)) {
-			gmenu2x->drawButton(gmenu2x->s, "select", gmenu2x->tr["Umount"], buttonPos);
-		}
-
-		//Files & Directories
-		iY = gmenu2x->listRect.y + 1;
-		for (i = firstElement; i < fl->size() && i <= firstElement + numRows; i++, iY += rowHeight) {
-			if (i == selected) gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-			if (fl->isDirectory(i)) {
-				if ((*fl)[i] == "..")
-					iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
-				else
-					iconFolder->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
-			} else {
-				iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
-			}
-			gmenu2x->s->write(gmenu2x->font, (*fl)[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
-		}
-
-		// preview
-		string filename = fl->getPath() + "/" + getFile();
-		string ext = getExt();
-
-		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif") {
-			gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-
-			gmenu2x->sc[filename]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
-			gmenu2x->sc[filename]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->resY);
-
-			if (animation < gmenu2x->skinConfInt["previewWidth"]) {
-				animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
-				gmenu2x->s->flip();
-				gmenu2x->input.setWakeUpInterval(45);
-				continue;
-			}
+		if (!fl->size()) {
+			MessageBox mb(gmenu2x, gmenu2x->tr["This directory is empty"]);
+			mb.setAutoHide(1);
+			mb.setBgAlpha(0);
+			mb.exec();
 		} else {
-			if (animation > 0) {
-				gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-				animation = gmenu2x->skinConfInt["previewWidth"] - intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 80);
-				gmenu2x->s->flip();
-				gmenu2x->input.setWakeUpInterval(45);
-				continue;
+			// Selection
+			if (selected >= firstElement + numRows) firstElement = selected - numRows;
+			if (selected < firstElement) firstElement = selected;
+
+			if (fl->getPath() == "/media" && getFile() != ".." && fl->isDirectory(selected)) {
+				gmenu2x->drawButton(gmenu2x->s, "select", gmenu2x->tr["Umount"], buttonPos);
 			}
+
+			//Files & Directories
+			iY = gmenu2x->listRect.y + 1;
+			for (i = firstElement; i < fl->size() && i <= firstElement + numRows; i++, iY += rowHeight) {
+				if (i == selected) gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+				if (fl->isDirectory(i)) {
+					if ((*fl)[i] == "..")
+						iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
+					else
+						iconFolder->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
+				} else {
+					iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
+				}
+				gmenu2x->s->write(gmenu2x->font, (*fl)[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
+			}
+
+			// preview
+			filename = fl->getPath() + "/" + getFile();
+			string ext = getExt();
+
+			if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif") {
+				gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+
+				gmenu2x->sc[filename]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
+				gmenu2x->sc[filename]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->resY);
+
+				if (animation < gmenu2x->skinConfInt["previewWidth"]) {
+					animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
+					gmenu2x->s->flip();
+					gmenu2x->input.setWakeUpInterval(45);
+					continue;
+				}
+			} else {
+				if (animation > 0) {
+					gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+					animation = gmenu2x->skinConfInt["previewWidth"] - intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 80);
+					gmenu2x->s->flip();
+					gmenu2x->input.setWakeUpInterval(45);
+					continue;
+				}
+			}
+			gmenu2x->input.setWakeUpInterval(1000);
+
+			gmenu2x->drawScrollBar(numRows, fl->size(), firstElement, gmenu2x->listRect);
+			gmenu2x->s->flip();
 		}
-		gmenu2x->input.setWakeUpInterval(1000);
-
-		gmenu2x->drawScrollBar(numRows, fl->size(), firstElement, gmenu2x->listRect);
-		gmenu2x->s->flip();
-
+	
 		do {
 			inputAction = gmenu2x->input.update();
 			if (gmenu2x->inputCommonActions(inputAction)) continue;
