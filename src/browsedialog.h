@@ -34,7 +34,7 @@ class BrowseDialog : protected Dialog {
 protected:
 	virtual void onChangeDir() {};
 
-	FileLister *fl;
+	FileLister fl;
 	int32_t selected;
 
 private:

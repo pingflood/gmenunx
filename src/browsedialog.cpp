@@ -9,27 +9,21 @@ using namespace std;
 
 BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
 : Dialog(gmenu2x), title(title), description(description), icon(icon) {
-	fl = new FileLister(CARD_ROOT, true, false);
-}
-
-BrowseDialog::~BrowseDialog() {
-	delete fl;
+	FileLister fl(CARD_ROOT, true, false);
 }
 
 bool BrowseDialog::exec() {
-	if (!fl) return false;
-
 	this->bg = new Surface(gmenu2x->bg); // needed to redraw on child screen return
 
 	Surface *iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
 	Surface *iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
 	Surface *iconFile = gmenu2x->sc.skinRes("imgs/file.png");
 
-	string path = fl->getPath();
+	string path = fl.getPath();
 	if (path.empty() || !dirExists(path))
 		setPath(CARD_ROOT);
 
-	fl->browse();
+	fl.browse();
 
 	selected = 0;
 	close = false;
@@ -48,16 +42,15 @@ bool BrowseDialog::exec() {
 
 	if (!showFiles && allowSelectDirectory) {
 		buttonPos = gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Select"], buttonPos);
-	} else if ((allowEnterDirectory && fl->isDirectory(selected)) || !fl->isDirectory(selected)) {
+	} else if ((allowEnterDirectory && fl.isDirectory(selected)) || !fl.isDirectory(selected)) {
 		buttonPos = gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"], buttonPos);
 	}
 
 	uint32_t tickStart = SDL_GetTicks();
 	while (!close) {
 		this->bg->blit(gmenu2x->s,0,0);
-		// buttonBox.paint(5);
 
-		if (!fl->size()) {
+		if (!fl.size()) {
 			MessageBox mb(gmenu2x, gmenu2x->tr["This directory is empty"]);
 			mb.setAutoHide(1);
 			mb.setBgAlpha(0);
@@ -67,27 +60,27 @@ bool BrowseDialog::exec() {
 			if (selected >= firstElement + numRows) firstElement = selected - numRows;
 			if (selected < firstElement) firstElement = selected;
 
-			if (fl->getPath() == "/media" && getFile() != ".." && fl->isDirectory(selected)) {
+			if (fl.getPath() == "/media" && getFile() != ".." && fl.isDirectory(selected)) {
 				gmenu2x->drawButton(gmenu2x->s, "select", gmenu2x->tr["Umount"], buttonPos);
 			}
 
 			//Files & Directories
 			iY = gmenu2x->listRect.y + 1;
-			for (i = firstElement; i < fl->size() && i <= firstElement + numRows; i++, iY += rowHeight) {
+			for (i = firstElement; i < fl.size() && i <= firstElement + numRows; i++, iY += rowHeight) {
 				if (i == selected) gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-				if (fl->isDirectory(i)) {
-					if ((*fl)[i] == "..")
+				if (fl.isDirectory(i)) {
+					if (fl[i] == "..")
 						iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 					else
 						iconFolder->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 				} else {
 					iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 				}
-				gmenu2x->s->write(gmenu2x->font, (*fl)[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
+				gmenu2x->s->write(gmenu2x->font, fl[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
 			}
 
 			// preview
-			filename = fl->getPath() + "/" + getFile();
+			filename = fl.getPath() + "/" + getFile();
 			string ext = getExt();
 
 			if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif") {
@@ -113,7 +106,7 @@ bool BrowseDialog::exec() {
 			}
 			gmenu2x->input.setWakeUpInterval(1000);
 
-			gmenu2x->drawScrollBar(numRows, fl->size(), firstElement, gmenu2x->listRect);
+			gmenu2x->drawScrollBar(numRows, fl.size(), firstElement, gmenu2x->listRect);
 			gmenu2x->s->flip();
 		}
 	
@@ -131,16 +124,16 @@ bool BrowseDialog::exec() {
 					cancel();
 					break;
 				case BD_ACTION_CLOSE:
-					if (allowSelectDirectory && fl->isDirectory(selected)) confirm();
+					if (allowSelectDirectory && fl.isDirectory(selected)) confirm();
 					// else cancel();
 					break;
 				case BD_ACTION_UP:
 					selected -= 1;
-					if (selected < 0) selected = fl->size() - 1;
+					if (selected < 0) selected = fl.size() - 1;
 					break;
 				case BD_ACTION_DOWN:
 					selected += 1;
-					if (selected >= fl->size()) selected = 0;
+					if (selected >= fl.size()) selected = 0;
 					break;
 				case BD_ACTION_PAGEUP:
 					selected -= numRows;
@@ -148,20 +141,20 @@ bool BrowseDialog::exec() {
 					break;
 				case BD_ACTION_PAGEDOWN:
 					selected += numRows;
-					if (selected >= fl->size()) selected = fl->size() - 1;
+					if (selected >= fl.size()) selected = fl.size() - 1;
 					break;
 				case BD_ACTION_GOUP:
 					directoryUp();
 					break;
 				case BD_ACTION_UMOUNT:
-					if (fl->getPath() == "/media" && fl->isDirectory(selected)) {
+					if (fl.getPath() == "/media" && fl.isDirectory(selected)) {
 						string umount = "sync; umount -fl " + filename + "; rm -r " + filename;
 						system(umount.c_str());
 					}
-					setPath(fl->getPath()); // refresh
+					setPath(fl.getPath()); // refresh
 					break;
 				case BD_ACTION_SELECT:
-					if (allowEnterDirectory && fl->isDirectory(selected)) {
+					if (allowEnterDirectory && fl.isDirectory(selected)) {
 						directoryEnter();
 						break;
 					}
@@ -170,7 +163,7 @@ bool BrowseDialog::exec() {
 					confirm();
 					break;
 				default:
-					setPath(fl->getPath()); // refresh
+					setPath(fl.getPath()); // refresh
 					break;
 			}
 		} while (!inputAction);
@@ -192,33 +185,28 @@ uint32_t BrowseDialog::getAction() {
 	else if (gmenu2x->input[MENU]) action = BD_ACTION_UMOUNT;
 	return action;
 }
-
 void BrowseDialog::directoryUp() {
-	string path = fl->getPath();
+	string path = fl.getPath();
 	string::size_type p = path.rfind("/");
 	if (p == path.size() - 1) p = path.rfind("/", p - 1);
 	selected = 0;
-	setPath("/"+path.substr(0, p));
+	setPath("/" + path.substr(0, p));
 }
-
 void BrowseDialog::directoryEnter() {
-	string path = fl->getPath();
-	setPath(path + "/" + fl->at(selected));
+	string path = fl.getPath();
+	setPath(path + "/" + fl.at(selected));
 	selected = 0;
 }
-
 void BrowseDialog::confirm() {
 	result = true;
 	close = true;
 }
-
 void BrowseDialog::cancel() {
 	result = false;
 	close = true;
 }
-
 const std::string BrowseDialog::getExt() {
-	string filename = (*fl)[selected];
+	string filename = fl[selected];
 	string ext = "";
 	string::size_type pos = filename.rfind(".");
 	if (pos != string::npos && pos > 0) {
@@ -227,21 +215,19 @@ const std::string BrowseDialog::getExt() {
 	}
 	return ext;
 }
-
 void BrowseDialog::setPath(const string &path) {
-	fl->showDirectories = showDirectories;
-	fl->showFiles = showFiles;
-	fl->allowDirUp = allowDirUp;
-	fl->setPath(path);
+	fl.showDirectories = showDirectories;
+	fl.showFiles = showFiles;
+	fl.allowDirUp = allowDirUp;
+	fl.setPath(path);
 	onChangeDir();
 }
-
 const std::string &BrowseDialog::getPath() {
-	return fl->getPath();
+	return fl.getPath();
 }
 std::string BrowseDialog::getFile() {
-	return (*fl)[selected];
+	return fl[selected];
 }
 void BrowseDialog::setFilter(const string &filter) {
-	fl->setFilter(filter);
+	fl.setFilter(filter);
 }
