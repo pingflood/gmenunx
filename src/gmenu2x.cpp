@@ -287,7 +287,7 @@ GMenu2X::GMenu2X() {
 	s->enableVirtualDoubleBuffer(dbl);
 #else
 	// if (FB_DOUBLELINES) {
-		s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, confInt["videoBpp"], SDL_HWSURFACE/*|SDL_DOUBLEBUF*/);
+		s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, confInt["videoBpp"], SDL_HWSURFACE | SDL_DOUBLEBUF);
 		s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
 	// } else {
 		// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
