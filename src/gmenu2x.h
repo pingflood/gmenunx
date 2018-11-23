@@ -159,9 +159,9 @@ private:
 
 #elif defined(TARGET_RS97)
 	void formatSd();
-	void checkUDC();
-	void umountSdDialog();
+	void udcDialog();
 #endif
+	void umountSdDialog();
 	void umountSd(bool ext);
 	void mountSd(bool ext);
 
