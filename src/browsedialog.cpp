@@ -11,6 +11,9 @@ BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &
 : Dialog(gmenu2x), title(title), description(description), icon(icon) {
 	FileLister fl(CARD_ROOT, true, false);
 }
+BrowseDialog::~BrowseDialog() {
+	// free(fl);
+}
 
 bool BrowseDialog::exec() {
 	this->bg = new Surface(gmenu2x->bg); // needed to redraw on child screen return

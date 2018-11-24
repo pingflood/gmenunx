@@ -743,13 +743,21 @@ void GMenu2X::hwInit() {
 	batteryHandle = open("/dev/pollux_batt", O_RDONLY);
 #endif
 
-	int fd, n;
-	char str[64];
-	fd = open("/sys/class/graphics/fb0/virtual_size", O_RDONLY);
-	n = read(fd, str, sizeof(str));
-	str[n] = '\0';
-	resX  = atoi(strtok(str, ","));
-	resY = atoi(strtok(NULL, ","));
+	char buf[32];
+	int fd = open("/sys/class/graphics/fb0/modes", O_RDONLY);
+	int n = read(fd, buf, sizeof(buf));
+	buf[n] = '\0';
+	char *k = strtok(buf, ":");
+	k = strtok(NULL, ":");
+	resX = atoi(strtok(k, "x"));
+	resY = atoi(strtok(NULL, "x"));
+
+	// // char buf[32];
+	// int fd = open("/sys/class/graphics/fb0/virtual_size", O_RDONLY);
+	// int n = read(fd, buf, sizeof(buf));
+	// buf[n] = '\0';
+	// resX  = atoi(strtok(buf, ","));
+	// resY = atoi(strtok(NULL, ","));
 	close(fd);
 
 #if defined(TARGET_RS97)
@@ -764,8 +772,6 @@ void GMenu2X::hwInit() {
 #endif
 
 #if defined(TARGET_PC)
-	// resX = constrain( resX, 320, 640 );
-	// resY = constrain( resY, 240, 480 );
 	resX = 320;
 	resY = 240;
 #endif

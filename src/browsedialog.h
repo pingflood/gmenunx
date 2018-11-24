@@ -33,7 +33,6 @@ using std::string;
 class BrowseDialog : protected Dialog {
 protected:
 	virtual void onChangeDir() {};
-
 	FileLister fl;
 	int32_t selected;
 
