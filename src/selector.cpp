@@ -27,7 +27,6 @@
 #include "messagebox.h"
 #include "linkapp.h"
 #include "selector.h"
-#include "filelister.h"
 #include "debug.h"
 
 using namespace std;
@@ -37,20 +36,19 @@ Dialog(gmenu2x)
 {
 	this->link = link;
 	loadAliases();
-	// selRow = 0;
+
 	if (selectorDir == "")
 		dir = link->getSelectorDir();
 	else
 		dir = selectorDir;
 	if (dir[dir.length() - 1] != '/') dir += "/";
+
 }
 
 int Selector::exec(int startSelection) {
 	if (gmenu2x->sc[link->getBackdrop()] != NULL) gmenu2x->sc[link->getBackdrop()]->blit(this->bg,0,0);
 
 	bool close = false, result = true, inputAction = false;
-	// vector<string> screens, titles;
-	// vector<string> titles;
 
 	uint32_t i, firstElement = 0, iY, animation = 0, padding = 6;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
@@ -63,9 +61,6 @@ int Selector::exec(int startSelection) {
 	gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
 	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"], 5));
 
-	// prepare(&fl, &titles);
-
-
 	// moved surfaces out to prevent reloading on loop
 	Surface *iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
 	Surface *iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
@@ -74,7 +69,6 @@ int Selector::exec(int startSelection) {
 
 	gmenu2x->sc.defaultAlpha = false;
 	// gmenu2x->input.setWakeUpInterval(1); // refresh on load
-	uint32_t tickStart = SDL_GetTicks();
 
 	this->bg->blit(gmenu2x->s, 0, 0);
 	gmenu2x->s->flip();
@@ -87,6 +81,8 @@ int Selector::exec(int startSelection) {
 	fl.setFilter(link->getSelectorFilter());
 	fl.browse();
 	int selected = constrain(startSelection, 0, fl.size() - 1);
+
+	uint32_t tickStart = SDL_GetTicks();
 
 	while (!close) {
 		this->bg->blit(gmenu2x->s, 0, 0);
@@ -113,7 +109,6 @@ int Selector::exec(int startSelection) {
 				} else {
 					iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 				}
-				// gmenu2x->s->write(gmenu2x->font, titles[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
 				gmenu2x->s->write(gmenu2x->font, getAlias(fl[i]), gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
 			}
 
@@ -175,18 +170,16 @@ int Selector::exec(int startSelection) {
 			} else if ( gmenu2x->input[MODIFIER] && link->getSelectorBrowser()) { /*Directory Up */
 				string::size_type p = dir.rfind("/", dir.size() - 2);
 				dir = dir.substr(0, p + 1);
-				// prepare(&fl, &screens, &titles);
-				// prepare(&fl, &titles);
+				fl.setPath(dir);
 			} else if ( gmenu2x->input[CONFIRM] ) {
 				if (fl.isFile(selected)) {
 					file = fl[selected];
 					close = true;
 				} else {
 					dir = real_path(dir + "/" + fl[selected]);//+"/";
+					fl.setPath(dir);
 					selected = 0;
 					firstElement = 0;
-					// prepare(&fl, &screens, &titles);
-					// prepare(&fl, &titles);
 				}
 			}
 		} while (!inputAction);
@@ -255,31 +248,3 @@ string Selector::getAlias(const string &fname) {
 	else
 		return i->second;
 }
-
-// void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *titles) {
-// void Selector::prepare(FileLister *fl, vector<string> *titles) {
-// 	fl->setPath(dir);
-// 	// freeScreenshots(screens);
-// 	// screens->resize(fl->getFiles().size());
-// 	titles->resize(fl->dirCount() + fl->getFiles().size());
-// 	string fname, noext, realdir;
-// 	string::size_type pos;
-// 	// titles = fl->getDirectories();
-// 	for (uint32_t i = 0; i < fl->dirCount(); i++) {
-// 		titles->at(i) = fl->getDirectories()[i];
-// 	}
-// 	for (uint32_t i = 0; i < fl->getFiles().size(); i++) {
-// 		fname = fl->getFiles()[i];
-// 		pos = fname.rfind(".");
-// 		if (pos != string::npos && pos > 0) noext = fname.substr(0, pos);
-// 		titles->at(fl->dirCount() + i) = getAlias(noext, fname);
-// 	}
-// }
-
-// string Selector::getAlias(const string &key, const string &fname) {
-// 	unordered_map<string, string>::iterator i = aliases.find(key);
-// 	if (i == aliases.end())
-// 		return fname;
-// 	else
-// 		return i->second;
-// }

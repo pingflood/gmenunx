@@ -22,11 +22,6 @@ bool BrowseDialog::exec() {
 	Surface *iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
 	Surface *iconFile = gmenu2x->sc.skinRes("imgs/file.png");
 
-	string path = fl.getPath();
-	if (path.empty() || !dirExists(path))
-		setPath(CARD_ROOT);
-
-	fl.browse();
 
 	selected = 0;
 	close = false;
@@ -49,13 +44,19 @@ bool BrowseDialog::exec() {
 		buttonPos = gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"], buttonPos);
 	}
 
+	string path = fl.getPath();
+	if (path.empty() || !dirExists(path))
+		setPath(CARD_ROOT);
+	fl.browse();
+
 	uint32_t tickStart = SDL_GetTicks();
+
 	while (!close) {
 		this->bg->blit(gmenu2x->s,0,0);
 
 		if (!fl.size()) {
 			MessageBox mb(gmenu2x, gmenu2x->tr["This directory is empty"]);
-			mb.setAutoHide(1);
+			mb.setAutoHide(-1);
 			mb.setBgAlpha(0);
 			mb.exec();
 		} else {
@@ -166,7 +167,7 @@ bool BrowseDialog::exec() {
 					confirm();
 					break;
 				default:
-					setPath(fl.getPath()); // refresh
+					// setPath(fl.getPath()); // refresh
 					break;
 			}
 		} while (!inputAction);
@@ -219,6 +220,12 @@ const std::string BrowseDialog::getExt() {
 	return ext;
 }
 void BrowseDialog::setPath(const string &path) {
+	// this->bg->blit(gmenu2x->s, 0, 0);
+	// gmenu2x->s->flip();
+	// MessageBox mb(gmenu2x, gmenu2x->tr["Loading"]);
+	// mb.setAutoHide(-1);
+	// mb.setBgAlpha(0);
+	// mb.exec();
 	fl.showDirectories = showDirectories;
 	fl.showFiles = showFiles;
 	fl.allowDirUp = allowDirUp;

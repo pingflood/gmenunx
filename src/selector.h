@@ -25,6 +25,7 @@
 #include "gmenu2x.h"
 #include "utilities.h"
 #include "dialog.h"
+#include "filelister.h"
 
 class LinkApp;
 class FileLister;
@@ -42,9 +43,6 @@ private:
 	void loadAliases();
 	string getAlias(const string &fname);
 	string getScreenshot(const string &path, const string &fname, const string &screendir = "");
-	// string getAlias(const string &key, const string &fname);
-	// void prepare(FileLister *fl, vector<string> *screens, vector<string> *titles);
-	// void prepare(FileLister *fl, vector<string> *titles);
 	void freeScreenshots(vector<string> *screens);
 	
 public:
