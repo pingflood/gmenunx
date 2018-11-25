@@ -64,7 +64,6 @@ public:
 	BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon = "icons/explorer.png");
 	virtual ~BrowseDialog();
 
-	bool exec();
 
 	const std::string &getPath();
 	std::string getFile();
@@ -73,9 +72,10 @@ public:
 
 	void setFilter(const string &filter);
 
-	bool showDirectories, showFiles, allowSelectDirectory = false, allowDirUp = true, allowEnterDirectory = true;
+	bool showDirectories = true, showFiles = true, allowSelectDirectory = false, allowDirUp = true, allowEnterDirectory = true;
 
 	void setPath(const string &path);
+	bool exec();
 };
 
 #endif /*INPUTDIALOG_H_*/

@@ -18,8 +18,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+
 #ifndef UTILITIES_H
 #define UTILITIES_H
+
+#ifndef PATH_MAX
+#define PATH_MAX 2048
+#endif
 
 #include <string>
 #include <vector>

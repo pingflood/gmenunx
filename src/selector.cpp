@@ -32,14 +32,12 @@
 
 using namespace std;
 
-string screendir;
-
 Selector::Selector(GMenu2X *gmenu2x, LinkApp *link, const string &selectorDir) :
 Dialog(gmenu2x)
 {
 	this->link = link;
 	loadAliases();
-	selRow = 0;
+	// selRow = 0;
 	if (selectorDir == "")
 		dir = link->getSelectorDir();
 	else
@@ -51,13 +49,8 @@ int Selector::exec(int startSelection) {
 	if (gmenu2x->sc[link->getBackdrop()] != NULL) gmenu2x->sc[link->getBackdrop()]->blit(this->bg,0,0);
 
 	bool close = false, result = true, inputAction = false;
-	vector<string> screens, titles;
-
-	FileLister fl(dir, link->getSelectorBrowser());
-	fl.setFilter(link->getSelectorFilter());
-	fl.browse();
-
-	screendir = link->getSelectorScreens();
+	// vector<string> screens, titles;
+	// vector<string> titles;
 
 	uint32_t i, firstElement = 0, iY, animation = 0, padding = 6;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
@@ -67,17 +60,11 @@ int Selector::exec(int startSelection) {
 	drawBottomBar(this->bg);
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	if (link->getSelectorBrowser()) {
-		gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
-		gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Folder up"],
-		gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5)));
-	} else {
-		gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
-		gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"], 5));
-	}
+	gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"],
+	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"], 5));
 
-	prepare(&fl, &screens, &titles);
-	int selected = constrain(startSelection, 0, fl.size() - 1);
+	// prepare(&fl, &titles);
+
 
 	// moved surfaces out to prevent reloading on loop
 	Surface *iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
@@ -89,12 +76,24 @@ int Selector::exec(int startSelection) {
 	// gmenu2x->input.setWakeUpInterval(1); // refresh on load
 	uint32_t tickStart = SDL_GetTicks();
 
+	this->bg->blit(gmenu2x->s, 0, 0);
+	gmenu2x->s->flip();
+	MessageBox mb(gmenu2x, gmenu2x->tr["Loading"]);
+	mb.setAutoHide(-1);
+	mb.setBgAlpha(0);
+	mb.exec();
+
+	FileLister fl(dir, link->getSelectorBrowser());
+	fl.setFilter(link->getSelectorFilter());
+	fl.browse();
+	int selected = constrain(startSelection, 0, fl.size() - 1);
+
 	while (!close) {
 		this->bg->blit(gmenu2x->s, 0, 0);
 
 		if (!fl.size()) {
 			MessageBox mb(gmenu2x, gmenu2x->tr["This directory is empty"]);
-			mb.setAutoHide(1);
+			mb.setAutoHide(-1);
 			mb.setBgAlpha(0);
 			mb.exec();
 		} else {
@@ -114,15 +113,18 @@ int Selector::exec(int startSelection) {
 				} else {
 					iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 				}
-				gmenu2x->s->write(gmenu2x->font, titles[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
+				// gmenu2x->s->write(gmenu2x->font, titles[i], gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
+				gmenu2x->s->write(gmenu2x->font, getAlias(fl[i]), gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
 			}
 
 			//Screenshot
-			if (selected - fl.dirCount() < screens.size() && screens[selected - fl.dirCount()] != "") {
+			string screenshot = getScreenshot(dir, fl[selected], link->getSelectorScreens());
+
+			if (screenshot != "") {
 				gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 
-				gmenu2x->sc[screens[selected - fl.dirCount()]]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
-				gmenu2x->sc[screens[selected - fl.dirCount()]]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
+				gmenu2x->sc[screenshot]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
+				gmenu2x->sc[screenshot]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, 220);
 
 				if (animation < gmenu2x->skinConfInt["previewWidth"]) {
 					animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
@@ -162,15 +164,19 @@ int Selector::exec(int startSelection) {
 			} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
 				selected += numRows;
 				if (selected >= fl.size()) selected = fl.size() - 1;
-			} else if ( gmenu2x->input[SETTINGS] ) {
+			} else if ( gmenu2x->input[CANCEL] ) {
 				close = true;
 				result = false;
+			// } else if ( gmenu2x->input[SETTINGS] ) {
+			// 	close = true;
+			// 	result = false;
 			// } else if ( gmenu2x->input[MENU] ) {
 				// gmenu2x->editLink();
-			} else if ( gmenu2x->input[CANCEL] && link->getSelectorBrowser()) {
+			} else if ( gmenu2x->input[MODIFIER] && link->getSelectorBrowser()) { /*Directory Up */
 				string::size_type p = dir.rfind("/", dir.size() - 2);
 				dir = dir.substr(0, p + 1);
-				prepare(&fl, &screens, &titles);
+				// prepare(&fl, &screens, &titles);
+				// prepare(&fl, &titles);
 			} else if ( gmenu2x->input[CONFIRM] ) {
 				if (fl.isFile(selected)) {
 					file = fl[selected];
@@ -179,56 +185,19 @@ int Selector::exec(int startSelection) {
 					dir = real_path(dir + "/" + fl[selected]);//+"/";
 					selected = 0;
 					firstElement = 0;
-					prepare(&fl, &screens, &titles);
+					// prepare(&fl, &screens, &titles);
+					// prepare(&fl, &titles);
 				}
 			}
 		} while (!inputAction);
 	}
 
 	gmenu2x->sc.defaultAlpha = true;
-	freeScreenshots(&screens);
+	// freeScreenshots(&screens);
 
 	return result ? (int)selected : -1;
 }
 
-void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *titles) {
-	fl->setPath(dir);
-	freeScreenshots(screens);
-	screens->resize(fl->getFiles().size());
-	titles->resize(fl->dirCount()+fl->getFiles().size());
-
-	string fname, noext, realdir;
-	string::size_type pos;
-	for (uint32_t i = 0; i < fl->dirCount(); i++) {
-		titles->at(i) = fl->getDirectories()[i];
-	}
-
-	for (uint32_t i = 0; i < fl->getFiles().size(); i++) {
-		fname = fl->getFiles()[i];
-		pos = fname.rfind(".");
-		if (pos != string::npos && pos > 0) noext = fname.substr(0, pos);
-		titles->at(fl->dirCount() + i) = getAlias(noext, fname);
-		if (screendir != "") {
-			if (screendir[0] == '.') realdir = real_path(fl->getPath() + "/" + screendir) + "/"; // allow "." as "current directory", therefore, relative paths
-			else realdir = real_path(screendir) + "/";
-			// INFO("Searching for screen '%s%s.png'", realdir.c_str(), noext.c_str());
-			if (fileExists(realdir + noext + ".jpg")) {
-				screens->at(i) = realdir + noext + ".jpg";
-				continue;
-			} else if (fileExists(realdir + noext + ".png")){
-				screens->at(i) = realdir + noext + ".png";
-				continue;
-			}
-		}
-		// fallback - always search for filename.png
-		if (fileExists(real_path(fl->getPath() + "/" + noext + ".png")))
-			screens->at(i) = real_path(fl->getPath() + "/" + noext + ".png");
-		else if (fileExists(real_path(fl->getPath() + "/" + noext + ".jpg")))
-			screens->at(i) = real_path(fl->getPath() + "/" + noext + ".jpg");
-		else
-			screens->at(i) = "";
-	}
-}
 
 void Selector::freeScreenshots(vector<string> *screens) {
 	for (uint32_t i = 0; i < screens->size(); i++) {
@@ -252,10 +221,65 @@ void Selector::loadAliases() {
 	}
 }
 
-string Selector::getAlias(const string &key, const string &fname) {
-	unordered_map<string, string>::iterator i = aliases.find(key);
+string Selector::getScreenshot(const string &path, const string &fname, const string &screendir) {
+	string noext, realdir;
+	int pos = fname.rfind(".");
+	if (pos != string::npos && pos > 0) noext = fname.substr(0, pos);
+
+	if (screendir != "") {
+		if (screendir[0] == '.') realdir = real_path(path + "/" + screendir) + "/"; // allow "." as "current directory", therefore, relative paths
+		else realdir = real_path(screendir) + "/";
+		// INFO("Searching for screen '%s%s.png'", realdir.c_str(), noext.c_str());
+		if (fileExists(realdir + noext + ".png")) {
+			return realdir + noext + ".png";
+		} else if (fileExists(realdir + noext + ".jpg")){
+			return realdir + noext + ".jpg";
+		}
+	}
+	// fallback - always search for filename.png
+	if (fileExists(real_path(path + "/" + noext + ".png")))
+		return real_path(path + "/" + noext + ".png");
+	else if (fileExists(real_path(path + "/" + noext + ".jpg")))
+		return real_path(path + "/" + noext + ".jpg");
+	else
+		return "";
+}
+
+string Selector::getAlias(const string &fname) {
+	string noext, realdir;
+	int pos = fname.rfind(".");
+	if (pos != string::npos && pos > 0) noext = fname.substr(0, pos);
+	unordered_map<string, string>::iterator i = aliases.find(noext);
 	if (i == aliases.end())
 		return fname;
 	else
 		return i->second;
 }
+
+// void Selector::prepare(FileLister *fl, vector<string> *screens, vector<string> *titles) {
+// void Selector::prepare(FileLister *fl, vector<string> *titles) {
+// 	fl->setPath(dir);
+// 	// freeScreenshots(screens);
+// 	// screens->resize(fl->getFiles().size());
+// 	titles->resize(fl->dirCount() + fl->getFiles().size());
+// 	string fname, noext, realdir;
+// 	string::size_type pos;
+// 	// titles = fl->getDirectories();
+// 	for (uint32_t i = 0; i < fl->dirCount(); i++) {
+// 		titles->at(i) = fl->getDirectories()[i];
+// 	}
+// 	for (uint32_t i = 0; i < fl->getFiles().size(); i++) {
+// 		fname = fl->getFiles()[i];
+// 		pos = fname.rfind(".");
+// 		if (pos != string::npos && pos > 0) noext = fname.substr(0, pos);
+// 		titles->at(fl->dirCount() + i) = getAlias(noext, fname);
+// 	}
+// }
+
+// string Selector::getAlias(const string &key, const string &fname) {
+// 	unordered_map<string, string>::iterator i = aliases.find(key);
+// 	if (i == aliases.end())
+// 		return fname;
+// 	else
+// 		return i->second;
+// }

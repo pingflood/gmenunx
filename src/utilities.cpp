@@ -37,10 +37,6 @@
 
 using namespace std;
 
-#ifndef PATH_MAX
-#define PATH_MAX 2048
-#endif
-
 bool case_less::operator()(const string &left, const string &right) const {
 	return strcasecmp(left.c_str(), right.c_str()) < 0;
 }
