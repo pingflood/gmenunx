@@ -1050,8 +1050,8 @@ void GMenu2X::resetSettings() {
 void GMenu2X::cpuSettings() {
 	SettingsDialog sd(this, ts, tr["CPU settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingInt(this, tr["Default CPU clock"], tr["Set the default working CPU frequency"], &confInt["cpuMenu"], 528, 528, 600, 6));
-	sd.addSetting(new MenuSettingInt(this, tr["Maximum CPU clock "], tr["Maximum overclock for launching links"], &confInt["cpuMax"], 624, 600, 1200, 6));
-	sd.addSetting(new MenuSettingInt(this, tr["Minimum CPU clock "], tr["Minimum underclock used in Suspend mode"], &confInt["cpuMin"], 342, 200, 528, 6));
+	sd.addSetting(new MenuSettingInt(this, tr["Maximum CPU clock"], tr["Maximum overclock for launching links"], &confInt["cpuMax"], 624, 600, 1200, 6));
+	sd.addSetting(new MenuSettingInt(this, tr["Minimum CPU clock"], tr["Minimum underclock used in Suspend mode"], &confInt["cpuMin"], 342, 200, 528, 6));
 
 	if (sd.exec() && sd.edited() && sd.save) {
 		setCPU(confInt["cpuMenu"]);
@@ -1784,7 +1784,7 @@ void GMenu2X::checkUDC() {
 	if (getUDCStatus() == UDC_CONNECT) {
 		if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
 			MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
-			mb.setButton(CANCEL,  tr["Charger"]);
+			mb.setButton(CONFIRM,  tr["Charger"]);
 			mb.exec();
 			return;
 		}
