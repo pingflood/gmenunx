@@ -72,9 +72,9 @@ bool WallpaperDialog::exec()
 		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 		gmenu2x->drawButton(gmenu2x->s, "a", gmenu2x->tr["Select"],
-		gmenu2x->drawButton(gmenu2x->s, "start", gmenu2x->tr["Exit"],5));
+		gmenu2x->drawButton(gmenu2x->s, "b", gmenu2x->tr["Cancel"],5));
 
-		//Selection
+		// Selection
 		if (selected >= firstElement + numRows) firstElement = selected - numRows;
 		if (selected < firstElement) firstElement = selected;
 
@@ -105,10 +105,10 @@ bool WallpaperDialog::exec()
 			} else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT] ) {
 				selected += numRows;
 				if (selected >= wallpapers.size()) selected = wallpapers.size() - 1;
-			} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[MENU] || gmenu2x->input[CANCEL] ) {
+			} else if ( gmenu2x->input[MENU] || gmenu2x->input[CANCEL] ) {
 				close = true;
 				result = false;
-			} else if ( gmenu2x->input[CONFIRM] ) {
+			} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) {
 				close = true;
 				if (wallpapers.size() > 0) {
 					if (selected < wallpapers.size() - fl.getFiles().size())

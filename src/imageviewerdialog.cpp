@@ -18,7 +18,7 @@ void ImageViewerDialog::exec() {
 	gmenu2x->drawButton(this->bg, "down", "",
 	gmenu2x->drawButton(this->bg, "up", "",
 	gmenu2x->drawButton(this->bg, "left", "",
-	gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"],
+	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
 	5))-12)-14)-12);
 
 	this->bg->blit(gmenu2x->s,0,0);
@@ -34,7 +34,7 @@ void ImageViewerDialog::exec() {
 			inputAction = gmenu2x->input.update();
 			if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-			if ( gmenu2x->input[MANUAL] || gmenu2x->input[CANCEL] || gmenu2x->input[SETTINGS] ) close = true;
+			if ( gmenu2x->input[CANCEL] || gmenu2x->input[SETTINGS] ) close = true;
 			else if ( gmenu2x->input[LEFT] && offsetX < 0) {
 				offsetX += gmenu2x->listRect.w/3;
 				if (offsetX > 0) offsetX = 0;

@@ -44,9 +44,9 @@ bool BrowseDialog::exec() {
 		buttonPos = gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"], buttonPos);
 	}
 
-	string path = fl.getPath();
-	if (path.empty() || !dirExists(path))
-		setPath(CARD_ROOT);
+	// string path = fl.getPath();
+	// if (path.empty() || !dirExists(path))
+	// 	setPath(CARD_ROOT);
 	fl.browse();
 
 	uint32_t tickStart = SDL_GetTicks();

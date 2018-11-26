@@ -18,7 +18,7 @@ void BatteryLoggerDialog::exec() {
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	drawBottomBar(this->bg);
-	gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"],
+	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
 	gmenu2x->drawButton(this->bg, "select", gmenu2x->tr["Del battery.csv"],
 	gmenu2x->drawButton(this->bg, "down", gmenu2x->tr["Scroll"],
 	gmenu2x->drawButton(this->bg, "up", "", 5)-10)));

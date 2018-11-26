@@ -113,7 +113,7 @@ void TextDialog::exec() {
 
 	gmenu2x->drawButton(this->bg, "down", gmenu2x->tr["Scroll"],
 	gmenu2x->drawButton(this->bg, "up", "",
-	gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Exit"],
+	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
 	5))-10);
 
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);

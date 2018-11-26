@@ -77,9 +77,13 @@ int Selector::exec(int startSelection) {
 	mb.setBgAlpha(0);
 	mb.exec();
 
+	if (dir.empty() || !dirExists(dir))
+		dir = CARD_ROOT;
+
 	FileLister fl(dir, link->getSelectorBrowser());
 	fl.setFilter(link->getSelectorFilter());
 	fl.browse();
+
 	int selected = constrain(startSelection, 0, fl.size() - 1);
 
 	uint32_t tickStart = SDL_GetTicks();
