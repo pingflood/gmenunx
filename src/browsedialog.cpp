@@ -45,8 +45,9 @@ bool BrowseDialog::exec() {
 
 	// string path = fl.getPath();
 	// if (path.empty() || !dirExists(path))
-	setPath(CARD_ROOT);
+	// setPath(CARD_ROOT);
 	// fl.browse();
+	setPath(fl.getPath());
 
 	uint32_t tickStart = SDL_GetTicks();
 
@@ -147,7 +148,7 @@ bool BrowseDialog::exec() {
 					if (selected >= fl.size()) selected = fl.size() - 1;
 					break;
 				case BD_ACTION_GOUP:
-					directoryUp();
+					if (allowDirUp) directoryUp();
 					break;
 				case BD_ACTION_UMOUNT:
 					if (fl.getPath() == "/media" && fl.isDirectory(selected)) {
