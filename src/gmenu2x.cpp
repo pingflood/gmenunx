@@ -118,21 +118,24 @@ static const char *colorToString(enum color c) {
 	return colorNames[c];
 }
 
-// char *hwVersion() {
-// 	static char buf[10] = { 0 };
-// 	FILE *f = fopen("/dev/mmcblk0", "r");
-// 	fseek(f, 440, SEEK_SET); // Set the new position at 10
-// 	if (f) {
-// 		for (int i = 0; i < 4; i++) {
-// 			int c = fgetc(f); // Get character
-// 			snprintf(buf + strlen(buf), sizeof(buf), "%02X", c);
-// 		}
-// 	}
-// 	fclose(f);
+char *hwVersion() {
+	static char buf[10] = { 0 };
+	FILE *f = fopen("/dev/mmcblk0", "r");
+	fseek(f, 0x400014, SEEK_SET); // Set the new position at 10
+	if (f) {
+		for (int i = 0; i < 4; i++) {
+			int c = fgetc(f); // Get character
+			snprintf(buf + strlen(buf), sizeof(buf), "%02X", c);
+		}
+	}
+	fclose(f);
 
-// 	// printf("FW Checksum: %s\n", buf);
-// 	return buf;
-// }
+	// printf("FW Checksum: %s\n", buf);
+	if (!strcmp(buf, "0x800155C0")) return "JZ4760B";
+	else return "JZ4760";
+	// printf("FW Checksum: %s\n", buf);
+	// return buf;
+}
 
 char *ms2hms(uint32_t t, bool mm = true, bool ss = true) {
 	static char buf[10];
@@ -1408,27 +1411,27 @@ void GMenu2X::skinColors() {
 
 void GMenu2X::about() {
 	vector<string> text;
-	string temp, batt;
+	string temp, buf;
 
 	char *hms = ms2hms(SDL_GetTicks());
 	int32_t battlevel = getBatteryStatus();
-	// char *hwv = hwVersion();
+	char *hwv = hwVersion();
 
-	stringstream ss; ss << battlevel; ss >> batt;
+	{ stringstream ss; ss << battlevel; ss >> buf; }
 
 	temp = tr["Build date: "] + __DATE__ + "\n";
-	temp += tr["Uptime: "] + hms + "\n";
+	{ stringstream ss; ss << resX << "x" << resY << "px"; ss >> buf; }
+
+	// char res[32];
+	// sprintf(res, "%dx%d", resX, resY);
+	temp += tr["Resolution: "] + buf + "\n";
 #ifdef TARGET_RS97
-	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : batt) + "\n";
-	// temp += tr["Checksum: 0x"] + hwv + "\n";
+	temp += tr["CPU: "] + hwv + "\n";
+	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : buf) + "\n";
 #endif
+	temp += tr["Uptime: "] + hms + "\n";
 
-	char res[32];
-	sprintf(res, "%dx%d", resX, resY);
-
-	temp += tr["Resolution: "] + res + "px\n";
-	temp += "----\n";
-
+	// temp += "----\n";
 	// temp += tr["Storage:"];
 	// temp += "\n    " + tr["Root: "] + getDiskFree("/");
 	// temp += "\n    " + tr["Internal: "] + getDiskFree("/mnt/int_sd");
