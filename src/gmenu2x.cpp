@@ -129,6 +129,7 @@ char *entryPoint() {
 		}
 	}
 	fclose(f);
+	// if (!strcmp(buf, "80015840")) return "JZ4760B";
 
 	if (!strcmp(buf, "800155C0")) return "JZ4760B";
 	else if (!strcmp(buf, "80015560")) return "JZ4760";
@@ -1417,11 +1418,9 @@ void GMenu2X::about() {
 	temp += tr["Resolution: "] + buf + "\n";
 
 #ifdef TARGET_RS97
-	// char *cpu = ;
-	temp += tr["CPU: "] + entryPoint() + "\n";
-
+	// temp += tr["CPU: "] + entryPoint() + "\n";
 	int32_t battlevel = getBatteryStatus();
-	{ stringstream ss; ss << battlevel; ss >> buf; }
+	{ stringstream ss; ss << battlevel/100 << " V"; ss >> buf; }
 	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : buf) + "\n";
 #endif
 
