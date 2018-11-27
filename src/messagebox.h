@@ -43,10 +43,16 @@ private:
 
 public:
 	MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon="");
+	~MessageBox();
+
 	void setButton(int action, const string &btn);
-	int exec();
 	void setAutoHide(int delay);
 	void setBgAlpha(bool bgalpha);
+	int exec();
+	void exec(uint32_t timeOut);
+	void clearTimer();
+	static uint32_t execTimer(uint32_t interval, void *param);
+	SDL_TimerID popupTimer; // = NULL;
 };
 
 #endif /*MESSAGEBOX_H_*/

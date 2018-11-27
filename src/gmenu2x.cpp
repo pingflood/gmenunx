@@ -118,23 +118,21 @@ static const char *colorToString(enum color c) {
 	return colorNames[c];
 }
 
-char *hwVersion() {
+char *entryPoint() {
 	static char buf[10] = { 0 };
 	FILE *f = fopen("/dev/mmcblk0", "r");
-	fseek(f, 0x400014, SEEK_SET); // Set the new position at 10
+	fseek(f, 0x400014, SEEK_SET); // Set the new position
 	if (f) {
 		for (int i = 0; i < 4; i++) {
-			int c = fgetc(f); // Get character
+			int c = fgetc(f);
 			snprintf(buf + strlen(buf), sizeof(buf), "%02X", c);
 		}
 	}
 	fclose(f);
 
-	// printf("FW Checksum: %s\n", buf);
-	if (!strcmp(buf, "0x800155C0")) return "JZ4760B";
-	else return "JZ4760";
-	// printf("FW Checksum: %s\n", buf);
-	// return buf;
+	if (!strcmp(buf, "800155C0")) return "JZ4760B";
+	else if (!strcmp(buf, "80015560")) return "JZ4760";
+	else return "Unknown";
 }
 
 char *ms2hms(uint32_t t, bool mm = true, bool ss = true) {
@@ -1413,23 +1411,22 @@ void GMenu2X::about() {
 	vector<string> text;
 	string temp, buf;
 
-	char *hms = ms2hms(SDL_GetTicks());
-	int32_t battlevel = getBatteryStatus();
-	char *hwv = hwVersion();
-
-	{ stringstream ss; ss << battlevel; ss >> buf; }
-
 	temp = tr["Build date: "] + __DATE__ + "\n";
-	{ stringstream ss; ss << resX << "x" << resY << "px"; ss >> buf; }
 
-	// char res[32];
-	// sprintf(res, "%dx%d", resX, resY);
+	{ stringstream ss; ss << resX << "x" << resY << "px"; ss >> buf; }
 	temp += tr["Resolution: "] + buf + "\n";
+
 #ifdef TARGET_RS97
-	temp += tr["CPU: "] + hwv + "\n";
+	// char *cpu = ;
+	temp += tr["CPU: "] + entryPoint() + "\n";
+
+	int32_t battlevel = getBatteryStatus();
+	{ stringstream ss; ss << battlevel; ss >> buf; }
 	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : buf) + "\n";
 #endif
-	temp += tr["Uptime: "] + hms + "\n";
+
+	// char *hms = ;
+	temp += tr["Uptime: "] + ms2hms(SDL_GetTicks()) + "\n";
 
 	// temp += "----\n";
 	// temp += tr["Storage:"];

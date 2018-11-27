@@ -34,22 +34,23 @@ using std::string;
 using std::vector;
 
 class Selector : protected Dialog {
+protected:
+	FileLister fl;
+
 private:
-	// int selRow;
 	LinkApp *link;
 
 	string file, dir;
 	unordered_map<string, string> aliases;
 	void loadAliases();
+	void setPath(const string &path);
 	string getAlias(const string &fname);
 	string getScreenshot(const string &path, const string &fname, const string &screendir = "");
 	void freeScreenshots(vector<string> *screens);
 	
 public:
 	Selector(GMenu2X *gmenu2x, LinkApp *link, const string &selectorDir = "");
-	
 	int exec(int startSelection = 0);
-	
 	const string &getFile() { return file; }
 	const string &getDir() { return dir; }
 };

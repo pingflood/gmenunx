@@ -43,6 +43,8 @@ Dialog(gmenu2x)
 		dir = selectorDir;
 	if (dir[dir.length() - 1] != '/') dir += "/";
 
+	FileLister fl(dir, link->getSelectorBrowser());
+	fl.setFilter(link->getSelectorFilter());
 }
 
 int Selector::exec(int startSelection) {
@@ -72,17 +74,11 @@ int Selector::exec(int startSelection) {
 
 	this->bg->blit(gmenu2x->s, 0, 0);
 	gmenu2x->s->flip();
-	MessageBox mb(gmenu2x, gmenu2x->tr["Loading"]);
-	mb.setAutoHide(-1);
-	mb.setBgAlpha(0);
-	mb.exec();
 
 	if (dir.empty() || !dirExists(dir))
 		dir = CARD_ROOT;
 
-	FileLister fl(dir, link->getSelectorBrowser());
-	fl.setFilter(link->getSelectorFilter());
-	fl.browse();
+	setPath(dir);
 
 	int selected = constrain(startSelection, 0, fl.size() - 1);
 
@@ -174,14 +170,14 @@ int Selector::exec(int startSelection) {
 			} else if ( gmenu2x->input[MODIFIER] && link->getSelectorBrowser()) { /*Directory Up */
 				string::size_type p = dir.rfind("/", dir.size() - 2);
 				dir = dir.substr(0, p + 1);
-				fl.setPath(dir);
+				setPath(dir);
 			} else if ( gmenu2x->input[CONFIRM] ) {
 				if (fl.isFile(selected)) {
 					file = fl[selected];
 					close = true;
 				} else {
 					dir = real_path(dir + "/" + fl[selected]);//+"/";
-					fl.setPath(dir);
+					setPath(dir);
 					selected = 0;
 					firstElement = 0;
 				}
@@ -194,7 +190,6 @@ int Selector::exec(int startSelection) {
 
 	return result ? (int)selected : -1;
 }
-
 
 void Selector::freeScreenshots(vector<string> *screens) {
 	for (uint32_t i = 0; i < screens->size(); i++) {
@@ -251,4 +246,12 @@ string Selector::getAlias(const string &fname) {
 		return fname;
 	else
 		return i->second;
+}
+void Selector::setPath(const string &path) {
+	MessageBox mb(gmenu2x, gmenu2x->tr["Loading"]);
+	mb.setAutoHide(-1);
+	mb.setBgAlpha(0);
+	mb.exec(1e3);
+	fl.setPath(path);
+	mb.clearTimer();
 }

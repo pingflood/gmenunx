@@ -71,7 +71,9 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	buttonLabels[VOLUP] = "vol+";
 	buttonLabels[VOLDOWN] = "vol-";
 }
-
+MessageBox::~MessageBox() {
+	clearTimer();
+}
 void MessageBox::setButton(int action, const string &btn) {
 	buttons[action] = btn;
 }
@@ -164,3 +166,17 @@ int MessageBox::exec() {
 	bg.blit(gmenu2x->s,0,0);
 	return result;
 }
+void MessageBox::exec(uint32_t timeOut) {
+	clearTimer();
+	popupTimer = SDL_AddTimer(timeOut, execTimer, this);
+};
+void MessageBox::clearTimer() {
+	if (popupTimer != NULL) SDL_RemoveTimer(popupTimer);
+	popupTimer = NULL;
+};
+uint32_t MessageBox::execTimer(uint32_t interval, void *param) {
+	MessageBox *mb = reinterpret_cast<MessageBox *>(param);
+	mb->clearTimer();
+	mb->exec();
+	return 0;
+};
