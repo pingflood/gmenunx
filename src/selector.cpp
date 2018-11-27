@@ -251,7 +251,9 @@ void Selector::setPath(const string &path) {
 	MessageBox mb(gmenu2x, gmenu2x->tr["Loading"]);
 	mb.setAutoHide(-1);
 	mb.setBgAlpha(0);
-	mb.exec(1e3);
+	mb.exec(3e3);
+
 	fl.setPath(path);
+
 	mb.clearTimer();
 }

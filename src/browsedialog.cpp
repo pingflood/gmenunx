@@ -22,7 +22,6 @@ bool BrowseDialog::exec() {
 	Surface *iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
 	Surface *iconFile = gmenu2x->sc.skinRes("imgs/file.png");
 
-
 	selected = 0;
 	close = false;
 	bool inputAction = false;
@@ -46,8 +45,8 @@ bool BrowseDialog::exec() {
 
 	// string path = fl.getPath();
 	// if (path.empty() || !dirExists(path))
-	// 	setPath(CARD_ROOT);
-	fl.browse();
+	setPath(CARD_ROOT);
+	// fl.browse();
 
 	uint32_t tickStart = SDL_GetTicks();
 
@@ -220,17 +219,18 @@ const std::string BrowseDialog::getExt() {
 	return ext;
 }
 void BrowseDialog::setPath(const string &path) {
-	// this->bg->blit(gmenu2x->s, 0, 0);
-	// gmenu2x->s->flip();
-	// MessageBox mb(gmenu2x, gmenu2x->tr["Loading"]);
-	// mb.setAutoHide(-1);
-	// mb.setBgAlpha(0);
-	// mb.exec();
+	MessageBox mb(gmenu2x, gmenu2x->tr["Loading"]);
+	mb.setAutoHide(-1);
+	mb.setBgAlpha(0);
+	mb.exec(3e3);
+
 	fl.showDirectories = showDirectories;
 	fl.showFiles = showFiles;
 	fl.allowDirUp = allowDirUp;
 	fl.setPath(path);
 	onChangeDir();
+
+	mb.clearTimer();
 }
 const std::string &BrowseDialog::getPath() {
 	return fl.getPath();
