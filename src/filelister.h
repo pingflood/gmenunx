@@ -33,8 +33,8 @@ private:
 	vector<string> directories, files, excludes;
 
 public:
-	bool showDirectories, showFiles, allowDirUp = true;
 	FileLister(const string &startPath = "/mnt/", bool showDirectories = true, bool showFiles = true);
+	bool showDirectories = true, showFiles = true, allowDirUp = true;
 	void browse();
 
 	uint32_t size();
