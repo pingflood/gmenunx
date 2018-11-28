@@ -28,7 +28,7 @@ bool BrowseDialog::exec() {
 	uint32_t i, iY, firstElement = 0, animation = 0, padding = 6;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
 	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
-	string filename;
+	// string filename;
 
 	drawTopBar(this->bg, title, description, icon);
 	drawBottomBar(this->bg);
@@ -83,14 +83,12 @@ bool BrowseDialog::exec() {
 			}
 
 			// preview
-			filename = getPath() + "/" + getFile();
-			string ext = getExt();
-
-			if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif") {
+			string preview = getPreview();
+			if (preview != "") {
 				gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 
-				gmenu2x->sc[filename]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
-				gmenu2x->sc[filename]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->resY);
+				gmenu2x->sc[preview]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
+				gmenu2x->sc[preview]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->resY);
 
 				if (animation < gmenu2x->skinConfInt["previewWidth"]) {
 					animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
@@ -151,14 +149,14 @@ bool BrowseDialog::exec() {
 					break;
 				case BD_ACTION_UMOUNT:
 					if (getPath() == "/media" && isDirectory(selected)) {
-						string umount = "sync; umount -fl " + filename + "; rm -r " + filename;
+						string umount = "sync; umount -fl " + getFilePath() + "; rm -r " + getFilePath();
 						system(umount.c_str());
 					}
 					directoryEnter(getPath()); // refresh
 					break;
 				case BD_ACTION_SELECT:
 					if (allowEnterDirectory && isDirectory(selected)) {
-						directoryEnter(filename);
+						directoryEnter(getFilePath());
 						// directoryEnter();
 						break;
 					}
@@ -223,6 +221,9 @@ void BrowseDialog::directoryEnter(const string &path) {
 std::string BrowseDialog::getFile() {
 	return at(selected);
 }
+const std::string BrowseDialog::getFilePath() {
+	return getPath() + "/" + getFile();
+}
 const std::string BrowseDialog::getExt() {
 	string filename = getFile();
 	string ext = "";
@@ -232,4 +233,9 @@ const std::string BrowseDialog::getExt() {
 		transform(ext.begin(), ext.end(), ext.begin(), (int(*)(int)) tolower);
 	}
 	return ext;
+}
+const std::string BrowseDialog::getPreview() {
+	string ext = getExt();
+	if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif") return getFilePath();
+	return "";
 }

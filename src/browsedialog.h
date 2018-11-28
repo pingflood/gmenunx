@@ -57,6 +57,7 @@ private:
 	void directoryUp();
 	void confirm();
 	void cancel();
+	virtual const std::string getPreview();
 
 public:
 	BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon = "icons/explorer.png");
@@ -66,6 +67,7 @@ public:
 	const std::string getExt();
 	void directoryEnter(const string &path);
 	bool exec();
+	const std::string getFilePath();
 };
 
 #endif /*INPUTDIALOG_H_*/
