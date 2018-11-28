@@ -30,10 +30,9 @@ class FileLister;
 
 using std::string;
 
-class BrowseDialog : protected Dialog {
+class BrowseDialog : protected Dialog, public FileLister {
 protected:
 	virtual void onChangeDir() {};
-	FileLister fl;
 	int32_t selected;
 
 private:
@@ -56,25 +55,16 @@ private:
 
 	uint32_t getAction();
 	void directoryUp();
-	void directoryEnter();
 	void confirm();
 	void cancel();
 
 public:
 	BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon = "icons/explorer.png");
 	virtual ~BrowseDialog();
-
-
-	const std::string &getPath();
-	std::string getFile();
-
-	const std::string getExt();
-
-	void setFilter(const string &filter);
-
 	bool showDirectories = true, showFiles = true, allowSelectDirectory = false, allowDirUp = true, allowEnterDirectory = true;
-
-	void setPath(const string &path);
+	std::string getFile();
+	const std::string getExt();
+	void directoryEnter(const string &path);
 	bool exec();
 };
 

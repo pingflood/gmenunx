@@ -1419,9 +1419,9 @@ void GMenu2X::about() {
 
 #ifdef TARGET_RS97
 	// temp += tr["CPU: "] + entryPoint() + "\n";
-	int32_t battlevel = getBatteryStatus();
-	{ stringstream ss; ss << battlevel/100 << " V"; ss >> buf; }
-	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : buf) + "\n";
+	float battlevel = getBatteryStatus();
+	{ stringstream ss; ss.precision(2); ss << battlevel/1000; ss >> buf; }
+	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : buf + " V") + "\n";
 #endif
 
 	// char *hms = ;
