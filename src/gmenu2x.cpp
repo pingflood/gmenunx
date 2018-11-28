@@ -1522,29 +1522,26 @@ void GMenu2X::showManual() {
 }
 
 void GMenu2X::explorer() {
-	BrowseDialog fd(this, tr["Explorer"], tr["Select a file or application"]);
-	fd.showDirectories = true;
-	fd.showFiles = true;
+	BrowseDialog bd(this, tr["Explorer"], tr["Select a file or application"]);
+	bd.showDirectories = true;
+	bd.showFiles = true;
 
-	bool loop = true;
-	while (fd.exec() && loop) {
-		string ext = fd.getExt();
+	while (bd.exec()) {
+		string ext = bd.getExt(bd.selected);
 		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp") {
-			ImageViewerDialog im(this, tr["Image viewer"], fd.getFile(), "icons/explorer.png", fd.getPath() + "/" + fd.getFile());
+			ImageViewerDialog im(this, tr["Image viewer"], bd.getFile(bd.selected), "icons/explorer.png", bd.getFilePath(bd.selected));
 			im.exec();
-			continue;
+			// continue;
 		} else if (ext == ".txt" || ext == ".conf" || ext == ".me" || ext == ".md" || ext == ".xml" || ext == ".log") {
-			TextDialog td(this, tr["Text viewer"], fd.getFile(), "skin:icons/ebook.png");
-			td.appendFile(fd.getPath() + "/" + fd.getFile());
+			TextDialog td(this, tr["Text viewer"], bd.getFile(bd.selected), "skin:icons/ebook.png");
+			td.appendFile(bd.getFilePath(bd.selected));
 			td.exec();
 		} else {
 			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
 				writeConfig();
 
-			loop = false;
-			//string command = cmdclean(fd.path()+"/"+fd.file) + "; sync & cd "+cmdclean(getExePath())+"; exec ./gmenu2x";
-			string command = cmdclean(fd.getPath() + "/" + fd.getFile());
-			chdir(fd.getPath().c_str());
+			string command = cmdclean(bd.getFilePath(bd.selected));
+			chdir(bd.getPath().c_str());
 			quit();
 			setCPU(confInt["cpuMenu"]);
 			execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
@@ -1554,6 +1551,7 @@ void GMenu2X::explorer() {
 			WARNING("Error executing selected application, re-launching gmenu2x");
 			chdir(getExePath().c_str());
 			execlp("./gmenu2x", "./gmenu2x", NULL);
+			return;
 		}
 	}
 }
@@ -1770,13 +1768,13 @@ void GMenu2X::umountSd(bool ext) {
 }
 
 void GMenu2X::umountSdDialog() {
-	BrowseDialog fd(this, tr["Umount"], tr["Umount external media device"], "skin:icons/eject.png");
-	fd.showDirectories = true;
-	fd.showFiles = false;
-	fd.allowDirUp = false;
-	fd.allowEnterDirectory = false;
-	fd.setPath("/media");
-	fd.exec();
+	BrowseDialog bd(this, tr["Umount"], tr["Umount external media device"], "skin:icons/eject.png");
+	bd.showDirectories = true;
+	bd.showFiles = false;
+	bd.allowDirUp = false;
+	bd.allowEnterDirectory = false;
+	bd.setPath("/media");
+	bd.exec();
 }
 #if defined(TARGET_RS97)
 void GMenu2X::checkUDC() {
@@ -1921,13 +1919,13 @@ void GMenu2X::contextMenu() {
 }
 
 void GMenu2X::addLink() {
-	BrowseDialog fd(this, tr["Add link"], tr["Select an application"]);
-	fd.showDirectories = true;
-	fd.showFiles = true;
-	fd.setFilter(".dge,.gpu,.gpe,.sh,.bin,.elf,");
-	if (fd.exec()) {
+	BrowseDialog bd(this, tr["Add link"], tr["Select an application"]);
+	bd.showDirectories = true;
+	bd.showFiles = true;
+	bd.setFilter(".dge,.gpu,.gpe,.sh,.bin,.elf,");
+	if (bd.exec()) {
 		ledOn();
-		if (menu->addLink(fd.getPath(), fd.getFile())) {
+		if (menu->addLink(bd.getPath(), bd.getFile(bd.selected))) {
 			editLink();
 		}
 		sync();

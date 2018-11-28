@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "menusettingimage.h"
-#include "browsedialog.h"
+#include "gmenu2x.h"
 #include "utilities.h"
 
 using std::string;

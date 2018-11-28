@@ -44,10 +44,11 @@ void MenuSettingDir::edit() {
 	if (_value.empty())
 		_value = startPath + "/";
 
-	BrowseDialog dd(gmenu2x, dialogTitle, description, dialogIcon);
-	dd.showDirectories = true;
-	dd.showFiles = false;
-	dd.allowSelectDirectory = true;
-	dd.setPath(_value);
-	if (dd.exec()) setValue( dd.getPath() );
+	BrowseDialog bd(gmenu2x, dialogTitle, description, dialogIcon);
+	bd.showDirectories = true;
+	bd.showFiles = false;
+	bd.allowSelectDirectory = true;
+	bd.setPath(_value);
+	if (bd.exec())
+		setValue(bd.getPath());
 }

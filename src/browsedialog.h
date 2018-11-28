@@ -33,7 +33,6 @@ using std::string;
 class BrowseDialog : protected Dialog, public FileLister {
 protected:
 	virtual void onChangeDir() {};
-	int32_t selected;
 
 private:
 	enum bd_action_t {
@@ -50,24 +49,25 @@ private:
 		BD_ACTION_UMOUNT,
 	};
 
-	bool close, result, ts_pressed;
-	string title, description, icon;
+	bool close = false, result, ts_pressed; string title, description, icon;
 
 	uint32_t getAction();
 	void directoryUp();
 	void confirm();
 	void cancel();
-	virtual const std::string getPreview();
+	void directoryEnter(const string &path);
+	virtual const std::string getPreview(uint32_t i = 0);
 
 public:
 	BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon = "icons/explorer.png");
 	virtual ~BrowseDialog();
-	bool showDirectories = true, showFiles = true, allowSelectDirectory = false, allowDirUp = true, allowEnterDirectory = true;
-	std::string getFile();
-	const std::string getExt();
-	void directoryEnter(const string &path);
+	bool allowSelectDirectory = false, allowEnterDirectory = true;
+	// bool showDirectories = true, showFiles = true, allowSelectDirectory = false, allowDirUp = true, allowEnterDirectory = true;
+	int32_t selected = 0;
 	bool exec();
-	const std::string getFilePath();
+	const std::string getExt(uint32_t i = 0);
+	const std::string getFilePath(uint32_t i = 0);
+	virtual const std::string getFile(uint32_t i = 0);
 };
 
 #endif /*INPUTDIALOG_H_*/
