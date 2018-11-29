@@ -27,6 +27,7 @@
 #include "linkapp.h"
 #include "menu.h"
 #include "selector.h"
+#include "browsedialog.h"
 #include "debug.h"
 
 using namespace std;
@@ -285,11 +286,19 @@ void LinkApp::run() {
 
 void LinkApp::selector(int startSelection, const string &selectorDir) {
 	//Run selector interface
-	Selector sel(gmenu2x, this, selectorDir);
-	int selection = sel.exec(startSelection);
-	if (selection != -1) {
-		gmenu2x->writeTmp(selection, sel.getDir());
-		launch(sel.getFile(), sel.getDir());
+	Selector bd(gmenu2x, this->getTitle(), this->getDescription(), this->getIconPath(), this);
+	bd.showDirectories = this->getSelectorBrowser();
+
+	if (selectorDir != "") bd.setPath(selectorDir);
+	else bd.setPath(this->getSelectorDir());
+
+	bd.setFilter(this->getSelectorFilter());
+
+	if (startSelection > 0) bd.selected = startSelection;
+
+	if (bd.exec()) {
+		gmenu2x->writeTmp(bd.selected, bd.getPath());
+		launch(bd.getFile(bd.selected), bd.getPath());
 	}
 }
 
