@@ -1557,8 +1557,8 @@ void GMenu2X::explorer() {
 			chdir(bd.getPath().c_str());
 			quit();
 			setCPU(confInt["cpuMenu"]);
+			if (confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(getExePath()) + "/log.txt";
 			execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
-
 			//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 			//try relaunching gmenu2x
 			WARNING("Error executing selected application, re-launching gmenu2x");
