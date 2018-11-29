@@ -823,7 +823,11 @@ void GMenu2X::setWallpaper(const string &wallpaper) {
 		if (fl.getFiles().size() > 0)
 			confStr["wallpaper"] = fl.getPath() + "/" + fl.getFiles()[0];
 	}
-	sc[wallpaper]->softStretch(resX, resY, false, true);
+
+	if (confStr["bgscale"] == "Stretch") sc[wallpaper]->softStretch(resX, resY, false, true);
+	else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(resX, resY, true, true);
+	else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(resX, resY, true, false);
+
 	sc[wallpaper]->blit(bg, 0, 0);
 }
 
@@ -1319,6 +1323,12 @@ void GMenu2X::skinMenu() {
 	int sbPrev = confInt["sectionBar"];
 	string sectionBar = sbStr[confInt["sectionBar"]];
 
+	vector<string> bgScale;
+	bgScale.push_back("Original");
+	bgScale.push_back("Crop");
+	bgScale.push_back("Aspect");
+	bgScale.push_back("Stretch");
+
 	do {
 		setSkin(confStr["skin"], false, false);
 
@@ -1348,6 +1358,8 @@ void GMenu2X::skinMenu() {
 		sd.allowCancel = false;
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &confStr["wallpaper"], &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Background Scale"], tr["How to scale wallpaper and backdrops"], &confStr["bgscale"], &bgScale));
+
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin colors"], tr["Customize skin colors"], &tmp, &wpLabel, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::skinColors)));
 		sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &confInt["skinBackdrops"]));
 		sd.addSetting(new MenuSettingInt(this, tr["Font size"], tr["Size of text font"], &skinConfInt["fontSize"], 12, 6, 60));
