@@ -186,7 +186,7 @@ void Surface::flip() {
 	// 		uint32_t *d = (uint32_t*)ScreenSurface->pixels;
 	// 		for(uint8_t y = 0; y < 240; y++, s += 160, d += 320) memmove(d, s, 1280);
 	// } else {
-	// 	#if !defined(TARGET_RS97)
+	// 	#if !defined(TARGET_RETROGAME)
 	// 	SDL_Flip(raw);
 	// 	#endif
 	// }

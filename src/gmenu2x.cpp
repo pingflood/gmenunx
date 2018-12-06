@@ -166,7 +166,7 @@ static void quit_all(int err) {
 }
 
 int memdev = 0;
-#ifdef TARGET_RS97
+#ifdef TARGET_RETROGAME
 	volatile uint32_t *memregs;
 #else
 	volatile uint16_t *memregs;
@@ -194,7 +194,7 @@ int16_t getUDCStatus(void) {
 
 int16_t tvOutPrev = false, tvOutConnected;
 bool getTVOutStatus() {
-	if (memdev > 0 && fwType == "RS-07") return !(memregs[0x10300 >> 2] >> 6 & 0b1);
+	if (memdev > 0 && fwType == "RETROARCADE") return !(memregs[0x10300 >> 2] >> 6 & 0b1);
 	else if (memdev > 0) return !(memregs[0x10300 >> 2] >> 25 & 0b1);
 	return false;
 }
@@ -258,9 +258,7 @@ GMenu2X::GMenu2X() {
 	// instance = this;
 	//load config data
 	readConfig();
-// #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
 	hwInit();
-// #endif
 
 	halfX = resX/2;
 	halfY = resY/2;
@@ -316,7 +314,7 @@ GMenu2X::GMenu2X() {
 	initServices();
 	setGamma(confInt["gamma"]);
 	applyDefaultTimings();
-#elif defined(TARGET_RS97)
+#elif defined(TARGET_RETROGAME)
 	system("ln -sf $(mount | grep int_sd | cut -f 1 -d ' ') /tmp/.int_sd");
 	tvOutConnected = getTVOutStatus();
 	preMMCStatus = curMMCStatus = getMMCStatus();
@@ -379,7 +377,7 @@ void GMenu2X::main() {
 		ERROR("%s, failed to create main thread\n", __func__);
 	}
 
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 	if (udcConnectedOnBoot == UDC_CONNECT) checkUDC();
 #endif
 
@@ -454,7 +452,7 @@ void GMenu2X::main() {
 
 					sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix + 2, iy + 2, linkWidth - 4, linkHeight - 4}, HAlignCenter | VAlignMiddle);
 
-					s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - 2, HAlignCenter | VAlignBottom);
+					s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - 1, HAlignCenter | VAlignBottom);
 				}
 			}
 		}
@@ -657,7 +655,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 			// VOLUME / MUTE
 			setVolume(confInt["globalVolume"], true);
 			return true;
-#ifdef TARGET_RS97
+#ifdef TARGET_RETROGAME
 		} else if (input[POWER]) {
 			udcConnectedOnBoot = UDC_CONNECT;
 			checkUDC();
@@ -676,7 +674,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 }
 
 void GMenu2X::hwInit() {
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RS97)
+#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RETROGAME)
 	memdev = open("/dev/mem", O_RDWR);
 	if (memdev < 0) WARNING("Could not open /dev/mem");
 #endif
@@ -696,7 +694,7 @@ void GMenu2X::hwInit() {
 
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 		memregs = (uint16_t*)mmap(0, 0x20000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
-#elif defined(TARGET_RS97)
+#elif defined(TARGET_RETROGAME)
 		memregs = (uint32_t*)mmap(0, 0x20000, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
 #endif
 		if (memregs == MAP_FAILED) {
@@ -763,18 +761,16 @@ void GMenu2X::hwInit() {
 	// resY = atoi(strtok(NULL, ","));
 	close(fd);
 
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 	if (resX == 320 && resY == 480) {
 		resY = 240;
 		FB_SCREENPITCH = 2;
-		fwType = "RS-97";
+		fwType = "RETROGAME";
 	}
 	else if (resX == 480 && resY == 272) {
-		fwType = "RS-07";
+		fwType = "RETROARCADE";
 	}
-#endif
-
-#if defined(TARGET_PC)
+#elif defined(TARGET_PC)
 	resX = 320;
 	resY = 240;
 #endif
@@ -947,7 +943,7 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
 	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
 
-	if (fwType != "RS-07") {
+	if (fwType != "RETROARCADE") {
 		vector<string> batteryType;
 		batteryType.push_back("BL-5B");
 		batteryType.push_back("Linear");
@@ -961,7 +957,7 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this,tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
 	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
 
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 	// sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal encoding"], &confStr["TVOut"], &encodings));
 	sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
 #endif
@@ -1109,7 +1105,7 @@ void GMenu2X::readConfig() {
 
 	// Defaults
 	confStr["datetime"] = __BUILDTIME__;
-	if (fwType != "RS-07") confStr["batteryType"] = "BL-5B";
+	if (fwType != "RETROARCADE") confStr["batteryType"] = "BL-5B";
 	else confStr["batteryType"] = "Linear";
 	confInt["saveSelection"] = 1;
 
@@ -1430,7 +1426,7 @@ void GMenu2X::about() {
 	{ stringstream ss; ss << resX << "x" << resY << "px"; ss >> buf; }
 	temp += tr["Resolution: "] + buf + "\n";
 
-#ifdef TARGET_RS97
+#ifdef TARGET_RETROGAME
 	// temp += tr["CPU: "] + entryPoint() + "\n";
 	float battlevel = getBatteryStatus();
 	{ stringstream ss; ss.precision(2); ss << battlevel/1000; ss >> buf; }
@@ -1584,7 +1580,7 @@ void GMenu2X::ledOff() {
 }
 
 void GMenu2X::hwCheck() {
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 	if (memdev > 0) {
 		// printf("\e[s\e[1;0f\e[1;32m");
 		// printbin("0", memregs[0x09600 >> 2]);
@@ -1763,7 +1759,7 @@ void GMenu2X::poweroffDialog() {
 }
 
 void GMenu2X::setTVOut(unsigned int TVOut) {
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 	system("echo 0 > /proc/jz/tvselect; echo 0 > /proc/jz/tvout"); // always reset tv out
 	if (TVOut == TV_NTSC)		system("echo 2 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
 	else if (TVOut == TV_PAL)	system("echo 1 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
@@ -1789,7 +1785,7 @@ void GMenu2X::umountSdDialog() {
 	bd.setPath("/media");
 	bd.exec();
 }
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 void GMenu2X::checkUDC() {
 	if (getUDCStatus() == UDC_CONNECT) {
 		if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
@@ -2125,7 +2121,7 @@ void GMenu2X::deleteSection() {
 
 int32_t GMenu2X::getBatteryStatus() {
 	char buf[32] = "-1";
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 	FILE *f = fopen("/proc/jz/battery", "r");
 	if (f) {
 		fgets(buf, sizeof(buf), f);
@@ -2138,7 +2134,7 @@ int32_t GMenu2X::getBatteryStatus() {
 uint16_t GMenu2X::getBatteryLevel() {
 	int32_t val = getBatteryStatus();
 
-	if (fwType != "RS-07" && confStr["batteryType"] == "BL-5B") {
+	if (fwType != "RETROARCADE" && confStr["batteryType"] == "BL-5B") {
 		if ((val > 10000) || (val < 0)) return 6;
 		else if (val > 4000) return 5; // 100%
 		else if (val > 3900) return 4; // 80%
@@ -2274,7 +2270,7 @@ void GMenu2X::setCPU(uint32_t mhz) {
 		PWRMODE |= 0x8000;
 		for (int i = 0; (PWRMODE & 0x8000) && i < 0x100000; i++);
 
-#elif defined(TARGET_RS97)
+#elif defined(TARGET_RETROGAME)
 		uint32_t m = mhz / 6;
 		memregs[0x10 >> 2] = (m << 24) | 0x090520;
 		INFO("Set CPU clock: %d", mhz);
@@ -2288,7 +2284,7 @@ int GMenu2X::getVolume() {
 	uint32_t soundDev = open("/dev/mixer", O_RDONLY);
 
 	if (soundDev) {
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 		ioctl(soundDev, SOUND_MIXER_READ_VOLUME, &vol);
 #else
 		ioctl(soundDev, SOUND_MIXER_READ_PCM, &vol);
@@ -2342,7 +2338,7 @@ int GMenu2X::setVolume(int val, bool popup) {
 	uint32_t soundDev = open("/dev/mixer", O_RDWR);
 	if (soundDev) {
 		int vol = (val << 8) | val;
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 		ioctl(soundDev, SOUND_MIXER_WRITE_VOLUME, &vol);
 #else
 		ioctl(soundDev, SOUND_MIXER_WRITE_PCM, &vol);
@@ -2356,7 +2352,7 @@ int GMenu2X::setVolume(int val, bool popup) {
 
 int GMenu2X::getBacklight() {
 	char buf[32] = "-1";
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 	FILE *f = fopen("/proc/jz/lcd_backlight", "r");
 	if (f) {
 		fgets(buf, sizeof(buf), f);
@@ -2409,7 +2405,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 		writeConfig();
 	}
 
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 	char buf[34] = {0};
 	sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
 	system(buf);

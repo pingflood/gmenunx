@@ -52,7 +52,7 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	buttonLabels[LEFT] = "left";
 	buttonLabels[RIGHT] = "right";
 	buttonLabels[MODIFIER] = "a";
-#if defined(TARGET_RS97)
+#if defined(TARGET_RETROGAME)
 	buttonLabels[CONFIRM] = "a";
 	buttonLabels[CANCEL] = "b";
 #else

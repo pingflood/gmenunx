@@ -100,8 +100,8 @@ bool InputManager::readConfFile(const string &conffile) {
 
 
 		if (name == "up")                action = UP;
-		else if (fwType == "RS-07" && name == "cancel")   action = CONFIRM;
-		else if (fwType == "RS-07" && name == "confirm")  action = CANCEL;
+		else if (fwType == "RETROARCADE" && name == "cancel")   action = CONFIRM;
+		else if (fwType == "RETROARCADE" && name == "confirm")  action = CANCEL;
 		else if (name == "down")         action = DOWN;
 		else if (name == "left")         action = LEFT;
 		else if (name == "right")        action = RIGHT;
