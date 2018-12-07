@@ -183,14 +183,20 @@ bool InputManager::update(bool wait) {
 
 	if (wait) {
 		SDL_WaitEvent(&event);
+		// if (event.type == SDL_KEYUP) return false;
 		// if (event.type == SDL_KEYUP) anyactions = true;
-		SDL_Event evcopy = event;
-		events.push_back(evcopy);
+		if (event.type == SDL_KEYDOWN) {
+			SDL_Event evcopy = event;
+			events.push_back(evcopy);
+		}
 	}
 	while (SDL_PollEvent(&event)) {
+		// if (event.type == SDL_KEYUP) return false;
 		// if (event.type == SDL_KEYUP) anyactions = true;
-		SDL_Event evcopy = event;
-		events.push_back(evcopy);
+		if (event.type == SDL_KEYDOWN) {
+			SDL_Event evcopy = event;
+			events.push_back(evcopy);
+		}
 	}
 
 	int32_t now = SDL_GetTicks();

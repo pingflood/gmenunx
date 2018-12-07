@@ -270,7 +270,7 @@ GMenu2X::GMenu2X() {
 #if !defined(TARGET_PC)
 	setenv("SDL_NOMOUSE", "1", 1);
 #endif
-	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
+	// setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 	setDateTime();
 
 	//Screen
