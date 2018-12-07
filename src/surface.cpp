@@ -422,13 +422,13 @@ bool Surface::blit(Surface *destination, int x, int y, const uint8_t align, uint
 	if (align & HAlignCenter) {
 		x -= raw->w / 2;
 	} else if (align & HAlignRight) {
-		x = raw->w;
+		x -= raw->w;
 	}
 
 	if (align & VAlignMiddle) {
 		y -= raw->h / 2;
 	} else if (align & VAlignBottom) {
-		y = raw->h;
+		y -= raw->h;
 	}
 
 	return blit(destination, {x, y, raw->w, raw->h}, HAlignLeft | VAlignTop, alpha);

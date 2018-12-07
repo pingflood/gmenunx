@@ -72,6 +72,7 @@ enum sb {
 	SB_BOTTOM,
 	SB_RIGHT,
 	SB_TOP,
+	SB_CLASSIC,
 };
 
 enum tvout {
@@ -182,7 +183,7 @@ public:
 	uint32_t resX, resY, halfX, halfY;
 	// uint32_t bottomBarIconY, bottomBarTextY
 	uint32_t linkCols, linkRows, linkWidth, linkHeight, linkSpacing = 4;
-	SDL_Rect listRect, linksRect, sectionBarRect;
+	SDL_Rect listRect, linksRect, sectionBarRect, bottomBarRect;
 	/*!
 	Retrieves the parent directory of GMenu2X.
 	This functions is used to initialize the "path" variable.

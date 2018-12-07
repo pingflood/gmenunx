@@ -465,56 +465,109 @@ void GMenu2X::main() {
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38 + 1 * 20, sectionBarRect.y + sectionBarRect.h - 18,16,16, strtorgba("00ff00ff"));
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("0000ffff"));
 		// s->box(sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("ff00ffff"));
-
-
+	// drawBottomBar(this->bg);
 		if (confInt["sectionBar"]) {
-			// TRAY 0,0
-			iconVolume[volumeMode]->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38);
+			int iconTrayShift = 0;
 
-			// TRAY 1,0
-			if (tickNow - tickBattery >= 5000) {
+			if (tickNow - tickBattery >= 30000) {
 				// TODO: move to hwCheck
 				tickBattery = tickNow;
 				batteryIcon = getBatteryLevel();
 			}
 			if (batteryIcon > 5) batteryIcon = 6;
-			iconBattery[batteryIcon]->blit(s, sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38);
 
-			// TRAY iconTrayShift,1
-			int iconTrayShift = 0;
-			if (curMMCStatus == MMC_INSERT) {
-				iconSD->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+			brightnessIcon = confInt["backlight"] / 20;
+			if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
+
+			if (confInt["sectionBar"] == SB_CLASSIC) {
+				const int iconWidth = 16, iconPadding = 4, pctWidth = font->getTextWidth("100%");
+				char buf[32];
+
+				s->box(bottomBarRect, skinConfColors[COLOR_BOTTOM_BAR_BG]);
+
+				// Volume indicator
+				{ stringstream ss; ss << confInt["globalVolume"] << "%"; ss.get(&buf[0], sizeof(buf)); }
+				iconVolume[volumeMode]->blit(s, iconPadding, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+				s->write(font, buf, iconWidth + 2 * iconPadding, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+
+				// Brightness indicator
+				{ stringstream ss; ss << confInt["backlight"] << "%"; ss.get(&buf[0], sizeof(buf)); }
+				iconBrightness[brightnessIcon]->blit(s, iconWidth + 3 * iconPadding + pctWidth, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+				s->write(font, buf, 2 * (iconWidth + 2 * iconPadding) + pctWidth, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+
+				// // Menu indicator
+				// iconMenu->blit(s, iconPadding, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+				// sc.skinRes("imgs/debug.png")->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
+
+				iconTrayShift = 0;
+
+				// Battery indicator
+				iconBattery[batteryIcon]->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
 				iconTrayShift++;
-			}
 
-			if (menu->selLink() != NULL) {
-				if (menu->selLinkApp() != NULL) {
-					if (!menu->selLinkApp()->getManualPath().empty() && iconTrayShift < 2) {
-						// Manual indicator
-						iconManual->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
-						iconTrayShift++;
-					}
+				// SD Card indicator
+				if (curMMCStatus == MMC_INSERT) {
+					iconSD->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
+					iconTrayShift++;
+				}
 
-					if (menu->selLinkApp()->clock() != confInt["cpuMenu"] && iconTrayShift < 2) {
+				if (menu->selLink() != NULL) {
+					if (menu->selLinkApp() != NULL) {
+						if (!menu->selLinkApp()->getManualPath().empty()) {
+							// Manual indicator
+							iconManual->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
+						}
+
 						// CPU indicator
-						iconCPU->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
-						iconTrayShift++;
+						{ stringstream ss; ss << menu->selLinkApp()->clock() << " MHz"; ss.get(&buf[0], sizeof(buf)); }
+						iconCPU->blit(s, 2 * iconWidth + 5 * iconPadding + 2 * pctWidth, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+						s->write(font, buf, 3 * (iconWidth + 2 * iconPadding) + 2 * pctWidth, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 					}
 				}
-			}
+		
+			} else {
+				// TRAY 0,0
+				iconVolume[volumeMode]->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38);
 
-			if (iconTrayShift < 2) {
-				brightnessIcon = confInt["backlight"]/20;
-				if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
-				iconBrightness[brightnessIcon]->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
-				iconTrayShift++;
-			}
-			if (iconTrayShift < 2) {
-				// Menu indicator
-				iconMenu->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
-				iconTrayShift++;
+				// TRAY 1,0
+				iconBattery[batteryIcon]->blit(s, sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38);
+
+				// TRAY iconTrayShift,1
+				if (curMMCStatus == MMC_INSERT) {
+					iconSD->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+					iconTrayShift++;
+				}
+
+				if (menu->selLink() != NULL) {
+					if (menu->selLinkApp() != NULL) {
+						if (!menu->selLinkApp()->getManualPath().empty() && iconTrayShift < 2) {
+							// Manual indicator
+							iconManual->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+							iconTrayShift++;
+						}
+
+						if (menu->selLinkApp()->clock() != confInt["cpuMenu"] && iconTrayShift < 2) {
+							// CPU indicator
+							iconCPU->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+							iconTrayShift++;
+						}
+					}
+				}
+
+				if (iconTrayShift < 2) {
+					brightnessIcon = confInt["backlight"]/20;
+					if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
+					iconBrightness[brightnessIcon]->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+					iconTrayShift++;
+				}
+				if (iconTrayShift < 2) {
+					// Menu indicator
+					iconMenu->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+					iconTrayShift++;
+				}
 			}
 		}
+
 		s->flip();
 
 		bool inputAction = input.update();
@@ -847,13 +900,17 @@ void GMenu2X::initLayout() {
 			sectionBarRect.h = skinConfInt["sectionBarSize"];
 			linksRect.h = resY - skinConfInt["sectionBarSize"];
 
-			if (confInt["sectionBar"] == SB_TOP) {
+			if (confInt["sectionBar"] == SB_TOP || confInt["sectionBar"] == SB_CLASSIC) {
 				linksRect.y = skinConfInt["sectionBarSize"];
+			}
+			if (confInt["sectionBar"] == SB_CLASSIC) {
+				linksRect.h -= skinConfInt["bottomBarHeight"];
 			}
 		}
 	}
 
-	listRect = (SDL_Rect){0, skinConfInt["topBarHeight"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["topBarHeight"]};
+	listRect = (SDL_Rect){0, skinConfInt["sectionBarSize"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["sectionBarSize"]};
+	bottomBarRect = (SDL_Rect){0, resY - skinConfInt["bottomBarHeight"], resX, skinConfInt["bottomBarHeight"]};
 
 	// WIP
 	linkCols = confInt["linkCols"];
@@ -1142,9 +1199,9 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["backlight"], 70, 1, 100);
 	evalIntConf( &confInt["minBattery"], 3550, 1, 10000);
 	evalIntConf( &confInt["maxBattery"], 3720, 1, 10000);
-	evalIntConf( &confInt["sectionBar"], SB_LEFT, 1, 4);
-	evalIntConf( &confInt["linkCols"], 1, 1, 8);
-	evalIntConf( &confInt["linkRows"], 6, 1, 8);
+	evalIntConf( &confInt["sectionBar"], SB_CLASSIC, 1, 5);
+	evalIntConf( &confInt["linkCols"], 4, 1, 8);
+	evalIntConf( &confInt["linkRows"], 4, 1, 8);
 
 	if (!confInt["saveSelection"]) {
 		confInt["section"] = 0;
@@ -1191,7 +1248,7 @@ void GMenu2X::writeSkinConfig() {
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 
 		for (ConfIntHash::iterator curr = skinConfInt.begin(); curr != skinConfInt.end(); curr++) {
-			if (curr->first == "titleFontSize" || curr->first == "sectionBarHeight" || curr->first == "linkHeight" || curr->first == "selectorPreviewX" || curr->first == "selectorPreviewY" || curr->first == "selectorPreviewWidth" || curr->first == "selectorPreviewHeight" || curr->first == "selectorX" || curr->first == "linkItemHeight" ) continue;
+			if (curr->first == "titleFontSize" || curr->first == "sectionBarHeight" || curr->first == "linkHeight" || curr->first == "selectorPreviewX" || curr->first == "selectorPreviewY" || curr->first == "selectorPreviewWidth" || curr->first == "selectorPreviewHeight" || curr->first == "selectorX" || curr->first == "linkItemHeight"  || curr->first == "topBarHeight" ) continue;
 			inf << curr->first << "=" << curr->second << endl;
 		}
 
@@ -1279,7 +1336,7 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 // prevents breaking current skin until they are updated
 	if (!skinConfInt["fontSizeTitle"] && skinConfInt["titleFontSize"] > 0) skinConfInt["fontSizeTitle"] = skinConfInt["titleFontSize"];
 
-	evalIntConf( &skinConfInt["topBarHeight"], 40, 1, resY);
+	// evalIntConf( &skinConfInt["topBarHeight"], 40, 1, resY);
 	evalIntConf( &skinConfInt["sectionBarSize"], 40, 1, resX);
 	evalIntConf( &skinConfInt["bottomBarHeight"], 16, 1, resY);
 	evalIntConf( &skinConfInt["previewWidth"], 142, 1, resX);
@@ -1316,6 +1373,7 @@ void GMenu2X::skinMenu() {
 	sbStr.push_back("Bottom");
 	sbStr.push_back("Right");
 	sbStr.push_back("Top");
+	sbStr.push_back("Classic");
 	int sbPrev = confInt["sectionBar"];
 	string sectionBar = sbStr[confInt["sectionBar"]];
 
@@ -1354,16 +1412,16 @@ void GMenu2X::skinMenu() {
 		sd.allowCancel = false;
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &confStr["wallpaper"], &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
-		sd.addSetting(new MenuSettingMultiString(this, tr["Background Scale"], tr["How to scale wallpaper and backdrops"], &confStr["bgscale"], &bgScale));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Background scale"], tr["How to scale wallpaper and backdrops"], &confStr["bgscale"], &bgScale));
 
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin colors"], tr["Customize skin colors"], &tmp, &wpLabel, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::skinColors)));
 		sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &confInt["skinBackdrops"]));
 		sd.addSetting(new MenuSettingInt(this, tr["Font size"], tr["Size of text font"], &skinConfInt["fontSize"], 12, 6, 60));
 		sd.addSetting(new MenuSettingInt(this, tr["Title font size"], tr["Size of title's text font"], &skinConfInt["fontSizeTitle"], 20, 6, 60));
-		sd.addSetting(new MenuSettingInt(this, tr["Top bar height"], tr["Height of top bar"], &skinConfInt["topBarHeight"], 40, 1, resY));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Section bar layout"], tr["Set the layout and position of the Section Bar"], &sectionBar, &sbStr));
+		sd.addSetting(new MenuSettingInt(this, tr["Section bar size"], tr["Size of section and top bar"], &skinConfInt["sectionBarSize"], 40, 1, resX));
+		// sd.addSetting(new MenuSettingInt(this, tr["Top bar height"], tr["Height of top bar"], &skinConfInt["topBarHeight"], 40, 1, resY));
 		sd.addSetting(new MenuSettingInt(this, tr["Bottom bar height"], tr["Height of bottom bar"], &skinConfInt["bottomBarHeight"], 16, 1, resY));
-		sd.addSetting(new MenuSettingInt(this, tr["Section bar size"], tr["Size of section bar"], &skinConfInt["sectionBarSize"], 40, 1, resX));
-		sd.addSetting(new MenuSettingMultiString(this, tr["Section bar position"], tr["Set the position of the Section Bar"], &sectionBar, &sbStr));
 		sd.addSetting(new MenuSettingInt(this, tr["Menu columns"], tr["Number of columns of links in main menu"], &confInt["linkCols"], 1, 1, 8));
 		sd.addSetting(new MenuSettingInt(this, tr["Menu rows"], tr["Number of rows of links in main menu"], &confInt["linkRows"], 6, 1, 8));
 		sd.exec();
@@ -1383,7 +1441,8 @@ void GMenu2X::skinMenu() {
 	else if (sectionBar == "Right") confInt["sectionBar"] = SB_RIGHT;
 	else if (sectionBar == "Top") confInt["sectionBar"] = SB_TOP;
 	else if (sectionBar == "Bottom") confInt["sectionBar"] = SB_BOTTOM;
-	else confInt["sectionBar"] = SB_LEFT;
+	else if (sectionBar == "Left") confInt["sectionBar"] = SB_LEFT;
+	else confInt["sectionBar"] = SB_CLASSIC;
 
 	writeSkinConfig();
 	writeConfig();
