@@ -383,6 +383,11 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"]) gmenu2x->setGamma(gamma());
 #endif
 
+	// #if defined(TARGET_RETROGAME)
+	// 	system("echo 3 > /proc/jz/lcd_a320");
+	// #endif
+
+	if (gmenu2x->confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 		execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 		//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 		//try relaunching gmenu2x

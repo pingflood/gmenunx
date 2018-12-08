@@ -71,6 +71,9 @@
 #include "menusettingdatetime.h"
 #include "debug.h"
 
+#include <linux/fb.h>
+
+
 #include <sys/mman.h>
 
 #include <ctime>
@@ -270,6 +273,11 @@ GMenu2X::GMenu2X() {
 #if !defined(TARGET_PC)
 	setenv("SDL_NOMOUSE", "1", 1);
 #endif
+
+#if defined(TARGET_RETROGAME)
+	system("echo 0 > /proc/jz/lcd_a320");
+#endif
+
 	// setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 	setDateTime();
 
@@ -286,9 +294,19 @@ GMenu2X::GMenu2X() {
 	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_SWSURFACE);
 	s->enableVirtualDoubleBuffer(dbl);
 #else
+	// SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE | SDL_DOUBLEBUF);
+	// s->enableVirtualDoubleBuffer(dbl, false);
+
+	// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE | SDL_DOUBLEBUF);
+
 	// if (FB_DOUBLELINES) {
-		s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, confInt["videoBpp"], SDL_HWSURFACE /*| SDL_DOUBLEBUF*/);
+		s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, confInt["videoBpp"], SDL_SWSURFACE /*| SDL_DOUBLEBUF*/);
+		// s->ScreenSurface = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_SWSURFACE /*| SDL_DOUBLEBUF*/);
 		s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
+
+
+		// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE /*| SDL_DOUBLEBUF*/);
+
 	// } else {
 		// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
 		// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
@@ -797,22 +815,14 @@ void GMenu2X::hwInit() {
 	batteryHandle = open("/dev/pollux_batt", O_RDONLY);
 #endif
 
-	char buf[32];
-	int fd = open("/sys/class/graphics/fb0/modes", O_RDONLY);
-	int n = read(fd, buf, sizeof(buf));
-	buf[n] = '\0';
-	char *k = strtok(buf, ":");
-	k = strtok(NULL, ":");
-	resX = atoi(strtok(k, "x"));
-	resY = atoi(strtok(NULL, "x"));
-
-	// // char buf[32];
-	// int fd = open("/sys/class/graphics/fb0/virtual_size", O_RDONLY);
-	// int n = read(fd, buf, sizeof(buf));
-	// buf[n] = '\0';
-	// resX  = atoi(strtok(buf, ","));
-	// resY = atoi(strtok(NULL, ","));
-	close(fd);
+	struct fb_var_screeninfo vinfo;
+	int fbfd = open("/dev/fb0", O_RDWR);
+	if (fbfd >= 0 && ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo) >= 0) {
+		resX = vinfo.xres;
+		resY = vinfo.yres;
+		// DEBUG("%dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
+	}
+	close(fbfd);
 
 #if defined(TARGET_RETROGAME)
 	if (resX == 320 && resY == 480) {
@@ -1000,7 +1010,7 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
 	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
 
-	if (fwType != "RETROARCADE") {
+	if (fwType == "RETROGAME") {
 		vector<string> batteryType;
 		batteryType.push_back("BL-5B");
 		batteryType.push_back("Linear");
@@ -1015,8 +1025,14 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
 
 #if defined(TARGET_RETROGAME)
+	if (fwType == "RETROGAME") {
+		vector<string> appResolution;
+		appResolution.push_back("320x240");
+		appResolution.push_back("320x480");
+		sd.addSetting(new MenuSettingMultiString(this, tr["Resolution"], tr["Define LCD mode for app resolution"], &confStr["appResolution"], &appResolution));
 	// sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal encoding"], &confStr["TVOut"], &encodings));
-	sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
+	}
+		sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
 #endif
 	sd.addSetting(new MenuSettingMultiString(this, tr["Reset settings"], tr["Choose settings to reset back to defaults"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::resetSettings)));
 
