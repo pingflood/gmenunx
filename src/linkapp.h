@@ -38,9 +38,9 @@ class LinkApp : public Link {
 private:
 	InputManager &inputMgr;
 	// string svolume, sclock, svolume;
-	int iclock = 0; //, ivolume = 0;
+	int iclock = 0, lcd_mode; //, ivolume = 0;
 
-	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath;
+	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath, resolution;
 	bool selectorbrowser;
 	// void drawRun();
 
@@ -103,16 +103,22 @@ public:
 	bool save();
 	void run();
 	// void showManual();
-	void selector(int startSelection=0, const string &selectorDir="");
-	void launch(const string &selectedFile="", const string &selectedDir="");
+	void selector(int startSelection=0, const string &selectorDir = "");
+	void launch(const string &selectedFile="", const string &selectedDir = "");
 	bool targetExists();
 
 	const string &getFile() { return file; }
 	const string &getBackdrop() { return backdrop; }
 	const string &getBackdropPath() { return backdropPath; }
-	void setBackdrop(const string selectedFile="");
+	void setBackdrop(const string selectedFile = "");
 
 	void renameFile(const string &name);
+
+	const string &getResolution();
+	void setResolution(const string resolution = "");
+	const int &getLCDMode();
+	void setLCDMode(const int lcd_mode);
+
 	// bool &needsWrapperRef() { return wrapper; }
 	// bool &runsInBackgroundRef() { return dontleave; }
 };

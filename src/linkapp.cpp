@@ -56,6 +56,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	// useGinge = false;
 	workdir = "";
 	backdrop = backdropPath = "";
+	resolution = "";
+	lcd_mode = 0;
 
 	string line;
 	ifstream infile (linkfile, ios_base::in);
@@ -109,6 +111,10 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 		} else if (name == "backdrop") {
 			setBackdrop(value);
 			// WARNING("BACKDROP: '%s'", backdrop.c_str());
+		} else if (name == "resolution") {
+			setResolution(value);
+		} else if (name == "lcd_mode") {
+			setLCDMode( atoi(value.c_str()) );
 		} else {
 			WARNING("Unrecognized option: '%s'", name.c_str());
 			break;
@@ -243,32 +249,31 @@ bool LinkApp::save() {
 
 	ofstream f(file.c_str());
 	if (f.is_open()) {
-		if (title != ""        ) f << "title="           << title           << endl;
-		if (description != ""  ) f << "description="     << description     << endl;
-		if (icon != ""         ) f << "icon="            << icon            << endl;
-		if (exec != ""         ) f << "exec="            << exec            << endl;
-		if (params != ""       ) f << "params="          << params          << endl;
-		if (workdir != ""      ) f << "workdir="         << workdir         << endl;
-		if (manual != ""       ) f << "manual="          << manual          << endl;
-		if (iclock != 0        ) f << "clock="           << iclock          << endl;
-		// if (useRamTimings      ) f << "useramtimings=true"                  << endl;
-		// if (useGinge           ) f << "useginge=true"                       << endl;
-		// if (ivolume > 0        ) f << "volume="          << ivolume         << endl;
+		if (title != "")			f << "title="			<< title			<< endl;
+		if (description != "")		f << "description="		<< description		<< endl;
+		if (icon != "")				f << "icon="			<< icon				<< endl;
+		if (exec != "")				f << "exec="			<< exec				<< endl;
+		if (params != "")			f << "params="			<< params			<< endl;
+		if (workdir != "")			f << "workdir="			<< workdir			<< endl;
+		if (manual != "")			f << "manual="			<< manual			<< endl;
+		if (iclock != 0)			f << "clock="			<< iclock			<< endl;
 
 #if defined(TARGET_GP2X)
 		//G
-		if (igamma != 0        ) f << "gamma="           << igamma          << endl;
+		if (igamma != 0 )			f << "gamma="			<< igamma			<< endl;
 #endif
 
-		if (selectordir != ""    ) f << "selectordir="     << selectordir     << endl;
-		if (selectorbrowser      ) f << "selectorbrowser=true"                << endl;
-		if (!selectorbrowser     ) f << "selectorbrowser=false"               << endl;
-		if (selectorfilter != "" ) f << "selectorfilter="  << selectorfilter  << endl;
-		if (selectorscreens != "") f << "selectorscreens=" << selectorscreens << endl;
-		if (aliasfile != ""      ) f << "selectoraliases=" << aliasfile       << endl;
-		if (backdrop != ""       ) f << "backdrop="        << backdrop        << endl;
-		// if (wrapper              ) f << "wrapper=true"                        << endl;
-		// if (dontleave            ) f << "dontleave=true"                      << endl;
+		if (selectordir != "" )		f << "selectordir="		<< selectordir		<< endl;
+		if (selectorbrowser )		f << "selectorbrowser=true"					<< endl;
+		if (!selectorbrowser )		f << "selectorbrowser=false"				<< endl;
+		if (selectorfilter != "" )	f << "selectorfilter="	<< selectorfilter	<< endl;
+		if (selectorscreens != "")	f << "selectorscreens="	<< selectorscreens	<< endl;
+		if (aliasfile != "" )		f << "selectoraliases="	<< aliasfile		<< endl;
+		if (backdrop != "" )		f << "backdrop="		<< backdrop			<< endl;
+		if (resolution != ""  )		f << "resolution="		<< resolution		<< endl;
+		if (lcd_mode > 0 )			f << "lcd_mode="		<< lcd_mode			<< endl;
+		// if (wrapper              ) f << "wrapper=true"						<< endl;
+		// if (dontleave            ) f << "dontleave=true"						<< endl;
 		f.close();
 		return true;
 	} else
@@ -383,9 +388,13 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"]) gmenu2x->setGamma(gamma());
 #endif
 
-	// #if defined(TARGET_RETROGAME)
-	// 	system("echo 3 > /proc/jz/lcd_a320");
-	// #endif
+	#if defined(TARGET_RETROGAME)
+		if (lcd_mode > 0) {
+			char buf[32] = {0};
+			sprintf(buf, "echo %d > /proc/jz/lcd_a320", lcd_mode);
+			system(buf);
+		}
+	#endif
 
 	if (gmenu2x->confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 		execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
@@ -499,6 +508,25 @@ void LinkApp::setAliasFile(const string &aliasfile) {
 
 void LinkApp::renameFile(const string &name) {
 	file = name;
+}
+
+void LinkApp::setResolution(const string resolution) {
+	this->resolution = resolution;
+	edited = true;
+}
+
+const string &LinkApp::getResolution() {
+	if (this->resolution != "320x240") this->resolution = "320x480";
+	return this->resolution;
+}
+
+void LinkApp::setLCDMode(const int lcd_mode) {
+	this->lcd_mode = lcd_mode;
+	edited = true;
+}
+
+const int &LinkApp::getLCDMode() {
+	return this->lcd_mode;
 }
 
 // bool LinkApp::getUseRamTimings() {

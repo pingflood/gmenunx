@@ -498,20 +498,24 @@ void GMenu2X::main() {
 			if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
 
 			if (confInt["sectionBar"] == SB_CLASSIC) {
-				const int iconWidth = 16, iconPadding = 4, pctWidth = font->getTextWidth("100%");
-				char buf[32];
+				const int iconWidth = 16, iconPadding = 4, pctWidth = font->getTextWidth("100");
+				char buf[32]; int x = 0;
 
 				s->box(bottomBarRect, skinConfColors[COLOR_BOTTOM_BAR_BG]);
 
 				// Volume indicator
-				{ stringstream ss; ss << confInt["globalVolume"] << "%"; ss.get(&buf[0], sizeof(buf)); }
-				iconVolume[volumeMode]->blit(s, iconPadding, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
-				s->write(font, buf, iconWidth + 2 * iconPadding, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+				{ stringstream ss; ss << confInt["globalVolume"] /*<< "%"*/; ss.get(&buf[0], sizeof(buf)); }
+				x = iconPadding; //1 * (iconWidth + 2 * iconPadding) + iconPadding + 1 * pctWidth;
+				iconVolume[volumeMode]->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+				x += iconWidth + iconPadding;
+				s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 
 				// Brightness indicator
-				{ stringstream ss; ss << confInt["backlight"] << "%"; ss.get(&buf[0], sizeof(buf)); }
-				iconBrightness[brightnessIcon]->blit(s, iconWidth + 3 * iconPadding + pctWidth, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
-				s->write(font, buf, 2 * (iconWidth + 2 * iconPadding) + pctWidth, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+				{ stringstream ss; ss << confInt["backlight"] /*<< "%"*/; ss.get(&buf[0], sizeof(buf)); }
+				x += iconPadding + pctWidth;
+				iconBrightness[brightnessIcon]->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+				x += iconWidth + iconPadding;
+				s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 
 				// // Menu indicator
 				// iconMenu->blit(s, iconPadding, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
@@ -536,10 +540,15 @@ void GMenu2X::main() {
 							iconManual->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
 						}
 
-						// CPU indicator
-						{ stringstream ss; ss << menu->selLinkApp()->clock() << " MHz"; ss.get(&buf[0], sizeof(buf)); }
-						iconCPU->blit(s, 2 * iconWidth + 5 * iconPadding + 2 * pctWidth, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
-						s->write(font, buf, 3 * (iconWidth + 2 * iconPadding) + 2 * pctWidth, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+						// // CPU indicator
+						{ stringstream ss; ss << menu->selLinkApp()->clock() << "MHz"; ss.get(&buf[0], sizeof(buf)); }
+						x += iconPadding + pctWidth;
+						iconCPU->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+						x += iconWidth + iconPadding;
+						s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+
+						// x += iconPadding + font->getTextWidth(buf);
+						// s->write(font, menu->selLinkApp()->getResolution(), x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 					}
 				}
 		
@@ -1025,14 +1034,7 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
 
 #if defined(TARGET_RETROGAME)
-	if (fwType == "RETROGAME") {
-		vector<string> appResolution;
-		appResolution.push_back("320x240");
-		appResolution.push_back("320x480");
-		sd.addSetting(new MenuSettingMultiString(this, tr["Resolution"], tr["Define LCD mode for app resolution"], &confStr["appResolution"], &appResolution));
-	// sd.addSetting(new MenuSettingMultiString(this, tr["TV-out"], tr["TV-out signal encoding"], &confStr["TVOut"], &encodings));
-	}
-		sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
+	sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
 #endif
 	sd.addSetting(new MenuSettingMultiString(this, tr["Reset settings"], tr["Choose settings to reset back to defaults"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::resetSettings)));
 
@@ -1628,11 +1630,16 @@ void GMenu2X::explorer() {
 			chdir(bd.getPath().c_str());
 			quit();
 			setCPU(confInt["cpuMenu"]);
-			if (confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(getExePath()) + "/log.txt";
+
+
+			if (confInt["outputLogs"]) {
+				command = "gdb -batch -ex \"run\" -ex \"bt\" --args " + command;
+				command += " 2>&1 | tee " + cmdclean(getExePath()) + "/log.txt";
+			}
 			execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
-			//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
-			//try relaunching gmenu2x
-			WARNING("Error executing selected application, re-launching gmenu2x");
+			// if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
+			// try relaunching gmenu2x
+			// WARNING("Error executing selected application, re-launching gmenu2x");
 			chdir(getExePath().c_str());
 			execlp("./gmenu2x", "./gmenu2x", NULL);
 			return;
@@ -2041,6 +2048,8 @@ void GMenu2X::editLink() {
 	string linkBackdrop = menu->selLinkApp()->getBackdrop();
 	string dialogTitle = tr.translate("Edit $1", linkTitle.c_str(), NULL);
 	string dialogIcon = menu->selLinkApp()->getIconPath();
+	// int linkResolution = menu->selLinkApp()->getResolution();
+	int linkLCDMode = menu->selLinkApp()->getLCDMode();
 
 	SettingsDialog sd(this, ts, dialogTitle, dialogIcon);
 	sd.addSetting(new MenuSettingFile(			this, tr["Executable"],		tr["Application this link points to"], &linkExec, ".dge,.gpu,.gpe,.sh,.bin,.elf,", dir_name(linkExec), dialogTitle, dialogIcon));
@@ -2048,6 +2057,14 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingString(		this, tr["Description"],	tr["Link description"], &linkDescription, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingMultiString(	this, tr["Section"],		tr["The section this link belongs to"], &newSection, &menu->getSections()));
 	sd.addSetting(new MenuSettingImage(			this, tr["Icon"],			tr["Select a custom icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", dir_name(linkIcon), dialogTitle, dialogIcon));
+// #if defined(TARGET_RETROGAME)
+		// vector<string> linkResolution;
+		// linkResolution.push_back("320x240");
+		// linkResolution.push_back("320x480");
+		// sd.addSetting(new MenuSettingMultiString(this, tr["Resolution"],	tr["Define LCD mode for app resolution"], &linkSelResolution, &linkResolution));
+// #endif
+	sd.addSetting(new MenuSettingInt(			this, tr["LCD Mode"],		tr["Define LCD mode for app scaling"], &linkLCDMode, 0, 0, 5));
+
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingDir(			this, tr["Selector Path"],	tr["Directory to start the selector"], &linkSelDir, dir_name(linkSelDir), dialogTitle, dialogIcon));
@@ -2085,6 +2102,9 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setAliasFile(linkSelAliases);
 		menu->selLinkApp()->setBackdrop(linkBackdrop);
 		menu->selLinkApp()->setCPU(linkClock);
+		// menu->selLinkApp()->setResolution(linkSelResolution);
+		menu->selLinkApp()->setLCDMode(linkLCDMode);
+
 		//G
 #if defined(TARGET_GP2X)
 		menu->selLinkApp()->setGamma(linkGamma);
