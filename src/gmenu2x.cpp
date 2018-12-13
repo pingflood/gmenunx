@@ -180,7 +180,7 @@ enum mmc_status {
 };
 
 int16_t curMMCStatus, preMMCStatus;
-int16_t getMMCStatus(void) {
+int16_t getMMCStatus() {
 	if (memdev > 0) return !(memregs[0x10500 >> 2] >> 0 & 0b1);
 	return MMC_ERROR;
 }
@@ -189,8 +189,8 @@ enum udc_status {
 	UDC_REMOVE, UDC_CONNECT, UDC_ERROR
 };
 
-int udcConnectedOnBoot;
-int16_t getUDCStatus(void) {
+int16_t udcPrev = false, udcStatus = false; //udcConnectedOnBoot;
+int16_t getUDCStatus() {
 	if (memdev > 0) return (memregs[0x10300 >> 2] >> 7 & 0b1);
 	return UDC_ERROR;
 }
@@ -336,7 +336,8 @@ GMenu2X::GMenu2X() {
 	system("ln -sf $(mount | grep int_sd | cut -f 1 -d ' ') /tmp/.int_sd");
 	tvOutConnected = getTVOutStatus();
 	preMMCStatus = curMMCStatus = getMMCStatus();
-	udcConnectedOnBoot = getUDCStatus();
+	// udcStatus = udcConnectedOnBoot = getUDCStatus();
+	udcStatus = getUDCStatus();
 #endif
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
 	
@@ -356,7 +357,7 @@ void GMenu2X::main() {
 
 	bool quit = false;
 	int i = 0, x = 0, y = 0, ix = 0, iy = 0;
-	uint32_t tickBattery = -4800, tickNow; //, tickMMC = 0; //, tickUSB = 0;
+	uint32_t tickNow = 0; //, tickMMC = 0; //, tickUSB = 0;
 	string prevBackdrop = "", currBackdrop = "";
 
 	int8_t brightnessIcon = 5;
@@ -395,9 +396,9 @@ void GMenu2X::main() {
 		ERROR("%s, failed to create main thread\n", __func__);
 	}
 
-#if defined(TARGET_RETROGAME)
-	if (udcConnectedOnBoot == UDC_CONNECT) checkUDC();
-#endif
+// #if defined(TARGET_RETROGAME)
+// 	if (udcConnectedOnBoot == UDC_CONNECT) udcDialog();
+// #endif
 
 	if (curMMCStatus == MMC_INSERT) mountSd(true);
 
@@ -737,8 +738,8 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 			return true;
 #ifdef TARGET_RETROGAME
 		} else if (input[POWER]) {
-			udcConnectedOnBoot = UDC_CONNECT;
-			checkUDC();
+			// udcConnectedOnBoot = UDC_CONNECT;
+			udcDialog();
 			return true;
 #endif
 		}
@@ -1154,9 +1155,9 @@ void GMenu2X::readTmp() {
 		else if (name == "selectordir") lastSelectorDir = value;
 		else if (name == "TVOut") TVOut = atoi(value.c_str());
 		else if (name == "tvOutPrev") tvOutPrev = atoi(value.c_str());
+		else if (name == "udcPrev") udcPrev = atoi(value.c_str());
 	}
 	if (TVOut > 2) TVOut = 0;
-	udcConnectedOnBoot = 0;
 	inf.close();
 	unlink("/tmp/gmenu2x.tmp");
 }
@@ -1169,6 +1170,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 		inf << "link=" << menu->selLinkIndex() << endl;
 		if (selelem >- 1) inf << "selectorelem=" << selelem << endl;
 		if (selectordir != "") inf << "selectordir=" << selectordir << endl;
+		inf << "udcPrev=" << udcPrev << endl;
 		inf << "tvOutPrev=" << tvOutPrev << endl;
 		inf << "TVOut=" << TVOut << endl;
 		inf.close();
@@ -1685,6 +1687,13 @@ void GMenu2X::hwCheck() {
 
 		// printf("\n\e[30;0m\e[K\e[u");
 
+		udcStatus = getUDCStatus();
+		if (udcPrev != udcStatus) {
+			udcPrev = udcStatus;
+			tickBattery = -2e30;
+			checkUDC();
+		}
+
 		curMMCStatus = getMMCStatus();
 		if (preMMCStatus != curMMCStatus) {
 			preMMCStatus = curMMCStatus;
@@ -1868,27 +1877,34 @@ void GMenu2X::umountSdDialog() {
 	bd.exec();
 }
 #if defined(TARGET_RETROGAME)
-void GMenu2X::checkUDC() {
-	if (getUDCStatus() == UDC_CONNECT) {
-		if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
-			// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
-			// mb.setButton(CONFIRM,  tr["Charger"]);
-			// mb.exec();
-			return;
-		}
+void GMenu2X::udcDialog() {
+	udcStatus = getUDCStatus();
+	if (udcStatus == UDC_CONNECT) {
+		// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
+		// 	// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
+		// 	// mb.setButton(CONFIRM,  tr["Charger"]);
+		// 	// mb.exec();
+		// 	return;
+		// }
 
 		MessageBox mb(this, tr["Select USB mode:"], "skin:icons/usb.png");
-		mb.setButton(CONFIRM, tr["USB Drive"]);
+		mb.setButton(MANUAL, tr["Network"]);
+		mb.setButton(CONFIRM, tr["Storage"]);
 		mb.setButton(CANCEL,  tr["Charger"]);
-		if (mb.exec() == CONFIRM) {
+		int option = mb.exec();
+		if (option == MANUAL) { // network
+			system("rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_cdc.ko; ifdown usb0; ifup usb0");
+			INFO("%s: Enabling usb0 networking device", __func__);
+		} else if (option == CONFIRM) { // storage
+			system("rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
 			umountSd(false);
 			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
-			INFO("%s, connect USB disk for internal SD", __func__);
+			INFO("%s: Connect USB disk for internal SD", __func__);
 
 			if (getMMCStatus() == MMC_INSERT) {
 				umountSd(true);
 				system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file; par=$(( $(readlink /tmp/.int_sd | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
-				INFO("%s, connect USB disk for external SD", __func__);
+				INFO("%s: Connect USB disk for external SD", __func__);
 			}
 
 			sc[confStr["wallpaper"]]->blit(s,0,0);
@@ -1901,30 +1917,97 @@ void GMenu2X::checkUDC() {
 
 			powerManager->clearTimer();
 
-			while (udcConnectedOnBoot == UDC_CONNECT && getUDCStatus() == UDC_CONNECT) {
+			// while (udcConnectedOnBoot == UDC_CONNECT && getUDCStatus() == UDC_CONNECT) {
+			while (getUDCStatus() == UDC_CONNECT) {
 				input.update();
-				if ( input[MENU] && input[POWER]) udcConnectedOnBoot = UDC_REMOVE;
+				if ( input[MENU] && input[POWER]) break; //udcConnectedOnBoot = UDC_REMOVE;
 			}
 
-			{
-				MessageBox mb(this, tr["USB disconnected. Rebooting..."], "skin:icons/usb.png");
-				mb.setAutoHide(200);
-				mb.exec();
-			}
+			// {
+			// 	MessageBox mb(this, tr["USB disconnected. Rebooting..."], "skin:icons/usb.png");
+			// 	mb.setAutoHide(200);
+			// 	mb.exec();
+			// }
 
-			system("sync; reboot & sleep 1m");
+			// system("sync; reboot & sleep 1m");
+			system("sync");
 
 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
+			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
+			INFO("%s: Disconnect USB disk for internal SD", __func__);
 			mountSd(false);
-			INFO("%s, disconnect usbdisk for internal sd", __func__);
 			if (getMMCStatus() == MMC_INSERT) {
-				system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 				mountSd(true);
-				INFO("%s, disconnect USB disk for external SD", __func__);
+				INFO("%s: Disconnect USB disk for external SD", __func__);
 			}
 			// powerManager->resetSuspendTimer();
 		}
+	} else {
+		system("sync; rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko");
 	}
+
+	// if (getUDCStatus() == UDC_CONNECT) {
+	// 	// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
+	// 	// 	// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
+	// 	// 	// mb.setButton(CONFIRM,  tr["Charger"]);
+	// 	// 	// mb.exec();
+	// 	// 	return;
+	// 	// }
+
+	// 	MessageBox mb(this, tr["Select USB mode:"], "skin:icons/usb.png");
+	// 	mb.setButton(MANUAL, tr["Network"]);
+	// 	mb.setButton(CONFIRM, tr["Storage"]);
+	// 	mb.setButton(CANCEL,  tr["Charger"]);
+	// 	int option = mb.exec();
+	// 	if (option == MANUAL) {
+	// 		system("rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_cdc.ko; ifdown usb0; ifup usb0");
+	// 	} else if (option == CONFIRM) {
+	// 		system("rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
+	// 		umountSd(false);
+	// 		system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
+	// 		INFO("%s, connect USB disk for internal SD", __func__);
+
+	// 		if (getMMCStatus() == MMC_INSERT) {
+	// 			umountSd(true);
+	// 			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file; par=$(( $(readlink /tmp/.int_sd | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
+	// 			INFO("%s, connect USB disk for external SD", __func__);
+	// 		}
+
+	// 		sc[confStr["wallpaper"]]->blit(s,0,0);
+
+	// 		{
+	// 			MessageBox mb(this, tr["USB Drive Connected"], "skin:icons/usb.png");
+	// 			mb.setAutoHide(500);
+	// 			mb.exec();
+	// 		}
+
+	// 		powerManager->clearTimer();
+
+	// 		while (udcConnectedOnBoot == UDC_CONNECT && getUDCStatus() == UDC_CONNECT) {
+	// 			input.update();
+	// 			if ( input[MENU] && input[POWER]) udcConnectedOnBoot = UDC_REMOVE;
+	// 		}
+
+	// 		// {
+	// 		// 	MessageBox mb(this, tr["USB disconnected. Rebooting..."], "skin:icons/usb.png");
+	// 		// 	mb.setAutoHide(200);
+	// 		// 	mb.exec();
+	// 		// }
+
+	// 		// system("sync; reboot & sleep 1m");
+	// 		system("sync");
+
+	// 		system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
+	// 		mountSd(false);
+	// 		INFO("%s, disconnect usbdisk for internal sd", __func__);
+	// 		if (getMMCStatus() == MMC_INSERT) {
+	// 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
+	// 			mountSd(true);
+	// 			INFO("%s, disconnect USB disk for external SD", __func__);
+	// 		}
+	// 		// powerManager->resetSuspendTimer();
+	// 	}
+	// }
 }
 
 void GMenu2X::formatSd() {
