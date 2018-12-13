@@ -2652,11 +2652,10 @@ int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x
 int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, int x, int y) {
 	if (y < 0) y = resY + y;
 	if (sc.skinRes("imgs/buttons/" + btn + ".png") != NULL) {
-		x -= font->getTextWidth(text) + 6;
+		x -= font->getTextWidth(text);
 		s->write(font, text, x, y, HAlignLeft | VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 		x -= 19;
 		sc["imgs/buttons/" + btn + ".png"]->blit(s, x, y, HAlignLeft | VAlignMiddle);
-		return x;
 	}
 	return x - 6;
 }
