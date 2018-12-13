@@ -13,9 +13,10 @@ Button::Button(Touchscreen &ts_, bool doubleClick_)
 {
 }
 
-void Button::paint() {
-	if (ts.inRect(rect))
-		if (!paintHover()) return;
+uint16_t Button::paint() {
+	return 0;
+	// if (ts.inRect(rect))
+		// if (!paintHover()) return 0;
 }
 
 bool Button::paintHover() {

@@ -34,17 +34,17 @@ MenuSettingMultiString::MenuSettingMultiString(
 	setSel(find(choices->begin(), choices->end(), *value) - choices->begin());
 
 	if (choices->size() > 1) {
-		btn = new IconButton(gmenu2x, "skin:imgs/buttons/left.png");
+		btn = new IconButton(gmenu2x, "left");
 		btn->setAction(MakeDelegate(this, &MenuSettingMultiString::decSel));
 		buttonBox.add(btn);
 
-		btn = new IconButton(gmenu2x, "skin:imgs/buttons/right.png", gmenu2x->tr["Change"]);
+		btn = new IconButton(gmenu2x, "right", gmenu2x->tr["Change"]);
 		btn->setAction(MakeDelegate(this, &MenuSettingMultiString::incSel));
 		buttonBox.add(btn);
 	}
 
 	if (this->onSelect) {
-		btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Open"]);
+		btn = new IconButton(gmenu2x, "a", gmenu2x->tr["Open"]);
 		// btn->setAction(MakeDelegate(this, &MenuSettingMultiString::incSel));
 		buttonBox.add(btn);
 	}

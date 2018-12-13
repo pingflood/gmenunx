@@ -31,11 +31,11 @@ MenuSettingFile::MenuSettingFile(GMenu2X *gmenu2x, const string &title, const st
 	filter(filter), startPath(startPath),
 	dialogTitle(dialogTitle), dialogIcon(dialogIcon)
 {
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/select.png", gmenu2x->tr["Clear"]);
+	btn = new IconButton(gmenu2x, "select", gmenu2x->tr["Clear"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingFile::clear));
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Select"]);
+	btn = new IconButton(gmenu2x, "a", gmenu2x->tr["Select"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingFile::edit));
 	buttonBox.add(btn);
 }

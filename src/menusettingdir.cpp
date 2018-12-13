@@ -30,11 +30,11 @@ MenuSettingDir::MenuSettingDir(GMenu2X *gmenu2x, const string &title, const stri
 	startPath(startPath),
 	dialogTitle(dialogTitle), dialogIcon(dialogIcon)
 {
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/select.png", gmenu2x->tr["Clear"]);
+	btn = new IconButton(gmenu2x, "select", gmenu2x->tr["Clear"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingDir::clear));
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "skin:imgs/buttons/a.png", gmenu2x->tr["Select"]);
+	btn = new IconButton(gmenu2x, "a", gmenu2x->tr["Select"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingDir::edit));
 	buttonBox.add(btn);
 }
