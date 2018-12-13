@@ -37,12 +37,12 @@ private:
 	string text, icon;
 	int autohide, bgalpha;
 	GMenu2X *gmenu2x;
-	vector<string> buttons;
-	vector<string> buttonLabels;
-	vector<SDL_Rect> buttonPositions;
+	vector<string> button;
+	vector<string> buttonText;
+	vector<SDL_Rect> buttonPosition;
 
 public:
-	MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon="");
+	MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon = "");
 	~MessageBox();
 
 	void setButton(int action, const string &btn);

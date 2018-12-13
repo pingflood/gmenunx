@@ -34,48 +34,48 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	this->autohide = 0;
 	this->bgalpha = 200;
 
-	buttons.resize(19);
-	buttonLabels.resize(19);
-	buttonPositions.resize(19);
-	for (uint32_t x = 0; x < buttons.size(); x++) {
-		buttons[x] = "";
-		buttonLabels[x] = "";
-		buttonPositions[x].h = gmenu2x->font->getHeight();
+	buttonText.resize(19);
+	button.resize(19);
+	buttonPosition.resize(19);
+	for (uint32_t x = 0; x < buttonText.size(); x++) {
+		buttonText[x] = "";
+		button[x] = "";
+		buttonPosition[x].h = gmenu2x->font->getHeight();
 	}
 
-	//Default enabled button
-	buttons[CONFIRM] = "OK";
+	// Default enabled button
+	buttonText[CONFIRM] = "OK";
 
-	//Default labels
-	buttonLabels[UP] = "up";
-	buttonLabels[DOWN] = "down";
-	buttonLabels[LEFT] = "left";
-	buttonLabels[RIGHT] = "right";
-	buttonLabels[MODIFIER] = "a";
+	// Default labels
+	button[UP] = "up";
+	button[DOWN] = "down";
+	button[LEFT] = "left";
+	button[RIGHT] = "right";
+	button[MODIFIER] = "a";
 #if defined(TARGET_RETROGAME)
-	buttonLabels[CONFIRM] = "a";
-	buttonLabels[CANCEL] = "b";
+	button[CONFIRM] = "a";
+	button[CANCEL] = "b";
 #else
-	buttonLabels[CONFIRM] = "b";
-	buttonLabels[CANCEL] = "x";
+	button[CONFIRM] = "b";
+	button[CANCEL] = "x";
 #endif
-	buttonLabels[MANUAL] = "y";
-	buttonLabels[DEC] = "x";
-	buttonLabels[INC] = "y";
-	buttonLabels[SECTION_PREV] = "l";
-	buttonLabels[SECTION_NEXT] = "r";
-	buttonLabels[PAGEUP] = "l";
-	buttonLabels[PAGEDOWN] = "r";
-	buttonLabels[SETTINGS] = "start";
-	buttonLabels[MENU] = "select";
-	buttonLabels[VOLUP] = "vol+";
-	buttonLabels[VOLDOWN] = "vol-";
+	button[MANUAL] = "y";
+	button[DEC] = "x";
+	button[INC] = "y";
+	button[SECTION_PREV] = "l";
+	button[SECTION_NEXT] = "r";
+	button[PAGEUP] = "l";
+	button[PAGEDOWN] = "r";
+	button[SETTINGS] = "start";
+	button[MENU] = "select";
+	button[VOLUP] = "vol+";
+	button[VOLDOWN] = "vol-";
 }
 MessageBox::~MessageBox() {
 	clearTimer();
 }
 void MessageBox::setButton(int action, const string &btn) {
-	buttons[action] = btn;
+	buttonText[action] = btn;
 }
 
 void MessageBox::setAutoHide(int autohide) {
@@ -101,9 +101,9 @@ int MessageBox::exec() {
 
 	box.w = gmenu2x->font->getTextWidth(text) + 24 + (gmenu2x->sc[icon] != NULL ? 37 : 0);
 	int sz = 0;
-	for (uint32_t i = 0; i < buttons.size(); i++) {
-		if (buttons[i] != "")
-			sz += gmenu2x->font->getTextWidth(buttons[i]) + 24;
+	for (uint32_t i = 0; i < buttonText.size(); i++) {
+		if (buttonText[i] != "")
+			sz += gmenu2x->font->getTextWidth(buttonText[i]) + 24;
 	}
 	sz += 6;
 	if (sz > box.w) box.w = sz;
@@ -134,15 +134,15 @@ int MessageBox::exec() {
 	gmenu2x->s->box(box.x, box.y+box.h, box.w, gmenu2x->font->getHeight(), gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 
 	int btnX = gmenu2x->halfX+box.w/2-6;
-	for (uint32_t i = 0; i < buttons.size(); i++) {
-		if (buttons[i] != "") {
-			buttonPositions[i].y = box.y+box.h+gmenu2x->font->getHalfHeight();
-			buttonPositions[i].w = btnX;
+	for (uint32_t i = 0; i < buttonText.size(); i++) {
+		if (buttonText[i] != "") {
+			buttonPosition[i].y = box.y+box.h+gmenu2x->font->getHalfHeight();
+			buttonPosition[i].w = btnX;
 
-			btnX = gmenu2x->drawButtonRight(gmenu2x->s, buttonLabels[i], buttons[i], btnX, buttonPositions[i].y);
+			btnX = gmenu2x->drawButtonRight(gmenu2x->s, button[i], buttonText[i], btnX, buttonPosition[i].y);
 
-			buttonPositions[i].x = btnX;
-			buttonPositions[i].w = buttonPositions[i].x-btnX-6;
+			buttonPosition[i].x = btnX;
+			buttonPosition[i].w = buttonPosition[i].x-btnX-6;
 		}
 	}
 	gmenu2x->s->flip();
@@ -150,8 +150,8 @@ int MessageBox::exec() {
 	while (result < 0) {
 		//touchscreen
 		if (gmenu2x->f200 && gmenu2x->ts.poll()) {
-			for (uint32_t i = 0; i < buttons.size(); i++) {
-				if (buttons[i] != "" && gmenu2x->ts.inRect(buttonPositions[i])) {
+			for (uint32_t i = 0; i < buttonText.size(); i++) {
+				if (buttonText[i] != "" && gmenu2x->ts.inRect(buttonPosition[i])) {
 					result = i;
 					break;
 				}
@@ -161,8 +161,8 @@ int MessageBox::exec() {
 		bool inputAction = gmenu2x->input.update();
 		if (inputAction) {
 			// if (gmenu2x->inputCommonActions(inputAction)) continue; // causes power button bounce
-			for (uint32_t i = 0; i < buttons.size(); i++) {
-				if (buttons[i] != "" && gmenu2x->input[i]) {
+			for (uint32_t i = 0; i < buttonText.size(); i++) {
+				if (buttonText[i] != "" && gmenu2x->input[i]) {
 					result = i;
 					break;
 				}
