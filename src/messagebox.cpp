@@ -98,7 +98,16 @@ int MessageBox::exec() {
 	SDL_Rect box;
 	box.h = gmenu2x->font->getTextHeight(text) * gmenu2x->font->getHeight() + gmenu2x->font->getHeight();
 	if (gmenu2x->sc[icon] != NULL && box.h < 40) box.h = 48;
+
 	box.w = gmenu2x->font->getTextWidth(text) + 24 + (gmenu2x->sc[icon] != NULL ? 37 : 0);
+	int sz = 0;
+	for (uint32_t i = 0; i < buttons.size(); i++) {
+		if (buttons[i] != "")
+			sz += gmenu2x->font->getTextWidth(buttons[i]) + 24;
+	}
+	sz += 6;
+	if (sz > box.w) box.w = sz;
+
 	box.x = gmenu2x->halfX - box.w/2 - 2;
 	box.y = gmenu2x->halfY - box.h/2 - 2;
 

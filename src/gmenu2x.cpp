@@ -505,6 +505,7 @@ void GMenu2X::main() {
 				s->box(bottomBarRect, skinConfColors[COLOR_BOTTOM_BAR_BG]);
 
 				// Volume indicator
+				// TODO: use drawButton(s, iconVolume[volumeMode], confInt["globalVolume"], x);
 				{ stringstream ss; ss << confInt["globalVolume"] /*<< "%"*/; ss.get(&buf[0], sizeof(buf)); }
 				x = iconPadding; //1 * (iconWidth + 2 * iconPadding) + iconPadding + 1 * pctWidth;
 				iconVolume[volumeMode]->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
@@ -547,9 +548,6 @@ void GMenu2X::main() {
 						iconCPU->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
 						x += iconWidth + iconPadding;
 						s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-
-						// x += iconPadding + font->getTextWidth(buf);
-						// s->write(font, menu->selLinkApp()->getResolution(), x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 					}
 				}
 		
@@ -2628,18 +2626,14 @@ string GMenu2X::getDiskFree(const char *path) {
 
 int GMenu2X::drawButton(Button *btn, int x, int y) {
 	if (y < 0) y = resY + y;
-	// y = resY - 8 - skinConfInt["bottomBarHeight"] / 2;
 	btn->setPosition(x, y);
 	btn->paint();
-	// return x + btn->getRect().w + 6;
 }
 
 int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x, int y) {
 	if (y < 0) y = resY + y;
-	// y = resY - skinConfInt["bottomBarHeight"] / 2;
-
-	if (sc.skinRes("imgs/buttons/"+btn+".png") != NULL) {
-		sc["imgs/buttons/"+btn+".png"]->blit(s, x, y, HAlignLeft | VAlignMiddle);
+	if (sc.skinRes("imgs/buttons/" + btn + ".png") != NULL) {
+		sc["imgs/buttons/" + btn + ".png"]->blit(s, x, y, HAlignLeft | VAlignMiddle);
 		x += 19;
 		if (!text.empty()) {
 			s->write(font, text, x, y, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
