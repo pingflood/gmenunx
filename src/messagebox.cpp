@@ -99,7 +99,7 @@ int MessageBox::exec() {
 	box.h = gmenu2x->font->getTextHeight(text) * gmenu2x->font->getHeight() + gmenu2x->font->getHeight();
 	if (gmenu2x->sc[icon] != NULL && box.h < 40) box.h = 48;
 
-	box.w = gmenu2x->font->getTextWidth(text) + 24 + (gmenu2x->sc[icon] != NULL ? 37 : 0);
+	box.w = gmenu2x->font->getTextWidth(text) + 24 + (gmenu2x->sc[icon] != NULL ? 42 : 0);
 	int sz = 0;
 	for (uint32_t i = 0; i < buttonText.size(); i++) {
 		if (buttonText[i] != "")
@@ -121,7 +121,7 @@ int MessageBox::exec() {
 	if (gmenu2x->sc[icon] != NULL)
 		gmenu2x->sc[icon]->blit( gmenu2x->s, box.x + 24, box.y + 24 , HAlignCenter | VAlignMiddle);
 
-	gmenu2x->s->write(gmenu2x->font, text, box.x+(gmenu2x->sc[icon] != NULL ? 47 : 11), gmenu2x->halfY - gmenu2x->font->getHeight()/5, VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+	gmenu2x->s->write(gmenu2x->font, text, (gmenu2x->sc[icon] != NULL ? 42 : 4) + box.x + (box.w - (gmenu2x->sc[icon] != NULL ? 42 : 0)) / 2, box.y + box.h / 2, HAlignCenter | VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 
 	if (this->autohide) {
 		gmenu2x->s->flip();
