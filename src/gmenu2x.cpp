@@ -424,12 +424,16 @@ void GMenu2X::main() {
 		if (confInt["sectionBar"]) {
 			s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
 
-			x = sectionBarRect.x; y = sectionBarRect.y;
+			x = sectionBarRect.x; y = sectionBarRect.y; ix = 0;
+
+			if (confInt["sectionBar"] == SB_CLASSIC)
+				ix = (resX - skinConfInt["sectionBarSize"] * min(menu->sectionNumItems(), menu->getSections().size())) / 2;
+
 			for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
 				if (confInt["sectionBar"] == SB_LEFT || confInt["sectionBar"] == SB_RIGHT) {
 					y = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
 				} else {
-					x = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
+					x = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"] + ix;
 				}
 
 				if (menu->selSectionIndex() == (int)i)
@@ -2298,7 +2302,7 @@ void GMenu2X::renameSection() {
 }
 
 void GMenu2X::deleteSection() {
-	MessageBox mb(this, tr["All links in this section will be removed."] + "\n" + tr["Are you sure?"]);
+	MessageBox mb(this, tr["Are you sure?"]);
 	mb.setButton(CONFIRM, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() == CONFIRM) {

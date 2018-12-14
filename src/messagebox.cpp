@@ -23,7 +23,7 @@
 
 #include "messagebox.h"
 #include "powermanager.h"
-// #include "debug.h"
+#include "debug.h"
 
 using namespace std;
 
@@ -99,14 +99,18 @@ int MessageBox::exec() {
 	box.h = gmenu2x->font->getTextHeight(text) * gmenu2x->font->getHeight() + gmenu2x->font->getHeight();
 	if (gmenu2x->sc[icon] != NULL && box.h < 40) box.h = 48;
 
-	box.w = gmenu2x->font->getTextWidth(text) + 24 + (gmenu2x->sc[icon] != NULL ? 42 : 0);
-	int sz = 0;
+	box.w = gmenu2x->font->getTextWidth(text) + 24;// + (gmenu2x->sc[icon] != NULL ? 42 : 0);
+	int ix = 0;
 	for (uint32_t i = 0; i < buttonText.size(); i++) {
 		if (buttonText[i] != "")
-			sz += gmenu2x->font->getTextWidth(buttonText[i]) + 24;
+			ix += gmenu2x->font->getTextWidth(buttonText[i]) + 24;
 	}
-	sz += 6;
-	if (sz > box.w) box.w = sz;
+	ix += 6;
+
+	if (ix > box.w) box.w = ix;
+
+	ix = (gmenu2x->sc[icon] != NULL ? 42 : 0);
+	box.w += ix;
 
 	box.x = gmenu2x->halfX - box.w/2 - 2;
 	box.y = gmenu2x->halfY - box.h/2 - 2;
@@ -121,7 +125,8 @@ int MessageBox::exec() {
 	if (gmenu2x->sc[icon] != NULL)
 		gmenu2x->sc[icon]->blit( gmenu2x->s, box.x + 24, box.y + 24 , HAlignCenter | VAlignMiddle);
 
-	gmenu2x->s->write(gmenu2x->font, text, (gmenu2x->sc[icon] != NULL ? 42 : 0) + box.x + (box.w - (gmenu2x->sc[icon] != NULL ? 42 : 0)) / 2, box.y + box.h / 2, HAlignCenter | VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+	// gmenu2x->s->box(ix + box.x, box.y, (box.w - ix), box.h, strtorgba("ffff00ff"));
+	gmenu2x->s->write(gmenu2x->font, text, ix + box.x + (box.w - ix) / 2, box.y + box.h / 2, HAlignCenter | VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 
 	if (this->autohide) {
 		gmenu2x->s->flip();

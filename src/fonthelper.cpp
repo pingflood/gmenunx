@@ -82,8 +82,9 @@ uint32_t FontHelper::getTextWidth(const string &text) {
 
 uint32_t FontHelper::getTextWidth(vector<string> *text) {
 	int w = 0;
-	for (uint32_t i = 0; i < text->size(); i++)
-		w = max( getLineWidth(text->at(i)), w );
+	for (uint32_t i = 0; i < text->size(); i++) {
+			w = max( getLineWidth(text->at(i)), w );
+		};
 	return w;
 }
 
@@ -103,7 +104,6 @@ void FontHelper::write(Surface *surface, vector<string> *text, int x, int y, con
 	} else if (align & VAlignBottom) {
 		y -= getHeight() * text->size();
 	}
-
 	for (uint32_t i = 0; i < text->size(); i++) {
 		int ix = x;
 		if (align & HAlignCenter) {
@@ -111,8 +111,7 @@ void FontHelper::write(Surface *surface, vector<string> *text, int x, int y, con
 		} else if (align & HAlignRight) {
 			ix -= getTextWidth(text->at(i));
 		}
-
-		write(surface, text->at(i), x, y + i * getHeight(), fgColor, bgColor);
+		write(surface, text->at(i), ix, y + i * getHeight(), fgColor, bgColor);
 	}
 }
 
