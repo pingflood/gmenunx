@@ -1885,7 +1885,7 @@ void GMenu2X::udcDialog() {
 		// 	return;
 		// }
 
-		MessageBox mb(this, tr["Select USB mode:"], "skin:icons/usb.png");
+		MessageBox mb(this, tr["USB mode"], "skin:icons/usb.png");
 		mb.setButton(MANUAL, tr["Network"]);
 		mb.setButton(CONFIRM, tr["Storage"]);
 		mb.setButton(CANCEL,  tr["Charger"]);
