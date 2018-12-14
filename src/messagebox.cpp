@@ -121,7 +121,7 @@ int MessageBox::exec() {
 	if (gmenu2x->sc[icon] != NULL)
 		gmenu2x->sc[icon]->blit( gmenu2x->s, box.x + 24, box.y + 24 , HAlignCenter | VAlignMiddle);
 
-	gmenu2x->s->write(gmenu2x->font, text, (gmenu2x->sc[icon] != NULL ? 42 : 4) + box.x + (box.w - (gmenu2x->sc[icon] != NULL ? 42 : 0)) / 2, box.y + box.h / 2, HAlignCenter | VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+	gmenu2x->s->write(gmenu2x->font, text, (gmenu2x->sc[icon] != NULL ? 42 : 0) + box.x + (box.w - (gmenu2x->sc[icon] != NULL ? 42 : 0)) / 2, box.y + box.h / 2, HAlignCenter | VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 
 	if (this->autohide) {
 		gmenu2x->s->flip();
