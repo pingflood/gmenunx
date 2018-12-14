@@ -506,6 +506,7 @@ void GMenu2X::main() {
 
 				// Volume indicator
 				// TODO: use drawButton(s, iconVolume[volumeMode], confInt["globalVolume"], x);
+				// TODO: add network icon
 				{ stringstream ss; ss << confInt["globalVolume"] /*<< "%"*/; ss.get(&buf[0], sizeof(buf)); }
 				x = iconPadding; //1 * (iconWidth + 2 * iconPadding) + iconPadding + 1 * pctWidth;
 				iconVolume[volumeMode]->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
@@ -1878,6 +1879,8 @@ void GMenu2X::umountSdDialog() {
 void GMenu2X::udcDialog() {
 	udcStatus = getUDCStatus();
 	if (udcStatus == UDC_CONNECT) {
+		if (!fileExists("/lib/modules/g_cdc.ko")) return;
+
 		// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
 		// 	// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
 		// 	// mb.setButton(CONFIRM,  tr["Charger"]);
@@ -1940,9 +1943,9 @@ void GMenu2X::udcDialog() {
 			}
 			// powerManager->resetSuspendTimer();
 		}
-	} else {
-		system("sync; rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko");
 	}
+
+	system("sync; rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko");
 
 	// if (getUDCStatus() == UDC_CONNECT) {
 	// 	// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
