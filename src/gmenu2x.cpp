@@ -1033,14 +1033,20 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this,tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
 	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
 
+	vector<string> usbMode;
+	usbMode.push_back("Ask");
+	usbMode.push_back("Network");
+	usbMode.push_back("Storage");
+	usbMode.push_back("Charger");
+	sd.addSetting(new MenuSettingMultiString(this, tr["USB mode"], tr["Define default USB mode"], &confStr["usbMode"], &usbMode));
 #if defined(TARGET_RETROGAME)
 	sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
 #endif
 	sd.addSetting(new MenuSettingMultiString(this, tr["Reset settings"], tr["Choose settings to reset back to defaults"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::resetSettings)));
 
 	if (sd.exec() && sd.edited() && sd.save) {
+		if (confStr["usbMode"] == "Ask") confStr["usbMode"] = "";
 		if (curGlobalVolume != confInt["globalVolume"]) setVolume(confInt["globalVolume"]);
-
 		if (lang == "English") lang = "";
 		if (confStr["lang"] != lang) {
 			confStr["lang"] = lang;
@@ -1888,11 +1894,18 @@ void GMenu2X::udcDialog() {
 		// 	return;
 		// }
 
-		MessageBox mb(this, tr["USB mode"], "skin:icons/usb.png");
-		mb.setButton(MANUAL, tr["Network"]);
-		mb.setButton(CONFIRM, tr["Storage"]);
-		mb.setButton(CANCEL,  tr["Charger"]);
-		int option = mb.exec();
+		int option;
+		if (confStr["usbMode"] == "Network") option = MANUAL;
+		else if (confStr["usbMode"] == "Storage") option = CONFIRM;
+		else if (confStr["usbMode"] == "Charger") option = DO_NOTHING;
+		else {
+			MessageBox mb(this, tr["USB mode"], "skin:icons/usb.png");
+			mb.setButton(MANUAL, tr["Network"]);
+			mb.setButton(CONFIRM, tr["Storage"]);
+			mb.setButton(CANCEL,  tr["Charger"]);
+			option = mb.exec();
+		}
+
 		if (option == MANUAL) { // network
 			system("rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_cdc.ko; ifdown usb0; ifup usb0");
 			INFO("%s: Enabling usb0 networking device", __func__);
@@ -1928,9 +1941,9 @@ void GMenu2X::udcDialog() {
 			// 	MessageBox mb(this, tr["USB disconnected. Rebooting..."], "skin:icons/usb.png");
 			// 	mb.setAutoHide(200);
 			// 	mb.exec();
+			// system("sync; reboot & sleep 1m");
 			// }
 
-			// system("sync; reboot & sleep 1m");
 			system("sync");
 
 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
@@ -1943,10 +1956,10 @@ void GMenu2X::udcDialog() {
 			}
 			// powerManager->resetSuspendTimer();
 		}
+	} else {
+		INFO("%s: USB Disconnected. Unloading modules.", __func__);
+		system("sync; rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko");
 	}
-
-	system("sync; rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko");
-
 	// if (getUDCStatus() == UDC_CONNECT) {
 	// 	// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
 	// 	// 	// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
