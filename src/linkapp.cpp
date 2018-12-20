@@ -57,7 +57,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	workdir = "";
 	backdrop = backdropPath = "";
 	resolution = "";
-	lcd_mode = 0;
+	ipu_mode = 0;
 
 	string line;
 	ifstream infile (linkfile, ios_base::in);
@@ -113,8 +113,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 			// WARNING("BACKDROP: '%s'", backdrop.c_str());
 		} else if (name == "resolution") {
 			setResolution(value);
-		} else if (name == "lcd_mode") {
-			setLCDMode( atoi(value.c_str()) );
+		} else if (name == "ipu_mode") {
+			setIPUMode( atoi(value.c_str()) );
 		} else {
 			WARNING("Unrecognized option: '%s'", name.c_str());
 			break;
@@ -271,7 +271,7 @@ bool LinkApp::save() {
 		if (aliasfile != "" )		f << "selectoraliases="	<< aliasfile		<< endl;
 		if (backdrop != "" )		f << "backdrop="		<< backdrop			<< endl;
 		if (resolution != ""  )		f << "resolution="		<< resolution		<< endl;
-		if (lcd_mode > 0 )			f << "lcd_mode="		<< lcd_mode			<< endl;
+		if (ipu_mode > 0 )			f << "ipu_mode="		<< ipu_mode			<< endl;
 		// if (wrapper              ) f << "wrapper=true"						<< endl;
 		// if (dontleave            ) f << "dontleave=true"						<< endl;
 		f.close();
@@ -389,9 +389,9 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 #endif
 
 	#if defined(TARGET_RETROGAME)
-		if (lcd_mode > 0) {
+		if (ipu_mode > 0) {
 			char buf[32] = {0};
-			sprintf(buf, "echo %d > /proc/jz/lcd_a320", lcd_mode);
+			sprintf(buf, "echo %d > /proc/jz/ipu_mode", ipu_mode);
 			system(buf);
 		}
 	#endif
@@ -520,13 +520,13 @@ const string &LinkApp::getResolution() {
 	return this->resolution;
 }
 
-void LinkApp::setLCDMode(const int lcd_mode) {
-	this->lcd_mode = lcd_mode;
+void LinkApp::setIPUMode(const int ipu_mode) {
+	this->ipu_mode = ipu_mode;
 	edited = true;
 }
 
-const int &LinkApp::getLCDMode() {
-	return this->lcd_mode;
+const int &LinkApp::getIPUMode() {
+	return this->ipu_mode;
 }
 
 // bool LinkApp::getUseRamTimings() {

@@ -38,7 +38,7 @@ class LinkApp : public Link {
 private:
 	InputManager &inputMgr;
 	// string svolume, sclock, svolume;
-	int iclock = 0, lcd_mode; //, ivolume = 0;
+	int iclock = 0, ipu_mode; //, ivolume = 0;
 
 	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath, resolution;
 	bool selectorbrowser;
@@ -116,8 +116,8 @@ public:
 
 	const string &getResolution();
 	void setResolution(const string resolution = "");
-	const int &getLCDMode();
-	void setLCDMode(const int lcd_mode);
+	const int &getIPUMode();
+	void setIPUMode(const int ipu_mode);
 
 	// bool &needsWrapperRef() { return wrapper; }
 	// bool &runsInBackgroundRef() { return dontleave; }

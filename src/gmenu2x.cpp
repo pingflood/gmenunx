@@ -275,7 +275,7 @@ GMenu2X::GMenu2X() {
 #endif
 
 #if defined(TARGET_RETROGAME)
-	system("echo 0 > /proc/jz/lcd_a320");
+	system("echo 0 > /proc/jz/ipu_mode");
 #endif
 
 	// setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
@@ -1699,7 +1699,7 @@ void GMenu2X::hwCheck() {
 		udcStatus = getUDCStatus();
 		if (udcPrev != udcStatus) {
 			udcPrev = udcStatus;
-			tickBattery = -2e30;
+			tickBattery = -2e3;
 			checkUDC();
 		}
 
@@ -2150,7 +2150,7 @@ void GMenu2X::editLink() {
 	string dialogTitle = tr.translate("Edit $1", linkTitle.c_str(), NULL);
 	string dialogIcon = menu->selLinkApp()->getIconPath();
 	// int linkResolution = menu->selLinkApp()->getResolution();
-	int linkLCDMode = menu->selLinkApp()->getLCDMode();
+	int linkIPUMode = menu->selLinkApp()->getIPUMode();
 
 	SettingsDialog sd(this, ts, dialogTitle, dialogIcon);
 	sd.addSetting(new MenuSettingFile(			this, tr["Executable"],		tr["Application this link points to"], &linkExec, ".dge,.gpu,.gpe,.sh,.bin,.elf,", dir_name(linkExec), dialogTitle, dialogIcon));
@@ -2164,7 +2164,7 @@ void GMenu2X::editLink() {
 		// linkResolution.push_back("320x480");
 		// sd.addSetting(new MenuSettingMultiString(this, tr["Resolution"],	tr["Define LCD mode for app resolution"], &linkSelResolution, &linkResolution));
 // #endif
-	sd.addSetting(new MenuSettingInt(			this, tr["LCD Mode"],		tr["Define LCD mode for app scaling"], &linkLCDMode, 0, 0, 5));
+	sd.addSetting(new MenuSettingInt(			this, tr["IPU Mode"],		tr["Define IPU mode for image scaling"], &linkIPUMode, 0, 0, 5));
 
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
@@ -2204,7 +2204,7 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setBackdrop(linkBackdrop);
 		menu->selLinkApp()->setCPU(linkClock);
 		// menu->selLinkApp()->setResolution(linkSelResolution);
-		menu->selLinkApp()->setLCDMode(linkLCDMode);
+		menu->selLinkApp()->setIPUMode(linkIPUMode);
 
 		//G
 #if defined(TARGET_GP2X)
