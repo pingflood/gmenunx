@@ -450,10 +450,6 @@ void GMenu2X::main() {
 			}
 		}
 
-
-
-
-
 		// LINKS
 		s->setClipRect(linksRect);
 		s->box(linksRect, skinConfColors[COLOR_LIST_BG]);
@@ -1900,7 +1896,7 @@ void GMenu2X::umountSdDialog() {
 void GMenu2X::udcDialog() {
 	udcStatus = getUDCStatus();
 	if (udcStatus == UDC_CONNECT) {
-		if (!fileExists("/lib/modules/g_cdc.ko")) return;
+		if (!fileExists("/lib/modules/g_ether.ko")) return;
 
 		// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
 		// 	// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
@@ -1922,10 +1918,10 @@ void GMenu2X::udcDialog() {
 		}
 
 		if (option == MANUAL) { // network
-			system("rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_cdc.ko; ifdown usb0; ifup usb0");
+			system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_ether.ko; ifdown usb0; ifup usb0");
 			INFO("%s: Enabling usb0 networking device", __func__);
 		} else if (option == CONFIRM) { // storage
-			system("rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
+			system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
 			umountSd(false);
 			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 			INFO("%s: Connect USB disk for internal SD", __func__);
@@ -1973,7 +1969,7 @@ void GMenu2X::udcDialog() {
 		}
 	} else {
 		INFO("%s: USB Disconnected. Unloading modules.", __func__);
-		system("sync; rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko");
+		system("sync; rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko");
 	}
 	// if (getUDCStatus() == UDC_CONNECT) {
 	// 	// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
@@ -1989,9 +1985,9 @@ void GMenu2X::udcDialog() {
 	// 	mb.setButton(CANCEL,  tr["Charger"]);
 	// 	int option = mb.exec();
 	// 	if (option == MANUAL) {
-	// 		system("rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_cdc.ko; ifdown usb0; ifup usb0");
+	// 		system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_ether.ko; ifdown usb0; ifup usb0");
 	// 	} else if (option == CONFIRM) {
-	// 		system("rmmod /lib/modules/g_cdc.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
+	// 		system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
 	// 		umountSd(false);
 	// 		system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 	// 		INFO("%s, connect USB disk for internal SD", __func__);
