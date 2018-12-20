@@ -390,7 +390,9 @@ void GMenu2X::main() {
 	Surface *iconSD = sc.skinRes("imgs/sd1.png"),
 			*iconManual = sc.skinRes("imgs/manual.png"),
 			*iconCPU = sc.skinRes("imgs/cpu.png"),
-			*iconMenu = sc.skinRes("imgs/menu.png");
+			*iconMenu = sc.skinRes("imgs/menu.png"),
+			*iconL = sc.skinRes("imgs/l_enabled.png"),
+			*iconR = sc.skinRes("imgs/r_enabled.png");
 
 	if (pthread_create(&thread_id, NULL, mainThread, this)) {
 		ERROR("%s, failed to create main thread\n", __func__);
@@ -441,7 +443,16 @@ void GMenu2X::main() {
 
 				sc[menu->getSectionIcon(i)]->blit(s, {x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"]}, HAlignCenter | VAlignMiddle);
 			}
+
+			if (confInt["sectionBar"] == SB_CLASSIC) {
+				iconL->blit(s, 0, 0, HAlignLeft | VAlignTop);
+				iconR->blit(s, resX, 0, HAlignRight | VAlignTop);
+			}
 		}
+
+
+
+
 
 		// LINKS
 		s->setClipRect(linksRect);
