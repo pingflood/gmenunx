@@ -68,7 +68,8 @@ public:
 	void directoryEnter(const string &path);
 	const std::string getExt(uint32_t i = 0);
 	const std::string getFilePath(uint32_t i = 0);
-	virtual const std::string getFile(uint32_t i = 0);
+	const std::string getFile(uint32_t i = 0);
+	virtual const std::string getFileName(uint32_t i = 0);
 };
 
 #endif /*INPUTDIALOG_H_*/

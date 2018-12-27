@@ -53,7 +53,7 @@ private:
 	
 public:
 	Selector(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, LinkApp *link);
-	const std::string getFile(uint32_t i = 0);
+	const std::string getFileName(uint32_t i = 0);
 	// Selector(GMenu2X *gmenu2x, LinkApp *link, const string &selectorDir = "");
 	// int exec(int startSelection = 0);
 	// const string &getFile() { return file; }

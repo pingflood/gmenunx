@@ -78,7 +78,7 @@ bool BrowseDialog::exec() {
 				} else {
 					iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
 				}
-				gmenu2x->s->write(gmenu2x->font, getFile(i), gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
+				gmenu2x->s->write(gmenu2x->font, getFileName(i), gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
 			}
 
 			// preview
@@ -258,6 +258,9 @@ void BrowseDialog::directoryEnter(const string &path) {
 	mb.clearTimer();
 }
 const std::string BrowseDialog::getFile(uint32_t i) {
+	return at(i);
+}
+const std::string BrowseDialog::getFileName(uint32_t i) {
 	return at(i);
 }
 const std::string BrowseDialog::getFilePath(uint32_t i) {
