@@ -245,6 +245,11 @@ bool Menu::addLink(string path, string file, string section) {
 	if (f.is_open()) {
 		f << "title=" << shorttitle << endl;
 		f << "exec=" << exec << endl;
+
+		string selectoraliases = dir_name(exec) + "/aliases.txt";
+		if (fileExists(selectoraliases))
+			f << "selectoraliases=" << selectoraliases << endl;
+
 		f.close();
 
 		isection = find(sections.begin(), sections.end(), section) - sections.begin();

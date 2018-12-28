@@ -500,7 +500,7 @@ const string &LinkApp::getAliasFile() {
 }
 
 void LinkApp::setAliasFile(const string &aliasfile) {
-	if (fileExists(aliasfile)) {
+	if (aliasfile == "" || fileExists(aliasfile)) {
 		this->aliasfile = aliasfile;
 		edited = true;
 	}

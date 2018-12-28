@@ -390,7 +390,7 @@ void GMenu2X::main() {
 	Surface *iconSD = sc.skinRes("imgs/sd1.png"),
 			*iconManual = sc.skinRes("imgs/manual.png"),
 			*iconCPU = sc.skinRes("imgs/cpu.png"),
-			*iconMenu = sc.skinRes("imgs/menu.png"),
+			*iconMenu = sc.skinRes("imgs/menu.png");
 			// *iconL = sc.skinRes("imgs/l_enabled.png"),
 			// *iconR = sc.skinRes("imgs/r_enabled.png");
 
