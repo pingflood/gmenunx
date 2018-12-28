@@ -1912,15 +1912,15 @@ void GMenu2X::udcDialog() {
 		else {
 			MessageBox mb(this, tr["USB mode"], "skin:icons/usb.png");
 			mb.setButton(MANUAL, tr["Network"]);
-			mb.setButton(CONFIRM, tr["Storage"]);
-			mb.setButton(CANCEL,  tr["Charger"]);
+			mb.setButton(CONFIRM,  tr["Charger"]);
+			mb.setButton(CANCEL, tr["Storage"]);
 			option = mb.exec();
 		}
 
 		if (option == MANUAL) { // network
 			system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_ether.ko; ifdown usb0; ifup usb0");
 			INFO("%s: Enabling usb0 networking device", __func__);
-		} else if (option == CONFIRM) { // storage
+		} else if (option == CANCEL) { // storage
 			system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
 			umountSd(false);
 			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
