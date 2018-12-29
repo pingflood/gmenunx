@@ -402,7 +402,7 @@ void GMenu2X::main() {
 // 	if (udcConnectedOnBoot == UDC_CONNECT) udcDialog();
 // #endif
 
-	if (curMMCStatus == MMC_INSERT) mountSd(true);
+	// if (curMMCStatus == MMC_INSERT) mountSd(true);
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();
@@ -1715,19 +1715,19 @@ void GMenu2X::hwCheck() {
 			preMMCStatus = curMMCStatus;
 			// string msg;
 
-			// if (curMMCStatus == MMC_INSERT) msg = tr["SD card connected"];
-			// else msg = tr["SD card removed"];
+			// // if (curMMCStatus == MMC_INSERT) msg = tr["SD card connected"];
+			// // else msg = tr["SD card removed"];
 
-			// MessageBox mb(this, msg, "skin:icons/eject.png");
-			// mb.setAutoHide(1000);
-			// mb.exec();
+			// // MessageBox mb(this, msg, "skin:icons/eject.png");
+			// // mb.setAutoHide(1000);
+			// // mb.exec();
 
-			if (curMMCStatus == MMC_INSERT) {
-				mountSd(true);
-				// menu->addActionLink(menu->getSectionIndex("settings"), tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
-			} else {
-				umountSd(true);
-			}
+			// if (curMMCStatus == MMC_INSERT) {
+			// 	mountSd(true);
+			// 	// menu->addActionLink(menu->getSectionIndex("settings"), tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
+			// } else {
+			// 	umountSd(true);
+			// }
 		}
 
 		tvOutConnected = getTVOutStatus();
@@ -1873,15 +1873,15 @@ void GMenu2X::setTVOut(unsigned int TVOut) {
 #endif
 }
 
-void GMenu2X::mountSd(bool ext) {
-	if (ext)	system("par=$(( $(readlink /tmp/.int_sd | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/ext_sd; mkdir -p /mnt/ext_sd; mount -t vfat -o rw,utf8 $par /mnt/ext_sd");
-	else		system("par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/int_sd; mount -t vfat -o rw,utf8 $par /mnt/int_sd");
-}
+// void GMenu2X::mountSd(bool ext) {
+// 	if (ext)	system("par=$(( $(readlink /tmp/.int_sd | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/ext_sd; mkdir -p /mnt/ext_sd; mount -t vfat -o rw,utf8 $par /mnt/ext_sd");
+// 	else		system("par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/int_sd; mount -t vfat -o rw,utf8 $par /mnt/int_sd");
+// }
 
-void GMenu2X::umountSd(bool ext) {
-	if (ext)	system("sync; umount -fl /mnt/ext_sd");
-	else		system("sync; umount -fl /mnt/int_sd");
-}
+// void GMenu2X::umountSd(bool ext) {
+// 	if (ext)	system("sync; umount -fl /mnt/ext_sd");
+// 	else		system("sync; umount -fl /mnt/int_sd");
+// }
 
 void GMenu2X::umountSdDialog() {
 	BrowseDialog bd(this, tr["Umount"], tr["Umount external media device"], "skin:icons/eject.png");
@@ -1922,12 +1922,12 @@ void GMenu2X::udcDialog() {
 			INFO("%s: Enabling usb0 networking device", __func__);
 		} else if (option == CANCEL) { // storage
 			system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
-			umountSd(false);
+			// umountSd(false);
 			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 			INFO("%s: Connect USB disk for internal SD", __func__);
 
 			if (getMMCStatus() == MMC_INSERT) {
-				umountSd(true);
+				// umountSd(true);
 				system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file; par=$(( $(readlink /tmp/.int_sd | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
 				INFO("%s: Connect USB disk for external SD", __func__);
 			}
@@ -1960,9 +1960,9 @@ void GMenu2X::udcDialog() {
 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 			INFO("%s: Disconnect USB disk for internal SD", __func__);
-			mountSd(false);
+			// mountSd(false);
 			if (getMMCStatus() == MMC_INSERT) {
-				mountSd(true);
+				// mountSd(true);
 				INFO("%s: Disconnect USB disk for external SD", __func__);
 			}
 			// powerManager->resetSuspendTimer();
