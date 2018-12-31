@@ -82,7 +82,7 @@
 
 #define sync() sync(); system("sync");
 
-const char *CARD_ROOT = "/mnt/"; //Note: Add a trailing /!
+const char *CARD_ROOT = "/home/retrofw/"; //Note: Add a trailing /!
 const int CARD_ROOT_LEN = 1;
 int FB_SCREENPITCH = 1;
 string fwType = "";
