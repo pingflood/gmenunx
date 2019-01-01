@@ -995,7 +995,7 @@ void GMenu2X::initMenu() {
 			if (fileExists(path + "log.txt"))
 				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "skin:icons/ebook.png");
 
-			menu->addActionLink(i, tr["Terminal"], MakeDelegate(this, &GMenu2X::Terminal), tr["Open terminal"], "skin:icons/ebook.png");
+			// menu->addActionLink(i, tr["Terminal"], MakeDelegate(this, &GMenu2X::Terminal), tr["Open terminal"], "skin:icons/ebook.png");
 
 			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "skin:icons/about.png");
 			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroffDialog), tr["Power menu"], "skin:icons/exit.png");
@@ -1656,9 +1656,8 @@ void GMenu2X::explorer() {
 			quit();
 			setCPU(confInt["cpuMenu"]);
 
-
 			if (confInt["outputLogs"]) {
-				command = "gdb -batch -ex \"run\" -ex \"bt\" --args " + command;
+				if (fileExists("/usr/bin/gdb")) command = "gdb -batch -ex \"run\" -ex \"bt\" --args " + command;
 				command += " 2>&1 | tee " + cmdclean(getExePath()) + "/log.txt";
 			}
 			execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);

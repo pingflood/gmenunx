@@ -66,7 +66,7 @@ void TerminalDialog::exec(const string &cmd) {
 
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	FILE* pipe = popen((cmd + "2>&1").c_str(), "r");
+	FILE* pipe = popen(("/bin/sh -c '" + cmd + "' 2>&1").c_str(), "r");
 	if (!pipe) return;
 	char buffer[128];
 	// string result = "";
@@ -81,6 +81,7 @@ void TerminalDialog::exec(const string &cmd) {
 				rawText += buffer;
 				inputAction = gmenu2x->input.update(false);
 			} else {
+				rawText += "\n$";
 				inputAction = gmenu2x->input.update();
 			}
 			split(text, rawText, "\n");
