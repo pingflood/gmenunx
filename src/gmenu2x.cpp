@@ -334,7 +334,7 @@ GMenu2X::GMenu2X() {
 	setGamma(confInt["gamma"]);
 	applyDefaultTimings();
 #elif defined(TARGET_RETROGAME)
-	system("ln -sf $(mount | grep int_sd | cut -f 1 -d ' ') /tmp/.int_sd");
+	system("ln -sf $(mount | grep 'home/retrofw' | cut -f 1 -d ' ') /tmp/.retrofw");
 	tvOutConnected = getTVOutStatus();
 	preMMCStatus = curMMCStatus = getMMCStatus();
 	// udcStatus = udcConnectedOnBoot = getUDCStatus();
@@ -1880,8 +1880,8 @@ void GMenu2X::setTVOut(unsigned int TVOut) {
 }
 
 // void GMenu2X::mountSd(bool ext) {
-// 	if (ext)	system("par=$(( $(readlink /tmp/.int_sd | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/ext_sd; mkdir -p /mnt/ext_sd; mount -t vfat -o rw,utf8 $par /mnt/ext_sd");
-// 	else		system("par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/int_sd; mount -t vfat -o rw,utf8 $par /mnt/int_sd");
+// 	if (ext)	system("par=$(( $(readlink /tmp/.retrofw | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/ext_sd; mkdir -p /mnt/ext_sd; mount -t vfat -o rw,utf8 $par /mnt/ext_sd");
+// 	else		system("par=$(readlink /tmp/.retrofw | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/int_sd; mount -t vfat -o rw,utf8 $par /mnt/int_sd");
 // }
 
 // void GMenu2X::umountSd(bool ext) {
@@ -1914,27 +1914,27 @@ void GMenu2X::udcDialog() {
 		int option;
 		if (confStr["usbMode"] == "Network") option = MANUAL;
 		else if (confStr["usbMode"] == "Storage") option = CONFIRM;
-		else if (confStr["usbMode"] == "Charger") option = DO_NOTHING;
+		else if (confStr["usbMode"] == "Charger") option = CANCEL;
 		else {
 			MessageBox mb(this, tr["USB mode"], "skin:icons/usb.png");
 			mb.setButton(MANUAL, tr["Network"]);
-			mb.setButton(CONFIRM,  tr["Charger"]);
-			mb.setButton(CANCEL, tr["Storage"]);
+			mb.setButton(CANCEL,  tr["Charger"]);
+			mb.setButton(CONFIRM, tr["Storage"]);
 			option = mb.exec();
 		}
 
 		if (option == MANUAL) { // network
 			system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_ether.ko; ifdown usb0; ifup usb0");
 			INFO("%s: Enabling usb0 networking device", __func__);
-		} else if (option == CANCEL) { // storage
+		} else if (option == CONFIRM) { // storage
 			system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
 			// umountSd(false);
-			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
+			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.retrofw | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 			INFO("%s: Connect USB disk for internal SD", __func__);
 
 			if (getMMCStatus() == MMC_INSERT) {
 				// umountSd(true);
-				system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file; par=$(( $(readlink /tmp/.int_sd | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
+				system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file; par=$(( $(readlink /tmp/.retrofw | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
 				INFO("%s: Connect USB disk for external SD", __func__);
 			}
 
@@ -1954,18 +1954,19 @@ void GMenu2X::udcDialog() {
 				if ( input[MENU] && input[POWER]) break; //udcConnectedOnBoot = UDC_REMOVE;
 			}
 
-			// {
-			// 	MessageBox mb(this, tr["USB disconnected. Rebooting..."], "skin:icons/usb.png");
-			// 	mb.setAutoHide(200);
-			// 	mb.exec();
-			// system("sync; reboot & sleep 1m");
-			// }
-
-			system("sync");
+			{
+				MessageBox mb(this, tr["USB disconnected. Rebooting..."], "skin:icons/usb.png");
+				mb.setAutoHide(200);
+				mb.exec();
+				system("sync; reboot & sleep 1m");
+			}
 
 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 			INFO("%s: Disconnect USB disk for internal SD", __func__);
+
+			system("sync");
+
 			// mountSd(false);
 			if (getMMCStatus() == MMC_INSERT) {
 				// mountSd(true);
@@ -1995,12 +1996,12 @@ void GMenu2X::udcDialog() {
 	// 	} else if (option == CONFIRM) {
 	// 		system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
 	// 		umountSd(false);
-	// 		system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.int_sd | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
+	// 		system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.retrofw | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
 	// 		INFO("%s, connect USB disk for internal SD", __func__);
 
 	// 		if (getMMCStatus() == MMC_INSERT) {
 	// 			umountSd(true);
-	// 			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file; par=$(( $(readlink /tmp/.int_sd | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
+	// 			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file; par=$(( $(readlink /tmp/.retrofw | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
 	// 			INFO("%s, connect USB disk for external SD", __func__);
 	// 		}
 
