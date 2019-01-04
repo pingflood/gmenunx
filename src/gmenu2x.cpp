@@ -1645,8 +1645,9 @@ void GMenu2X::explorer() {
 			td.exec();
 		} else if (ext == ".ipk") {
 			TerminalDialog td(this, tr["Terminal"], tr["opkg install"], "skin:icons/ebook.png");
-			string cmd = "opkg install " + bd.getFilePath(bd.selected);
+			string cmd = "opkg install --force-reinstall" + bd.getFilePath(bd.selected);
 			td.exec(cmd);
+			initMenu();
 		} else {
 			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
 				writeConfig();
