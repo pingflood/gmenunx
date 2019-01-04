@@ -48,6 +48,8 @@ int TerminalDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t fi
 
 void TerminalDialog::exec(const string &cmd) {
 	bool close = false, inputAction = false;
+	int32_t firstCol = 0, maxLine = 0;
+	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 
 	drawTopBar(this->bg, title, description);
 
@@ -66,18 +68,20 @@ void TerminalDialog::exec(const string &cmd) {
 
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
+	this->bg->blit(gmenu2x->s,0,0);
+	rawText = "$ " + cmd + "\n";
+	split(text, rawText, "\n");
+	maxLine = drawText(&text, firstCol, firstRow, rowsPerPage);
+
+	gmenu2x->s->flip();
+
 	FILE* pipe = popen(("/bin/sh -c '" + cmd + "' 2>&1").c_str(), "r");
 	if (!pipe) return;
 	char buffer[128];
-	// string result = "";
-	int32_t firstCol = 0, maxLine = 0;
-	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
-	// while (!close) {
 
-	rawText = "$ " + cmd + "\n";
 	while (!close) {
 		do {
-			if(!feof(pipe) && fgets(buffer, 128, pipe) != NULL){
+			if (!feof(pipe) && fgets(buffer, 128, pipe) != NULL){
 				rawText += buffer;
 				inputAction = gmenu2x->input.update(false);
 			} else {
