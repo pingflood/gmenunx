@@ -217,7 +217,37 @@ string real_path(const string &path) {
 	char real_path[PATH_MAX];
 	string outpath;
 	realpath(path.c_str(), real_path);
-	if (errno == ENOENT) return path;
+	if (errno == ENOENT) {
+		vector<string> vpath;
+		split(vpath, path, "/");
+
+		if (vpath.size() > 2) {
+			int i = 1;
+			vector<string>::iterator it = vpath.begin() + 1;
+
+			while (it < vpath.end()) {
+				if (!strcmp(it->c_str(), ".")) {
+					vpath.erase(vpath.begin()+i); // = "";
+				} else if (!strcmp(it->c_str(), "..")) {
+					vpath.erase(vpath.begin()+i);// = "";
+					vpath.erase(vpath.begin()+i-1);// = "";
+					it = vpath.begin() + 1;
+					i = 1;
+				} else {
+					it++;
+					i++;
+				}
+			}
+
+			outpath = vpath.at(0) + "/";
+			for(vector<string>::iterator it = vpath.begin() + 1; it < vpath.end() - 1; ++it) {
+				outpath += *it + "/";
+			}
+			outpath += vpath.back();
+
+		}
+		return outpath;
+	}
 	outpath = (string)real_path;
 	return outpath;
 }

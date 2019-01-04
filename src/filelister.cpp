@@ -108,9 +108,7 @@ const string &FileLister::getPath() {
 	return path;
 }
 void FileLister::setPath(const string &path, bool doBrowse) {
-	WARNING("SETTING REALPATH: %s", this->path.c_str());
 	this->path = real_path(path);
-	WARNING("SETTING REALPATH: %s", this->path.c_str());
 	if (doBrowse)
 		browse();
 }
