@@ -81,14 +81,19 @@ void TerminalDialog::exec(const string &cmd) {
 
 	while (!close) {
 		do {
-			if (!feof(pipe) && fgets(buffer, 128, pipe) != NULL){
-				rawText += buffer;
-				inputAction = gmenu2x->input.update(false);
+			if (pipe) {
+				if (!feof(pipe) && fgets(buffer, 128, pipe) != NULL) {
+					rawText += buffer;
+					inputAction = gmenu2x->input.update(false);
+				} else {
+					pclose(pipe);
+					pipe = NULL;
+					rawText += "\n$";
+				}
+				split(text, rawText, "\n");
 			} else {
-				rawText += "\n$";
 				inputAction = gmenu2x->input.update();
 			}
-			split(text, rawText, "\n");
 
 			this->bg->blit(gmenu2x->s,0,0);
 			maxLine = drawText(&text, firstCol, firstRow, rowsPerPage);
