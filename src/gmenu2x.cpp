@@ -710,7 +710,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	}
 
 	if (inputAction) powerManager->resetSuspendTimer();
-	input.setWakeUpInterval(1000);
+	input.setWakeUpInterval(500);
 
 	hwCheck();
 
