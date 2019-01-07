@@ -117,7 +117,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 		// 	setIPUMode( atoi(value.c_str()) );
 		} else {
 			WARNING("Unrecognized option: '%s'", name.c_str());
-			break;
+			// break;
 		}
 	}
 	infile.close();
