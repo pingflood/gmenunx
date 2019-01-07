@@ -2596,21 +2596,20 @@ int GMenu2X::setBacklight(int val, bool popup) {
 		powerManager->clearTimer();
 		while (!close) {
 			input.setWakeUpInterval(3000);
-			if ( input[SETTINGS] || input[CONFIRM] || input[CANCEL] ) close = true;
-			else if ( input[LEFT] || input[DEC] )	val = setBacklight(max(5, val - backlightStep), false);
+			if ( input[LEFT] || input[DEC] )	val = setBacklight(max(5, val - backlightStep), false);
 			else if ( input[RIGHT] || input[INC] )	val = setBacklight(min(100, val + backlightStep), false);
 			else if ( input[SECTION_NEXT] )			val = setBacklight(val + backlightStep, false);
 			else if ( input[BACKLIGHT] )			{ SDL_Delay(50); val = getBacklight(); }
 
 			int brightnessIcon = val/20;
-
 			if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
-			close = !input.update();
 
 			drawSlider(val, 0, 100, *iconBrightness[brightnessIcon], bg);
+
+			if ( input[SETTINGS] || input[CONFIRM] || input[CANCEL] ) close = true;
+			else close = !input.update();
 		}
 		powerManager->resetSuspendTimer();
-		// input.setWakeUpInterval(0);
 		confInt["backlight"] = val;
 		writeConfig();
 	}
