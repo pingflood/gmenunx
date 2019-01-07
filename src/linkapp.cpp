@@ -56,8 +56,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	// useGinge = false;
 	workdir = "";
 	backdrop = backdropPath = "";
-	resolution = "";
-	ipu_mode = 0;
+	// resolution = "";
+	// ipu_mode = 0;
 
 	string line;
 	ifstream infile (linkfile, ios_base::in);
@@ -111,10 +111,10 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 		} else if (name == "backdrop") {
 			setBackdrop(value);
 			// WARNING("BACKDROP: '%s'", backdrop.c_str());
-		} else if (name == "resolution") {
-			setResolution(value);
-		} else if (name == "ipu_mode") {
-			setIPUMode( atoi(value.c_str()) );
+		// } else if (name == "resolution") {
+		// 	setResolution(value);
+		// } else if (name == "ipu_mode") {
+		// 	setIPUMode( atoi(value.c_str()) );
 		} else {
 			WARNING("Unrecognized option: '%s'", name.c_str());
 			break;
@@ -270,8 +270,8 @@ bool LinkApp::save() {
 		if (selectorscreens != "")	f << "selectorscreens="	<< selectorscreens	<< endl;
 		if (aliasfile != "" )		f << "selectoraliases="	<< aliasfile		<< endl;
 		if (backdrop != "" )		f << "backdrop="		<< backdrop			<< endl;
-		if (resolution != ""  )		f << "resolution="		<< resolution		<< endl;
-		if (ipu_mode > 0 )			f << "ipu_mode="		<< ipu_mode			<< endl;
+		// if (resolution != ""  )		f << "resolution="		<< resolution		<< endl;
+		// if (ipu_mode > 0 )			f << "ipu_mode="		<< ipu_mode			<< endl;
 		// if (wrapper              ) f << "wrapper=true"						<< endl;
 		// if (dontleave            ) f << "dontleave=true"						<< endl;
 		f.close();
@@ -385,16 +385,16 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	if (clock() != gmenu2x->confInt["cpuMenu"]) gmenu2x->setCPU(clock());
 
 #if defined(TARGET_GP2X)
-		if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"]) gmenu2x->setGamma(gamma());
+	if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"]) gmenu2x->setGamma(gamma());
 #endif
 
-	#if defined(TARGET_RETROGAME)
-		if (ipu_mode > 0) {
-			char buf[32] = {0};
-			sprintf(buf, "echo %d > /proc/jz/ipu_mode", ipu_mode);
-			system(buf);
-		}
-	#endif
+	// #if defined(TARGET_RETROGAME)
+	// 	if (ipu_mode > 0) {
+	// 		char buf[32] = {0};
+	// 		sprintf(buf, "echo %d > /proc/jz/ipu_mode", ipu_mode);
+	// 		system(buf);
+	// 	}
+	// #endif
 
 	if (gmenu2x->confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 		execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
@@ -510,24 +510,24 @@ void LinkApp::renameFile(const string &name) {
 	file = name;
 }
 
-void LinkApp::setResolution(const string resolution) {
-	this->resolution = resolution;
-	edited = true;
-}
+// void LinkApp::setResolution(const string resolution) {
+// 	this->resolution = resolution;
+// 	edited = true;
+// }
 
-const string &LinkApp::getResolution() {
-	if (this->resolution != "320x240") this->resolution = "320x480";
-	return this->resolution;
-}
+// const string &LinkApp::getResolution() {
+// 	if (this->resolution != "320x240") this->resolution = "320x480";
+// 	return this->resolution;
+// }
 
-void LinkApp::setIPUMode(const int ipu_mode) {
-	this->ipu_mode = ipu_mode;
-	edited = true;
-}
+// void LinkApp::setIPUMode(const int ipu_mode) {
+// 	this->ipu_mode = ipu_mode;
+// 	edited = true;
+// }
 
-const int &LinkApp::getIPUMode() {
-	return this->ipu_mode;
-}
+// const int &LinkApp::getIPUMode() {
+// 	return this->ipu_mode;
+// }
 
 // bool LinkApp::getUseRamTimings() {
 // 	return useRamTimings;

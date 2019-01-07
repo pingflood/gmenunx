@@ -275,9 +275,9 @@ GMenu2X::GMenu2X() {
 	setenv("SDL_NOMOUSE", "1", 1);
 #endif
 
-#if defined(TARGET_RETROGAME)
-	system("echo 0 > /proc/jz/ipu_mode");
-#endif
+// #if defined(TARGET_RETROGAME)
+// 	system("echo 0 > /proc/jz/ipu_mode");
+// #endif
 
 	// setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 	setDateTime();
@@ -295,23 +295,8 @@ GMenu2X::GMenu2X() {
 	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_SWSURFACE);
 	s->enableVirtualDoubleBuffer(dbl);
 #else
-	// SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE | SDL_DOUBLEBUF);
-	// s->enableVirtualDoubleBuffer(dbl, false);
-
-	// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE | SDL_DOUBLEBUF);
-
-	// if (FB_DOUBLELINES) {
-		s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, confInt["videoBpp"], SDL_SWSURFACE /*| SDL_DOUBLEBUF*/);
-		// s->ScreenSurface = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_SWSURFACE /*| SDL_DOUBLEBUF*/);
-		s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
-
-
-		// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE /*| SDL_DOUBLEBUF*/);
-
-	// } else {
-		// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
-		// s->raw = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_HWSURFACE|SDL_DOUBLEBUF);
-	// }
+	s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, confInt["videoBpp"], SDL_SWSURFACE | SDL_DOUBLEBUF);
+	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
 #endif
 
 	setWallpaper(confStr["wallpaper"]);
@@ -848,7 +833,8 @@ void GMenu2X::hwInit() {
 #if defined(TARGET_RETROGAME)
 	if (resX == 320 && resY == 480) {
 		resY = 240;
-		FB_SCREENPITCH = 2;
+		// FB_SCREENPITCH = 2;
+		FB_SCREENPITCH = 1;
 		fwType = "RETROGAME";
 	}
 	else if (resX == 480 && resY == 272) {
@@ -2164,8 +2150,6 @@ void GMenu2X::editLink() {
 	string linkBackdrop = menu->selLinkApp()->getBackdrop();
 	string dialogTitle = tr.translate("Edit $1", linkTitle.c_str(), NULL);
 	string dialogIcon = menu->selLinkApp()->getIconPath();
-	// int linkResolution = menu->selLinkApp()->getResolution();
-	int linkIPUMode = menu->selLinkApp()->getIPUMode();
 
 	SettingsDialog sd(this, ts, dialogTitle, dialogIcon);
 	sd.addSetting(new MenuSettingFile(			this, tr["Executable"],		tr["Application this link points to"], &linkExec, ".dge,.gpu,.gpe,.sh,.bin,.elf,", dir_name(linkExec), dialogTitle, dialogIcon));
@@ -2179,7 +2163,7 @@ void GMenu2X::editLink() {
 		// linkResolution.push_back("320x480");
 		// sd.addSetting(new MenuSettingMultiString(this, tr["Resolution"],	tr["Define LCD mode for app resolution"], &linkSelResolution, &linkResolution));
 // #endif
-	sd.addSetting(new MenuSettingInt(			this, tr["IPU Mode"],		tr["Define IPU mode for image scaling"], &linkIPUMode, 0, 0, 5));
+	// sd.addSetting(new MenuSettingInt(			this, tr["IPU Mode"],		tr["Define IPU mode for image scaling"], &linkIPUMode, 0, 0, 5));
 
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
@@ -2219,7 +2203,7 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setBackdrop(linkBackdrop);
 		menu->selLinkApp()->setCPU(linkClock);
 		// menu->selLinkApp()->setResolution(linkSelResolution);
-		menu->selLinkApp()->setIPUMode(linkIPUMode);
+		// menu->selLinkApp()->setIPUMode(linkIPUMode);
 
 		//G
 #if defined(TARGET_GP2X)
