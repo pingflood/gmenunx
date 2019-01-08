@@ -69,7 +69,7 @@
 #include "imageviewerdialog.h"
 #include "batteryloggerdialog.h"
 #include "linkscannerdialog.h"
-#include "menusettingdatetime.h"
+// #include "menusettingdatetime.h"
 #include "debug.h"
 
 #include <linux/fb.h>
@@ -214,7 +214,7 @@ uint8_t getVolumeMode(uint8_t vol) {
 }
 
 GMenu2X::~GMenu2X() {
-	confStr["datetime"] = getDateTime();
+	// confStr["datetime"] = getDateTime();
 
 	writeConfig();
 
@@ -280,7 +280,7 @@ GMenu2X::GMenu2X() {
 // #endif
 
 	// setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
-	setDateTime();
+	// setDateTime();
 
 	//Screen
 	if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK) < 0 ) {
@@ -1013,11 +1013,11 @@ void GMenu2X::settings() {
 	opFactory.push_back(">>");
 	string tmp = ">>";
 
-	string prevDateTime = confStr["datetime"] = getDateTime();
+	// string prevDateTime = confStr["datetime"] = getDateTime();
 
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
-	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
+	// sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
 
 	if (fwType == "RETROGAME") {
 		vector<string> batteryType;
@@ -1064,7 +1064,7 @@ void GMenu2X::settings() {
 		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
 #endif
 
-		if (prevDateTime != confStr["datetime"]) restartDialog();
+		// if (prevDateTime != confStr["datetime"]) restartDialog();
 	}
 }
 
@@ -1186,7 +1186,7 @@ void GMenu2X::readConfig() {
 	string conffile = path + "gmenu2x.conf";
 
 	// Defaults
-	confStr["datetime"] = __BUILDTIME__;
+	// confStr["datetime"] = __BUILDTIME__;
 	if (fwType != "RETROARCADE") confStr["batteryType"] = "BL-5B";
 	else confStr["batteryType"] = "Linear";
 	confInt["saveSelection"] = 1;
