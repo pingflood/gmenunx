@@ -95,9 +95,8 @@ bool InputManager::readConfFile(const string &conffile) {
 	while (getline(inf, line, '\n')) {
 		linenum++;
 		pos = line.find("=");
-		name = trim(line.substr(0,pos));
-		value = trim(line.substr(pos + 1,line.length()));
-
+		name = trim(line.substr(0, pos));
+		value = trim(line.substr(pos + 1));
 
 		if (name == "up")                action = UP;
 		else if (fwType == "RETROARCADE" && name == "cancel")   action = CONFIRM;
@@ -124,7 +123,8 @@ bool InputManager::readConfFile(const string &conffile) {
 		else if (name == "speaker") {}
 		else {
 			ERROR("%s:%d Unknown action '%s'.", conffile.c_str(), linenum, name.c_str());
-			return false;
+			continue;
+			// return false;
 		}
 
 		split(values, value, ",");
@@ -151,12 +151,14 @@ bool InputManager::readConfFile(const string &conffile) {
 				actions[action].maplist.push_back(map);
 			} else {
 				ERROR("%s:%d Invalid syntax or unsupported mapping type '%s'.", conffile.c_str(), linenum, value.c_str());
-				return false;
+				continue;
+				// return false;
 			}
 
 		} else {
 			ERROR("%s:%d Every definition must have at least 2 values (%s).", conffile.c_str(), linenum, value.c_str());
-			return false;
+			continue;
+			// return false;
 		}
 	}
 	inf.close();
