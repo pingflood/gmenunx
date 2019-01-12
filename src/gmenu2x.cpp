@@ -1914,52 +1914,11 @@ void GMenu2X::udcDialog() {
 			system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_ether.ko; ifdown usb0; ifup usb0");
 			INFO("%s: Enabling usb0 networking device", __func__);
 		} else if (option == CONFIRM) { // storage
-			system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
-			// umountSd(false);
-			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.retrofw | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
-			INFO("%s: Connect USB disk for internal SD", __func__);
-
-			if (getMMCStatus() == MMC_INSERT) {
-				// umountSd(true);
-				system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file; par=$(( $(readlink /tmp/.retrofw | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
-				INFO("%s: Connect USB disk for external SD", __func__);
-			}
-
-			sc[confStr["wallpaper"]]->blit(s,0,0);
-
-			{
-				MessageBox mb(this, tr["USB Drive Connected"], "skin:icons/usb.png");
-				mb.setAutoHide(500);
-				mb.exec();
-			}
-
-			powerManager->clearTimer();
-
-			// while (udcConnectedOnBoot == UDC_CONNECT && getUDCStatus() == UDC_CONNECT) {
-			while (getUDCStatus() == UDC_CONNECT) {
-				input.update();
-				if ( input[MENU] && input[POWER]) break; //udcConnectedOnBoot = UDC_REMOVE;
-			}
-
-			{
-				MessageBox mb(this, tr["USB disconnected. Rebooting..."], "skin:icons/usb.png");
-				mb.setAutoHide(200);
-				mb.exec();
-				system("sync; reboot & sleep 1m");
-			}
-
-			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
-			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
-			INFO("%s: Disconnect USB disk for internal SD", __func__);
-
-			system("sync");
-
-			// mountSd(false);
-			if (getMMCStatus() == MMC_INSERT) {
-				// mountSd(true);
-				INFO("%s: Disconnect USB disk for external SD", __func__);
-			}
-			// powerManager->resetSuspendTimer();
+			quit();
+			execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage nopoweroff", NULL);
+			chdir(getExePath().c_str());
+			execlp("./gmenu2x", "./gmenu2x", NULL);
+			return;
 		}
 	} else {
 		INFO("%s: USB Disconnected. Unloading modules.", __func__);

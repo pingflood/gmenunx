@@ -27,7 +27,7 @@
 	L          SECTION_PREV   SDLK_TAB        9
 	R          SECTION_NEXT   SDLK_BACKSPACE  8
 	START      SETTINGS       SDLK_RETURN     13
-	SELECT     MENU)          SDLK_ESCAPE     27
+	SELECT     MENU           SDLK_ESCAPE     27
 	BACKLIGHT  BACKLIGHT      SDLK_3          51
 	POWER      POWER          SDLK_END        279
 */
