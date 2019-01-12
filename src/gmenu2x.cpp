@@ -527,6 +527,12 @@ void GMenu2X::main() {
 				iconBattery[batteryIcon]->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
 				iconTrayShift++;
 
+				if (iconInet != NULL) {
+					// Network indicator
+					iconInet->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
+					iconTrayShift++;
+				}
+
 				// SD Card indicator
 				if (curMMCStatus == MMC_INSERT) {
 					iconSD->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
@@ -1912,7 +1918,8 @@ void GMenu2X::udcDialog() {
 
 		if (option == MANUAL) { // network
 			system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_ether.ko; ifdown usb0; ifup usb0");
-			INFO("%s: Enabling usb0 networking device", __func__);
+			iconInet = sc.skinRes("imgs/inet.png");
+			INFO("Enabling usb0 networking device");
 		} else if (option == CONFIRM) { // storage
 			quit();
 			execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage nopoweroff", NULL);
@@ -1921,71 +1928,10 @@ void GMenu2X::udcDialog() {
 			return;
 		}
 	} else {
-		INFO("%s: USB Disconnected. Unloading modules.", __func__);
+		INFO("USB Disconnected. Unloading modules...");
 		system("sync; rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko");
+		iconInet = NULL;
 	}
-	// if (getUDCStatus() == UDC_CONNECT) {
-	// 	// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
-	// 	// 	// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
-	// 	// 	// mb.setButton(CONFIRM,  tr["Charger"]);
-	// 	// 	// mb.exec();
-	// 	// 	return;
-	// 	// }
-
-	// 	MessageBox mb(this, tr["Select USB mode:"], "skin:icons/usb.png");
-	// 	mb.setButton(MANUAL, tr["Network"]);
-	// 	mb.setButton(CONFIRM, tr["Storage"]);
-	// 	mb.setButton(CANCEL,  tr["Charger"]);
-	// 	int option = mb.exec();
-	// 	if (option == MANUAL) {
-	// 		system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_ether.ko; ifdown usb0; ifup usb0");
-	// 	} else if (option == CONFIRM) {
-	// 		system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_file_storage.ko");
-	// 		umountSd(false);
-	// 		system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file; par=$(readlink /tmp/.retrofw | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
-	// 		INFO("%s, connect USB disk for internal SD", __func__);
-
-	// 		if (getMMCStatus() == MMC_INSERT) {
-	// 			umountSd(true);
-	// 			system("echo \"\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file; par=$(( $(readlink /tmp/.retrofw | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); echo \"$par\" > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
-	// 			INFO("%s, connect USB disk for external SD", __func__);
-	// 		}
-
-	// 		sc[confStr["wallpaper"]]->blit(s,0,0);
-
-	// 		{
-	// 			MessageBox mb(this, tr["USB Drive Connected"], "skin:icons/usb.png");
-	// 			mb.setAutoHide(500);
-	// 			mb.exec();
-	// 		}
-
-	// 		powerManager->clearTimer();
-
-	// 		while (udcConnectedOnBoot == UDC_CONNECT && getUDCStatus() == UDC_CONNECT) {
-	// 			input.update();
-	// 			if ( input[MENU] && input[POWER]) udcConnectedOnBoot = UDC_REMOVE;
-	// 		}
-
-	// 		// {
-	// 		// 	MessageBox mb(this, tr["USB disconnected. Rebooting..."], "skin:icons/usb.png");
-	// 		// 	mb.setAutoHide(200);
-	// 		// 	mb.exec();
-	// 		// }
-
-	// 		// system("sync; reboot & sleep 1m");
-	// 		system("sync");
-
-	// 		system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun0/file");
-	// 		mountSd(false);
-	// 		INFO("%s, disconnect usbdisk for internal sd", __func__);
-	// 		if (getMMCStatus() == MMC_INSERT) {
-	// 			system("echo '' > /sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file");
-	// 			mountSd(true);
-	// 			INFO("%s, disconnect USB disk for external SD", __func__);
-	// 		}
-	// 		// powerManager->resetSuspendTimer();
-	// 	}
-	// }
 }
 
 void GMenu2X::formatSd() {

@@ -210,7 +210,8 @@ public:
 
 	SurfaceCollection sc;
 	Translator tr;
-	Surface *s, *bg;
+	Surface *s, *bg, *iconInet = NULL;
+
 	FontHelper *font = NULL, *titlefont = NULL; //, *bottombarfont;
 
 	//Status functions
