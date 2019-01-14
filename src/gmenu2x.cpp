@@ -322,8 +322,7 @@ GMenu2X::GMenu2X() {
 	system("ln -sf $(mount | grep 'home/retrofw' | cut -f 1 -d ' ') /tmp/.retrofw");
 	tvOutConnected = getTVOutStatus();
 	preMMCStatus = curMMCStatus = getMMCStatus();
-	// udcStatus = udcConnectedOnBoot = getUDCStatus();
-	udcPrev = udcStatus = getUDCStatus();
+	udcStatus = getUDCStatus();
 #endif
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
 	
