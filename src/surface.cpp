@@ -176,7 +176,8 @@ void Surface::flip() {
 		// SDL_SoftStretch(raw, NULL, dblbuffer, NULL);
 		SDL_Flip(dblbuffer);
 	} else 
-		SDL_SoftStretch(raw, NULL, ScreenSurface, NULL);
+		SDL_BlitSurface(raw, NULL, ScreenSurface, NULL);
+		// SDL_SoftStretch(raw, NULL, ScreenSurface, NULL);
 		SDL_Flip(ScreenSurface);
 }
 
