@@ -177,7 +177,7 @@ int memdev = 0;
 	volatile uint16_t *memregs;
 #endif
 
-int16_t curMMCStatus, preMMCStatus;
+int16_t mmcStatus, mmcPrev;
 int16_t getMMCStatus() {
 	if (memdev > 0 && !(memregs[0x10500 >> 2] >> 0 & 0b1)) return MMC_INSERT;
 	return MMC_REMOVE;
@@ -316,7 +316,7 @@ GMenu2X::GMenu2X() {
 #elif defined(TARGET_RETROGAME)
 	// system("ln -sf $(mount | grep 'home/retrofw' | cut -f 1 -d ' ') /tmp/.retrofw");
 	tvOutStatus = getTVOutStatus();
-	preMMCStatus = curMMCStatus = getMMCStatus();
+	mmcPrev = mmcStatus = getMMCStatus();
 	udcStatus = getUDCStatus();
 #endif
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
@@ -382,7 +382,7 @@ void GMenu2X::main() {
 // 	if (udcConnectedOnBoot == UDC_CONNECT) udcDialog();
 // #endif
 
-	// if (curMMCStatus == MMC_INSERT) mountSd(true);
+	// if (mmcStatus == MMC_INSERT) mountSd(true);
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();
@@ -528,7 +528,7 @@ void GMenu2X::main() {
 				}
 
 				// SD Card indicator
-				if (curMMCStatus == MMC_INSERT) {
+				if (mmcStatus == MMC_INSERT) {
 					iconSD->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
 					iconTrayShift++;
 				}
@@ -557,7 +557,7 @@ void GMenu2X::main() {
 				iconBattery[batteryIcon]->blit(s, sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38);
 
 				// TRAY iconTrayShift,1
-				if (curMMCStatus == MMC_INSERT) {
+				if (mmcStatus == MMC_INSERT) {
 					iconSD->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 					iconTrayShift++;
 				}
@@ -958,7 +958,7 @@ void GMenu2X::initMenu() {
 		if (menu->getSections()[i] == "applications") {
 			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Browse files and launch apps"], "skin:icons/explorer.png");
 			//menu->addActionLink(i, "Format", MakeDelegate(this, &GMenu2X::formatSd), tr["Format internal SD"], "skin:icons/format.png");
-			// if (curMMCStatus == MMC_INSERT)
+			// if (mmcStatus == MMC_INSERT)
 			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external media device"], "skin:icons/eject.png");
 
 #if !defined(TARGET_PC)
@@ -1705,27 +1705,10 @@ uint32_t GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
 			InputManager::pushEvent(udcStatus);
 		}
 
-		curMMCStatus = getMMCStatus();
-		if (preMMCStatus != curMMCStatus) {
-			preMMCStatus = curMMCStatus;
-
-			InputManager::pushEvent(curMMCStatus);
-
-			// string msg;
-
-			// // if (curMMCStatus == MMC_INSERT) msg = tr["SD card connected"];
-			// // else msg = tr["SD card removed"];
-
-			// // MessageBox mb(this, msg, "skin:icons/eject.png");
-			// // mb.setAutoHide(1000);
-			// // mb.exec();
-
-			// if (curMMCStatus == MMC_INSERT) {
-			// 	mountSd(true);
-			// 	// menu->addActionLink(menu->getSectionIndex("settings"), tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external SD"], "skin:icons/eject.png");
-			// } else {
-			// 	umountSd(true);
-			// }
+		mmcStatus = getMMCStatus();
+		if (mmcPrev != mmcStatus) {
+			mmcPrev = mmcStatus;
+			InputManager::pushEvent(mmcStatus);
 		}
 
 		tvOutStatus = getTVOutStatus();
