@@ -161,6 +161,7 @@ private:
 #elif defined(TARGET_RETROGAME)
 	void formatSd();
 	void udcDialog();
+	void tvOutDialog();
 #endif
 	void umountSdDialog();
 	void umountSd(bool ext);

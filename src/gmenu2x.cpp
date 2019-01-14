@@ -177,19 +177,11 @@ int memdev = 0;
 	volatile uint16_t *memregs;
 #endif
 
-// enum mmc_status {
-// 	MMC_REMOVE, MMC_INSERT, MMC_ERROR
-// };
-
 int16_t curMMCStatus, preMMCStatus;
 int16_t getMMCStatus() {
 	if (memdev > 0 && !(memregs[0x10500 >> 2] >> 0 & 0b1)) return MMC_INSERT;
 	return MMC_REMOVE;
 }
-
-// enum udc_status {
-// 	UDC_REMOVE, UDC_CONNECT, UDC_ERROR
-// };
 
 int16_t udcPrev = false, udcStatus = false; //udcConnectedOnBoot;
 int16_t getUDCStatus() {
@@ -197,11 +189,14 @@ int16_t getUDCStatus() {
 	return UDC_REMOVE;
 }
 
-int16_t tvOutPrev = false, tvOutConnected;
+int16_t tvOutPrev = false, tvOutStatus;
 bool getTVOutStatus() {
-	if (memdev > 0 && fwType == "RETROARCADE") return !(memregs[0x10300 >> 2] >> 6 & 0b1);
-	else if (memdev > 0) return !(memregs[0x10300 >> 2] >> 25 & 0b1);
-	return false;
+	if (memdev > 0 && !(memregs[0x10300 >> 2] >> 25 & 0b1)) return TV_CONNECT;
+	return TV_REMOVE;
+
+	// if (memdev > 0 && fwType == "RETROARCADE") return !(memregs[0x10300 >> 2] >> 6 & 0b1);
+	// else if (memdev > 0) return !(memregs[0x10300 >> 2] >> 25 & 0b1);
+	// return false;
 }
 
 enum vol_mode_t {
@@ -319,8 +314,8 @@ GMenu2X::GMenu2X() {
 	setGamma(confInt["gamma"]);
 	applyDefaultTimings();
 #elif defined(TARGET_RETROGAME)
-	system("ln -sf $(mount | grep 'home/retrofw' | cut -f 1 -d ' ') /tmp/.retrofw");
-	tvOutConnected = getTVOutStatus();
+	// system("ln -sf $(mount | grep 'home/retrofw' | cut -f 1 -d ' ') /tmp/.retrofw");
+	tvOutStatus = getTVOutStatus();
 	preMMCStatus = curMMCStatus = getMMCStatus();
 	udcStatus = getUDCStatus();
 #endif
@@ -745,6 +740,9 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 #ifdef TARGET_RETROGAME
 	} else if ( input[UDC_CONNECT] || input[UDC_REMOVE] ) {
 		udcDialog();
+		return true;
+	} else if ( input[TV_CONNECT] ) {
+		tvOutDialog();
 		return true;
 #endif
 	}
@@ -1676,9 +1674,7 @@ void GMenu2X::ledOff() {
 #endif
 }
 
-// void GMenu2X::hwCheck() {
 uint32_t GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
-WARNING("HWCHECK");
 #if defined(TARGET_RETROGAME)
 	if (memdev > 0) {
 		// printf("\e[s\e[1;0f\e[1;32m");
@@ -1706,15 +1702,14 @@ WARNING("HWCHECK");
 		if (udcPrev != udcStatus) {
 			udcPrev = udcStatus;
 			tickBattery = -2e3;
-			// udcDialog();
-			InputManager::pushEvent(getUDCStatus());
+			InputManager::pushEvent(udcStatus);
 		}
 
 		curMMCStatus = getMMCStatus();
 		if (preMMCStatus != curMMCStatus) {
 			preMMCStatus = curMMCStatus;
 
-			InputManager::pushEvent(getMMCStatus());
+			InputManager::pushEvent(curMMCStatus);
 
 			// string msg;
 
@@ -1733,11 +1728,12 @@ WARNING("HWCHECK");
 			// }
 		}
 
-		// tvOutConnected = getTVOutStatus();
-		// if (tvOutPrev != tvOutConnected) {
-		// 	tvOutPrev = tvOutConnected;
-
-		// 	if (tvOutConnected) {
+		tvOutStatus = getTVOutStatus();
+		if (tvOutPrev != tvOutStatus) {
+			tvOutPrev = tvOutStatus;
+			InputManager::pushEvent(tvOutStatus);
+		}
+		// 	if (tvOutStatus) {
 		// 		MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
 		// 		mb.setButton(CONFIRM, tr["NTSC"]);
 		// 		mb.setButton(MANUAL,  tr["PAL"]);
@@ -1897,6 +1893,33 @@ void GMenu2X::umountSdDialog() {
 	bd.exec();
 }
 #if defined(TARGET_RETROGAME)
+void GMenu2X::tvOutDialog() {
+	MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
+	mb.setButton(CONFIRM, tr["NTSC"]);
+	mb.setButton(MANUAL,  tr["PAL"]);
+	mb.setButton(CANCEL,  tr["OFF"]);
+	int op = mb.exec();
+	switch (op) {
+		case CONFIRM:
+			TVOut = TV_NTSC;
+			setTVOut(TVOut);
+			setBacklight(0);
+			return;
+			break;
+		case MANUAL:
+			TVOut = TV_PAL;
+			setTVOut(TVOut);
+			setBacklight(0);
+			return;
+			break;
+		default:
+			TVOut = TV_OFF;
+			setTVOut(TVOut);
+			setBacklight(confInt["backlight"]);
+			break;
+	}
+}
+
 void GMenu2X::udcDialog() {
 	udcStatus = getUDCStatus();
 	if (udcStatus == UDC_CONNECT) {
