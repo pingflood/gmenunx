@@ -86,6 +86,7 @@ const char *CARD_ROOT = "/home/retrofw/"; //Note: Add a trailing /!
 const int CARD_ROOT_LEN = 1;
 int FB_SCREENPITCH = 1;
 string fwType = "";
+int32_t tickBattery = -2e3;
 
 static GMenu2X *app;
 
@@ -176,24 +177,24 @@ int memdev = 0;
 	volatile uint16_t *memregs;
 #endif
 
-enum mmc_status {
-	MMC_REMOVE, MMC_INSERT, MMC_ERROR
-};
+// enum mmc_status {
+// 	MMC_REMOVE, MMC_INSERT, MMC_ERROR
+// };
 
 int16_t curMMCStatus, preMMCStatus;
 int16_t getMMCStatus() {
-	if (memdev > 0) return !(memregs[0x10500 >> 2] >> 0 & 0b1);
-	return MMC_ERROR;
+	if (memdev > 0 && !(memregs[0x10500 >> 2] >> 0 & 0b1)) return MMC_INSERT;
+	return MMC_REMOVE;
 }
 
-enum udc_status {
-	UDC_REMOVE, UDC_CONNECT, UDC_ERROR
-};
+// enum udc_status {
+// 	UDC_REMOVE, UDC_CONNECT, UDC_ERROR
+// };
 
 int16_t udcPrev = false, udcStatus = false; //udcConnectedOnBoot;
 int16_t getUDCStatus() {
-	if (memdev > 0) return (memregs[0x10300 >> 2] >> 7 & 0b1);
-	return UDC_ERROR;
+	if (memdev > 0 && (memregs[0x10300 >> 2] >> 7 & 0b1)) return UDC_CONNECT;
+	return UDC_REMOVE;
 }
 
 int16_t tvOutPrev = false, tvOutConnected;
@@ -257,9 +258,9 @@ void* mainThread(void* param) {
 	return NULL;
 }
 
-// GMenu2X *GMenu2X::instance = NULL;
+GMenu2X *GMenu2X::instance = NULL;
 GMenu2X::GMenu2X() {
-	// instance = this;
+	instance = this;
 	//load config data
 	readConfig();
 	hwInit();
@@ -323,7 +324,7 @@ GMenu2X::GMenu2X() {
 	tvOutConnected = getTVOutStatus();
 	preMMCStatus = curMMCStatus = getMMCStatus();
 	// udcStatus = udcConnectedOnBoot = getUDCStatus();
-	udcStatus = getUDCStatus();
+	udcPrev = udcStatus = getUDCStatus();
 #endif
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
 	
@@ -331,7 +332,7 @@ GMenu2X::GMenu2X() {
 	readTmp();
 	setCPU(confInt["cpuMenu"]);
 
-	input.setWakeUpInterval(1000);
+	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
 	//recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
@@ -609,10 +610,8 @@ void GMenu2X::main() {
 			mb.setBgAlpha(0);
 			mb.setAutoHide(200);
 			mb.exec();
-			input.setWakeUpInterval(1);
 			continue;
 		}
-		// input.setWakeUpInterval(0);
 
 		if (inputCommonActions(inputAction)) continue;
 
@@ -690,20 +689,15 @@ void GMenu2X::main() {
 bool GMenu2X::inputCommonActions(bool &inputAction) {
 	if (powerManager->suspendActive) {
 		// SUSPEND ACTIVE
-		input.setWakeUpInterval(0);
-		while (!(input[POWER] || input[SETTINGS])) {
+		while (!(input[POWER] || input[SETTINGS] || input[UDC_CONNECT])) {
 			input.update();
 		}
 		powerManager->doSuspend(0);
-		input.setWakeUpInterval(1000);
 		input[DO_NOTHING] = true;
 		return true;
 	}
 
 	if (inputAction) powerManager->resetSuspendTimer();
-	input.setWakeUpInterval(500);
-
-	hwCheck();
 
 	int wasActive = 0;
 	while (input[POWER] || input[SETTINGS]) {
@@ -750,6 +744,11 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	if ( input[BACKLIGHT] ) {
 		setBacklight(confInt["backlight"], true);
 		return true;
+#ifdef TARGET_RETROGAME
+	} else if ( input[UDC_CONNECT] || input[UDC_REMOVE] ) {
+		udcDialog();
+		return true;
+#endif
 	}
 
 	input[wasActive] = true;
@@ -1009,11 +1008,6 @@ void GMenu2X::settings() {
 	fl_tr.insertFile("English");
 	string lang = tr.lang();
 	if (lang == "") lang = "English";
-
-	// vector<string> encodings;
-	// // encodings.push_back("OFF");
-	// encodings.push_back("NTSC");
-	// encodings.push_back("PAL");
 
 	vector<string> opFactory;
 	opFactory.push_back(">>");
@@ -1678,7 +1672,9 @@ void GMenu2X::ledOff() {
 #endif
 }
 
-void GMenu2X::hwCheck() {
+// void GMenu2X::hwCheck() {
+uint32_t GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
+WARNING("HWCHECK");
 #if defined(TARGET_RETROGAME)
 	if (memdev > 0) {
 		// printf("\e[s\e[1;0f\e[1;32m");
@@ -1706,12 +1702,16 @@ void GMenu2X::hwCheck() {
 		if (udcPrev != udcStatus) {
 			udcPrev = udcStatus;
 			tickBattery = -2e3;
-			checkUDC();
+			// udcDialog();
+			InputManager::pushEvent(getUDCStatus());
 		}
 
 		curMMCStatus = getMMCStatus();
 		if (preMMCStatus != curMMCStatus) {
 			preMMCStatus = curMMCStatus;
+
+			InputManager::pushEvent(getMMCStatus());
+
 			// string msg;
 
 			// // if (curMMCStatus == MMC_INSERT) msg = tr["SD card connected"];
@@ -1729,45 +1729,46 @@ void GMenu2X::hwCheck() {
 			// }
 		}
 
-		tvOutConnected = getTVOutStatus();
-		if (tvOutPrev != tvOutConnected) {
-			tvOutPrev = tvOutConnected;
+		// tvOutConnected = getTVOutStatus();
+		// if (tvOutPrev != tvOutConnected) {
+		// 	tvOutPrev = tvOutConnected;
 
-			if (tvOutConnected) {
-				MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
-				mb.setButton(CONFIRM, tr["NTSC"]);
-				mb.setButton(MANUAL,  tr["PAL"]);
-				mb.setButton(CANCEL,  tr["OFF"]);
-				int op = mb.exec();
-				switch (op) {
-				    case CONFIRM:
-			    		TVOut = TV_NTSC;
-						setTVOut(TVOut);
-						setBacklight(0);
-						return;
-						break;
-				    case MANUAL:
-				    	TVOut = TV_PAL;
-						setTVOut(TVOut);
-						setBacklight(0);
-						return;
-						break;
-				    default:
-				    	TVOut = TV_OFF;
-						setTVOut(TVOut);
-						setBacklight(confInt["backlight"]);
-						break;
-				}
-			}
-		}
+		// 	if (tvOutConnected) {
+		// 		MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
+		// 		mb.setButton(CONFIRM, tr["NTSC"]);
+		// 		mb.setButton(MANUAL,  tr["PAL"]);
+		// 		mb.setButton(CANCEL,  tr["OFF"]);
+		// 		int op = mb.exec();
+		// 		switch (op) {
+		// 		    case CONFIRM:
+		// 	    		TVOut = TV_NTSC;
+		// 				setTVOut(TVOut);
+		// 				setBacklight(0);
+		// 				return;
+		// 				break;
+		// 		    case MANUAL:
+		// 		    	TVOut = TV_PAL;
+		// 				setTVOut(TVOut);
+		// 				setBacklight(0);
+		// 				return;
+		// 				break;
+		// 		    default:
+		// 		    	TVOut = TV_OFF;
+		// 				setTVOut(TVOut);
+		// 				setBacklight(confInt["backlight"]);
+		// 				break;
+		// 		}
+		// 	}
+		// }
 
-		volumeMode = getVolumeMode(confInt["globalVolume"]);
-		if (volumeModePrev != volumeMode && volumeMode == VOLUME_MODE_PHONES) {
-			setVolume(min(70, confInt["globalVolume"]), true);
-		}
-		volumeModePrev = volumeMode;
+		// volumeMode = getVolumeMode(confInt["globalVolume"]);
+		// if (volumeModePrev != volumeMode && volumeMode == VOLUME_MODE_PHONES) {
+		// 	setVolume(min(70, confInt["globalVolume"]), true);
+		// }
+		// volumeModePrev = volumeMode;
 	}
 #endif
+	return interval;
 }
 
 const string GMenu2X::getDateTime() {
@@ -1982,7 +1983,6 @@ void GMenu2X::contextMenu() {
 	box.y = halfY - box.h / 2;
 
 	uint32_t tickStart = SDL_GetTicks();
-	input.setWakeUpInterval(45);
 	while (!close) {
 		bg.blit(s, 0, 0);
 
@@ -2323,15 +2323,15 @@ void GMenu2X::setInputSpeed() {
 	input.setInterval(1000, SETTINGS);
 	input.setInterval(1000, MENU);
 	input.setInterval(1000, CONFIRM);
-	input.setInterval(1500, POWER);
+	input.setInterval(1000, POWER);
 	// input.setInterval(30,  VOLDOWN);
 	// input.setInterval(30,  VOLUP);
 	// input.setInterval(300, CANCEL);
 	// input.setInterval(300, MANUAL);
 	// input.setInterval(100, INC);
 	// input.setInterval(100, DEC);
-	// input.setInterval(500, SECTION_PREV);
-	// input.setInterval(500, SECTION_NEXT);
+	input.setInterval(500, SECTION_PREV);
+	input.setInterval(500, SECTION_NEXT);
 	// input.setInterval(500, PAGEUP);
 	// input.setInterval(500, PAGEDOWN);
 	// input.setInterval(200, BACKLIGHT);
@@ -2416,8 +2416,11 @@ int GMenu2X::setVolume(int val, bool popup) {
 		};
 
 		powerManager->clearTimer();
+		SDL_TimerID wakeUpTimer = NULL;
 		while (!close) {
-			input.setWakeUpInterval(3000);
+			SDL_RemoveTimer(wakeUpTimer); wakeUpTimer = NULL;
+			wakeUpTimer = SDL_AddTimer(3000, input.wakeUp, (void*)false);
+
 			drawSlider(val, 0, 100, *iconVolume[getVolumeMode(val)], bg);
 
 			close = !input.update();
@@ -2482,10 +2485,12 @@ int GMenu2X::setBacklight(int val, bool popup) {
 			sc.skinRes("imgs/brightness.png")
 		};
 
-		powerManager->clearTimer();
+		SDL_TimerID wakeUpTimer = NULL;
 		while (!close) {
-			input.setWakeUpInterval(3000);
-			if ( input[LEFT] || input[DEC] )	val = setBacklight(max(5, val - backlightStep), false);
+			SDL_RemoveTimer(wakeUpTimer);
+			wakeUpTimer = SDL_AddTimer(3000, input.wakeUp, (void*)false);
+
+			if ( input[LEFT] || input[DEC] )		val = setBacklight(max(5, val - backlightStep), false);
 			else if ( input[RIGHT] || input[INC] )	val = setBacklight(min(100, val + backlightStep), false);
 			else if ( input[SECTION_NEXT] )			val = setBacklight(val + backlightStep, false);
 			else if ( input[BACKLIGHT] )			{ SDL_Delay(50); val = getBacklight(); }

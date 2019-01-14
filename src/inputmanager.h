@@ -29,8 +29,16 @@ enum actions {
 	PAGEUP, PAGEDOWN,
 	SETTINGS, MENU,
 	VOLUP, VOLDOWN,
-  BACKLIGHT, POWER,
-  NUM_ACTIONS
+	BACKLIGHT, POWER,
+	UDC_CONNECT, // = NUM_ACTIONS,
+	UDC_REMOVE,
+	MMC_INSERT,
+	MMC_REMOVE,
+	TV_CONNECT,
+	TV_REMOVE,
+	PHONES_CONNECT,
+	PHONES_REMOVE,
+	NUM_ACTIONS
 };
 
 #include <SDL.h>
@@ -83,13 +91,13 @@ private:
 	vector <InputManagerAction> actions;
 
 	static uint32_t checkRepeat(uint32_t interval, void *_data);
-	static uint32_t wakeUp(uint32_t interval, void *_data);
 	SDL_Event *fakeEventForAction(int action);
 
 	const char konami[10] = {UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, CANCEL, CONFIRM}; // eegg
 	char input_combo[10] = {POWER}; // eegg
 
 public:
+	static uint32_t wakeUp(uint32_t interval, void *repeat);
 	static const int MAPPING_TYPE_UNDEFINED = -1;
 	static const int MAPPING_TYPE_BUTTON = 0;
 	static const int MAPPING_TYPE_AXIS = 1;
@@ -106,6 +114,7 @@ public:
 	bool update(bool wait=true);
 	bool combo();
 	void dropEvents();
+	static void pushEvent(int action);
 	int count();
 	void setActionsCount(int count);
 	void setInterval(int ms, int action = -1);

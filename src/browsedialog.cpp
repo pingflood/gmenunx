@@ -91,7 +91,7 @@ bool BrowseDialog::exec() {
 				if (animation < gmenu2x->skinConfInt["previewWidth"]) {
 					animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
 					gmenu2x->s->flip();
-					gmenu2x->input.setWakeUpInterval(45);
+					// gmenu2x->input.setWakeUpInterval(45);
 					continue;
 				}
 			} else {
@@ -99,11 +99,11 @@ bool BrowseDialog::exec() {
 					gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 					animation = gmenu2x->skinConfInt["previewWidth"] - intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 80);
 					gmenu2x->s->flip();
-					gmenu2x->input.setWakeUpInterval(45);
+					// gmenu2x->input.setWakeUpInterval(45);
 					continue;
 				}
 			}
-			gmenu2x->input.setWakeUpInterval(1000);
+			// gmenu2x->input.setWakeUpInterval(1000);
 
 			gmenu2x->drawScrollBar(numRows, size(), firstElement, gmenu2x->listRect);
 			gmenu2x->s->flip();
