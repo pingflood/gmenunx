@@ -274,11 +274,10 @@ GMenu2X::GMenu2X() {
 
 #if !defined(TARGET_PC)
 	setenv("SDL_NOMOUSE", "1", 1);
+#elif defined(TARGET_RETROGAME)
+	system("echo 0 > /proc/jz/vsync");
+	// system("echo 0 > /proc/jz/ipu_mode");
 #endif
-
-// #if defined(TARGET_RETROGAME)
-// 	system("echo 0 > /proc/jz/ipu_mode");
-// #endif
 
 	// setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 	// setDateTime();
@@ -2062,15 +2061,17 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingString(		this, tr["Description"],	tr["Link description"], &linkDescription, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingMultiString(	this, tr["Section"],		tr["The section this link belongs to"], &newSection, &menu->getSections()));
 	sd.addSetting(new MenuSettingImage(			this, tr["Icon"],			tr["Select a custom icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", dir_name(linkIcon), dialogTitle, dialogIcon));
-// #if defined(TARGET_RETROGAME)
-		// vector<string> linkResolution;
-		// linkResolution.push_back("320x240");
-		// linkResolution.push_back("320x480");
-		// sd.addSetting(new MenuSettingMultiString(this, tr["Resolution"],	tr["Define LCD mode for app resolution"], &linkSelResolution, &linkResolution));
-// #endif
-	// sd.addSetting(new MenuSettingInt(			this, tr["IPU Mode"],		tr["Define IPU mode for image scaling"], &linkIPUMode, 0, 0, 5));
-
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
+#if defined(TARGET_RETROGAME)
+	int linkVsync = menu->selLinkApp()->getVsync();
+	vector<string> opVsync;
+	opVsync.push_back(tr["Hybrid"]);
+	opVsync.push_back("ON");
+	opVsync.push_back("OFF");
+	string selVsync = opVsync[linkVsync];
+	sd.addSetting(new MenuSettingMultiString(this, tr["VSync"],	tr["Define V-Sync mode"], &selVsync, &opVsync));
+#endif
+
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingDir(			this, tr["Selector Path"],	tr["Directory to start the selector"], &linkSelDir, dir_name(linkSelDir), dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingBool(			this, tr["Show Folders"],	tr["Allow the selector to change directory"], &linkSelBrowser));
@@ -2084,11 +2085,10 @@ void GMenu2X::editLink() {
 	bool linkUseGinge = menu->selLinkApp()->getUseGinge();
 	string ginge_prep = getExePath() + "/ginge/ginge_prep";
 	if (fileExists(ginge_prep))
-		sd.addSetting(new MenuSettingBool(        this, tr["Use Ginge"],            tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
+		sd.addSetting(new MenuSettingBool(		this, tr["Use Ginge"],			tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
 #elif defined(TARGET_GP2X)
-	//G
 	int linkGamma = menu->selLinkApp()->gamma();
-	sd.addSetting(new MenuSettingInt(         this, tr["Gamma (default: 0)"],   tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
+	sd.addSetting(new MenuSettingInt(			this, tr["Gamma (default: 0)"],	tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
 #endif
 
 	if (sd.exec() && sd.edited() && sd.save) {
@@ -2107,11 +2107,11 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setAliasFile(linkSelAliases);
 		menu->selLinkApp()->setBackdrop(linkBackdrop);
 		menu->selLinkApp()->setCPU(linkClock);
-		// menu->selLinkApp()->setResolution(linkSelResolution);
-		// menu->selLinkApp()->setIPUMode(linkIPUMode);
 
-		//G
-#if defined(TARGET_GP2X)
+#if defined(TARGET_RETROGAME)
+		linkVsync = find(opVsync.begin(), opVsync.end(), selVsync) - opVsync.begin();
+		menu->selLinkApp()->setVsync(linkVsync);
+#elif defined(TARGET_GP2X)
 		menu->selLinkApp()->setGamma(linkGamma);
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 		menu->selLinkApp()->setUseGinge(linkUseGinge);

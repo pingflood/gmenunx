@@ -38,7 +38,7 @@ class LinkApp : public Link {
 private:
 	InputManager &inputMgr;
 	// string svolume, sclock, svolume;
-	int iclock = 0; //, ipu_mode; //, ivolume = 0;
+	int iclock = 0, vsync = 0; //, ipu_mode = 0; //, ivolume = 0;
 
 	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath; //, resolution;
 	bool selectorbrowser;
@@ -111,6 +111,8 @@ public:
 	const string &getBackdrop() { return backdrop; }
 	const string &getBackdropPath() { return backdropPath; }
 	void setBackdrop(const string selectedFile = "");
+	const int &getVsync();
+	void setVsync(const int vsync);
 
 	// const string &getResolution();
 	// void setResolution(const string resolution = "");

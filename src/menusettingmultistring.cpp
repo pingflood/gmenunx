@@ -89,3 +89,19 @@ void MenuSettingMultiString::setSel(int sel)
 
 	setValue((*choices)[sel]);
 }
+
+void MenuSettingMultiString::draw(int y)
+{
+	MenuSetting::draw(y);
+
+	int w = 0;
+	if (value() == "ON" || value() == "OFF") {
+		w = gmenu2x->font->getHeight()/2.5;
+		RGBAColor color = (RGBAColor){255, 0, 0, 255};
+		if (value() == "ON") color = (RGBAColor) {0, 255, 0, 255};
+		gmenu2x->s->box(155, y + 1, w, gmenu2x->font->getHeight() - 2, color);
+		gmenu2x->s->rectangle(155, y + 1, w, gmenu2x->font->getHeight() - 2, 0, 0, 0, 255);
+		w += 2;
+	}
+	gmenu2x->s->write(gmenu2x->font, value(), 155 + w, y + gmenu2x->font->getHalfHeight(), VAlignMiddle);
+}

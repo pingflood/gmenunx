@@ -58,6 +58,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	backdrop = backdropPath = "";
 	// resolution = "";
 	// ipu_mode = 0;
+	vsync = 0;
 
 	string line;
 	ifstream infile (linkfile, ios_base::in);
@@ -115,6 +116,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 		// 	setResolution(value);
 		// } else if (name == "ipu_mode") {
 		// 	setIPUMode( atoi(value.c_str()) );
+		} else if (name == "vsync") {
+			setVsync( atoi(value.c_str()) );
 		} else {
 			WARNING("Unrecognized option: '%s'", name.c_str());
 			// break;
@@ -272,6 +275,7 @@ bool LinkApp::save() {
 		if (backdrop != "" )		f << "backdrop="		<< backdrop			<< endl;
 		// if (resolution != ""  )		f << "resolution="		<< resolution		<< endl;
 		// if (ipu_mode > 0 )			f << "ipu_mode="		<< ipu_mode			<< endl;
+		if (vsync > 0 )				f << "vsync="			<< vsync			<< endl;
 		// if (wrapper              ) f << "wrapper=true"						<< endl;
 		// if (dontleave            ) f << "dontleave=true"						<< endl;
 		f.close();
@@ -388,21 +392,28 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"]) gmenu2x->setGamma(gamma());
 #endif
 
-	// #if defined(TARGET_RETROGAME)
+#if defined(TARGET_RETROGAME)
 	// 	if (ipu_mode > 0) {
 	// 		char buf[32] = {0};
 	// 		sprintf(buf, "echo %d > /proc/jz/ipu_mode", ipu_mode);
 	// 		system(buf);
 	// 	}
-	// #endif
+		if (vsync > 0) {
+			char buf[32] = {0};
+			sprintf(buf, "echo %d > /proc/jz/vsync", vsync);
+			system(buf);
+		}
+
+#endif
 
 	if (gmenu2x->confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
-		execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
-		//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
-		//try relaunching gmenu2x
-		chdir(gmenu2x->getExePath().c_str());
-		execlp("./gmenu2x", "./gmenu2x", NULL);
-	}
+
+	execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
+	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
+	//try relaunching gmenu2x
+	chdir(gmenu2x->getExePath().c_str());
+	execlp("./gmenu2x", "./gmenu2x", NULL);
+	// }
 
 	chdir(gmenu2x->getExePath().c_str());
 }
@@ -508,6 +519,15 @@ void LinkApp::setAliasFile(const string &aliasfile) {
 
 void LinkApp::renameFile(const string &name) {
 	file = name;
+}
+
+void LinkApp::setVsync(const int vsync) {
+	this->vsync = vsync;
+	edited = true;
+}
+
+const int &LinkApp::getVsync() {
+	return this->vsync;
 }
 
 // void LinkApp::setResolution(const string resolution) {

@@ -60,6 +60,7 @@ public:
 
 	virtual ~MenuSettingMultiString() {};
 	virtual uint32_t manageInput();
+	virtual void draw(int y);
 };
 
 #endif
