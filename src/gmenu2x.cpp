@@ -1379,8 +1379,9 @@ uint32_t GMenu2X::onChangeSkin() {
 void GMenu2X::skinMenu() {
 	bool save = false;
 	int selected = 0;
-	string prevSkin = confStr["skin"];
-	int prevSkinBackdrops = confInt["skinBackdrops"];
+	string initSkin = confStr["skin"];
+	string prevSkin = "";
+	int initSkinBackdrops = confInt["skinBackdrops"];
 
 	FileLister fl_sk("skins", true, false);
 	fl_sk.addExclude("..");
@@ -1406,29 +1407,34 @@ void GMenu2X::skinMenu() {
 	bgScale.push_back("Aspect");
 	bgScale.push_back("Stretch");
 
+	vector<string> wallpapers;
+	string wpPrev = confStr["wallpaper"];
+
 	do {
-		setSkin(confStr["skin"], false, false);
 
-		FileLister fl_wp("skins/" + confStr["skin"] + "/wallpapers");
-		fl_wp.setFilter(".png,.jpg,.jpeg,.bmp");
-		vector<string> wallpapers;
-		if (dirExists("skins/" + confStr["skin"] + "/wallpapers")) {
-			fl_wp.browse();
-			wallpapers = fl_wp.getFiles();
+		if (prevSkin != confStr["skin"]) {
+			prevSkin = confStr["skin"];
+			setSkin(confStr["skin"], false, false);
+	
+			wallpapers.clear();
+			FileLister fl_wp("skins/" + confStr["skin"] + "/wallpapers");
+			fl_wp.setFilter(".png,.jpg,.jpeg,.bmp");
+			if (dirExists("skins/" + confStr["skin"] + "/wallpapers")) {
+				fl_wp.browse();
+				wallpapers = fl_wp.getFiles();
+			}
+			if (confStr["skin"] != "Default") {
+				fl_wp.setPath("skins/Default/wallpapers", true);
+				for (uint32_t i = 0; i < fl_wp.getFiles().size(); i++)
+					wallpapers.push_back(fl_wp.getFiles()[i]);
+			}
+	
+			sc.del("skin:icons/skin.png");
+			sc.del("skin:imgs/buttons/left.png");
+			sc.del("skin:imgs/buttons/right.png");
+			sc.del("skin:imgs/buttons/a.png");
 		}
-		if (confStr["skin"] != "Default") {
-			fl_wp.setPath("skins/Default/wallpapers", true);
-			for (uint32_t i = 0; i < fl_wp.getFiles().size(); i++)
-				wallpapers.push_back(fl_wp.getFiles()[i]);
-		}
-
 		confStr["wallpaper"] = base_name(confStr["wallpaper"]);
-		string wpPrev = confStr["wallpaper"];
-
-		sc.del("skin:icons/skin.png");
-		sc.del("skin:imgs/buttons/left.png");
-		sc.del("skin:imgs/buttons/right.png");
-		sc.del("skin:imgs/buttons/a.png");
 
 		SettingsDialog sd(this, ts, tr["Skin"], "skin:icons/skin.png");
 		sd.selected = selected;
@@ -1470,7 +1476,7 @@ void GMenu2X::skinMenu() {
 	writeSkinConfig();
 	writeConfig();
 
-	if (prevSkinBackdrops != confInt["skinBackdrops"] || prevSkin != confStr["skin"]) restartDialog();
+	if (initSkinBackdrops != confInt["skinBackdrops"] || initSkin != confStr["skin"]) restartDialog();
 	if (sbPrev != confInt["sectionBar"]) initMenu();
 	initLayout();
 }
