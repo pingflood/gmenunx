@@ -58,7 +58,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	backdrop = backdropPath = "";
 	// resolution = "";
 	// ipu_mode = 0;
-	vsync = 0;
+	vsync = true;
 
 	string line;
 	ifstream infile (linkfile, ios_base::in);
@@ -116,8 +116,10 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 		// 	setResolution(value);
 		// } else if (name == "ipu_mode") {
 		// 	setIPUMode( atoi(value.c_str()) );
-		} else if (name == "vsync") {
-			setVsync( atoi(value.c_str()) );
+		// } else if (name == "vsync") {
+		// 	setVsync( atoi(value.c_str()) );
+		} else if (name == "vsync" && value == "false") {
+			vsync = false;
 		} else {
 			WARNING("Unrecognized option: '%s'", name.c_str());
 			// break;
@@ -275,7 +277,8 @@ bool LinkApp::save() {
 		if (backdrop != "" )		f << "backdrop="		<< backdrop			<< endl;
 		// if (resolution != ""  )		f << "resolution="		<< resolution		<< endl;
 		// if (ipu_mode > 0 )			f << "ipu_mode="		<< ipu_mode			<< endl;
-		if (vsync > 0 )				f << "vsync="			<< vsync			<< endl;
+		if (!vsync)					f << "vsync=false"							<< endl; // vsync = true is kernel default
+		// if (vsync > 0 )				f << "vsync="			<< vsync			<< endl;
 		// if (wrapper              ) f << "wrapper=true"						<< endl;
 		// if (dontleave            ) f << "dontleave=true"						<< endl;
 		f.close();
@@ -398,11 +401,11 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	// 		sprintf(buf, "echo %d > /proc/jz/ipu_mode", ipu_mode);
 	// 		system(buf);
 	// 	}
-		if (vsync > 0) {
-			char buf[32] = {0};
-			sprintf(buf, "echo %d > /proc/jz/vsync", vsync);
-			system(buf);
-		}
+	// if (vsync > 0) {
+	// char buf[32] = {0};
+	sprintf(buf, "echo %d > /proc/jz/vsync", vsync);
+	system(buf);
+	// }
 
 #endif
 
@@ -522,11 +525,11 @@ void LinkApp::renameFile(const string &name) {
 }
 
 void LinkApp::setVsync(const int vsync) {
-	this->vsync = vsync;
+	this->vsync = vsync > 0;
 	edited = true;
 }
 
-const int &LinkApp::getVsync() {
+const bool &LinkApp::getVsync() {
 	return this->vsync;
 }
 

@@ -270,7 +270,7 @@ GMenu2X::GMenu2X() {
 #if !defined(TARGET_PC)
 	setenv("SDL_NOMOUSE", "1", 1);
 #elif defined(TARGET_RETROGAME)
-	system("echo 0 > /proc/jz/vsync");
+	system("echo 1 > /proc/jz/vsync");
 	// system("echo 0 > /proc/jz/ipu_mode");
 #endif
 
@@ -2055,15 +2055,19 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingMultiString(	this, tr["Section"],		tr["The section this link belongs to"], &newSection, &menu->getSections()));
 	sd.addSetting(new MenuSettingImage(			this, tr["Icon"],			tr["Select a custom icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", dir_name(linkIcon), dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
-#if defined(TARGET_RETROGAME)
-	int linkVsync = menu->selLinkApp()->getVsync();
-	vector<string> opVsync;
-	opVsync.push_back(tr["Hybrid"]);
-	opVsync.push_back("ON");
-	opVsync.push_back("OFF");
-	string selVsync = opVsync[linkVsync];
-	sd.addSetting(new MenuSettingMultiString(this, tr["VSync"],	tr["Define V-Sync mode"], &selVsync, &opVsync));
-#endif
+// #if defined(TARGET_RETROGAME)
+	bool linkVsync = menu->selLinkApp()->getVsync();
+	// int linkVsync = menu->selLinkApp()->getVsync();
+	// vector<string> opVsync;
+	// opVsync.push_back(tr["Hybrid"]);
+	// opVsync.push_back("ON");
+	// opVsync.push_back("OFF");
+	// string selVsync = opVsync[linkVsync];
+	// sd.addSetting(new MenuSettingMultiString(this, tr["VSync"],	tr["Define V-Sync mode"], &selVsync, &opVsync));
+	sd.addSetting(new MenuSettingBool(			this, tr["V-Sync"],	tr["Define V-Sync mode"], &linkVsync));
+
+
+// #endif
 
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingDir(			this, tr["Selector Path"],	tr["Directory to start the selector"], &linkSelDir, dir_name(linkSelDir), dialogTitle, dialogIcon));
@@ -2101,9 +2105,9 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setBackdrop(linkBackdrop);
 		menu->selLinkApp()->setCPU(linkClock);
 
-#if defined(TARGET_RETROGAME)
-		linkVsync = find(opVsync.begin(), opVsync.end(), selVsync) - opVsync.begin();
 		menu->selLinkApp()->setVsync(linkVsync);
+#if defined(TARGET_RETROGAME)
+		// linkVsync = find(opVsync.begin(), opVsync.end(), selVsync) - opVsync.begin();
 #elif defined(TARGET_GP2X)
 		menu->selLinkApp()->setGamma(linkGamma);
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
