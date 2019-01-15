@@ -389,8 +389,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 #endif
 	if (selectedFile == "") gmenu2x->writeTmp();
 
-	gmenu2x->quit();
-
 	if (clock() != gmenu2x->confInt["cpuMenu"]) gmenu2x->setCPU(clock());
 
 #if defined(TARGET_GP2X)
@@ -412,6 +410,8 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 #endif
 
 	if (gmenu2x->confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
+
+	gmenu2x->quit();
 
 	execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
