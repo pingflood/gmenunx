@@ -95,8 +95,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 			// setVolume( atoi(value.c_str()) );
 		} else if (name == "selectordir") {
 			setSelectorDir( value );
-		} else if (name == "selectorbrowser" && value == "true") {
-			selectorbrowser = true;
+		// } else if (name == "selectorbrowser" && value == "true") {
+		// 	selectorbrowser = true;
 		} else if (name == "selectorbrowser" && value == "false") {
 			selectorbrowser = false;
 		// } else if (name == "useramtimings" && value == "true") {
@@ -264,23 +264,25 @@ bool LinkApp::save() {
 		if (iclock != 0)			f << "clock="			<< iclock			<< endl;
 
 #if defined(TARGET_GP2X)
-		//G
-		if (igamma != 0 )			f << "gamma="			<< igamma			<< endl;
+		// if (useRamTimings)		f << "useramtimings=true"					<< endl;
+		// if (useGinge)			f << "useginge=true"						<< endl;
+		// if (ivolume > 0)			f << "volume="			<< ivolume			<< endl;
+		if (igamma != 0)			f << "gamma="			<< igamma			<< endl;
 #endif
 
-		if (selectordir != "" )		f << "selectordir="		<< selectordir		<< endl;
-		if (selectorbrowser )		f << "selectorbrowser=true"					<< endl;
-		if (!selectorbrowser )		f << "selectorbrowser=false"				<< endl;
-		if (selectorfilter != "" )	f << "selectorfilter="	<< selectorfilter	<< endl;
+		if (selectordir != "")		f << "selectordir="		<< selectordir		<< endl;
+		// if (selectorbrowser)		f << "selectorbrowser=true"					<< endl;
+		if (!selectorbrowser)		f << "selectorbrowser=false"				<< endl; // selectorbrowser = true by default
+		if (selectorfilter != "")	f << "selectorfilter="	<< selectorfilter	<< endl;
 		if (selectorscreens != "")	f << "selectorscreens="	<< selectorscreens	<< endl;
-		if (aliasfile != "" )		f << "selectoraliases="	<< aliasfile		<< endl;
-		if (backdrop != "" )		f << "backdrop="		<< backdrop			<< endl;
-		// if (resolution != ""  )		f << "resolution="		<< resolution		<< endl;
-		// if (ipu_mode > 0 )			f << "ipu_mode="		<< ipu_mode			<< endl;
+		if (aliasfile != "")		f << "selectoraliases="	<< aliasfile		<< endl;
+		if (backdrop != "")			f << "backdrop="		<< backdrop			<< endl;
+		// if (resolution != "")	f << "resolution="		<< resolution		<< endl;
+		// if (ipu_mode > 0)		f << "ipu_mode="		<< ipu_mode			<< endl;
 		if (!vsync)					f << "vsync=false"							<< endl; // vsync = true is kernel default
-		// if (vsync > 0 )				f << "vsync="			<< vsync			<< endl;
-		// if (wrapper              ) f << "wrapper=true"						<< endl;
-		// if (dontleave            ) f << "dontleave=true"						<< endl;
+		// if (vsync > 0)			f << "vsync="			<< vsync			<< endl;
+		// if (wrapper)				f << "wrapper=true"							<< endl;
+		// if (dontleave)			f << "dontleave=true"						<< endl;
 		f.close();
 		return true;
 	} else
