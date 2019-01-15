@@ -367,12 +367,12 @@ void GMenu2X::main() {
 		sc.skinRes("imgs/volume.png"),
 	};
 
-	Surface *iconSD = sc.skinRes("imgs/sd1.png"),
+	Surface *iconSD = sc.skinRes("imgs/sd.png"),
 			*iconManual = sc.skinRes("imgs/manual.png"),
 			*iconCPU = sc.skinRes("imgs/cpu.png"),
 			*iconMenu = sc.skinRes("imgs/menu.png"),
-			*iconL = sc.skinRes("imgs/l_enabled.png"),
-			*iconR = sc.skinRes("imgs/r_enabled.png");
+			*iconL = sc.skinRes("imgs/section-l.png"),
+			*iconR = sc.skinRes("imgs/section-r.png");
 
 	if (pthread_create(&thread_id, NULL, mainThread, this)) {
 		ERROR("%s, failed to create main thread\n", __func__);
