@@ -17,19 +17,23 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-/*	RS97 Key Codes. 2018, pingflood
-	BUTTON     GMENU          SDL             NUMERIC
-	-------------------------------------------------
-	X          MODIFIER       SDLK_SPACE      32
-	A          CONFIRM        SDLK_LCTRL      306
-	B          CANCEL         SDLK_LALT       308
-	Y          MANUAL         SDLK_LSHIFT     304
-	L          SECTION_PREV   SDLK_TAB        9
-	R          SECTION_NEXT   SDLK_BACKSPACE  8
-	START      SETTINGS       SDLK_RETURN     13
-	SELECT     MENU           SDLK_ESCAPE     27
-	BACKLIGHT  BACKLIGHT      SDLK_3          51
-	POWER      POWER          SDLK_END        279
+/*	RetroGame Key Codes. pingflood, 2018
+	BUTTON     GMENU          SDL             NUMERIC   GPIO
+	-----------------------------------------------------------------------------
+	X          MODIFIER       SDLK_SPACE      32        !(mem[PEPIN] >> 07 & 0b1)
+	A          CONFIRM        SDLK_LCTRL      306       !(mem[PDPIN] >> 22 & 0b1)
+	B          CANCEL         SDLK_LALT       308       !(mem[PDPIN] >> 23 & 0b1)
+	Y          MANUAL         SDLK_LSHIFT     304       !(mem[PEPIN] >> 11 & 0b1)
+	L          SECTION_PREV   SDLK_TAB        9         !(mem[PBPIN] >> 23 & 0b1)
+	R          SECTION_NEXT   SDLK_BACKSPACE  8         !(mem[PDPIN] >> 24 & 0b1)
+	START      SETTINGS       SDLK_RETURN     13         (mem[PDPIN] >> 18 & 0b1)
+	SELECT     MENU           SDLK_ESCAPE     27         (mem[PDPIN] >> 17 & 0b1)
+	BACKLIGHT  BACKLIGHT      SDLK_3          51        !(mem[PDPIN] >> 21 & 0b1)
+	POWER      POWER          SDLK_END        279       !(mem[PAPIN] >> 30 & 0b1)
+	UP         UP             SDLK_UP                   !(mem[PBPIN] >> 25 & 0b1)
+	DOWN       DOWN           SDLK_DOWN                 !(mem[PBPIN] >> 24 & 0b1)
+	LEFT       LEFT           SDLK_LEFT                 !(mem[PDPIN] >> 00 & 0b1)
+	RIGHT      RIGHT          SDLK_RIGHT                !(mem[PBPIN] >> 26 & 0b1)
 */
 
 #include "debug.h"

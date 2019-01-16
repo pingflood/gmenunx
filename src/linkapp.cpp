@@ -402,7 +402,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	// 		system(buf);
 	// 	}
 	// if (vsync > 0) {
-	// char buf[32] = {0};
+	char buf[32] = {0};
 	sprintf(buf, "echo %d > /proc/jz/vsync", vsync);
 	system(buf);
 	// }

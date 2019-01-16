@@ -1685,7 +1685,9 @@ void GMenu2X::ledOff() {
 uint32_t GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
 #if defined(TARGET_RETROGAME)
 	if (memdev > 0) {
-		// printf("\e[s\e[1;0f\e[1;32m");
+		// printf("\e[s\e[1;0f\e[1;32m\n");
+		// printf("               3          2          1          0\n");
+		// printf("              10987654 32109876 54321098 76543210\n");
 		// printbin("0", memregs[0x09600 >> 2]);
 		// printbin("1", memregs[0x09700 >> 2]);
 		// printbin("2", memregs[0x09800 >> 2]);
@@ -1696,7 +1698,6 @@ uint32_t GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
 		// printbin("7", memregs[0x09d00 >> 2]);
 		// printbin("8", memregs[0x09e00 >> 2]);
 		// printbin("9", memregs[0x09f00 >> 2]);
-
 		// printbin("A", memregs[0x10000 >> 2]);
 		// printbin("B", memregs[0x10100 >> 2]);
 		// printbin("C", memregs[0x10200 >> 2]);
