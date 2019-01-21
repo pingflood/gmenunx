@@ -41,7 +41,7 @@ private:
 	int iclock = 0; //, ipu_mode = 0; //, ivolume = 0;
 
 	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath; //, resolution;
-	bool selectorbrowser, vsync = true;
+	bool selectorbrowser; //, vsync = true;
 	// void drawRun();
 
 	string aliasfile;
@@ -111,9 +111,8 @@ public:
 	const string &getBackdrop() { return backdrop; }
 	const string &getBackdropPath() { return backdropPath; }
 	void setBackdrop(const string selectedFile = "");
-	const bool &getVsync();
-	void setVsync(const int vsync);
-
+	// const bool &getVsync();
+	// void setVsync(const int vsync);
 	// const string &getResolution();
 	// void setResolution(const string resolution = "");
 	// const int &getIPUMode();

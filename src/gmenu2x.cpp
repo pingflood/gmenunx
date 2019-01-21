@@ -269,8 +269,8 @@ GMenu2X::GMenu2X() {
 
 #if !defined(TARGET_PC)
 	setenv("SDL_NOMOUSE", "1", 1);
-#elif defined(TARGET_RETROGAME)
-	system("echo 1 > /proc/jz/vsync");
+// #elif defined(TARGET_RETROGAME)
+	// system("echo 1 > /proc/jz/vsync");
 	// system("echo 0 > /proc/jz/ipu_mode");
 #endif
 
@@ -290,7 +290,13 @@ GMenu2X::GMenu2X() {
 	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_SWSURFACE);
 	s->enableVirtualDoubleBuffer(dbl);
 #else
-	s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, confInt["videoBpp"], SDL_SWSURFACE | SDL_DOUBLEBUF);
+	s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, confInt["videoBpp"], SDL_HWSURFACE | 
+#ifdef SDL_TRIPLEBUF
+    SDL_TRIPLEBUF
+#else
+    SDL_DOUBLEBUF
+#endif
+);
 	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
 #endif
 
@@ -1889,7 +1895,7 @@ void GMenu2X::tvOutDialog(int TVOut) {
 void GMenu2X::udcDialog() {
 	udcStatus = getUDCStatus();
 	if (udcStatus == UDC_CONNECT) {
-		if (!fileExists("/lib/modules/g_ether.ko")) return;
+		// if (!fileExists("/lib/modules/g_ether.ko")) return;
 
 		// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
 		// 	// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
@@ -1911,7 +1917,7 @@ void GMenu2X::udcDialog() {
 		}
 
 		if (option == MANUAL) { // network
-			system("rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko; insmod /lib/modules/g_ether.ko; ifdown usb0; ifup usb0");
+			system("rmmod g_ether; rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
 			iconInet = sc.skinRes("imgs/inet.png");
 			INFO("Enabling usb0 networking device");
 		} else if (option == CONFIRM) { // storage
@@ -1923,7 +1929,7 @@ void GMenu2X::udcDialog() {
 		}
 	} else {
 		INFO("USB Disconnected. Unloading modules...");
-		system("sync; rmmod /lib/modules/g_ether.ko; rmmod /lib/modules/g_file_storage.ko");
+		system("sync; rmmod g_ether; rmmod g_file_storage");
 		iconInet = NULL;
 	}
 }
@@ -2056,20 +2062,6 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingMultiString(	this, tr["Section"],		tr["The section this link belongs to"], &newSection, &menu->getSections()));
 	sd.addSetting(new MenuSettingImage(			this, tr["Icon"],			tr["Select a custom icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", dir_name(linkIcon), dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
-// #if defined(TARGET_RETROGAME)
-	bool linkVsync = menu->selLinkApp()->getVsync();
-	// int linkVsync = menu->selLinkApp()->getVsync();
-	// vector<string> opVsync;
-	// opVsync.push_back(tr["Hybrid"]);
-	// opVsync.push_back("ON");
-	// opVsync.push_back("OFF");
-	// string selVsync = opVsync[linkVsync];
-	// sd.addSetting(new MenuSettingMultiString(this, tr["VSync"],	tr["Define V-Sync mode"], &selVsync, &opVsync));
-	sd.addSetting(new MenuSettingBool(			this, tr["V-Sync"],	tr["Define V-Sync mode"], &linkVsync));
-
-
-// #endif
-
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingDir(			this, tr["Selector Path"],	tr["Directory to start the selector"], &linkSelDir, dir_name(linkSelDir), dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingBool(			this, tr["Show Folders"],	tr["Allow the selector to change directory"], &linkSelBrowser));
@@ -2106,10 +2098,7 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setBackdrop(linkBackdrop);
 		menu->selLinkApp()->setCPU(linkClock);
 
-		menu->selLinkApp()->setVsync(linkVsync);
-#if defined(TARGET_RETROGAME)
-		// linkVsync = find(opVsync.begin(), opVsync.end(), selVsync) - opVsync.begin();
-#elif defined(TARGET_GP2X)
+#if defined(TARGET_GP2X)
 		menu->selLinkApp()->setGamma(linkGamma);
 #elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 		menu->selLinkApp()->setUseGinge(linkUseGinge);
