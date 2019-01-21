@@ -2455,8 +2455,10 @@ int GMenu2X::getBacklight() {
 int GMenu2X::setBacklight(int val, bool popup) {
 	int backlightStep = 10;
 
-	if (val < 0) val = 100;
-	else if (val > 100) val = backlightStep;
+	if (val <= 6 - backlightStep) val = 100;
+	else if (val < 0) val = 5;
+	else if (val > 100 + backlightStep - 1) val = backlightStep;
+	else if (val > 100) val = 100;
 
 	if (popup) {
 		bool close = false;
