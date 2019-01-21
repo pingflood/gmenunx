@@ -50,6 +50,9 @@ uint32_t PowerManager::doSuspend(uint32_t interval, void *param) {
 		mb.setAutoHide(500);
 		mb.exec();
 
+#if defined(TARGET_RETROGAME)
+		system("echo 1 > /proc/jz/backlight_control");
+#endif
 		PowerManager::instance->gmenu2x->setBacklight(0);
 		PowerManager::instance->gmenu2x->setTVOut(0);
 		PowerManager::instance->gmenu2x->setCPU(PowerManager::instance->gmenu2x->confInt["cpuMin"]);
@@ -60,6 +63,9 @@ uint32_t PowerManager::doSuspend(uint32_t interval, void *param) {
 		return interval;
 	}
 
+#if defined(TARGET_RETROGAME)
+		system("echo 0 > /proc/jz/backlight_control");
+#endif
 	PowerManager::instance->gmenu2x->setCPU(PowerManager::instance->gmenu2x->confInt["cpuMenu"]);
 	PowerManager::instance->gmenu2x->setTVOut(PowerManager::instance->gmenu2x->TVOut);
 	PowerManager::instance->gmenu2x->setBacklight(max(10, PowerManager::instance->gmenu2x->confInt["backlight"]));
