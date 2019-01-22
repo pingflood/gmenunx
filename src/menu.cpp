@@ -71,6 +71,49 @@ Menu::~Menu() {
 	freeLinks();
 }
 
+void Menu::readLinks() {
+	vector<string> linkfiles;
+
+	iLink = 0;
+	iFirstDispRow = 0;
+
+	DIR *dirp;
+	struct stat st;
+	struct dirent *dptr;
+	string filepath;
+
+	for (uint32_t i = 0; i < links.size(); i++) {
+		links[i].clear();
+		linkfiles.clear();
+
+		if ((dirp = opendir(sectionPath(i).c_str())) == NULL) {
+			continue;
+		}
+
+		while ((dptr = readdir(dirp))) {
+			if (dptr->d_name[0] == '.') continue;
+			filepath = sectionPath(i) + dptr->d_name;
+			int statRet = stat(filepath.c_str(), &st);
+			// if (S_ISDIR(st.st_mode)) continue;
+			if (statRet != -1 && st.st_mode & S_IFREG) {
+				linkfiles.push_back(filepath);
+			}
+		}
+
+		sort(linkfiles.begin(), linkfiles.end(),case_less());
+		for (uint32_t x = 0; x < linkfiles.size(); x++) {
+			LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkfiles[x].c_str());
+			if (link->targetExists()) {
+				links[i].push_back(link);
+			} else {
+				delete link;
+			}
+		}
+
+		closedir(dirp);
+	}
+}
+
 uint32_t Menu::firstDispRow() {
 	return iFirstDispRow;
 }
@@ -412,45 +455,6 @@ void Menu::setLinkIndex(int i) {
 	iLink = i;
 }
 
-void Menu::readLinks() {
-	vector<string> linkfiles;
-
-	iLink = 0;
-	iFirstDispRow = 0;
-
-	DIR *dirp;
-	struct stat st;
-	struct dirent *dptr;
-	string filepath;
-
-	for (uint32_t i = 0; i < links.size(); i++) {
-		links[i].clear();
-		linkfiles.clear();
-
-		if ((dirp = opendir(sectionPath(i).c_str())) == NULL) continue;
-
-		while ((dptr = readdir(dirp))) {
-			if (dptr->d_name[0] == '.') continue;
-			filepath = sectionPath(i) + dptr->d_name;
-			int statRet = stat(filepath.c_str(), &st);
-			if (S_ISDIR(st.st_mode)) continue;
-			if (statRet != -1) {
-				linkfiles.push_back(filepath);
-			}
-		}
-
-		sort(linkfiles.begin(), linkfiles.end(),case_less());
-		for (uint32_t x = 0; x < linkfiles.size(); x++) {
-			LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkfiles[x].c_str());
-			if (link->targetExists())
-				links[i].push_back( link );
-			else
-				delete link;
-		}
-
-		closedir(dirp);
-	}
-}
 
 void Menu::renameSection(int index, const string &name) {
 	sections[index] = name;
