@@ -51,7 +51,7 @@ uint32_t PowerManager::doSuspend(uint32_t interval, void *param) {
 		mb.exec();
 
 #if defined(TARGET_RETROGAME)
-		system("echo 1 > /proc/jz/backlight_control");
+		system("echo 0 > /proc/jz/backlight_control");
 #endif
 		PowerManager::instance->gmenu2x->setBacklight(0);
 		PowerManager::instance->gmenu2x->setTVOut(0);
@@ -64,7 +64,7 @@ uint32_t PowerManager::doSuspend(uint32_t interval, void *param) {
 	}
 
 #if defined(TARGET_RETROGAME)
-		system("echo 0 > /proc/jz/backlight_control");
+		system("echo 1 > /proc/jz/backlight_control");
 #endif
 	PowerManager::instance->gmenu2x->setCPU(PowerManager::instance->gmenu2x->confInt["cpuMenu"]);
 	PowerManager::instance->gmenu2x->setTVOut(PowerManager::instance->gmenu2x->TVOut);
