@@ -503,7 +503,6 @@ void GMenu2X::main() {
 
 				// Volume indicator
 				// TODO: use drawButton(s, iconVolume[volumeMode], confInt["globalVolume"], x);
-				// TODO: add network icon
 				{ stringstream ss; ss << confInt["globalVolume"] /*<< "%"*/; ss.get(&buf[0], sizeof(buf)); }
 				x = iconPadding; //1 * (iconWidth + 2 * iconPadding) + iconPadding + 1 * pctWidth;
 				iconVolume[volumeMode]->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
@@ -1903,7 +1902,7 @@ void GMenu2X::udcDialog() {
 		// 	// mb.exec();
 		// 	return;
 		// }
-
+		powerManager->setPowerTimeout(0);
 		int option;
 		if (confStr["usbMode"] == "Network") option = MANUAL;
 		else if (confStr["usbMode"] == "Storage") option = CONFIRM;
@@ -1931,6 +1930,7 @@ void GMenu2X::udcDialog() {
 		INFO("USB Disconnected. Unloading modules...");
 		system("sync; rmmod g_ether; rmmod g_file_storage");
 		iconInet = NULL;
+		powerManager->setPowerTimeout(confInt["powerTimeout"]);
 	}
 }
 

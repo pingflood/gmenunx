@@ -36,12 +36,14 @@ void PowerManager::clearTimer() {
 
 void PowerManager::resetSuspendTimer() {
 	clearTimer();
-	powerTimer = SDL_AddTimer(this->suspendTimeout * 1e3, doSuspend, NULL);
+	if (this->suspendTimeout > 0)
+		powerTimer = SDL_AddTimer(this->suspendTimeout * 1e3, doSuspend, NULL);
 };
 
 void PowerManager::resetPowerTimer() {
 	clearTimer();
-	powerTimer = SDL_AddTimer(this->powerTimeout * 60e3, doPowerOff, NULL);
+	if (this->powerTimeout > 0)
+		powerTimer = SDL_AddTimer(this->powerTimeout * 60e3, doPowerOff, NULL);
 };
 
 uint32_t PowerManager::doSuspend(uint32_t interval, void *param) {
