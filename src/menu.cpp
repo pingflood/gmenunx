@@ -82,6 +82,7 @@ void Menu::loadIcons() {
 		if (!gmenu2x->sc.getSkinFilePath(sectionIcon).empty())
 			gmenu2x->sc.add("skin:" + sectionIcon);
 
+#if 0
 		//check link's icons
 		string linkIcon;
 		for (uint32_t x = 0; x < sectionLinks(i)->size(); x++) {
@@ -105,6 +106,7 @@ void Menu::loadIcons() {
 				if (linkapp != NULL) linkapp->searchIcon();
 			}
 		}
+#endif
 	}
 }
 

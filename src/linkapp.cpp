@@ -128,6 +128,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	infile.close();
 
 	if (iconPath.empty()) searchIcon();
+	if (manualPath.empty()) searchManual();
+	if (backdropPath.empty()) searchBackdrop();
 
 	edited = false;
 }
