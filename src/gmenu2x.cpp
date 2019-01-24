@@ -1658,6 +1658,10 @@ void GMenu2X::explorer() {
 			string cmd = "opkg install --force-reinstall " + bd.getFilePath(bd.selected);
 			td.exec(cmd);
 			initMenu();
+		} else if (ext == ".sh") {
+			TerminalDialog td(this, tr["Terminal"], tr["shell script"], "skin:icons/ebook.png");
+			string cmd = bd.getFilePath(bd.selected);
+			td.exec(cmd);
 		} else {
 			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
 				writeConfig();
@@ -1925,7 +1929,8 @@ void GMenu2X::udcDialog() {
 		}
 
 		if (option == MANUAL) { // network
-			system("rmmod g_ether; rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
+			// system("rmmod g_ether; rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
+			system("rmmod g_file_storage; modprobe g_ether; ifup usb0");
 			iconInet = sc.skinRes("imgs/inet.png");
 			INFO("Enabling usb0 networking device");
 		} else if (option == CONFIRM) { // storage

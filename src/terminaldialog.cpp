@@ -84,16 +84,17 @@ void TerminalDialog::exec(const string &cmd) {
 			if (pipe) {
 				if (!feof(pipe) && fgets(buffer, 128, pipe) != NULL) {
 					rawText += buffer;
-					inputAction = gmenu2x->input.update(false);
+					InputManager::pushEvent(NUM_ACTIONS);
+					// inputAction = gmenu2x->input.update(false);
 				} else {
 					pclose(pipe);
 					pipe = NULL;
+					system("sync");
 					rawText += "\n$";
 				}
 				split(text, rawText, "\n");
-			} else {
-				inputAction = gmenu2x->input.update();
 			}
+			inputAction = gmenu2x->input.update();
 
 			this->bg->blit(gmenu2x->s,0,0);
 			maxLine = drawText(&text, firstCol, firstRow, rowsPerPage);
@@ -102,23 +103,23 @@ void TerminalDialog::exec(const string &cmd) {
 			// inputAction = gmenu2x->input.update();
 			if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-			if ( gmenu2x->input[UP  ] && firstRow > 0 ) firstRow--;
+			if ( gmenu2x->input[UP] && firstRow > 0 ) firstRow--;
 			else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < text.size() ) firstRow++;
-			else if ( gmenu2x->input[RIGHT]) {
+			else if ( gmenu2x->input[RIGHT] ) {
 				if (firstCol > -1 * (maxLine - gmenu2x->listRect.w) - 10)
 					firstCol -= 30;
 			}
-			else if ( gmenu2x->input[LEFT]) {
+			else if ( gmenu2x->input[LEFT] ) {
 				if (firstCol < 0)
 					firstCol += 30;
 			}
-			else if ( gmenu2x->input[PAGEUP]) {
+			else if ( gmenu2x->input[PAGEUP] ) {
 				if (firstRow >= rowsPerPage - 1)
 					firstRow -= rowsPerPage - 1;
 				else
 					firstRow = 0;
 			}
-			else if ( gmenu2x->input[PAGEDOWN]) {
+			else if ( gmenu2x->input[PAGEDOWN] ) {
 				if (firstRow + rowsPerPage * 2 - 1 < text.size())
 					firstRow += rowsPerPage - 1;
 				else
