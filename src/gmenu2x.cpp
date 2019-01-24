@@ -72,8 +72,9 @@
 // #include "menusettingdatetime.h"
 #include "debug.h"
 
+#include <linux/vt.h>
+#include <linux/kd.h>
 #include <linux/fb.h>
-
 
 #include <sys/mman.h>
 
@@ -236,6 +237,14 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	signal(SIGINT, &quit_all);
 	signal(SIGSEGV,&quit_all);
 	signal(SIGTERM,&quit_all);
+
+	int fd = open("/dev/tty0", O_RDONLY);
+	if (fd > 0) {
+		ioctl(fd, VT_UNLOCKSWITCH, 1);
+		ioctl(fd, KDSETMODE, KD_TEXT);
+		ioctl(fd, KDSKBMODE, K_XLATE);
+	}
+	close(fd);
 
 	app = new GMenu2X();
 	DEBUG("Starting main()");
