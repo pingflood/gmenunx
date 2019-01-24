@@ -844,31 +844,31 @@ void GMenu2X::hwInit() {
 	batteryHandle = open("/dev/pollux_batt", O_RDONLY);
 #endif
 
-	struct fb_var_screeninfo vinfo;
-	int fbfd = open("/dev/fb0", O_RDWR);
-	if (fbfd >= 0 && ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo) >= 0) {
-		resX = vinfo.xres;
-		resY = vinfo.yres;
-		// DEBUG("%dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
-	}
-	close(fbfd);
+// 	struct fb_var_screeninfo vinfo;
+// 	int fbfd = open("/dev/fb0", O_RDWR);
+// 	if (fbfd >= 0 && ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo) >= 0) {
+// 		resX = vinfo.xres;
+// 		resY = vinfo.yres;
+// 		// DEBUG("%dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
+// 	}
+// 	close(fbfd);
 
-#if defined(TARGET_RETROGAME)
-	if (resX == 320 && resY == 480) {
-		resY = 240;
-		// FB_SCREENPITCH = 2;
-		FB_SCREENPITCH = 1;
-		fwType = "RETROGAME";
-	}
-	else if (resX == 480 && resY == 272) {
-		fwType = "RETROARCADE";
-	}
-#elif defined(TARGET_PC)
+// #if defined(TARGET_RETROGAME)
+// 	if (resX == 320 && resY == 480) {
+// 		resY = 240;
+// 		// FB_SCREENPITCH = 2;
+// 		FB_SCREENPITCH = 1;
+// 		fwType = "RETROGAME";
+// 	}
+// 	else if (resX == 480 && resY == 272) {
+// 		fwType = "RETROARCADE";
+// 	}
+// #elif defined(TARGET_PC)
 	resX = 320;
 	resY = 240;
-#endif
+// #endif
+//	INFO("Resolution: %dx%d", resX, resY);
 
-	INFO("Resolution: %dx%d", resX, resY);
 	INFO("System Init Done!");
 }
 
