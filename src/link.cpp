@@ -72,8 +72,10 @@ void Link::setIcon(const string &icon) {
 
 	if (icon.compare(0, 5, "skin:") == 0)
 		this->iconPath = gmenu2x->sc.getSkinFilePath(icon.substr(5, string::npos));
-	else
+	else if (fileExists(icon))
 		this->iconPath = icon;
+	else
+		this->iconPath = "";
 
 	edited = true;
 	updateSurfaces();
