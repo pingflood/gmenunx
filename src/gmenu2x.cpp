@@ -253,15 +253,6 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	return 0;
 }
 
-bool exitMainThread = false;
-void* mainThread(void* param) {
-	GMenu2X *menu = (GMenu2X*)param;
-	while(!exitMainThread) {
-		sleep(1);
-	}
-	return NULL;
-}
-
 GMenu2X *GMenu2X::instance = NULL;
 GMenu2X::GMenu2X() {
 	instance = this;
@@ -348,8 +339,6 @@ GMenu2X::GMenu2X() {
 }
 
 void GMenu2X::main() {
-	pthread_t thread_id;
-
 	bool quit = false;
 	int i = 0, x = 0, y = 0, ix = 0, iy = 0;
 	uint32_t tickNow = 0; //, tickMMC = 0; //, tickUSB = 0;
@@ -388,16 +377,6 @@ void GMenu2X::main() {
 			*iconMenu = sc.skinRes("imgs/menu.png"),
 			*iconL = sc.skinRes("imgs/section-l.png"),
 			*iconR = sc.skinRes("imgs/section-r.png");
-
-	if (pthread_create(&thread_id, NULL, mainThread, this)) {
-		ERROR("%s, failed to create main thread\n", __func__);
-	}
-
-// #if defined(TARGET_RETROGAME)
-// 	if (udcConnectedOnBoot == UDC_CONNECT) udcDialog();
-// #endif
-
-	// if (mmcStatus == MMC_INSERT) mountSd(true);
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();
@@ -686,11 +665,6 @@ void GMenu2X::main() {
 		// 	}
 		// }
 	}
-
-	exitMainThread = true;
-	pthread_join(thread_id, NULL);
-	// delete btnContextMenu;
-	// btnContextMenu = NULL;
 }
 
 bool GMenu2X::inputCommonActions(bool &inputAction) {
