@@ -227,6 +227,7 @@ bool InputManager::update(bool wait) {
 			// actions[x].last = 0;
 		}
 	}
+	while (SDL_PollEvent(&event)); // clear event queue
 
 	return anyactions;
 }
