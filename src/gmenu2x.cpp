@@ -301,7 +301,6 @@ GMenu2X::GMenu2X() {
 #endif
 
 	setWallpaper(confStr["wallpaper"]);
-
 	setSkin(confStr["skin"], false, true);
 
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
@@ -354,7 +353,8 @@ void GMenu2X::main() {
 		sc.skinRes("imgs/brightness.png"),
 	};
 
-	int8_t batteryIcon = 3;
+	batteryIcon = getBatteryLevel();
+
 	Surface *iconBattery[7] = {
 		sc.skinRes("imgs/battery/0.png"),
 		sc.skinRes("imgs/battery/1.png"),
@@ -715,7 +715,6 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 			return true;
 #ifdef TARGET_RETROGAME
 		} else if (input[POWER]) {
-			// udcConnectedOnBoot = UDC_CONNECT;
 			udcDialog();
 			return true;
 #endif
@@ -726,8 +725,18 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		setBacklight(confInt["backlight"], true);
 		return true;
 #ifdef TARGET_RETROGAME
-	} else if ( input[UDC_CONNECT] || input[UDC_REMOVE] ) {
+	} else if ( input[UDC_CONNECT] ) {
+		WARNING("USB CONNECTED");
+		batteryIcon = 6;
 		udcDialog();
+		return true;
+	} else if ( input[UDC_REMOVE] ) {
+		WARNING("USB DISCONNECTED");
+		INFO("USB Disconnected. Unloading modules...");
+		system("sync; rmmod g_ether; rmmod g_file_storage");
+		iconInet = NULL;
+		batteryIcon = getBatteryLevel();
+		powerManager->setPowerTimeout(confInt["powerTimeout"]);
 		return true;
 	} else if ( input[TV_CONNECT] ) {
 		tvOutDialog();
@@ -1701,7 +1710,6 @@ uint32_t GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
 		udcStatus = getUDCStatus();
 		if (udcPrev != udcStatus) {
 			udcPrev = udcStatus;
-			tickBattery = -2e3;
 			InputManager::pushEvent(udcStatus);
 		}
 
@@ -1878,47 +1886,39 @@ void GMenu2X::tvOutDialog(int TVOut) {
 }
 
 void GMenu2X::udcDialog() {
-	udcStatus = getUDCStatus();
-	if (udcStatus == UDC_CONNECT) {
-		// if (!fileExists("/lib/modules/g_ether.ko")) return;
+	// if (!fileExists("/lib/modules/g_ether.ko")) return;
 
-		// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
-		// 	// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
-		// 	// mb.setButton(CONFIRM,  tr["Charger"]);
-		// 	// mb.exec();
-		// 	return;
-		// }
-		powerManager->setPowerTimeout(0);
-		int option;
-		if (confStr["usbMode"] == "Network") option = MANUAL;
-		else if (confStr["usbMode"] == "Storage") option = CONFIRM;
-		else if (confStr["usbMode"] == "Charger") option = CANCEL;
-		else {
-			MessageBox mb(this, tr["USB mode"], "skin:icons/usb.png");
-			mb.setButton(MANUAL, tr["Network"]);
-			mb.setButton(CANCEL,  tr["Charger"]);
-			mb.setButton(CONFIRM, tr["Storage"]);
-			option = mb.exec();
-		}
+	// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
+	// 	// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
+	// 	// mb.setButton(CONFIRM,  tr["Charger"]);
+	// 	// mb.exec();
+	// 	return;
+	// }
+	powerManager->setPowerTimeout(0);
+	int option;
+	if (confStr["usbMode"] == "Network") option = MANUAL;
+	else if (confStr["usbMode"] == "Storage") option = CONFIRM;
+	else if (confStr["usbMode"] == "Charger") option = CANCEL;
+	else {
+		MessageBox mb(this, tr["USB mode"], "skin:icons/usb.png");
+		mb.setButton(MANUAL, tr["Network"]);
+		mb.setButton(CANCEL,  tr["Charger"]);
+		mb.setButton(CONFIRM, tr["Storage"]);
+		option = mb.exec();
+	}
 
-		if (option == MANUAL) { // network
-			system("rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
-			// system("rmmod g_ether; rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
-			// system("rmmod g_file_storage; modprobe g_ether; ifup usb0");
-			iconInet = sc.skinRes("imgs/inet.png");
-			INFO("Enabling usb0 networking device");
-		} else if (option == CONFIRM) { // storage
-			quit();
-			execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage nopoweroff", NULL);
-			chdir(getExePath().c_str());
-			execlp("./gmenu2x", "./gmenu2x", NULL);
-			return;
-		}
-	} else {
-		INFO("USB Disconnected. Unloading modules...");
-		system("sync; rmmod g_ether; rmmod g_file_storage");
-		iconInet = NULL;
-		powerManager->setPowerTimeout(confInt["powerTimeout"]);
+	if (option == MANUAL) { // network
+		system("rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
+		// system("rmmod g_ether; rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
+		// system("rmmod g_file_storage; modprobe g_ether; ifup usb0");
+		iconInet = sc.skinRes("imgs/inet.png");
+		INFO("Enabling usb0 networking device");
+	} else if (option == CONFIRM) { // storage
+		quit();
+		execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage nopoweroff", NULL);
+		chdir(getExePath().c_str());
+		execlp("./gmenu2x", "./gmenu2x", NULL);
+		return;
 	}
 }
 

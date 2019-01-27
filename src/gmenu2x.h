@@ -212,6 +212,7 @@ public:
 	SurfaceCollection sc;
 	Translator tr;
 	Surface *s, *bg, *iconInet = NULL;
+	uint8_t batteryIcon = 3;
 
 	FontHelper *font = NULL, *titlefont = NULL; //, *bottombarfont;
 
