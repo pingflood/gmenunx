@@ -199,20 +199,21 @@ bool InputManager::update(bool wait) {
 		// SDL_Event evcopy = event;
 		events.push_back(event);
 		keystate[event.key.keysym.sym] = true;
-	} else 
+
+		while (SDL_PollEvent(&event)) { // clear event queue
+			WARNING("Skipping event.type: %d", event.type);
+		}
+	} else
 	if (event.type == SDL_KEYUP) {
 		anyactions = true;
 		keystate[event.key.keysym.sym] = false;
 	}
-	// else {
-	// 	SDL_PumpEvents();
-	// }
 
 	int32_t now = SDL_GetTicks();
 
 	for (uint32_t x = 0; x < actions.size(); x++) {
 		actions[x].active = isActive(x);
-// WARNING("is active: %d %d", x, actions[x].active);
+		// WARNING("is active: %d %d", x, actions[x].active);
 		if (actions[x].active) {
 			memcpy(input_combo, input_combo + 1, sizeof(input_combo) - 1); // eegg
 			input_combo[sizeof(input_combo) - 1] = x; // eegg
@@ -227,9 +228,7 @@ bool InputManager::update(bool wait) {
 			// actions[x].last = 0;
 		}
 	}
-	while (SDL_PollEvent(&event)) { // clear event queue
-		WARNING("event.type: %d (%d %d %d)", event.type, SDL_KEYDOWN, SDL_KEYUP, SDL_WAKEUPEVENT);
-	}
+
 	return anyactions;
 }
 
