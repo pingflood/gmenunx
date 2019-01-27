@@ -227,8 +227,9 @@ bool InputManager::update(bool wait) {
 			// actions[x].last = 0;
 		}
 	}
-	while (SDL_PollEvent(&event)); // clear event queue
-
+	while (SDL_PollEvent(&event)) { // clear event queue
+		WARNING("event.type: %d (%d %d %d)", event.type, SDL_KEYDOWN, SDL_KEYUP, SDL_WAKEUPEVENT);
+	}
 	return anyactions;
 }
 

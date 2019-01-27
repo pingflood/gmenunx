@@ -55,7 +55,7 @@ void TerminalDialog::exec(const string &cmd) {
 
 	//link icon
 	if (gmenu2x->sc.skinRes(icon)==NULL)
-		drawTitleIcon("icons/ebook.png", this->bg);
+		drawTitleIcon("icons/terminal.png", this->bg);
 	else
 		drawTitleIcon(icon, this->bg);
 
