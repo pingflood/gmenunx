@@ -80,14 +80,13 @@
 
 #define sync() sync(); system("sync &");
 
-uint8_t mmcStatus, mmcPrev;
-uint8_t udcPrev = false, udcStatus = false; //udcConnectedOnBoot;
-uint8_t tvOutPrev = TV_REMOVE, tvOutStatus;
-uint8_t volumeModePrev, volumeMode;
-
 enum vol_mode_t {
 	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
 };
+uint8_t mmcPrev = MMC_REMOVE, mmcStatus;
+uint8_t udcPrev = UDC_REMOVE, udcStatus;
+uint8_t tvOutPrev = TV_REMOVE, tvOutStatus;
+uint8_t volumeModePrev, volumeMode;
 uint8_t batteryIcon = 3;
 
 #if defined(TARGET_RETROGAME)

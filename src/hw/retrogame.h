@@ -18,6 +18,7 @@ uint8_t getUDCStatus() {
 }
 
 uint8_t getTVOutStatus() {
+	return TV_REMOVE;
 	if (memdev > 0 && !(memregs[0x10300 >> 2] >> 25 & 0b1)) return TV_CONNECT;
 	return TV_REMOVE;
 
@@ -73,7 +74,6 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 	tickBattery++;
 	if (tickBattery > 30) { // update battery level every 30 hwChecks
 		tickBattery = 0;
-
 		batteryIcon = 0; // 0% :(
 		int32_t val = getBatteryStatus();
 		if (fwType != "RETROARCADE") { // && confStr["batteryType"] == "BL-5B") {
@@ -84,7 +84,6 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 			else if (val > 3730) batteryIcon = 2; // 40%
 			else if (val > 3600) batteryIcon = 1; // 20%
 		}
-		// batteryIcon = getBatteryLevel();
 	}
 
 	if (memdev > 0) {
@@ -107,7 +106,6 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 		// printbin("D", memregs[0x10300 >> 2]);
 		// printbin("E", memregs[0x10400 >> 2]);
 		// printbin("F", memregs[0x10500 >> 2]);
-
 		// printf("\n\e[30;0m\e[K\e[u");
 
 		udcStatus = getUDCStatus();
@@ -122,11 +120,11 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 			InputManager::pushEvent(mmcStatus);
 		}
 
-		// tvOutStatus = getTVOutStatus();
-		// if (tvOutPrev != tvOutStatus) {
-		// 	tvOutPrev = tvOutStatus;
-		// 	InputManager::pushEvent(tvOutStatus);
-		// }
+		tvOutStatus = getTVOutStatus();
+		if (tvOutPrev != tvOutStatus) {
+			tvOutPrev = tvOutStatus;
+			InputManager::pushEvent(tvOutStatus);
+		}
 
 		volumeMode = getVolumeMode(1);
 		if (volumeModePrev != volumeMode) {
