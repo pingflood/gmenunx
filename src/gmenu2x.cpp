@@ -31,9 +31,7 @@
 #include <sys/statvfs.h>
 #include <errno.h>
 
-// #include <sys/fcntl.h> //for battery
-
-//for browsing the filesystem
+// for browsing the filesystem
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -50,7 +48,6 @@
 #include "powermanager.h"
 #include "gmenu2x.h"
 #include "filelister.h"
-
 #include "iconbutton.h"
 #include "messagebox.h"
 #include "inputdialog.h"
@@ -81,7 +78,7 @@
 #include <ctime>
 #include <sys/time.h>   /* for settimeofday() */
 
-#define sync() sync(); system("sync");
+#define sync() sync(); system("sync &");
 
 int memdev = 0;
 
@@ -1506,6 +1503,7 @@ void GMenu2X::poweroffDialog() {
 	int response = mb.exec();
 	if (response == CONFIRM) {
 		MessageBox mb(this, tr["Poweroff"]);
+		sync();
 		mb.setAutoHide(500);
 		mb.exec();
 		setBacklight(0);
@@ -1515,6 +1513,7 @@ void GMenu2X::poweroffDialog() {
 	}
 	else if (response == SECTION_NEXT) {
 		MessageBox mb(this, tr["Rebooting"]);
+		sync();
 		mb.setAutoHide(500);
 		mb.exec();
 		setBacklight(0);
