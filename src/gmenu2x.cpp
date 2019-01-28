@@ -40,6 +40,15 @@
 #include <sys/ioctl.h>
 #include <linux/soundcard.h>
 
+#include <linux/vt.h>
+#include <linux/kd.h>
+#include <linux/fb.h>
+
+#include <sys/mman.h>
+
+#include <ctime>
+#include <sys/time.h>   /* for settimeofday() */
+
 #include "linkapp.h"
 #include "menu.h"
 #include "fonthelper.h"
@@ -69,29 +78,16 @@
 // #include "menusettingdatetime.h"
 #include "debug.h"
 
-#include <linux/vt.h>
-#include <linux/kd.h>
-#include <linux/fb.h>
-
-#include <sys/mman.h>
-
-#include <ctime>
-#include <sys/time.h>   /* for settimeofday() */
-
 #define sync() sync(); system("sync &");
 
 int memdev = 0;
-
 uint8_t mmcStatus, mmcPrev;
-
 uint8_t udcPrev = false, udcStatus = false; //udcConnectedOnBoot;
-
 uint8_t tvOutPrev = TV_REMOVE, tvOutStatus;
-
+uint8_t volumeModePrev, volumeMode;
 enum vol_mode_t {
 	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
 };
-uint8_t volumeModePrev, volumeMode;
 
 #if defined(TARGET_RETROGAME)
 	#include "hw/retrogame.h"
