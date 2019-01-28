@@ -83,6 +83,27 @@
 
 #define sync() sync(); system("sync");
 
+int memdev = 0;
+
+uint8_t mmcStatus, mmcPrev;
+
+uint8_t udcPrev = false, udcStatus = false; //udcConnectedOnBoot;
+
+uint8_t tvOutPrev = TV_REMOVE, tvOutStatus;
+
+enum vol_mode_t {
+	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
+};
+uint8_t volumeModePrev, volumeMode;
+
+#if defined(TARGET_RETROGAME)
+	#include "hw/retrogame.h"
+#elif defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+	#include "hw/gp2x.h"
+#else //if defined(TARGET_PC)
+	#include "hw/pc.h"
+#endif
+
 const char *CARD_ROOT = "/home/retrofw/"; //Note: Add a trailing /!
 const int CARD_ROOT_LEN = 1;
 int FB_SCREENPITCH = 1;
@@ -124,24 +145,6 @@ static const char *colorToString(enum color c) {
 	return colorNames[c];
 }
 
-char *entryPoint() {
-	static char buf[10] = { 0 };
-	FILE *f = fopen("/dev/mmcblk0", "r");
-	fseek(f, 0x400014, SEEK_SET); // Set the new position
-	if (f) {
-		for (int i = 0; i < 4; i++) {
-			int c = fgetc(f);
-			snprintf(buf + strlen(buf), sizeof(buf), "%02X", c);
-		}
-	}
-	fclose(f);
-	// if (!strcmp(buf, "80015840")) return "JZ4760B";
-
-	if (!strcmp(buf, "800155C0")) return "JZ4760B";
-	else if (!strcmp(buf, "80015560")) return "JZ4760";
-	else return "Unknown";
-}
-
 char *ms2hms(uint32_t t, bool mm = true, bool ss = true) {
 	static char buf[10];
 
@@ -157,57 +160,9 @@ char *ms2hms(uint32_t t, bool mm = true, bool ss = true) {
 	return buf;
 };
 
-void printbin(const char *id, int n) {
-	printf("%s: 0x%08x ", id, n);
-	for(int i = 31; i >= 0; i--) {
-		printf("%d", !!(n & 1 << i));
-		if (!(i % 8)) printf(" ");
-	}
-	printf("\e[0K\n");
-}
-
 static void quit_all(int err) {
 	delete app;
 	exit(err);
-}
-
-int memdev = 0;
-#ifdef TARGET_RETROGAME
-	volatile uint32_t *memregs;
-#else
-	volatile uint16_t *memregs;
-#endif
-
-uint8_t mmcStatus, mmcPrev;
-uint8_t getMMCStatus() {
-	if (memdev > 0 && !(memregs[0x10500 >> 2] >> 0 & 0b1)) return MMC_INSERT;
-	return MMC_REMOVE;
-}
-
-uint8_t udcPrev = false, udcStatus = false; //udcConnectedOnBoot;
-uint8_t getUDCStatus() {
-	if (memdev > 0 && (memregs[0x10300 >> 2] >> 7 & 0b1)) return UDC_CONNECT;
-	return UDC_REMOVE;
-}
-
-uint8_t tvOutPrev = TV_REMOVE, tvOutStatus;
-uint8_t getTVOutStatus() {
-	if (memdev > 0 && !(memregs[0x10300 >> 2] >> 25 & 0b1)) return TV_CONNECT;
-	return TV_REMOVE;
-
-	// if (memdev > 0 && fwType == "RETROARCADE") return !(memregs[0x10300 >> 2] >> 6 & 0b1);
-	// else if (memdev > 0) return !(memregs[0x10300 >> 2] >> 25 & 0b1);
-	// return false;
-}
-
-enum vol_mode_t {
-	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
-};
-uint8_t volumeModePrev, volumeMode;
-uint8_t getVolumeMode(uint8_t vol) {
-	if (!vol) return VOLUME_MODE_MUTE;
-	else if (memdev > 0 && !(memregs[0x10300 >> 2] >> 6 & 0b1)) return VOLUME_MODE_PHONES;
-	return VOLUME_MODE_NORMAL;
 }
 
 GMenu2X::~GMenu2X() {
@@ -246,7 +201,7 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	}
 	close(fd);
 
-	app = new GMenu2X();
+	app = new hwGMenu2X();
 	DEBUG("Starting main()");
 	app->main();
 
@@ -266,19 +221,11 @@ GMenu2X::GMenu2X() {
 	path = "";
 	getExePath();
 
-
-#if !defined(TARGET_PC)
-	setenv("SDL_NOMOUSE", "1", 1);
-// #elif defined(TARGET_RETROGAME)
-	// system("echo 1 > /proc/jz/vsync");
-	// system("echo 0 > /proc/jz/ipu_mode");
-#endif
-
 	// setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 	// setDateTime();
 
 	//Screen
-	if ( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_JOYSTICK) < 0 ) {
+	if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0 ) {
 		ERROR("Could not initialize SDL: %s", SDL_GetError());
 		quit();
 	}
@@ -291,12 +238,12 @@ GMenu2X::GMenu2X() {
 	s->enableVirtualDoubleBuffer(dbl);
 #else
 	s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, confInt["videoBpp"], SDL_HWSURFACE | 
-#ifdef SDL_TRIPLEBUF
-    SDL_TRIPLEBUF
-#else
-    SDL_DOUBLEBUF
-#endif
-);
+	#ifdef SDL_TRIPLEBUF
+		SDL_TRIPLEBUF
+	#else
+		SDL_DOUBLEBUF
+	#endif
+	);
 	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
 #endif
 
@@ -314,16 +261,9 @@ GMenu2X::GMenu2X() {
 	input.init(path + "input.conf");
 	setInputSpeed();
 
-#if defined(TARGET_GP2X)
-	initServices();
-	setGamma(confInt["gamma"]);
-	applyDefaultTimings();
-#elif defined(TARGET_RETROGAME)
-	// system("ln -sf $(mount | grep 'home/retrofw' | cut -f 1 -d ' ') /tmp/.retrofw");
 	tvOutStatus = getTVOutStatus();
 	mmcPrev = mmcStatus = getMMCStatus();
 	udcStatus = getUDCStatus();
-#endif
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
 	
 	initMenu();
@@ -625,23 +565,8 @@ void GMenu2X::main() {
 		else if ( input[SECTION_PREV] ) menu->decSectionIndex();
 		else if ( input[SECTION_NEXT] ) menu->incSectionIndex();
 
-		// VOLUME SCALE MODIFIER
-#if defined(TARGET_GP2X)
-		else if ( fwType=="open2x" && input[CANCEL] ) {
-			volumeMode = constrain(volumeMode - 1, -VOLUME_MODE_MUTE - 1, VOLUME_MODE_NORMAL);
-			if (volumeMode < VOLUME_MODE_MUTE)
-				volumeMode = VOLUME_MODE_NORMAL;
-			switch(volumeMode) {
-				case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
-				case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones); break;
-				case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
-			}
-			setVolume(confInt["globalVolume"]);
-		}
-#endif
 		// SELLINKAPP SELECTED
 		else if (input[MANUAL] && menu->selLinkApp() != NULL) showManual(); // menu->selLinkApp()->showManual();
-
 
 		// On Screen Help
 		// else if (input[MODIFIER]) {
@@ -713,27 +638,24 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 			// VOLUME / MUTE
 			setVolume(confInt["globalVolume"], true);
 			return true;
-#ifdef TARGET_RETROGAME
 		} else if (input[POWER]) {
 			udcDialog();
 			return true;
-#endif
 		}
 	}
 
 	if ( input[BACKLIGHT] ) {
 		setBacklight(confInt["backlight"], true);
 		return true;
-#ifdef TARGET_RETROGAME
 	} else if ( input[UDC_CONNECT] ) {
-		WARNING("USB CONNECTED");
 		batteryIcon = 6;
 		udcDialog();
 		return true;
 	} else if ( input[UDC_REMOVE] ) {
-		WARNING("USB DISCONNECTED");
 		INFO("USB Disconnected. Unloading modules...");
+#ifdef TARGET_RETROGAME
 		system("sync; rmmod g_ether; rmmod g_file_storage");
+#endif
 		iconInet = NULL;
 		batteryIcon = getBatteryLevel();
 		powerManager->setPowerTimeout(confInt["powerTimeout"]);
@@ -748,133 +670,10 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	// 	// tvOutDialog(TV_OFF);
 	// 	WARNING("volume mode changed");
 	// 	return true;
-
-#endif
 	}
 
 	input[wasActive] = true;
 	return false;
-}
-
-void GMenu2X::hwInit() {
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RETROGAME)
-	memdev = open("/dev/mem", O_RDWR);
-	if (memdev < 0) WARNING("Could not open /dev/mem");
-#endif
-
-	if (memdev > 0) {
-#if defined(TARGET_GP2X)
-		memregs = (uint16_t*)mmap(0, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
-		MEM_REG = &memregs[0];
-
-		//Fix tv-out
-		if (memregs[0x2800 >> 1] & 0x100) {
-			memregs[0x2906 >> 1] = 512;
-			//memregs[0x290C >> 1]=640;
-			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
-		}
-		memregs[0x28E8 >> 1] = 239;
-
-#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-		memregs = (uint16_t*)mmap(0, 0x20000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
-#elif defined(TARGET_RETROGAME)
-		memregs = (uint32_t*)mmap(0, 0x20000, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
-#endif
-		if (memregs == MAP_FAILED) {
-			ERROR("Could not mmap hardware registers!");
-			close(memdev);
-		}
-	}
-
-#if defined(TARGET_GP2X)
-	if (fileExists("/etc/open2x")) fwType = "open2x";
-	else fwType = "gph";
-
-	f200 = fileExists("/dev/touchscreen/wm97xx");
-
-	//open2x
-	savedVolumeMode = 0;
-	volumeScalerNormal = VOLUME_SCALER_NORMAL;
-	volumeScalerPhones = VOLUME_SCALER_PHONES;
-	o2x_usb_net_on_boot = false;
-	o2x_usb_net_ip = "";
-	o2x_ftp_on_boot = false;
-	o2x_telnet_on_boot = false;
-	o2x_gp2xjoy_on_boot = false;
-	o2x_usb_host_on_boot = false;
-	o2x_usb_hid_on_boot = false;
-	o2x_usb_storage_on_boot = false;
-	usbnet = samba = inet = web = false;
-	if (fwType=="open2x") {
-		readConfigOpen2x();
-		//	VOLUME MODIFIER
-		switch(volumeMode) {
-			case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
-			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones); break;
-			case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
-		}
-	}
-	readCommonIni();
-	cx25874 = 0;
-	batteryHandle = 0;
-	// useSelectionPng = false;
-
-	batteryHandle = open(f200 ? "/dev/mmsp2adc" : "/dev/batt", O_RDONLY);
-	//if wm97xx fails to open, set f200 to false to prevent any further access to the touchscreen
-	if (f200) f200 = ts.init();
-#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	/* get access to battery device */
-	batteryHandle = open("/dev/pollux_batt", O_RDONLY);
-#endif
-
-// 	struct fb_var_screeninfo vinfo;
-// 	int fbfd = open("/dev/fb0", O_RDWR);
-// 	if (fbfd >= 0 && ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo) >= 0) {
-// 		resX = vinfo.xres;
-// 		resY = vinfo.yres;
-// 		// DEBUG("%dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
-// 	}
-// 	close(fbfd);
-
-// #if defined(TARGET_RETROGAME)
-// 	if (resX == 320 && resY == 480) {
-// 		resY = 240;
-// 		// FB_SCREENPITCH = 2;
-// 		FB_SCREENPITCH = 1;
-// 		fwType = "RETROGAME";
-// 	}
-// 	else if (resX == 480 && resY == 272) {
-// 		fwType = "RETROARCADE";
-// 	}
-// #elif defined(TARGET_PC)
-	resX = 320;
-	resY = 240;
-// #endif
-//	INFO("Resolution: %dx%d", resX, resY);
-
-	INFO("System Init Done!");
-}
-
-void GMenu2X::hwDeinit() {
-#if defined(TARGET_GP2X)
-	if (memdev > 0) {
-		//Fix tv-out
-		if (memregs[0x2800 >> 1] & 0x100) {
-			memregs[0x2906 >> 1] = 512;
-			memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
-		}
-
-		memregs[0x28DA >> 1] = 0x4AB;
-		memregs[0x290C >> 1] = 640;
-	}
-	if (f200) ts.deinit();
-	if (batteryHandle != 0) close(batteryHandle);
-
-	if (memdev > 0) {
-		memregs = NULL;
-		close(memdev);
-	}
-#endif
 }
 
 void GMenu2X::setWallpaper(const string &wallpaper) {
@@ -962,8 +761,6 @@ void GMenu2X::initMenu() {
 		//Add virtual links in the applications section
 		if (menu->getSections()[i] == "applications") {
 			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Browse files and launch apps"], "skin:icons/explorer.png");
-			//menu->addActionLink(i, "Format", MakeDelegate(this, &GMenu2X::formatSd), tr["Format internal SD"], "skin:icons/format.png");
-			// if (mmcStatus == MMC_INSERT)
 			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external media device"], "skin:icons/eject.png");
 
 #if !defined(TARGET_PC)
@@ -983,11 +780,8 @@ void GMenu2X::initMenu() {
 			if (fwType == "gph" && !f200)
 				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "skin:icons/usb.png");
 #endif
-
 			if (fileExists(path + "log.txt"))
 				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "skin:icons/ebook.png");
-
-			// menu->addActionLink(i, tr["Terminal"], MakeDelegate(this, &GMenu2X::Terminal), tr["Open terminal"], "skin:icons/ebook.png");
 
 			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "skin:icons/about.png");
 			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroffDialog), tr["Power menu"], "skin:icons/exit.png");
@@ -1020,13 +814,6 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
 	// sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
 
-	if (fwType == "RETROGAME") {
-		vector<string> batteryType;
-		batteryType.push_back("BL-5B");
-		batteryType.push_back("Linear");
-		sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
-	}
-
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
 	sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the link's output to read with Log Viewer"], &confInt["outputLogs"]));
 	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Seconds to turn display off if inactive"], &confInt["backlightTimeout"], 30, 10, 300));
@@ -1040,7 +827,14 @@ void GMenu2X::settings() {
 	usbMode.push_back("Storage");
 	usbMode.push_back("Charger");
 	sd.addSetting(new MenuSettingMultiString(this, tr["USB mode"], tr["Define default USB mode"], &confStr["usbMode"], &usbMode));
+
 #if defined(TARGET_RETROGAME)
+	if (fwType == "RETROGAME") {
+		vector<string> batteryType;
+		batteryType.push_back("BL-5B");
+		batteryType.push_back("Linear");
+		sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
+	}
 	sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
 #endif
 	sd.addSetting(new MenuSettingMultiString(this, tr["Reset settings"], tr["Choose settings to reset back to defaults"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::resetSettings)));
@@ -1510,51 +1304,19 @@ void GMenu2X::skinColors() {
 
 void GMenu2X::about() {
 	vector<string> text;
-	string temp, buf;
+	string temp = "", buf;
 
-	temp = tr["Build date: "] + __DATE__ + "\n";
+	// temp = tr["Build date: "] + __DATE__ + "\n";
 
-	// { stringstream ss; ss << resX << "x" << resY << "px"; ss >> buf; }
-	// temp += tr["Resolution: "] + buf + "\n";
-
-#ifdef TARGET_RETROGAME
-	// temp += tr["CPU: "] + entryPoint() + "\n";
 	float battlevel = getBatteryStatus();
 	{ stringstream ss; ss.precision(2); ss << battlevel/1000; ss >> buf; }
 	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : buf + " V") + "\n";
-#endif
 
-	// char *hms = ;
 	temp += tr["Uptime: "] + ms2hms(SDL_GetTicks()) + "\n";
 
-	// temp += "----\n";
-	// temp += tr["Storage:"];
-	// temp += "\n    " + tr["Root: "] + getDiskFree("/");
-	// temp += "\n    " + tr["Internal: "] + getDiskFree("/mnt/int_sd");
-	// temp += "\n    " + tr["External: "] + getDiskFree("/mnt/ext_sd");
 	temp += "----\n";
 
 	TextDialog td(this, "GMenuNX", tr["Info about GMenuNX"], "skin:icons/about.png");
-
-// #if defined(TARGET_CAANOO)
-// 	string versionFile = "";
-// // 	if (fileExists("/usr/gp2x/version"))
-// // 		versionFile = "/usr/gp2x/version";
-// // 	else if (fileExists("/tmp/gp2x/version"))
-// // 		versionFile = "/tmp/gp2x/version";
-// // 	if (!versionFile.empty()) {
-// // 		ifstream f(versionFile.c_str(), ios_base::in);
-// // 		if (f.is_open()) {
-// // 			string line;
-// // 			if (getline(f, line, '\n'))
-// // 				temp += "\nFirmware version: " + line + "\n" + exec("uname -srm");
-// // 			f.close();
-// // 		}
-// // 	}
-// 	td.appendText("\nFirmware version: ");
-// 	td.appendFile(versionFile);
-// 	td.appendText(exec("uname -srm"));
-// #endif
 
 	td.appendText(temp);
 	td.appendFile("about.txt");
@@ -1668,82 +1430,9 @@ void GMenu2X::explorer() {
 	}
 }
 
-void GMenu2X::ledOn() {
-#if defined(TARGET_GP2X)
-	if (memdev != 0 && !f200) memregs[0x106E >> 1] ^= 16;
-	//SDL_SYS_JoystickGp2xSys(joy.joystick, BATT_LED_ON);
-#endif
-}
-
-void GMenu2X::ledOff() {
-#if defined(TARGET_GP2X)
-	if (memdev != 0 && !f200) memregs[0x106E >> 1] ^= 16;
-	//SDL_SYS_JoystickGp2xSys(joy.joystick, BATT_LED_OFF);
-#endif
-}
-
-uint32_t GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
-#if defined(TARGET_RETROGAME)
-	if (memdev > 0) {
-		// printf("\e[s\e[1;0f\e[1;32m\n");
-		// printf("               3          2          1          0\n");
-		// printf("              10987654 32109876 54321098 76543210\n");
-		// printbin("0", memregs[0x09600 >> 2]);
-		// printbin("1", memregs[0x09700 >> 2]);
-		// printbin("2", memregs[0x09800 >> 2]);
-		// printbin("3", memregs[0x09900 >> 2]);
-		// printbin("4", memregs[0x09a00 >> 2]);
-		// printbin("5", memregs[0x09b00 >> 2]);
-		// printbin("6", memregs[0x09c00 >> 2]);
-		// printbin("7", memregs[0x09d00 >> 2]);
-		// printbin("8", memregs[0x09e00 >> 2]);
-		// printbin("9", memregs[0x09f00 >> 2]);
-		// printbin("A", memregs[0x10000 >> 2]);
-		// printbin("B", memregs[0x10100 >> 2]);
-		// printbin("C", memregs[0x10200 >> 2]);
-		// printbin("D", memregs[0x10300 >> 2]);
-		// printbin("E", memregs[0x10400 >> 2]);
-		// printbin("F", memregs[0x10500 >> 2]);
-
-		// printf("\n\e[30;0m\e[K\e[u");
-
-		udcStatus = getUDCStatus();
-		if (udcPrev != udcStatus) {
-			udcPrev = udcStatus;
-			InputManager::pushEvent(udcStatus);
-		}
-
-		mmcStatus = getMMCStatus();
-		if (mmcPrev != mmcStatus) {
-			mmcPrev = mmcStatus;
-			InputManager::pushEvent(mmcStatus);
-		}
-
-		// tvOutStatus = getTVOutStatus();
-		// if (tvOutPrev != tvOutStatus) {
-		// 	tvOutPrev = tvOutStatus;
-		// 	InputManager::pushEvent(tvOutStatus);
-		// }
-
-		volumeMode = getVolumeMode(1);
-		if (volumeModePrev != volumeMode) {
-			volumeModePrev = volumeMode;
-			InputManager::pushEvent(PHONES_CONNECT);
-		}
-
-		// volumeMode = getVolumeMode(confInt["globalVolume"]);
-		// if (volumeModePrev != volumeMode && volumeMode == VOLUME_MODE_PHONES) {
-		// 	setVolume(min(70, confInt["globalVolume"]), true);
-		// }
-		// volumeModePrev = volumeMode;
-	}
-#endif
-	return interval;
-}
-
 const string GMenu2X::getDateTime() {
-	char       buf[80];
-	time_t     now = time(0);
+	char buf[80];
+	time_t now = time(0);
 	struct tm  tstruct = *localtime(&now);
 	strftime(buf, sizeof(buf), "%F %R", &tstruct);
 	return buf;
@@ -1835,24 +1524,6 @@ void GMenu2X::poweroffDialog() {
 	}
 }
 
-void GMenu2X::setTVOut(unsigned int TVOut) {
-#if defined(TARGET_RETROGAME)
-	system("echo 0 > /proc/jz/tvselect; echo 0 > /proc/jz/tvout"); // always reset tv out
-	if (TVOut == TV_NTSC)		system("echo 2 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
-	else if (TVOut == TV_PAL)	system("echo 1 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
-#endif
-}
-
-// void GMenu2X::mountSd(bool ext) {
-// 	if (ext)	system("par=$(( $(readlink /tmp/.retrofw | head -c -3 | tail -c 1) ^ 1 )); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/ext_sd; mkdir -p /mnt/ext_sd; mount -t vfat -o rw,utf8 $par /mnt/ext_sd");
-// 	else		system("par=$(readlink /tmp/.retrofw | head -c -3 | tail -c 1); par=$(ls /dev/mmcblk$par* | tail -n 1); sync; umount -fl /mnt/int_sd; mount -t vfat -o rw,utf8 $par /mnt/int_sd");
-// }
-
-// void GMenu2X::umountSd(bool ext) {
-// 	if (ext)	system("sync; umount -fl /mnt/ext_sd");
-// 	else		system("sync; umount -fl /mnt/int_sd");
-// }
-
 void GMenu2X::umountSdDialog() {
 	BrowseDialog bd(this, tr["Umount"], tr["Umount external media device"], "skin:icons/eject.png");
 	bd.showDirectories = true;
@@ -1862,84 +1533,6 @@ void GMenu2X::umountSdDialog() {
 	bd.setPath("/media");
 	bd.exec();
 }
-#if defined(TARGET_RETROGAME)
-void GMenu2X::tvOutDialog(int TVOut) {
-	if (TVOut < 0){
-		MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
-		mb.setButton(TV_NTSC, tr["NTSC"]);
-		mb.setButton(TV_PAL,  tr["PAL"]);
-		mb.setButton(TV_OFF,  tr["OFF"]);
-		TVOut = mb.exec();
-	}
-
-	setTVOut(TVOut);
-
-	switch (TVOut) {
-		case TV_NTSC:
-		case TV_PAL:
-			setBacklight(0);
-			return;
-		default:
-			setBacklight(confInt["backlight"]);
-			break;
-	}
-}
-
-void GMenu2X::udcDialog() {
-	// if (!fileExists("/lib/modules/g_ether.ko")) return;
-
-	// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
-	// 	// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
-	// 	// mb.setButton(CONFIRM,  tr["Charger"]);
-	// 	// mb.exec();
-	// 	return;
-	// }
-	powerManager->setPowerTimeout(0);
-	int option;
-	if (confStr["usbMode"] == "Network") option = MANUAL;
-	else if (confStr["usbMode"] == "Storage") option = CONFIRM;
-	else if (confStr["usbMode"] == "Charger") option = CANCEL;
-	else {
-		MessageBox mb(this, tr["USB mode"], "skin:icons/usb.png");
-		mb.setButton(MANUAL, tr["Network"]);
-		mb.setButton(CANCEL,  tr["Charger"]);
-		mb.setButton(CONFIRM, tr["Storage"]);
-		option = mb.exec();
-	}
-
-	if (option == MANUAL) { // network
-		system("rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
-		// system("rmmod g_ether; rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
-		// system("rmmod g_file_storage; modprobe g_ether; ifup usb0");
-		iconInet = sc.skinRes("imgs/inet.png");
-		INFO("Enabling usb0 networking device");
-	} else if (option == CONFIRM) { // storage
-		quit();
-		execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage nopoweroff", NULL);
-		chdir(getExePath().c_str());
-		execlp("./gmenu2x", "./gmenu2x", NULL);
-		return;
-	}
-}
-
-void GMenu2X::formatSd() {
-	MessageBox mb(this, tr["Format internal SD card?"], "skin:icons/format.png");
-	mb.setButton(CONFIRM, tr["Yes"]);
-	mb.setButton(CANCEL,  tr["No"]);
-	if (mb.exec() == CONFIRM) {
-		MessageBox mb(this, tr["Formatting internal SD card..."], "skin:icons/format.png");
-		mb.setAutoHide(100);
-		mb.exec();
-
-		system("/usr/bin/format_int_sd.sh");
-		{ // new mb scope
-			MessageBox mb(this, tr["Complete!"]);
-			mb.setAutoHide(0);
-			mb.exec();
-		}
-	}
-}
-#endif
 
 void GMenu2X::contextMenu() {
 	vector<MenuOption> voices;
@@ -2194,105 +1787,6 @@ void GMenu2X::deleteSection() {
 	}
 }
 
-int32_t GMenu2X::getBatteryStatus() {
-	char buf[32] = "-1";
-#if defined(TARGET_RETROGAME)
-	FILE *f = fopen("/proc/jz/battery", "r");
-	if (f) {
-		fgets(buf, sizeof(buf), f);
-	}
-	fclose(f);
-#endif
-	return atol(buf);
-}
-
-uint16_t GMenu2X::getBatteryLevel() {
-	int32_t val = getBatteryStatus();
-
-	if (fwType != "RETROARCADE" && confStr["batteryType"] == "BL-5B") {
-		if ((val > 10000) || (val < 0)) return 6;
-		else if (val > 4000) return 5; // 100%
-		else if (val > 3900) return 4; // 80%
-		else if (val > 3800) return 3; // 60%
-		else if (val > 3730) return 2; // 40%
-		else if (val > 3600) return 1; // 20%
-		return 0; // 0% :(
-	}
-
-#if defined(TARGET_GP2X)
-	//if (batteryHandle<=0) return 6; //AC Power
-	if (f200) {
-		MMSP2ADC val;
-		read(batteryHandle, &val, sizeof(MMSP2ADC));
-
-		if (val.batt==0) return 5;
-		if (val.batt==1) return 3;
-		if (val.batt==2) return 1;
-		if (val.batt==3) return 0;
-		return 6;
-	} else {
-		int battval = 0;
-		uint16_t cbv, min=900, max=0;
-
-		for (int i = 0; i < BATTERY_READS; i ++) {
-			if ( read(batteryHandle, &cbv, 2) == 2) {
-				battval += cbv;
-				if (cbv>max) max = cbv;
-				if (cbv<min) min = cbv;
-			}
-		}
-
-		battval -= min+max;
-		battval /= BATTERY_READS-2;
-
-		if (battval>=850) return 6;
-		if (battval>780) return 5;
-		if (battval>740) return 4;
-		if (battval>700) return 3;
-		if (battval>690) return 2;
-		if (battval>680) return 1;
-	}
-
-#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	uint16_t cbv;
-	if ( read(batteryHandle, &cbv, 2) == 2) {
-		// 0=fail, 1=100%, 2=66%, 3=33%, 4=0%
-		switch (cbv) {
-			case 4: return 1;
-			case 3: return 2;
-			case 2: return 4;
-			case 1: return 5;
-			default: return 6;
-		}
-	}
-#else
-
-	val = constrain(val, 0, 4500);
-
-	bool needWriteConfig = false;
-	int32_t max = confInt["maxBattery"];
-	int32_t min = confInt["minBattery"];
-
-	if (val > max) {
-		needWriteConfig = true;
-		max = confInt["maxBattery"] = val;
-	}
-	if (val < min) {
-		needWriteConfig = true;
-		min = confInt["minBattery"] = val;
-	}
-
-	if (needWriteConfig)
-		writeConfig();
-
-	if (max == min)
-		return 0;
-
-	// return 5 - 5*(100-val)/(100);
-	return 5 - 5 * (max - val) / (max - min);
-#endif
-}
-
 void GMenu2X::setInputSpeed() {
 	input.setInterval(180);
 	input.setInterval(1000, SETTINGS);
@@ -2312,62 +1806,15 @@ void GMenu2X::setInputSpeed() {
 	// input.setInterval(200, BACKLIGHT);
 }
 
-void GMenu2X::setCPU(uint32_t mhz) {
-	// mhz = constrain(mhz, CPU_CLK_MIN, CPU_CLK_MAX);
-	if (memdev > 0) {
-		DEBUG("Setting clock to %d", mhz);
-
-#if defined(TARGET_GP2X)
-		uint32_t v, mdiv, pdiv=3, scale=0;
-
-		#define SYS_CLK_FREQ 7372800
-		mhz *= 1000000;
-		mdiv = (mhz * pdiv) / SYS_CLK_FREQ;
-		mdiv = ((mdiv-8)<<8) & 0xff00;
-		pdiv = ((pdiv-2)<<2) & 0xfc;
-		scale &= 3;
-		v = mdiv | pdiv | scale;
-		MEM_REG[0x910>>1] = v;
-
-#elif defined(TARGET_CAANOO) || defined(TARGET_WIZ)
-		volatile uint32_t *memregl = static_cast<volatile uint32_t*>((volatile void*)memregs);
-		int mdiv, pdiv = 9, sdiv = 0;
-		uint32_t v;
-
-		#define SYS_CLK_FREQ 27
-		#define PLLSETREG0   (memregl[0xF004>>2])
-		#define PWRMODE      (memregl[0xF07C>>2])
-		mdiv = (mhz * pdiv) / SYS_CLK_FREQ;
-		if (mdiv & ~0x3ff) return;
-		v = pdiv<<18 | mdiv<<8 | sdiv;
-
-		PLLSETREG0 = v;
-		PWRMODE |= 0x8000;
-		for (int i = 0; (PWRMODE & 0x8000) && i < 0x100000; i++);
-
-#elif defined(TARGET_RETROGAME)
-		uint32_t m = mhz / 6;
-		memregs[0x10 >> 2] = (m << 24) | 0x090520;
-		INFO("Set CPU clock: %d", mhz);
-		SDL_Delay(50);
-#endif
-		setTVOut(TVOut);
-	}
-}
-
 int GMenu2X::getVolume() {
 	int vol = -1;
 	uint32_t soundDev = open("/dev/mixer", O_RDONLY);
 
 	if (soundDev) {
-#if defined(TARGET_RETROGAME)
-		ioctl(soundDev, SOUND_MIXER_READ_VOLUME, &vol);
-#else
-		ioctl(soundDev, SOUND_MIXER_READ_PCM, &vol);
-#endif
+		ioctl(soundDev, SOUND_MIXER, &vol);
 		close(soundDev);
 		if (vol != -1) {
-			//just return one channel , not both channels, they're hopefully the same anyways
+			// just return one channel , not both channels, they're hopefully the same anyways
 			return vol & 0xFF;
 		}
 	}
@@ -2417,28 +1864,12 @@ int GMenu2X::setVolume(int val, bool popup) {
 	uint32_t soundDev = open("/dev/mixer", O_RDWR);
 	if (soundDev) {
 		int vol = (val << 8) | val;
-#if defined(TARGET_RETROGAME)
-		ioctl(soundDev, SOUND_MIXER_WRITE_VOLUME, &vol);
-#else
-		ioctl(soundDev, SOUND_MIXER_WRITE_PCM, &vol);
-#endif
+		ioctl(soundDev, SOUND_MIXER, &vol);
 		close(soundDev);
 
 	}
 	volumeMode = getVolumeMode(val);
 	return val;
-}
-
-int GMenu2X::getBacklight() {
-	char buf[32] = "-1";
-#if defined(TARGET_RETROGAME)
-	FILE *f = fopen("/proc/jz/lcd_backlight", "r");
-	if (f) {
-		fgets(buf, sizeof(buf), f);
-	}
-	fclose(f);
-#endif
-	return atoi(buf);
 }
 
 int GMenu2X::setBacklight(int val, bool popup) {
@@ -2593,232 +2024,3 @@ void GMenu2X::drawSlider(int val, int min, int max, Surface &icon, Surface &bg) 
 	s->box(progress.x + 1, progress.y + 1, val * (progress.w - 3) / max + 1, progress.h - 2, skinConfColors[COLOR_MESSAGE_BOX_SELECTION]);
 	s->flip();
 }
-
-#if defined(TARGET_GP2X)
-void GMenu2X::gp2x_tvout_on(bool pal) {
-	if (memdev != 0) {
-		/*Ioctl_Dummy_t *msg;
-		#define FBMMSP2CTRL 0x4619
-		int TVHandle = ioctl(SDL_videofd, FBMMSP2CTRL, msg);*/
-		if (cx25874!=0) gp2x_tvout_off();
-		//if tv-out is enabled without cx25874 open, stop
-		//if (memregs[0x2800 >> 1]&0x100) return;
-		cx25874 = open("/dev/cx25874",O_RDWR);
-		ioctl(cx25874, _IOW('v', 0x02, uint8_t), pal ? 4 : 3);
-		memregs[0x2906 >> 1] = 512;
-		memregs[0x28E4 >> 1] = memregs[0x290C >> 1];
-		memregs[0x28E8 >> 1] = 239;
-	}
-}
-
-void GMenu2X::gp2x_tvout_off() {
-	if (memdev != 0) {
-		close(cx25874);
-		cx25874 = 0;
-		memregs[0x2906 >> 1] = 1024;
-	}
-}
-
-void GMenu2X::settingsOpen2x() {
-	SettingsDialog sd(this, ts, tr["Open2x Settings"]);
-	sd.addSetting(new MenuSettingBool(this, tr["USB net on boot"], tr["Allow USB networking to be started at boot time"],&o2x_usb_net_on_boot));
-	sd.addSetting(new MenuSettingString(this, tr["USB net IP"], tr["IP address to be used for USB networking"],&o2x_usb_net_ip));
-	sd.addSetting(new MenuSettingBool(this, tr["Telnet on boot"], tr["Allow telnet to be started at boot time"],&o2x_telnet_on_boot));
-	sd.addSetting(new MenuSettingBool(this, tr["FTP on boot"], tr["Allow FTP to be started at boot time"],&o2x_ftp_on_boot));
-	sd.addSetting(new MenuSettingBool(this, tr["GP2XJOY on boot"], tr["Create a js0 device for GP2X controls"],&o2x_gp2xjoy_on_boot));
-	sd.addSetting(new MenuSettingBool(this, tr["USB host on boot"], tr["Allow USB host to be started at boot time"],&o2x_usb_host_on_boot));
-	sd.addSetting(new MenuSettingBool(this, tr["USB HID on boot"], tr["Allow USB HID to be started at boot time"],&o2x_usb_hid_on_boot));
-	sd.addSetting(new MenuSettingBool(this, tr["USB storage on boot"], tr["Allow USB storage to be started at boot time"],&o2x_usb_storage_on_boot));
-//sd.addSetting(new MenuSettingInt(this, tr["Speaker Mode on boot"], tr["Set Speaker mode. 0 = Mute, 1 = Phones, 2 = Speaker"],&volumeMode,0,2,1));
-	sd.addSetting(new MenuSettingInt(this, tr["Speaker Scaler"], tr["Set the Speaker Mode scaling 0-150\% (default is 100\%)"],&volumeScalerNormal,100, 0,150));
-	sd.addSetting(new MenuSettingInt(this, tr["Headphones Scaler"], tr["Set the Headphones Mode scaling 0-100\% (default is 65\%)"],&volumeScalerPhones,65, 0,100));
-
-	if (sd.exec() && sd.edited()) {
-		writeConfigOpen2x();
-		switch(volumeMode) {
-			case VOLUME_MODE_MUTE:   setVolumeScaler(VOLUME_SCALER_MUTE); break;
-			case VOLUME_MODE_PHONES: setVolumeScaler(volumeScalerPhones); break;
-			case VOLUME_MODE_NORMAL: setVolumeScaler(volumeScalerNormal); break;
-		}
-		setVolume(confInt["globalVolume"]);
-	}
-}
-
-void GMenu2X::readConfigOpen2x() {
-	string conffile = "/etc/config/open2x.conf";
-	if (!fileExists(conffile)) return;
-	ifstream inf(conffile.c_str(), ios_base::in);
-	if (!inf.is_open()) return;
-	string line;
-	while (getline(inf, line, '\n')) {
-		string::size_type pos = line.find("=");
-		string name = trim(line.substr(0,pos));
-		string value = trim(line.substr(pos+1,line.length()));
-
-		if (name=="USB_NET_ON_BOOT") o2x_usb_net_on_boot = value == "y" ? true : false;
-		else if (name=="USB_NET_IP") o2x_usb_net_ip = value;
-		else if (name=="TELNET_ON_BOOT") o2x_telnet_on_boot = value == "y" ? true : false;
-		else if (name=="FTP_ON_BOOT") o2x_ftp_on_boot = value == "y" ? true : false;
-		else if (name=="GP2XJOY_ON_BOOT") o2x_gp2xjoy_on_boot = value == "y" ? true : false;
-		else if (name=="USB_HOST_ON_BOOT") o2x_usb_host_on_boot = value == "y" ? true : false;
-		else if (name=="USB_HID_ON_BOOT") o2x_usb_hid_on_boot = value == "y" ? true : false;
-		else if (name=="USB_STORAGE_ON_BOOT") o2x_usb_storage_on_boot = value == "y" ? true : false;
-		else if (name=="VOLUME_MODE") volumeMode = savedVolumeMode = constrain( atoi(value.c_str()), 0, 2);
-		else if (name=="PHONES_VALUE") volumeScalerPhones = constrain( atoi(value.c_str()), 0, 100);
-		else if (name=="NORMAL_VALUE") volumeScalerNormal = constrain( atoi(value.c_str()), 0, 150);
-	}
-	inf.close();
-}
-
-void GMenu2X::writeConfigOpen2x() {
-	ledOn();
-	string conffile = "/etc/config/open2x.conf";
-	ofstream inf(conffile.c_str());
-	if (inf.is_open()) {
-		inf << "USB_NET_ON_BOOT=" << ( o2x_usb_net_on_boot ? "y" : "n" ) << endl;
-		inf << "USB_NET_IP=" << o2x_usb_net_ip << endl;
-		inf << "TELNET_ON_BOOT=" << ( o2x_telnet_on_boot ? "y" : "n" ) << endl;
-		inf << "FTP_ON_BOOT=" << ( o2x_ftp_on_boot ? "y" : "n" ) << endl;
-		inf << "GP2XJOY_ON_BOOT=" << ( o2x_gp2xjoy_on_boot ? "y" : "n" ) << endl;
-		inf << "USB_HOST_ON_BOOT=" << ( (o2x_usb_host_on_boot || o2x_usb_hid_on_boot || o2x_usb_storage_on_boot) ? "y" : "n" ) << endl;
-		inf << "USB_HID_ON_BOOT=" << ( o2x_usb_hid_on_boot ? "y" : "n" ) << endl;
-		inf << "USB_STORAGE_ON_BOOT=" << ( o2x_usb_storage_on_boot ? "y" : "n" ) << endl;
-		inf << "VOLUME_MODE=" << volumeMode << endl;
-		if (volumeScalerPhones != VOLUME_SCALER_PHONES) inf << "PHONES_VALUE=" << volumeScalerPhones << endl;
-		if (volumeScalerNormal != VOLUME_SCALER_NORMAL) inf << "NORMAL_VALUE=" << volumeScalerNormal << endl;
-		inf.close();
-		sync();
-	}
-	ledOff();
-}
-
-void GMenu2X::activateSdUsb() {
-	if (usbnet) {
-		MessageBox mb(this, tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
-		mb.exec();
-	} else {
-		MessageBox mb(this, tr["USB Enabled (SD)"],"skin:icons/usb.png");
-		mb.setButton(CONFIRM, tr["Turn off"]);
-		mb.exec();
-		system("scripts/usbon.sh nand");
-	}
-}
-
-void GMenu2X::activateNandUsb() {
-	if (usbnet) {
-		MessageBox mb(this, tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
-		mb.exec();
-	} else {
-		system("scripts/usbon.sh nand");
-		MessageBox mb(this, tr["USB Enabled (Nand)"],"skin:icons/usb.png");
-		mb.setButton(CONFIRM, tr["Turn off"]);
-		mb.exec();
-		system("scripts/usboff.sh nand");
-	}
-}
-
-void GMenu2X::activateRootUsb() {
-	if (usbnet) {
-		MessageBox mb(this,tr["Operation not permitted."]+"\n"+tr["You should disable Usb Networking to do this."]);
-		mb.exec();
-	} else {
-		system("scripts/usbon.sh root");
-		MessageBox mb(this,tr["USB Enabled (Root)"],"skin:icons/usb.png");
-		mb.setButton(CONFIRM, tr["Turn off"]);
-		mb.exec();
-		system("scripts/usboff.sh root");
-	}
-}
-
-void GMenu2X::applyRamTimings() {
-	// 6 4 1 1 1 2 2
-	if (memdev!=0) {
-		int tRC = 5, tRAS = 3, tWR = 0, tMRD = 0, tRFC = 0, tRP = 1, tRCD = 1;
-		memregs[0x3802>>1] = ((tMRD & 0xF) << 12) | ((tRFC & 0xF) << 8) | ((tRP & 0xF) << 4) | (tRCD & 0xF);
-		memregs[0x3804>>1] = ((tRC & 0xF) << 8) | ((tRAS & 0xF) << 4) | (tWR & 0xF);
-	}
-}
-
-void GMenu2X::applyDefaultTimings() {
-	// 8 16 3 8 8 8 8
-	if (memdev!=0) {
-		int tRC = 7, tRAS = 15, tWR = 2, tMRD = 7, tRFC = 7, tRP = 7, tRCD = 7;
-		memregs[0x3802>>1] = ((tMRD & 0xF) << 12) | ((tRFC & 0xF) << 8) | ((tRP & 0xF) << 4) | (tRCD & 0xF);
-		memregs[0x3804>>1] = ((tRC & 0xF) << 8) | ((tRAS & 0xF) << 4) | (tWR & 0xF);
-	}
-}
-
-void GMenu2X::setGamma(int gamma) {
-	float fgamma = (float)constrain(gamma,1,100)/10;
-	fgamma = 1 / fgamma;
-	MEM_REG[0x2880>>1] &= ~(1<<12);
-	MEM_REG[0x295C>>1] = 0;
-
-	for (int i = 0; i < 256; i++) {
-		uint8_t g = (uint8_t)(255.0*pow(i/255.0,fgamma));
-		uint16_t s = (g << 8) | g;
-		MEM_REG[0x295E >> 1] = s;
-		MEM_REG[0x295E >> 1] = g;
-	}
-}
-
-void GMenu2X::setVolumeScaler(int scale) {
-	scale = constrain(scale,0,MAX_VOLUME_SCALE_FACTOR);
-	uint32_t soundDev = open("/dev/mixer", O_WRONLY);
-	if (soundDev) {
-		ioctl(soundDev, SOUND_MIXER_PRIVATE2, &scale);
-		close(soundDev);
-	}
-}
-
-int GMenu2X::getVolumeScaler() {
-	int currentscalefactor = -1;
-	uint32_t soundDev = open("/dev/mixer", O_RDONLY);
-	if (soundDev) {
-		ioctl(soundDev, SOUND_MIXER_PRIVATE1, &currentscalefactor);
-		close(soundDev);
-	}
-	return currentscalefactor;
-}
-
-void GMenu2X::readCommonIni() {
-	if (!fileExists("/usr/gp2x/common.ini")) return;
-	ifstream inf("/usr/gp2x/common.ini", ios_base::in);
-	if (!inf.is_open()) return;
-	string line;
-	string section = "";
-	while (getline(inf, line, '\n')) {
-		line = trim(line);
-		if (line[0]=='[' && line[line.length()-1]==']') {
-			section = line.substr(1,line.length()-2);
-		} else {
-			string::size_type pos = line.find("=");
-			string name = trim(line.substr(0,pos));
-			string value = trim(line.substr(pos+1,line.length()));
-
-			if (section=="usbnet") {
-				if (name=="enable")
-					usbnet = value=="true" ? true : false;
-				else if (name=="ip")
-					ip = value;
-
-			} else if (section=="server") {
-				if (name=="inet")
-					inet = value=="true" ? true : false;
-				else if (name=="samba")
-					samba = value=="true" ? true : false;
-				else if (name=="web")
-					web = value=="true" ? true : false;
-			}
-		}
-	}
-	inf.close();
-}
-
-void GMenu2X::initServices() {
-	if (usbnet) {
-		string services = "scripts/services.sh "+ip+" "+(inet?"on":"off")+" "+(samba?"on":"off")+" "+(web?"on":"off")+" &";
-		system(services.c_str());
-	}
-}
-#endif
