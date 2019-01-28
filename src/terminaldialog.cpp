@@ -84,14 +84,13 @@ void TerminalDialog::exec(const string &cmd) {
 			if (pipe) {
 				if (!feof(pipe) && fgets(buffer, 128, pipe) != NULL) {
 					rawText += buffer;
-					InputManager::pushEvent(NUM_ACTIONS);
-					// inputAction = gmenu2x->input.update(false);
 				} else {
 					pclose(pipe);
 					pipe = NULL;
-					system("sync");
 					rawText += "\n$";
+					system("sync &");
 				}
+				InputManager::pushEvent(NUM_ACTIONS);
 				split(text, rawText, "\n");
 			}
 			inputAction = gmenu2x->input.update();
