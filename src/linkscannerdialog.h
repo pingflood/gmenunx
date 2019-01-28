@@ -1,3 +1,5 @@
+#ifdef LINKSCANNER
+
 #ifndef LINKSCANNERDIALOG_H_
 #define LINKSCANNERDIALOG_H_
 
@@ -24,3 +26,5 @@ public:
 };
 
 #endif /*LINKSCANNERDIALOG_H_*/
+
+#endif

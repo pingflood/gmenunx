@@ -1,3 +1,5 @@
+#ifdef LINKSCANNER
+
 #include "linkscannerdialog.h"
 #include "debug.h"
 
@@ -15,6 +17,9 @@ void LinkScannerDialog::exec() {
 	stringstream ss;
 	uint32_t lineY = gmenu2x->listRect.y;
 	vector<string> files;
+
+	char *home = getenv("HOME");
+	if (!home) return;
 
 	drawTopBar(this->bg, title, description, icon);
 	drawBottomBar(this->bg);
@@ -111,3 +116,5 @@ void LinkScannerDialog::scanPath(string path, vector<string> *files) {
 	}
 	closedir(dirp);
 }
+
+#endif

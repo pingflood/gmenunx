@@ -113,7 +113,7 @@ private:
 	/*!
 	Starts the scanning of the nand and sd filesystems, searching for gpe and gpu files and creating the links in 2 dedicated sections.
 	*/
-	void linkScanner();
+	// void linkScanner();
 	/*!
 	Performs the actual scan in the given path and populates the files vector with the results. The creation of the links is not performed here.
 	@see scanner
