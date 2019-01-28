@@ -625,6 +625,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		setBacklight(confInt["backlight"], true);
 		return true;
 	} else if ( input[UDC_CONNECT] ) {
+		powerManager->setPowerTimeout(0);
 		batteryIcon = 6;
 		udcDialog();
 		return true;

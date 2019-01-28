@@ -192,7 +192,6 @@ private:
 		// 	// mb.exec();
 		// 	return;
 		// }
-		powerManager->setPowerTimeout(0);
 		int option;
 		if (confStr["usbMode"] == "Network") option = MANUAL;
 		else if (confStr["usbMode"] == "Storage") option = CONFIRM;
