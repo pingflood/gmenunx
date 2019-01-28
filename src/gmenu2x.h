@@ -138,14 +138,11 @@ private:
 
 	virtual void udcDialog() { };
 	virtual void tvOutDialog(int TVOut = -1) { };
+	virtual void hwInit() { };
 	virtual void hwDeinit() {};
-	virtual void hwInit() {};
 	virtual int getBacklight() { return -1; };
 
 public:
-	GMenu2X();
-	~GMenu2X();
-	void quit();
 
 	/*
 	 * Variables needed for elements disposition

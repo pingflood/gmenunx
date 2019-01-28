@@ -1,11 +1,11 @@
 #ifndef HW_GP2X_H
 #define HW_GP2X_H
 
-
 volatile uint16_t *memregs;
 int SOUND_MIXER = SOUND_MIXER_READ_PCM;
+int memdev = 0;
 
-static uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
+uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 	printf("%s:%d: %s\n", __FILE__, __LINE__, __func__);
 	return interval;
 }
@@ -50,19 +50,6 @@ private:
 	void gp2x_tvout_off();
 	void readCommonIni();
 	void initServices();
-
-
-
-public:
-	// Open2x settings ---------------------------------------------------------
-	bool o2x_usb_net_on_boot, o2x_ftp_on_boot, o2x_telnet_on_boot, o2x_gp2xjoy_on_boot, o2x_usb_host_on_boot, o2x_usb_hid_on_boot, o2x_usb_storage_on_boot;
-	string o2x_usb_net_ip;
-	int savedVolumeMode;		//	just use the const int scale values at top of source
-
-	//  Volume scaling values to store from config files
-	int volumeScalerPhones;
-	int volumeScalerNormal;
-	//--------------------------------------------------------------------------
 
 	void hwInit() {
 		setenv("SDL_NOMOUSE", "1", 1);
@@ -167,6 +154,16 @@ public:
 #endif
 	}
 
+public:
+	// Open2x settings ---------------------------------------------------------
+	bool o2x_usb_net_on_boot, o2x_ftp_on_boot, o2x_telnet_on_boot, o2x_gp2xjoy_on_boot, o2x_usb_host_on_boot, o2x_usb_hid_on_boot, o2x_usb_storage_on_boot;
+	string o2x_usb_net_ip;
+	int savedVolumeMode;		//	just use the const int scale values at top of source
+
+	//  Volume scaling values to store from config files
+	int volumeScalerPhones;
+	int volumeScalerNormal;
+	//--------------------------------------------------------------------------
 
 	void ledOn() {
 #if defined(TARGET_GP2X)
@@ -185,8 +182,7 @@ public:
 	uint16_t getBatteryLevel() {
 		int32_t val = getBatteryStatus();
 
-
-	#if defined(TARGET_GP2X)
+#if defined(TARGET_GP2X)
 		//if (batteryHandle<=0) return 6; //AC Power
 		if (f200) {
 			MMSP2ADC val;

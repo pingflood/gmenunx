@@ -2,6 +2,7 @@
 #define HW_RETROGAME_H
 
 volatile uint32_t *memregs;
+volatile uint8_t memdev = 0;
 int SOUND_MIXER = SOUND_MIXER_READ_VOLUME;
 int32_t tickBattery = 0;
 // batteryIcon = 3;
@@ -68,7 +69,7 @@ void printbin(const char *id, int n) {
 	printf("\e[0K\n");
 }
 
-static uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
+uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 	tickBattery++;
 	if (tickBattery > 30) { // update battery level every 30 hwChecks
 		tickBattery = 0;
@@ -142,37 +143,46 @@ static uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 	return interval;
 }
 
-
-
-
 class hwGMenu2X : public GMenu2X {
-public:
-	void setTVOut(unsigned int TVOut) {
-		system("echo 0 > /proc/jz/tvselect; echo 0 > /proc/jz/tvout"); // always reset tv out
-		if (TVOut == TV_NTSC)		system("echo 2 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
-		else if (TVOut == TV_PAL)	system("echo 1 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
-	}
-
-	void tvOutDialog(int TVOut) {
-		if (TVOut < 0){
-			MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
-			mb.setButton(TV_NTSC, tr["NTSC"]);
-			mb.setButton(TV_PAL,  tr["PAL"]);
-			mb.setButton(TV_OFF,  tr["OFF"]);
-			TVOut = mb.exec();
+private:
+	void hwInit() {
+		setenv("SDL_NOMOUSE", "1", 1);
+		memdev = open("/dev/mem", O_RDWR);
+		if (memdev > 0) {
+			memregs = (uint32_t*)mmap(0, 0x20000, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
+			if (memregs == MAP_FAILED) {
+				ERROR("Could not mmap hardware registers!");
+				close(memdev);
+			}
+		} else {
+			WARNING("Could not open /dev/mem");
 		}
+	// 	struct fb_var_screeninfo vinfo;
+	// 	int fbfd = open("/dev/fb0", O_RDWR);
+	// 	if (fbfd >= 0 && ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo) >= 0) {
+	// 		resX = vinfo.xres;
+	// 		resY = vinfo.yres;
+	// 		// DEBUG("%dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
+	// 	}
+	// 	close(fbfd);
 
-		setTVOut(TVOut);
+	// #if defined(TARGET_RETROGAME)
+	// 	if (resX == 320 && resY == 480) {
+	// 		resY = 240;
+	// 		// FB_SCREENPITCH = 2;
+	// 		FB_SCREENPITCH = 1;
+	// 		fwType = "RETROGAME";
+	// 	}
+	// 	else if (resX == 480 && resY == 272) {
+	// 		fwType = "RETROARCADE";
+	// 	}
+	// #elif defined(TARGET_PC)
+		resX = 320;
+		resY = 240;
+	// #endif
+	//	INFO("Resolution: %dx%d", resX, resY);
 
-		switch (TVOut) {
-			case TV_NTSC:
-			case TV_PAL:
-				setBacklight(0);
-				return;
-			default:
-				setBacklight(confInt["backlight"]);
-				break;
-		}
+		INFO("RETROGAME Init Done!");
 	}
 
 	void udcDialog() {
@@ -213,45 +223,44 @@ public:
 		}
 	}
 
-	void hwInit() {
-		setenv("SDL_NOMOUSE", "1", 1);
-		memdev = open("/dev/mem", O_RDWR);
-		if (memdev < 0) WARNING("Could not open /dev/mem");
-
-		if (memdev > 0) {
-			memregs = (uint32_t*)mmap(0, 0x20000, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);
-			if (memregs == MAP_FAILED) {
-				ERROR("Could not mmap hardware registers!");
-				close(memdev);
-			}
+	void tvOutDialog(int TVOut) {
+		if (TVOut < 0){
+			MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
+			mb.setButton(TV_NTSC, tr["NTSC"]);
+			mb.setButton(TV_PAL,  tr["PAL"]);
+			mb.setButton(TV_OFF,  tr["OFF"]);
+			TVOut = mb.exec();
 		}
 
-	// 	struct fb_var_screeninfo vinfo;
-	// 	int fbfd = open("/dev/fb0", O_RDWR);
-	// 	if (fbfd >= 0 && ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo) >= 0) {
-	// 		resX = vinfo.xres;
-	// 		resY = vinfo.yres;
-	// 		// DEBUG("%dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
-	// 	}
-	// 	close(fbfd);
+		setTVOut(TVOut);
 
-	// #if defined(TARGET_RETROGAME)
-	// 	if (resX == 320 && resY == 480) {
-	// 		resY = 240;
-	// 		// FB_SCREENPITCH = 2;
-	// 		FB_SCREENPITCH = 1;
-	// 		fwType = "RETROGAME";
-	// 	}
-	// 	else if (resX == 480 && resY == 272) {
-	// 		fwType = "RETROARCADE";
-	// 	}
-	// #elif defined(TARGET_PC)
-		resX = 320;
-		resY = 240;
-	// #endif
-	//	INFO("Resolution: %dx%d", resX, resY);
+		switch (TVOut) {
+			case TV_NTSC:
+			case TV_PAL:
+				setBacklight(0);
+				return;
+			default:
+				setBacklight(confInt["backlight"]);
+				break;
+		}
+	}
 
-		INFO("RETROGAME Init Done!");
+	int getBacklight() {
+		char buf[32] = "-1";
+		FILE *f = fopen("/proc/jz/lcd_backlight", "r");
+		if (f) {
+			fgets(buf, sizeof(buf), f);
+			fclose(f);
+		}
+		return atoi(buf);
+	}
+
+
+public:
+	void setTVOut(unsigned int TVOut) {
+		system("echo 0 > /proc/jz/tvselect; echo 0 > /proc/jz/tvout"); // always reset tv out
+		if (TVOut == TV_NTSC)		system("echo 2 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
+		else if (TVOut == TV_PAL)	system("echo 1 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
 	}
 
 	uint16_t getBatteryLevel() {
@@ -305,15 +314,6 @@ public:
 		}
 	}
 
-	int getBacklight() {
-		char buf[32] = "-1";
-		FILE *f = fopen("/proc/jz/lcd_backlight", "r");
-		if (f) {
-			fgets(buf, sizeof(buf), f);
-		}
-		fclose(f);
-		return atoi(buf);
-	}
 };
 
 #endif

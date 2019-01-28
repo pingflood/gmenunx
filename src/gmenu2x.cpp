@@ -80,11 +80,11 @@
 
 #define sync() sync(); system("sync &");
 
-int memdev = 0;
 uint8_t mmcStatus, mmcPrev;
 uint8_t udcPrev = false, udcStatus = false; //udcConnectedOnBoot;
 uint8_t tvOutPrev = TV_REMOVE, tvOutStatus;
 uint8_t volumeModePrev, volumeMode;
+
 enum vol_mode_t {
 	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
 };
@@ -202,7 +202,7 @@ int main(int /*argc*/, char * /*argv*/[]) {
 }
 
 GMenu2X *GMenu2X::instance = NULL;
-GMenu2X::GMenu2X() {
+void GMenu2X::main() {
 	instance = this;
 	//load config data
 	readConfig();
@@ -268,9 +268,7 @@ GMenu2X::GMenu2X() {
 	//recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
 		menu->selLinkApp()->selector(lastSelectorElement, lastSelectorDir);
-}
 
-void GMenu2X::main() {
 	bool quit = false;
 	int i = 0, x = 0, y = 0, ix = 0, iy = 0;
 	string prevBackdrop = "", currBackdrop = "";

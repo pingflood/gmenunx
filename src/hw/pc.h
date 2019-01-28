@@ -3,8 +3,9 @@
 
 volatile uint16_t *memregs;
 int SOUND_MIXER = SOUND_MIXER_READ_PCM;
+int memdev = 0;
 
-static uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
+uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 	printf("%s:%d: %s\n", __FILE__, __LINE__, __func__);
 	return 0;
 }
