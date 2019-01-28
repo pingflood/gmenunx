@@ -3,6 +3,8 @@
 
 volatile uint32_t *memregs;
 int SOUND_MIXER = SOUND_MIXER_READ_VOLUME;
+int32_t tickBattery = 0;
+// batteryIcon = 3;
 
 uint8_t getMMCStatus() {
 	if (memdev > 0 && !(memregs[0x10500 >> 2] >> 0 & 0b1)) return MMC_INSERT;
@@ -21,6 +23,16 @@ uint8_t getTVOutStatus() {
 	// if (memdev > 0 && fwType == "RETROARCADE") return !(memregs[0x10300 >> 2] >> 6 & 0b1);
 	// else if (memdev > 0) return !(memregs[0x10300 >> 2] >> 25 & 0b1);
 	// return false;
+}
+
+int32_t getBatteryStatus() {
+	char buf[32] = "-1";
+	FILE *f = fopen("/proc/jz/battery", "r");
+	if (f) {
+		fgets(buf, sizeof(buf), f);
+		fclose(f);
+	}
+	return atol(buf);
 }
 
 // char *entryPoint() {
@@ -57,6 +69,23 @@ void printbin(const char *id, int n) {
 }
 
 static uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
+	tickBattery++;
+	if (tickBattery > 30) { // update battery level every 30 hwChecks
+		tickBattery = 0;
+
+		batteryIcon = 0; // 0% :(
+		int32_t val = getBatteryStatus();
+		if (fwType != "RETROARCADE") { // && confStr["batteryType"] == "BL-5B") {
+			if ((val > 10000) || (val < 0)) batteryIcon = 6;
+			else if (val > 4000) batteryIcon = 5; // 100%
+			else if (val > 3900) batteryIcon = 4; // 80%
+			else if (val > 3800) batteryIcon = 3; // 60%
+			else if (val > 3730) batteryIcon = 2; // 40%
+			else if (val > 3600) batteryIcon = 1; // 20%
+		}
+		// batteryIcon = getBatteryLevel();
+	}
+
 	if (memdev > 0) {
 		// printf("\e[s\e[1;0f\e[1;32m\n");
 		// printf("               3          2          1          0\n");
@@ -223,16 +252,6 @@ public:
 	//	INFO("Resolution: %dx%d", resX, resY);
 
 		INFO("RETROGAME Init Done!");
-	}
-
-	int32_t getBatteryStatus() {
-		char buf[32] = "-1";
-		FILE *f = fopen("/proc/jz/battery", "r");
-		if (f) {
-			fgets(buf, sizeof(buf), f);
-		}
-		fclose(f);
-		return atol(buf);
 	}
 
 	uint16_t getBatteryLevel() {

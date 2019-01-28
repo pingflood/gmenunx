@@ -26,6 +26,10 @@ uint8_t getVolumeMode(uint8_t vol) {
 	return VOLUME_MODE_NORMAL;
 }
 
+int32_t getBatteryStatus() {
+	return -1;
+}
+
 class hwGMenu2X : public GMenu2X {
 private:
 	typedef struct {

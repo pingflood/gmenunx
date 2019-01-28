@@ -166,18 +166,15 @@ public:
 	ConfIntHash confInt, skinConfInt;
 
 	RGBAColor skinConfColors[NUM_COLORS];
-
-	bool f200 = true; //gp2x type // touchscreen
-
 	SurfaceCollection sc;
-	Translator tr;
 	Surface *s, *bg, *iconInet = NULL;
-	uint8_t batteryIcon = 3;
-
+	Translator tr;
 	FontHelper *font = NULL, *titlefont = NULL;
-
 	PowerManager *powerManager;
+	InputManager input;
+	Touchscreen ts;
 	Menu *menu;
+	bool f200 = true; //gp2x type // touchscreen
 
 	~GMenu2X();
 	void quit();
@@ -236,7 +233,6 @@ public:
 	@return A number representing battery charge. 0 means fully discharged. 5 means fully charged. 6 represents a gp2x using AC power.
 	*/
 	virtual uint16_t getBatteryLevel() { return 6; };
-	virtual int32_t getBatteryStatus() { return -1; };
 	virtual void setTVOut(unsigned int _TVOut) { };
 	virtual void setCPU(uint32_t mhz) {};
 	virtual void ledOn() {};

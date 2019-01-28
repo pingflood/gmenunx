@@ -1,3 +1,5 @@
+#ifdef BATTERYLOGGER
+
 #include "batteryloggerdialog.h"
 #include "powermanager.h"
 // #include "debug.h"
@@ -113,3 +115,5 @@ void BatteryLoggerDialog::exec() {
 	}
 	gmenu2x->setBacklight(gmenu2x->confInt["backlight"]);
 }
+
+#endif

@@ -73,7 +73,7 @@
 #include "menusettingimage.h"
 #include "menusettingdir.h"
 #include "imageviewerdialog.h"
-#include "batteryloggerdialog.h"
+// #include "batteryloggerdialog.h"
 #include "linkscannerdialog.h"
 // #include "menusettingdatetime.h"
 #include "debug.h"
@@ -88,6 +88,7 @@ uint8_t volumeModePrev, volumeMode;
 enum vol_mode_t {
 	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
 };
+uint8_t batteryIcon = 3;
 
 #if defined(TARGET_RETROGAME)
 	#include "hw/retrogame.h"
@@ -101,7 +102,6 @@ const char *CARD_ROOT = "/home/retrofw/"; //Note: Add a trailing /!
 const int CARD_ROOT_LEN = 1;
 int FB_SCREENPITCH = 1;
 string fwType = "";
-int32_t tickBattery = -2e3;
 
 static GMenu2X *app;
 
@@ -273,7 +273,6 @@ GMenu2X::GMenu2X() {
 void GMenu2X::main() {
 	bool quit = false;
 	int i = 0, x = 0, y = 0, ix = 0, iy = 0;
-	uint32_t tickNow = 0; //, tickMMC = 0; //, tickUSB = 0;
 	string prevBackdrop = "", currBackdrop = "";
 
 	int8_t brightnessIcon = 5;
@@ -312,8 +311,6 @@ void GMenu2X::main() {
 			*iconR = sc.skinRes("imgs/section-r.png");
 
 	while (!quit) {
-		tickNow = SDL_GetTicks();
-
 		s->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
 
 		//Background
@@ -405,13 +402,6 @@ void GMenu2X::main() {
 	// drawBottomBar(this->bg);
 		if (confInt["sectionBar"]) {
 			int iconTrayShift = 0;
-
-			if (tickNow - tickBattery >= 30000) {
-				// TODO: move to hwCheck
-				tickBattery = tickNow;
-				batteryIcon = getBatteryLevel();
-			}
-			if (batteryIcon > 5) batteryIcon = 6;
 
 			brightnessIcon = confInt["backlight"] / 20;
 			if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
@@ -756,10 +746,10 @@ void GMenu2X::initMenu() {
 			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Browse files and launch apps"], "skin:icons/explorer.png");
 			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external media device"], "skin:icons/eject.png");
 
-#if !defined(TARGET_PC)
-			if (getBatteryLevel() > 5) // show only if charging
-#endif
-				menu->addActionLink(i, tr["Battery Logger"], MakeDelegate(this, &GMenu2X::batteryLogger), tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
+// #if !defined(TARGET_PC)
+// 			if (getBatteryLevel() > 5) // show only if charging
+// #endif
+// 				menu->addActionLink(i, tr["Battery Logger"], MakeDelegate(this, &GMenu2X::batteryLogger), tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
 		}
 
 		//Add virtual links in the setting section
@@ -1336,10 +1326,6 @@ void GMenu2X::viewLog() {
 	}
 }
 
-void GMenu2X::batteryLogger() {
-	BatteryLoggerDialog bl(this, tr["Battery Logger"], tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
-	bl.exec();
-}
 
 void GMenu2X::linkScanner() {
 	LinkScannerDialog ls(this, tr["Link scanner"], tr["Scan for applications and games"], "skin:icons/configure.png");

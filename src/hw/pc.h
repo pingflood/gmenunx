@@ -21,6 +21,10 @@ uint8_t getTVOutStatus() {
 	return TV_REMOVE;
 }
 
+int32_t getBatteryStatus() {
+	return 6;
+}
+
 uint8_t getVolumeMode(uint8_t vol) {
 	return VOLUME_MODE_NORMAL;
 }
