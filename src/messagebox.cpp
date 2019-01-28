@@ -112,8 +112,8 @@ int MessageBox::exec() {
 	ix = (gmenu2x->sc[icon] != NULL ? 42 : 0);
 	box.w += ix;
 
-	box.x = gmenu2x->halfX - box.w/2 - 2;
-	box.y = gmenu2x->halfY - box.h/2 - 2;
+	box.x = gmenu2x->resX/2 - box.w/2 - 2;
+	box.y = gmenu2x->resY/2 - box.h/2 - 2;
 
 	//outer box
 	gmenu2x->s->box(box, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
@@ -138,7 +138,7 @@ int MessageBox::exec() {
 	//draw buttons rectangle
 	gmenu2x->s->box(box.x, box.y+box.h, box.w, gmenu2x->font->getHeight(), gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 
-	int btnX = gmenu2x->halfX+box.w/2-6;
+	int btnX = gmenu2x->resX/2 + box.w/2 - 6;
 	for (uint32_t i = 0; i < buttonText.size(); i++) {
 		if (buttonText[i] != "") {
 			buttonPosition[i].y = box.y+box.h+gmenu2x->font->getHalfHeight();

@@ -208,9 +208,6 @@ void GMenu2X::main() {
 	readConfig();
 	hwInit();
 
-	halfX = resX/2;
-	halfY = resY/2;
-
 	path = "";
 	getExePath();
 
@@ -1538,8 +1535,8 @@ void GMenu2X::contextMenu() {
 		if (w > box.w) box.w = w;
 	}
 	box.w += 23;
-	box.x = halfX - box.w / 2;
-	box.y = halfY - box.h / 2;
+	box.x = resX/2 - box.w/2;
+	box.y = resY/2 - box.h/2;
 
 	uint32_t tickStart = SDL_GetTicks();
 	while (!close) {

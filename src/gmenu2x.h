@@ -147,7 +147,7 @@ public:
 	/*
 	 * Variables needed for elements disposition
 	 */
-	uint32_t resX = 320, resY = 240, halfX, halfY;
+	uint32_t resX = 320, resY = 240;
 	uint32_t linkCols, linkRows, linkWidth, linkHeight, linkSpacing = 4;
 	SDL_Rect listRect, linksRect, sectionBarRect, bottomBarRect;
 	/*!
