@@ -183,7 +183,14 @@ private:
 		INFO("RETROGAME Init Done!");
 	}
 
-	void udcDialog() {
+	void udcDialog(int udcStatus) {
+		if (udcStatus == UDC_REMOVE) {
+			INFO("USB Disconnected. Unloading modules...");
+			system("/etc/init.d/S80recovery stop");
+			return;
+		}
+
+
 		// if (!fileExists("/lib/modules/g_ether.ko")) return;
 
 		// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
@@ -214,9 +221,7 @@ private:
 		}
 		// else { //if (option == MANUAL) { // network
 			INFO("Enabling usb0 networking device");
-			system("rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
-			// system("rmmod g_ether; rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
-			// system("rmmod g_file_storage; modprobe g_ether; ifup usb0");
+			system("/etc/init.d/S80recovery network on");
 			iconInet = sc.skinRes("imgs/inet.png");
 		// }
 	}

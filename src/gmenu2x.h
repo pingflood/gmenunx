@@ -136,7 +136,7 @@ private:
 	void showManual();
 	void umountSdDialog();
 
-	virtual void udcDialog() { };
+	virtual void udcDialog(int udcStatus = -1) { };
 	virtual void tvOutDialog(int TVOut = -1) { };
 	virtual void hwInit() { };
 	virtual void hwDeinit() {};

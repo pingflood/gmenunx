@@ -616,7 +616,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 			setVolume(confInt["globalVolume"], true);
 			return true;
 		} else if (input[POWER]) {
-			udcDialog();
+			udcDialog(UDC_CONNECT);
 			return true;
 		}
 	}
@@ -627,13 +627,10 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	} else if ( input[UDC_CONNECT] ) {
 		powerManager->setPowerTimeout(0);
 		batteryIcon = 6;
-		udcDialog();
+		udcDialog(UDC_CONNECT);
 		return true;
 	} else if ( input[UDC_REMOVE] ) {
-		INFO("USB Disconnected. Unloading modules...");
-#ifdef TARGET_RETROGAME
-		system("sync; rmmod g_ether; rmmod g_file_storage");
-#endif
+		udcDialog(UDC_REMOVE);
 		iconInet = NULL;
 		batteryIcon = getBatteryLevel();
 		powerManager->setPowerTimeout(confInt["powerTimeout"]);
