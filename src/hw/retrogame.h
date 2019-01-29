@@ -193,24 +193,18 @@ private:
 		// 	return;
 		// }
 		int option;
-		if (confStr["usbMode"] == "Network") option = MANUAL;
-		else if (confStr["usbMode"] == "Storage") option = CONFIRM;
+		if (confStr["usbMode"] == "Storage") option = CONFIRM;
 		else if (confStr["usbMode"] == "Charger") option = CANCEL;
+		// else if (confStr["usbMode"] == "Network") option = MANUAL;
 		else {
 			MessageBox mb(this, tr["USB mode"], "skin:icons/usb.png");
-			mb.setButton(MANUAL, tr["Network"]);
+			// mb.setButton(MANUAL, tr["Network"]);
 			mb.setButton(CANCEL,  tr["Charger"]);
 			mb.setButton(CONFIRM, tr["Storage"]);
 			option = mb.exec();
 		}
 
-		if (option == MANUAL) { // network
-			INFO("Enabling usb0 networking device");
-			system("rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
-			// system("rmmod g_ether; rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
-			// system("rmmod g_file_storage; modprobe g_ether; ifup usb0");
-			iconInet = sc.skinRes("imgs/inet.png");
-		} else if (option == CONFIRM) { // storage
+		if (option == CONFIRM) { // storage
 			INFO("Enabling gadget-lun storage device");
 			quit();
 			execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage nopoweroff", NULL);
@@ -218,6 +212,13 @@ private:
 			execlp("./gmenu2x", "./gmenu2x", NULL);
 			return;
 		}
+		// else { //if (option == MANUAL) { // network
+			INFO("Enabling usb0 networking device");
+			system("rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
+			// system("rmmod g_ether; rmmod g_file_storage; modprobe g_ether; ifdown usb0; ifup usb0");
+			// system("rmmod g_file_storage; modprobe g_ether; ifup usb0");
+			iconInet = sc.skinRes("imgs/inet.png");
+		// }
 	}
 
 	void tvOutDialog(int TVOut) {

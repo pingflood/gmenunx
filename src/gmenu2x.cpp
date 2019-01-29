@@ -801,7 +801,7 @@ void GMenu2X::settings() {
 
 	vector<string> usbMode;
 	usbMode.push_back("Ask");
-	usbMode.push_back("Network");
+	// usbMode.push_back("Network");
 	usbMode.push_back("Storage");
 	usbMode.push_back("Charger");
 	sd.addSetting(new MenuSettingMultiString(this, tr["USB mode"], tr["Define default USB mode"], &confStr["usbMode"], &usbMode));
