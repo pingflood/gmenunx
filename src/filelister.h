@@ -33,7 +33,7 @@ private:
 	vector<string> directories, files, excludes;
 
 public:
-	FileLister(const string &startPath = "/home/retrofw/", bool showDirectories = true, bool showFiles = true);
+	FileLister(const string &startPath = "/", bool showDirectories = true, bool showFiles = true);
 	bool showDirectories = true, showFiles = true, allowDirUp = true;
 	void browse();
 
