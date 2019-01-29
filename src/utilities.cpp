@@ -230,10 +230,10 @@ string real_path(const string &path) {
 
 			while (it < vpath.end()) {
 				if (!strcmp(it->c_str(), ".")) {
-					vpath.erase(vpath.begin()+i); // = "";
+					vpath.erase(vpath.begin()+i);
 				} else if (!strcmp(it->c_str(), "..")) {
-					vpath.erase(vpath.begin()+i);// = "";
-					vpath.erase(vpath.begin()+i-1);// = "";
+					vpath.erase(vpath.begin()+i);
+					vpath.erase(vpath.begin()+i-1);
 					it = vpath.begin() + 1;
 					i = 1;
 				} else {

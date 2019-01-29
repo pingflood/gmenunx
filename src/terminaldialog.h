@@ -38,10 +38,6 @@ protected:
 
 public:
 	TerminalDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop = "");
-
-	// void appendText(const string &text);
-	// void appendFile(const string &file);
-
 	void exec(const string &cmd);
 };
 

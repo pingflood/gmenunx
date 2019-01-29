@@ -391,17 +391,11 @@ void Menu::pageDown() {
 }
 
 void Menu::linkLeft() {
-	// if (iLink % gmenu2x->linkCols == 0)
-		// setLinkIndex(sectionLinks()->size() > iLink + gmenu2x->linkCols - 1 ? iLink + gmenu2x->linkCols - 1 : sectionLinks()->size() - 1 );
-	// else
-		setLinkIndex(iLink - 1);
+	setLinkIndex(iLink - 1);
 }
 
 void Menu::linkRight() {
-	// if (iLink % gmenu2x->linkCols == (gmenu2x->linkCols - 1) || iLink == (int)sectionLinks()->size() - 1)
-		// setLinkIndex(iLink - iLink % gmenu2x->linkCols);
-	// else
-		setLinkIndex(iLink + 1);
+	setLinkIndex(iLink + 1);
 }
 
 void Menu::linkUp() {
@@ -454,7 +448,6 @@ void Menu::setLinkIndex(int i) {
 
 	iLink = i;
 }
-
 
 void Menu::renameSection(int index, const string &name) {
 	sections[index] = name;

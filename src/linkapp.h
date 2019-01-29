@@ -37,17 +37,13 @@ class InputManager;
 class LinkApp : public Link {
 private:
 	InputManager &inputMgr;
-	// string svolume, sclock, svolume;
-	int iclock = 0; //, ipu_mode = 0; //, ivolume = 0;
+	int iclock = 0; //, ivolume = 0;
 
 	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath; //, resolution;
-	bool selectorbrowser; //, vsync = true;
-	// void drawRun();
+	bool selectorbrowser;
 
 	string aliasfile;
 	string file;
-
-	// bool wrapper, dontleave, useRamTimings, useGinge;
 
 public:
 	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* linkfile);
@@ -88,21 +84,15 @@ public:
 	// const string &clockStr(int maxClock);
 
 #if defined(TARGET_GP2X)
-	//G
 	// string sgamma;
-	//G
 	int igamma;
-
-//G
 	int gamma();
 	// const string &gammaStr();
 	void setGamma(int gamma);
-// /G
 #endif
 
 	bool save();
 	void run();
-	// void showManual();
 	void selector(int startSelection=0, const string &selectorDir = "");
 	void launch(const string &selectedFile="", const string &selectedDir = "");
 	bool targetExists();
@@ -111,12 +101,6 @@ public:
 	const string &getBackdrop() { return backdrop; }
 	const string &getBackdropPath() { return backdropPath; }
 	void setBackdrop(const string selectedFile = "");
-	// const bool &getVsync();
-	// void setVsync(const int vsync);
-	// const string &getResolution();
-	// void setResolution(const string resolution = "");
-	// const int &getIPUMode();
-	// void setIPUMode(const int ipu_mode);
 	// bool &needsWrapperRef() { return wrapper; }
 	// bool &runsInBackgroundRef() { return dontleave; }
 };

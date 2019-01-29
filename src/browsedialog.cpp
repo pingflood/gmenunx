@@ -20,13 +20,11 @@ bool BrowseDialog::exec() {
 	Surface *iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
 	Surface *iconFile = gmenu2x->sc.skinRes("imgs/file.png");
 
-	// selected = 0;
 	close = false;
 
 	uint32_t i, iY, firstElement = 0, animation = 0, padding = 6;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
 	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
-	// string filename;
 
 	drawTopBar(this->bg, title, description, icon);
 	drawBottomBar(this->bg);
@@ -43,10 +41,6 @@ bool BrowseDialog::exec() {
 	string path = getPath();
 	if (path.empty() || !dirExists(path))
 		directoryEnter(CARD_ROOT);
-
-	// setPath(CARD_ROOT);
-	// browse();
-
 
 	uint32_t tickStart = SDL_GetTicks();
 
@@ -93,7 +87,6 @@ bool BrowseDialog::exec() {
 				if (animation < gmenu2x->skinConfInt["previewWidth"]) {
 					animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
 					gmenu2x->s->flip();
-					// gmenu2x->input.setWakeUpInterval(45);
 					continue;
 				}
 			} else {
@@ -101,11 +94,9 @@ bool BrowseDialog::exec() {
 					gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 					animation = gmenu2x->skinConfInt["previewWidth"] - intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 80);
 					gmenu2x->s->flip();
-					// gmenu2x->input.setWakeUpInterval(45);
 					continue;
 				}
 			}
-			// gmenu2x->input.setWakeUpInterval(1000);
 
 			gmenu2x->drawScrollBar(numRows, size(), firstElement, gmenu2x->listRect);
 			gmenu2x->s->flip();
@@ -151,98 +142,10 @@ bool BrowseDialog::exec() {
 				}
 			}
 		} while (!inputAction);
-
-		// 	uint32_t action = getAction();
-
-		// // if (action == BD_ACTION_SELECT && (*fl)[selected] == "..")
-		// 	// action = BD_ACTION_GOUP;
-		// 	switch (action) {
-		// 		case BD_ACTION_CANCEL:
-		// 			cancel();
-		// 			break;
-		// 		case BD_ACTION_CLOSE:
-		// 			if (allowSelectDirectory && isDirectory(selected)) confirm();
-		// 			// else cancel();
-		// 			break;
-		// 		case BD_ACTION_UP:
-		// 			selected -= 1;
-		// 			if (selected < 0) selected = size() - 1;
-		// 			break;
-		// 		case BD_ACTION_DOWN:
-		// 			selected += 1;
-		// 			if (selected >= size()) selected = 0;
-		// 			break;
-		// 		case BD_ACTION_PAGEUP:
-		// 			selected -= numRows;
-		// 			if (selected < 0) selected = 0;
-		// 			break;
-		// 		case BD_ACTION_PAGEDOWN:
-		// 			selected += numRows;
-		// 			if (selected >= size()) selected = size() - 1;
-		// 			break;
-		// 		case BD_ACTION_GOUP:
-		// 			if (allowDirUp) directoryUp();
-		// 			break;
-		// 		case BD_ACTION_UMOUNT:
-		// 			if (getPath() == "/media" && isDirectory(selected)) {
-		// 				string umount = "sync; umount -fl " + getFilePath(selected) + "; rm -r " + getFilePath(selected);
-		// 				system(umount.c_str());
-		// 			}
-		// 			directoryEnter(getPath()); // refresh
-		// 			break;
-		// 		case BD_ACTION_SELECT:
-		// 			if (allowEnterDirectory && isDirectory(selected)) {
-		// 				directoryEnter(getFilePath(selected));
-		// 				// directoryEnter();
-		// 				break;
-		// 			}
-		// 	/* Falltrough */
-		// 		case BD_ACTION_CONFIRM:
-		// 			confirm();
-		// 			break;
-		// 		// default:
-		// 			// directoryEnter(getPath()); // refresh
-		// 			// break;
-			// }
-		// } while (!inputAction);
 	}
 	return result;
 }
 
-// uint32_t BrowseDialog::getAction() {
-// 	uint32_t action = BD_NO_ACTION;
-
-// 	if (gmenu2x->input[SETTINGS]) action = BD_ACTION_CLOSE;
-// 	else if (gmenu2x->input[UP]) action = BD_ACTION_UP;
-// 	else if (gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT]) action = BD_ACTION_PAGEUP;
-// 	else if (gmenu2x->input[DOWN]) action = BD_ACTION_DOWN;
-// 	else if (gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT]) action = BD_ACTION_PAGEDOWN;
-// 	else if (gmenu2x->input[MODIFIER]) action = BD_ACTION_GOUP;
-// 	else if (gmenu2x->input[CONFIRM]) action = BD_ACTION_SELECT;
-// 	else if (gmenu2x->input[CANCEL]) action = BD_ACTION_CANCEL;
-// 	else if (gmenu2x->input[MENU]) action = BD_ACTION_UMOUNT;
-// 	return action;
-// }
-
-// void BrowseDialog::directoryUp() {
-// 	// string path = getPath();
-// 	// string::size_type p = path.rfind("/", path.size() - 2);
-// 	// path = path.substr(0, p + 1);
-
-// 	string path = getPath();
-// 	string::size_type p = path.rfind("/");
-// 	if (p == path.size() - 1) p = path.rfind("/", p - 1);
-// 	selected = 0;
-// 	directoryEnter("/" + path.substr(0, p));
-// }
-// void BrowseDialog::confirm() {
-// 	result = true;
-// 	close = true;
-// }
-// void BrowseDialog::cancel() {
-// 	result = false;
-// 	close = true;
-// }
 void BrowseDialog::directoryEnter(const string &path) {
 	selected = 0;
 
@@ -251,9 +154,6 @@ void BrowseDialog::directoryEnter(const string &path) {
 	mb.setBgAlpha(0);
 	mb.exec(3e3);
 
-	// showDirectories = showDirectories;
-	// showFiles = showFiles;
-	// allowDirUp = allowDirUp;
 	setPath(path);
 	onChangeDir();
 

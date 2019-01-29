@@ -56,9 +56,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	// useGinge = false;
 	workdir = "";
 	backdrop = backdropPath = "";
-	// resolution = "";
-	// ipu_mode = 0;
-	// vsync = true;
 
 	string line;
 	ifstream infile (linkfile, ios_base::in);
@@ -112,17 +109,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 		} else if (name == "backdrop") {
 			setBackdrop(value);
 			// WARNING("BACKDROP: '%s'", backdrop.c_str());
-		// } else if (name == "resolution") {
-		// 	setResolution(value);
-		// } else if (name == "ipu_mode") {
-		// 	setIPUMode( atoi(value.c_str()) );
-		// } else if (name == "vsync") {
-		// 	setVsync( atoi(value.c_str()) );
-		// } else if (name == "vsync" && value == "false") {
-		// 	vsync = false;
 		} else {
 			WARNING("Unrecognized option: '%s'", name.c_str());
-			// break;
 		}
 	}
 	infile.close();
@@ -273,18 +261,11 @@ bool LinkApp::save() {
 #endif
 
 		if (selectordir != "")		f << "selectordir="		<< selectordir		<< endl;
-		// if (selectorbrowser)		f << "selectorbrowser=true"					<< endl;
 		if (!selectorbrowser)		f << "selectorbrowser=false"				<< endl; // selectorbrowser = true by default
 		if (selectorfilter != "")	f << "selectorfilter="	<< selectorfilter	<< endl;
 		if (selectorscreens != "")	f << "selectorscreens="	<< selectorscreens	<< endl;
 		if (aliasfile != "")		f << "selectoraliases="	<< aliasfile		<< endl;
 		if (backdrop != "")			f << "backdrop="		<< backdrop			<< endl;
-		// if (resolution != "")	f << "resolution="		<< resolution		<< endl;
-		// if (ipu_mode > 0)		f << "ipu_mode="		<< ipu_mode			<< endl;
-		// if (!vsync)					f << "vsync=false"							<< endl; // vsync = true is kernel default
-		// if (vsync > 0)			f << "vsync="			<< vsync			<< endl;
-		// if (wrapper)				f << "wrapper=true"							<< endl;
-		// if (dontleave)			f << "dontleave=true"						<< endl;
 		f.close();
 		return true;
 	} else
@@ -377,38 +358,18 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		// if (fileExists(ginge_prep)) command = cmdclean(ginge_prep) + " " + command;
 	// }
 	if (gmenu2x->confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
-	// if (wrapper) command += "; sync & cd " + cmdclean(gmenu2x->getExePath()) + "; exec ./gmenu2x";
-	// if (dontleave) {
-		// system(command.c_str());
-	// } else {
 
 	if (gmenu2x->confInt["saveSelection"] && (gmenu2x->confInt["section"] != gmenu2x->menu->selSectionIndex() || gmenu2x->confInt["link"] != gmenu2x->menu->selLinkIndex())) {
 		gmenu2x->writeConfig();
 	}
 
-#if defined(TARGET_GP2X)
-	if (fwType == "open2x") gmenu2x->writeConfigOpen2x();
-#endif
 	if (selectedFile == "") gmenu2x->writeTmp();
 
 	if (clock() != gmenu2x->confInt["cpuMenu"]) gmenu2x->setCPU(clock());
 
 #if defined(TARGET_GP2X)
+	if (fwType == "open2x") gmenu2x->writeConfigOpen2x();
 	if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"]) gmenu2x->setGamma(gamma());
-#endif
-
-#if defined(TARGET_RETROGAME)
-	// 	if (ipu_mode > 0) {
-	// 		char buf[32] = {0};
-	// 		sprintf(buf, "echo %d > /proc/jz/ipu_mode", ipu_mode);
-	// 		system(buf);
-	// 	}
-	// if (vsync > 0) {
-	// char buf[32] = {0};
-	// sprintf(buf, "echo %d > /proc/jz/vsync", vsync);
-	// system(buf);
-	// }
-
 #endif
 
 	if (gmenu2x->confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
@@ -481,7 +442,6 @@ const string &LinkApp::getSelectorDir() {
 
 void LinkApp::setSelectorDir(const string &selectordir) {
 	this->selectordir = selectordir;
-	// if (this->selectordir!="" && this->selectordir[this->selectordir.length()-1]!='/') this->selectordir += "/";
 	if (this->selectordir != "") this->selectordir = real_path(this->selectordir);
 	edited = true;
 }
@@ -527,34 +487,6 @@ void LinkApp::setAliasFile(const string &aliasfile) {
 void LinkApp::renameFile(const string &name) {
 	file = name;
 }
-
-// void LinkApp::setVsync(const int vsync) {
-// 	this->vsync = vsync > 0;
-// 	edited = true;
-// }
-
-// const bool &LinkApp::getVsync() {
-// 	return this->vsync;
-// }
-
-// void LinkApp::setResolution(const string resolution) {
-// 	this->resolution = resolution;
-// 	edited = true;
-// }
-
-// const string &LinkApp::getResolution() {
-// 	if (this->resolution != "320x240") this->resolution = "320x480";
-// 	return this->resolution;
-// }
-
-// void LinkApp::setIPUMode(const int ipu_mode) {
-// 	this->ipu_mode = ipu_mode;
-// 	edited = true;
-// }
-
-// const int &LinkApp::getIPUMode() {
-// 	return this->ipu_mode;
-// }
 
 // bool LinkApp::getUseRamTimings() {
 // 	return useRamTimings;

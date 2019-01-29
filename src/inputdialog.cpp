@@ -136,7 +136,6 @@ bool InputDialog::exec() {
 	while (!close) {
 		SDL_RemoveTimer(wakeUpTimer);
 		wakeUpTimer = SDL_AddTimer(500, gmenu2x->input.wakeUp, (void*)false);
-		// gmenu2x->input.setWakeUpInterval(500);
 
 		this->bg->blit(gmenu2x->s,0,0);
 

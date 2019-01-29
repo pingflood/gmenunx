@@ -20,12 +20,8 @@
 
 //for browsing the filesystem
 #include <sys/stat.h>
-// #include <sys/types.h>
 #include <dirent.h>
-// #include <errno.h>
-// #include <iostream>
 #include <algorithm>
-// #include <cstring>
 
 #include "filelister.h"
 #include "utilities.h"
@@ -44,14 +40,7 @@ void FileLister::browse() {
 	files.clear();
 
 	if (showDirectories || showFiles) {
-		// DIR *dirp;
-
 		if (showDirectories && path != "/" && allowDirUp) directories.push_back("..");
-
-		// if ((dirp = opendir(path.c_str())) == NULL) {
-		// 	ERROR("Error: opendir(%s)", path.c_str());
-		// 	return;
-		// }
 
 		vector<string> vfilter;
 		split(vfilter, getFilter(), ",");
@@ -60,7 +49,6 @@ void FileLister::browse() {
 		struct stat st;
 		struct dirent **dptr;
 
-		// while ((dptr = readdir(dirp))) {
 		int i = 0, n = scandir(path.c_str(), &dptr, NULL, alphasort);
 
 		if (n < 0) {
@@ -97,10 +85,6 @@ void FileLister::browse() {
 			free(dptr[i]);
 		}
 		free(dptr);
-
-		// closedir(dirp);
-		// sort(files.begin(), files.end(), case_less());
-		// sort(directories.begin(), directories.end(), case_less());
 	}
 }
 

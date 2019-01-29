@@ -35,26 +35,7 @@ protected:
 	virtual void onChangeDir() {};
 
 private:
-	// enum bd_action_t {
-	// 	BD_NO_ACTION,
-	// 	BD_ACTION_SELECT,
-	// 	BD_ACTION_CLOSE,
-	// 	BD_ACTION_UP,
-	// 	BD_ACTION_DOWN,
-	// 	BD_ACTION_PAGEUP,
-	// 	BD_ACTION_PAGEDOWN,
-	// 	BD_ACTION_GOUP,
-	// 	BD_ACTION_CONFIRM,
-	// 	BD_ACTION_CANCEL,
-	// 	BD_ACTION_UMOUNT,
-	// };
-
 	bool close = false, result, ts_pressed;
-
-	// uint32_t getAction();
-	// void directoryUp();
-	// void confirm();
-	// void cancel();
 	virtual const std::string getPreview(uint32_t i = 0);
 
 public:
@@ -62,7 +43,6 @@ public:
 	BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon = "icons/explorer.png");
 	virtual ~BrowseDialog();
 	bool allowSelectDirectory = false, allowEnterDirectory = true;
-	// bool showDirectories = true, showFiles = true, allowSelectDirectory = false, allowDirUp = true, allowEnterDirectory = true;
 	int32_t selected = 0;
 	bool exec();
 	void directoryEnter(const string &path);

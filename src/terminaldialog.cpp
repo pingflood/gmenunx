@@ -129,15 +129,3 @@ void TerminalDialog::exec(const string &cmd) {
 	}
 	pclose(pipe);
 }
-
-// void TerminalDialog::appendText(const string &text) {
-// 	this->rawText += text;
-// }
-
-// void TerminalDialog::appendFile(const string &file) {
-// 	ifstream t(file);
-// 	stringstream buf;
-// 	buf << t.rdbuf();
-
-// 	this->rawText += buf.str();
-// }
