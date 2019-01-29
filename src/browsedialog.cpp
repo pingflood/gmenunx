@@ -9,6 +9,7 @@ using namespace std;
 
 BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
 : Dialog(gmenu2x), title(title), description(description), icon(icon) {
+	directoryEnter(CARD_ROOT);
 }
 BrowseDialog::~BrowseDialog() {
 }

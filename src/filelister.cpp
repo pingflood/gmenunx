@@ -32,7 +32,7 @@ using namespace std;
 
 FileLister::FileLister(const string &startPath, bool showDirectories, bool showFiles)
 	: showDirectories(showDirectories), showFiles(showFiles) {
-	setPath(startPath, false);
+	setPath(CARD_ROOT, false);
 }
 
 void FileLister::browse() {
