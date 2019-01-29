@@ -214,7 +214,7 @@ private:
 		if (option == CONFIRM) { // storage
 			INFO("Enabling gadget-lun storage device");
 			quit();
-			execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage nopoweroff", NULL);
+			execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage on", NULL);
 			chdir(getExePath().c_str());
 			execlp("./gmenu2x", "./gmenu2x", NULL);
 			return;
