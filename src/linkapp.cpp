@@ -381,8 +381,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	//try relaunching gmenu2x
 	chdir(gmenu2x->getExePath().c_str());
 	execlp("./gmenu2x", "./gmenu2x", NULL);
-	// }
-
 	chdir(gmenu2x->getExePath().c_str());
 }
 

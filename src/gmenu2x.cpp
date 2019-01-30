@@ -162,6 +162,9 @@ GMenu2X::~GMenu2X() {
 
 	writeConfig();
 
+	sc.clear();
+	s->free();
+
 	quit();
 
 	delete menu;
@@ -172,8 +175,6 @@ GMenu2X::~GMenu2X() {
 
 void GMenu2X::quit() {
 	fflush(NULL);
-	sc.clear();
-	s->free();
 	SDL_Quit();
 	hwDeinit();
 }
@@ -217,6 +218,7 @@ void GMenu2X::main() {
 	if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0 ) {
 		ERROR("Could not initialize SDL: %s", SDL_GetError());
 		quit();
+		return;
 	}
 
 	s = new Surface();
