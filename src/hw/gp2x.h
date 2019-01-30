@@ -30,7 +30,7 @@ int32_t getBatteryStatus() {
 	return -1;
 }
 
-class hwGMenu2X : public GMenu2X {
+class GMenuNX : public GMenu2X {
 private:
 	typedef struct {
 		uint16_t batt;

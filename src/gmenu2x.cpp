@@ -193,7 +193,7 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	}
 	close(fd);
 
-	app = new hwGMenu2X();
+	app = new GMenuNX();
 	DEBUG("Starting main()");
 	app->main();
 

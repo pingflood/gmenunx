@@ -141,7 +141,7 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 	return interval;
 }
 
-class hwGMenu2X : public GMenu2X {
+class GMenuNX : public GMenu2X {
 private:
 	void hwInit() {
 		setenv("SDL_NOMOUSE", "1", 1);

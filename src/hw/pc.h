@@ -30,7 +30,7 @@ uint8_t getVolumeMode(uint8_t vol) {
 	return VOLUME_MODE_NORMAL;
 }
 
-class hwGMenu2X : public GMenu2X {
+class GMenuNX : public GMenu2X {
 };
 
 #endif
