@@ -1365,14 +1365,14 @@ void GMenu2X::explorer() {
 			td.appendFile(bd.getFilePath(bd.selected));
 			td.exec();
 		} else if (ext == ".ipk") {
-			TerminalDialog td(this, tr["Package installer"], tr["opkg install"], "skin:icons/configure.png");
-			string cmd = "opkg install --force-reinstall " + bd.getFilePath(bd.selected);
-			td.exec(cmd);
+			TerminalDialog td(this, tr["Package installer"], "opkg install " + bd.getFileName(bd.selected), "skin:icons/configure.png");
+			// string cmd = "opkg install --force-reinstall " + bd.getFilePath(bd.selected);
+			td.exec("opkg install --force-reinstall " + bd.getFilePath(bd.selected));
 			initMenu();
 		} else if (ext == ".sh") {
-			TerminalDialog td(this, tr["Terminal"], tr["shell script"], "skin:icons/terminal.png");
-			string cmd = bd.getFilePath(bd.selected);
-			td.exec(cmd);
+			TerminalDialog td(this, tr["Terminal"], "sh" + bd.getFilePath(bd.selected), "skin:icons/terminal.png");
+			// string cmd = bd.getFilePath(bd.selected);
+			td.exec(bd.getFilePath(bd.selected));
 		} else {
 			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
 				writeConfig();

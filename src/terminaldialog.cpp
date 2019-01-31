@@ -69,9 +69,11 @@ void TerminalDialog::exec(const string &cmd) {
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	this->bg->blit(gmenu2x->s,0,0);
-	rawText = "$ " + cmd + "\n";
-	split(text, rawText, "\n");
-	maxLine = drawText(&text, firstCol, firstRow, rowsPerPage);
+
+	rawText = "$";
+	// rawText = "$ " + cmd + "\n";
+	// split(text, rawText, "\n");
+	// maxLine = drawText(&text, firstCol, firstRow, rowsPerPage);
 
 	gmenu2x->s->flip();
 
