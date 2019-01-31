@@ -166,14 +166,14 @@ GMenu2X::~GMenu2X() {
 	s->free();
 
 	quit();
+}
 
+void GMenu2X::quit() {
 	delete menu;
 	delete s;
 	delete font;
 	delete titlefont;
-}
 
-void GMenu2X::quit() {
 	fflush(NULL);
 	SDL_Quit();
 	hwDeinit();

@@ -70,7 +70,7 @@ void TerminalDialog::exec(const string &cmd) {
 
 	this->bg->blit(gmenu2x->s,0,0);
 
-	rawText = "$";
+	rawText = "$\n";
 	// rawText = "$ " + cmd + "\n";
 	// split(text, rawText, "\n");
 	// maxLine = drawText(&text, firstCol, firstRow, rowsPerPage);
