@@ -195,7 +195,7 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	close(fd);
 
 	app = new GMenuNX();
-	DEBUG("Starting main()");
+	DEBUG("Starting GMenuNX");
 	app->main();
 
 	return 0;
