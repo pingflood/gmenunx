@@ -73,7 +73,7 @@ void TerminalDialog::exec(const string &cmd) {
 	rawText = "$\n";
 	// rawText = "$ " + cmd + "\n";
 	// split(text, rawText, "\n");
-	// maxLine = drawText(&text, firstCol, firstRow, rowsPerPage);
+	maxLine = drawText(&text, firstCol, firstRow, rowsPerPage);
 
 	gmenu2x->s->flip();
 

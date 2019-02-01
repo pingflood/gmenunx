@@ -3,21 +3,22 @@
 
 volatile uint32_t *memregs;
 volatile uint8_t memdev = 0;
-int SOUND_MIXER = SOUND_MIXER_READ_VOLUME;
+int SOUND_MIXER_READ = SOUND_MIXER_READ_VOLUME;
+int SOUND_MIXER_WRITE = SOUND_MIXER_WRITE_VOLUME;
 int32_t tickBattery = 0;
 // batteryIcon = 3;
 
-uint8_t getMMCStatus() {
+uint16_t getMMCStatus() {
 	if (memdev > 0 && !(memregs[0x10500 >> 2] >> 0 & 0b1)) return MMC_INSERT;
 	return MMC_REMOVE;
 }
 
-uint8_t getUDCStatus() {
+uint16_t getUDCStatus() {
 	if (memdev > 0 && (memregs[0x10300 >> 2] >> 7 & 0b1)) return UDC_CONNECT;
 	return UDC_REMOVE;
 }
 
-uint8_t getTVOutStatus() {
+uint16_t getTVOutStatus() {
 	return TV_REMOVE;
 	if (memdev > 0 && !(memregs[0x10300 >> 2] >> 25 & 0b1)) return TV_CONNECT;
 	return TV_REMOVE;
@@ -55,7 +56,7 @@ int32_t getBatteryStatus() {
 // 	else return "Unknown";
 // }
 
-uint8_t getVolumeMode(uint8_t vol) {
+uint16_t getVolumeMode(uint8_t vol) {
 	if (!vol) return VOLUME_MODE_MUTE;
 	else if (memdev > 0 && !(memregs[0x10300 >> 2] >> 6 & 0b1)) return VOLUME_MODE_PHONES;
 	return VOLUME_MODE_NORMAL;

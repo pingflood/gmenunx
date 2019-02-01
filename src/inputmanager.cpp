@@ -200,15 +200,15 @@ bool InputManager::update(bool wait) {
 		events.push_back(event);
 		keystate[event.key.keysym.sym] = true;
 
-		while (SDL_PollEvent(&event)) { // clear event queue
-			WARNING("Skipping event.type: %d", event.type);
+		// while (SDL_PollEvent(&event)) { // clear event queue
+		// 	WARNING("Skipping event.type: %d", event.type);
+		// }
+	} else {
+		if (event.type == SDL_KEYUP) {
+				anyactions = true;
 		}
-	} else
-	if (event.type == SDL_KEYUP) {
-		anyactions = true;
 		keystate[event.key.keysym.sym] = false;
 	}
-
 	int32_t now = SDL_GetTicks();
 
 	for (uint32_t x = 0; x < actions.size(); x++) {
@@ -228,7 +228,6 @@ bool InputManager::update(bool wait) {
 			// actions[x].last = 0;
 		}
 	}
-
 	return anyactions;
 }
 
@@ -252,10 +251,6 @@ void InputManager::pushEvent(int action) {
 	event.key.state = SDL_PRESSED;
 	event.key.keysym.sym = (SDLKey)(action - UDC_CONNECT + SDLK_WORLD_0);
 	SDL_PushEvent(&event);
-	SDL_Delay(200);
-	event.type = SDL_WAKEUPEVENT;
-	SDL_PushEvent(&event);
-	SDL_Delay(100);
 	event.type = SDL_KEYUP;
 	event.key.state = SDL_RELEASED;
 	SDL_PushEvent(&event);

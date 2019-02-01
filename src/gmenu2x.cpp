@@ -83,11 +83,11 @@
 enum vol_mode_t {
 	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
 };
-uint8_t mmcPrev = MMC_REMOVE, mmcStatus;
-uint8_t udcPrev = UDC_REMOVE, udcStatus;
-uint8_t tvOutPrev = TV_REMOVE, tvOutStatus;
-uint8_t volumeModePrev, volumeMode;
-uint8_t batteryIcon = 3;
+uint16_t mmcPrev = MMC_REMOVE, mmcStatus;
+uint16_t udcPrev = UDC_REMOVE, udcStatus;
+uint16_t tvOutPrev = TV_REMOVE, tvOutStatus;
+uint16_t volumeModePrev, volumeMode;
+uint16_t batteryIcon = 3;
 
 #if defined(TARGET_RETROGAME)
 	#include "hw/retrogame.h"
@@ -194,6 +194,8 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	}
 	close(fd);
 
+	usleep(1000);
+
 	app = new GMenuNX();
 	DEBUG("Starting GMenuNX");
 	app->main();
@@ -211,7 +213,7 @@ void GMenu2X::main() {
 	path = "";
 	getExePath();
 
-	// setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
+	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 	// setDateTime();
 
 	//Screen
@@ -253,7 +255,7 @@ void GMenu2X::main() {
 	setInputSpeed();
 
 	tvOutStatus = getTVOutStatus();
-	mmcPrev = mmcStatus = getMMCStatus();
+	mmcStatus = getMMCStatus();
 	udcStatus = getUDCStatus();
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
 	
@@ -1780,7 +1782,7 @@ int GMenu2X::getVolume() {
 	uint32_t soundDev = open("/dev/mixer", O_RDONLY);
 
 	if (soundDev) {
-		ioctl(soundDev, SOUND_MIXER, &vol);
+		ioctl(soundDev, SOUND_MIXER_READ, &vol);
 		close(soundDev);
 		if (vol != -1) {
 			// just return one channel , not both channels, they're hopefully the same anyways
@@ -1833,7 +1835,7 @@ int GMenu2X::setVolume(int val, bool popup) {
 	uint32_t soundDev = open("/dev/mixer", O_RDWR);
 	if (soundDev) {
 		int vol = (val << 8) | val;
-		ioctl(soundDev, SOUND_MIXER, &vol);
+		ioctl(soundDev, SOUND_MIXER_WRITE, &vol);
 		close(soundDev);
 
 	}
