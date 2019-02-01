@@ -2,8 +2,9 @@
 #define HW_PC_H
 
 volatile uint16_t *memregs;
-int SOUND_MIXER = SOUND_MIXER_READ_PCM;
-int memdev = 0;
+uint8_t memdev = 0;
+int SOUND_MIXER_READ = SOUND_MIXER_READ_PCM;
+int SOUND_MIXER_WRITE = SOUND_MIXER_WRITE_PCM;
 
 uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 	printf("%s:%d: %s\n", __FILE__, __LINE__, __func__);
