@@ -527,7 +527,7 @@ void GMenu2X::main() {
 
 			if (menu->selLinkApp() != NULL && menu->selLinkApp()->getSelectorDir().empty()) {
 				MessageBox mb(this, tr["Launching "] + menu->selLink()->getTitle().c_str(), menu->selLink()->getIconPath());
-				mb.setAutoHide(500);
+				mb.setAutoHide(100);
 				mb.exec();
 			}
 
