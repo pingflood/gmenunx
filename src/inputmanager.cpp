@@ -251,6 +251,8 @@ void InputManager::pushEvent(int action) {
 	event.key.state = SDL_PRESSED;
 	event.key.keysym.sym = (SDLKey)(action - UDC_CONNECT + SDLK_WORLD_0);
 	SDL_PushEvent(&event);
+	event.type = SDL_WAKEUPEVENT;
+	SDL_PushEvent(&event);
 	event.type = SDL_KEYUP;
 	event.key.state = SDL_RELEASED;
 	SDL_PushEvent(&event);
