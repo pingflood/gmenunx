@@ -194,6 +194,8 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	}
 	close(fd);
 
+	system("grep '10.0.1.1' /etc/network/interfaces && mount -o remount,rw / && sed -i 's/10.0.1/169.254.1/' /etc/network/interfaces && sed -i 's/10.0.1/169.254.1/g' /etc/dnsmasq.conf; mount -o remount,ro /");
+
 	usleep(1000);
 
 	app = new GMenuNX();
