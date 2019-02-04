@@ -1371,7 +1371,7 @@ void GMenu2X::explorer() {
 		} else if (ext == ".ipk") {
 			TerminalDialog td(this, tr["Package installer"], "opkg install " + bd.getFileName(bd.selected), "skin:icons/configure.png");
 			// string cmd = "opkg install --force-reinstall " + bd.getFilePath(bd.selected);
-			td.exec("opkg install --force-reinstall " + bd.getFilePath(bd.selected));
+			td.exec("opkg install --force-reinstall --force-downgrade " + bd.getFilePath(bd.selected));
 			initMenu();
 		} else if (ext == ".sh") {
 			TerminalDialog td(this, tr["Terminal"], "sh" + bd.getFilePath(bd.selected), "skin:icons/terminal.png");
