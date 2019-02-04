@@ -1620,7 +1620,7 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingDir(			this, tr["Selector Path"],	tr["Directory to start the selector"], &linkSelDir, dir_name(linkSelDir), dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingBool(			this, tr["Show Folders"],	tr["Allow the selector to change directory"], &linkSelBrowser));
 	sd.addSetting(new MenuSettingString(		this, tr["File Filter"],	tr["Filter by file extension (separate with commas)"], &linkSelFilter, dialogTitle, dialogIcon));
-	sd.addSetting(new MenuSettingDir(			this, tr["Screenshots"],	tr["Directory of the screenshots for the selector"], &linkSelScreens, dir_name(linkSelScreens), dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingDir(			this, tr["Box Art"],		tr["Directory of the box art for the selector"], &linkSelScreens, dir_name(linkSelScreens), dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingFile(			this, tr["Aliases"],		tr["File containing a list of aliases for the selector"], &linkSelAliases, ".txt,.dat", dir_name(linkSelAliases), dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingImage(			this, tr["Backdrop"],		tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", dir_name(linkBackdrop), dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingFile(			this, tr["Manual"],			tr["Select a Manual or Readme file"], &linkManual, ".man.png,.txt,.me", dir_name(linkManual), dialogTitle, dialogIcon));
