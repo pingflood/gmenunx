@@ -38,15 +38,17 @@ Selector::Selector(GMenu2X *gmenu2x, const string &title, const string &descript
 }
 
 const std::string Selector::getPreview(uint32_t i) {
-	string fname = getFilePath(i);
+	string fname = getFileName(i);
 	string screendir = link->getSelectorScreens();
 	string noext, realdir;
 	int pos = fname.rfind(".");
 	if (pos != string::npos && pos > 0) noext = fname.substr(0, pos);
 
-	if (noext == "") return "";
+	if (noext.empty() || noext == ".") return "";
 
 	if (screendir != "") {
+		realdir = real_path(screendir) + "/";
+		string ff = realdir + noext + ".png";
 		if (screendir[0] == '.') realdir = real_path(getPath() + "/" + screendir) + "/"; // allow "." as "current directory", therefore, relative paths
 		else realdir = real_path(screendir) + "/";
 		// INFO("Searching for screen '%s%s.png'", realdir.c_str(), noext.c_str());
