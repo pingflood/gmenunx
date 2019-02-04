@@ -47,45 +47,31 @@ InputDialog::InputDialog(GMenu2X *gmenu2x,
 	selRow = 0;
 	keyboard.resize(7);
 
+	keyboard[0].push_back("qwertyuiop-789");
+	keyboard[0].push_back(" asdfghjkl/456");
+	keyboard[0].push_back(" zxcvbnm,.0123");
 
-	keyboard[0].push_back("qwertyuiop789");
-	keyboard[0].push_back(",asdfghjkl456");
-	keyboard[0].push_back(".zxcvbnm-0123");
-
-	keyboard[1].push_back("QWERTYUIOP-+=");
+	keyboard[1].push_back("QWERTYUIOP_-+=");
 	keyboard[1].push_back("@ASDFGHJKL'\"`");
-	keyboard[1].push_back("#ZXCVBNM_:;/?");
-
-	// keyboard[0].push_back("abcdefghijklm");
-	// keyboard[0].push_back("nopqrstuvwxyz");
-	// keyboard[0].push_back("0123456789.  ");
-
-	// keyboard[1].push_back("ABCDEFGHIJKLM");
-	// keyboard[1].push_back("NOPQRSTUVWXYZ");
-	// keyboard[1].push_back("_\"'`.,:;!?   ");
-
+	keyboard[1].push_back("#ZXCVBNM:;/?");
 
 	keyboard[2].push_back("¡¿*+-/\\&<=>|");
 	keyboard[2].push_back("()[]{}@#$%^~");
-	keyboard[2].push_back("_\"'`.,:;!?  ");
+	keyboard[2].push_back("_\"'`.,:;!?");
 
+	keyboard[3].push_back("àáâãäåèéêëęěìíîï");
+	keyboard[3].push_back("ąćčòóôôõöùúûüůýÿ");
+	keyboard[3].push_back("ďĺľłñńňŕřśšťźżž");
 
-	keyboard[3].push_back("àáèéìíòóùúýäõ");
-	keyboard[3].push_back("ëïöüÿâêîôûåãñ");
-	keyboard[3].push_back("čďěľĺňôřŕšťůž");
-	keyboard[3].push_back("ąćęłńśżź     ");
+	keyboard[4].push_back("ÀÁÂÃÄÅÈÉÊËĘĚÌÍÎÏ");
+	keyboard[4].push_back("ĄĆČÒÓÔÔÕÖÙÚÛÜŮÝŸ");
+	keyboard[4].push_back("ĎĹĽŁÑŃŇŔŘŚŠŤŹŻŽ");
 
-	keyboard[4].push_back("ÀÁÈÉÌÍÒÓÙÚÝÄÕ");
-	keyboard[4].push_back("ËÏÖÜŸÂÊÎÔÛÅÃÑ");
-	keyboard[4].push_back("ČĎĚĽĹŇÔŘŔŠŤŮŽ");
-	keyboard[4].push_back("ĄĆĘŁŃŚŻŹ     ");
-
-
-	keyboard[5].push_back("æçабвгдеёжзий ");
+	keyboard[5].push_back("æçабвгдеёжзий");
 	keyboard[5].push_back("клмнопрстуфхцч");
 	keyboard[5].push_back("шщъыьэюяøðßÐÞþ");
 
-	keyboard[6].push_back("ÆÇАБВГДЕЁЖЗИЙ ");
+	keyboard[6].push_back("ÆÇАБВГДЕЁЖЗИЙ");
 	keyboard[6].push_back("КЛМНОПРСТУФХЦЧ");
 	keyboard[6].push_back("ШЩЪЫЬЭЮЯØðßÐÞþ");
 
@@ -108,13 +94,16 @@ void InputDialog::setKeyboard(int kb) {
 	kbHeight = (this->kb->size() + 1) * KEY_HEIGHT + 3;
 
 	kbRect.x = kbLeft - 3;
-	kbRect.y = KB_TOP - 2;
+	kbRect.y = gmenu2x->bottomBarRect.y - kbHeight; // KB_TOP - 2;
 	kbRect.w = kbWidth;
 	kbRect.h = kbHeight;
 }
 
 bool InputDialog::exec() {
-	SDL_Rect box = {0, 60, 0, gmenu2x->font->getHeight() + 4};
+	bg = new Surface(gmenu2x->s);
+
+	SDL_Rect box = {gmenu2x->listRect.x + 2, 0, gmenu2x->listRect.w - 4, gmenu2x->font->getHeight() + 4};
+	box.y = kbRect.y - box.h;
 
 	uint32_t caretTick = 0, curTick;
 	bool caretOn = true;
@@ -123,7 +112,9 @@ bool InputDialog::exec() {
 	close = false;
 	ok = true;
 
-	drawTopBar(this->bg, title, text, icon);
+	// drawTopBar(this->bg, title, text, icon);
+	this->bg->box(gmenu2x->bottomBarRect, (RGBAColor){0,0,0,255});
+
 	drawBottomBar(this->bg);
 	gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Press"],
 	gmenu2x->drawButton(this->bg, "y", gmenu2x->tr["Keys"],
@@ -139,12 +130,16 @@ bool InputDialog::exec() {
 
 		this->bg->blit(gmenu2x->s,0,0);
 
-		box.w = gmenu2x->font->getTextWidth(input) + 18;
-		box.x = 160 - box.w / 2;
-		gmenu2x->s->box(box.x, box.y, box.w, box.h, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-		gmenu2x->s->rectangle(box.x, box.y, box.w, box.h, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		// box.w = gmenu2x->font->getTextWidth(input) + 18;
+		// box.x = 160 - box.w / 2;
 
-		gmenu2x->s->write(gmenu2x->font, input, box.x + 5, box.y + box.h - 4, VAlignBottom);
+		gmenu2x->s->box(gmenu2x->listRect.x, box.y - 2, gmenu2x->listRect.w, box.h + 2, (RGBAColor){0,0,0,220});
+		gmenu2x->s->box(box, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		gmenu2x->s->setClipRect(box);
+
+		// gmenu2x->s->rectangle(box.x, box.y, box.w, box.h, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+
+		gmenu2x->s->write(gmenu2x->font, input, box.x + box.w / 2, box.y + box.h / 2, HAlignCenter | VAlignMiddle);
 
 		curTick = SDL_GetTicks();
 		if (curTick - caretTick >= 600) {
@@ -152,7 +147,8 @@ bool InputDialog::exec() {
 			caretTick = curTick;
 		}
 
-		if (caretOn) gmenu2x->s->box(box.x + box.w - 12, box.y + 3, 8, box.h - 6, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		if (caretOn) gmenu2x->s->box(box.x + (box.w + gmenu2x->font->getTextWidth(input)) / 2, box.y + 3, 8, box.h - 6, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		gmenu2x->s->clearClipRect();
 
 		if (gmenu2x->f200) ts.poll();
 		action = drawVirtualKeyboard();
@@ -246,8 +242,12 @@ void InputDialog::changeKeys() {
 int InputDialog::drawVirtualKeyboard() {
 	int action = ID_NO_ACTION;
 
+	gmenu2x->s->box(gmenu2x->listRect.x, kbRect.y, gmenu2x->listRect.w, kbRect.h, (RGBAColor){0,0,0,220});
+
+	// int kbRect.y + 2 = gmenu2x->resY - 4 * gmenu2x->font->getHeight();
+
 	//keyboard border
-	gmenu2x->s->rectangle(kbRect, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+	// gmenu2x->s->rectangle(kbRect, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 	if (selCol < 0) selCol = selRow == (int)kb->size() ? 1 : kbLength - 1;
 	if (selCol >= (int)kbLength) selCol = 0;
@@ -256,11 +256,11 @@ int InputDialog::drawVirtualKeyboard() {
 
 	//selection
 	if (selRow < (int)kb->size())
-		gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH - 1, KB_TOP + selRow * KEY_HEIGHT, KEY_WIDTH - 1, KEY_HEIGHT - 2, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH, kbRect.y + 2 + selRow * KEY_HEIGHT, KEY_WIDTH - 1, KEY_HEIGHT - 2, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 	else {
 		if (selCol > 1) selCol = 0;
 		if (selCol < 0) selCol = 1;
-		gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH * kbLength / 2 - 1, KB_TOP + kb->size() * KEY_HEIGHT, kbLength * KEY_WIDTH / 2 - 1, KEY_HEIGHT - 1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH * kbLength / 2, kbRect.y + 2 + kb->size() * KEY_HEIGHT, kbLength * KEY_WIDTH / 2 - 1, KEY_HEIGHT - 1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 	}
 
 	//keys
@@ -276,7 +276,7 @@ int InputDialog::drawVirtualKeyboard() {
 				charX = line[x];
 			}
 
-			SDL_Rect re = {kbLeft + xc * KEY_WIDTH - 1, KB_TOP + l * KEY_HEIGHT, KEY_WIDTH - 1, KEY_HEIGHT - 2};
+			SDL_Rect re = {kbLeft + xc * KEY_WIDTH, kbRect.y + 2 + l * KEY_HEIGHT, KEY_WIDTH - 1, KEY_HEIGHT - 2};
 
 			//if ts on rect, change selection
 			if (gmenu2x->f200 && ts.pressed() && ts.inRect(re)) {
@@ -285,19 +285,19 @@ int InputDialog::drawVirtualKeyboard() {
 			}
 
 			gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-			gmenu2x->s->write(gmenu2x->font, charX, kbLeft + xc * KEY_WIDTH + KEY_WIDTH / 2 - 1, KB_TOP + l * KEY_HEIGHT + KEY_HEIGHT / 2 - 2, HAlignCenter | VAlignMiddle);
+			gmenu2x->s->write(gmenu2x->font, charX, kbLeft + xc * KEY_WIDTH + KEY_WIDTH / 2, kbRect.y + 2 + l * KEY_HEIGHT + KEY_HEIGHT / 2 - 2, HAlignCenter | VAlignMiddle);
 			xc++;
 		}
 	}
 
 	//Ok/Cancel
-	SDL_Rect re = {kbLeft - 1, KB_TOP + kb->size() * KEY_HEIGHT, kbLength * KEY_WIDTH / 2 - 1, KEY_HEIGHT - 1};
+	SDL_Rect re = {kbLeft, kbRect.y + 2 + kb->size() * KEY_HEIGHT, kbLength * KEY_WIDTH / 2 - 1, KEY_HEIGHT - 1};
 	gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 	if (gmenu2x->f200 && ts.pressed() && ts.inRect(re)) {
 		selCol = 0;
 		selRow = kb->size();
 	}
-	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Cancel"], (int)(160 - kbLength * KEY_WIDTH / 4), KB_TOP + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2, HAlignCenter | VAlignMiddle);
+	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Cancel"], (int)(160 - kbLength * KEY_WIDTH / 4), kbRect.y + 2 + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2, HAlignCenter | VAlignMiddle);
 
 	re.x = kbLeft + kbLength * KEY_WIDTH / 2 - 1;
 	gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
@@ -305,7 +305,7 @@ int InputDialog::drawVirtualKeyboard() {
 		selCol = 1;
 		selRow = kb->size();
 	}
-	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["OK"], (int)(160 + kbLength * KEY_WIDTH / 4), KB_TOP + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2, HAlignCenter | VAlignMiddle);
+	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["OK"], (int)(160 + kbLength * KEY_WIDTH / 4), kbRect.y + 2 + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2, HAlignCenter | VAlignMiddle);
 
 	//if ts released
 	if (gmenu2x->f200 && ts.released() && ts.inRect(kbRect)) {

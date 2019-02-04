@@ -205,9 +205,9 @@ bool InputManager::update(bool wait) {
 		// }
 	} else {
 		if (event.type == SDL_KEYUP) {
-				anyactions = true;
+			anyactions = true;
+			keystate[event.key.keysym.sym] = false;
 		}
-		keystate[event.key.keysym.sym] = false;
 		while (SDL_PollEvent(&event)) { // clear event queue
 			WARNING("Skipping event.type: %d", event.type);
 		}
