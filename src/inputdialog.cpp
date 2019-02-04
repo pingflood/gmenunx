@@ -91,7 +91,8 @@ void InputDialog::setKeyboard(int kb) {
 
 	kbLeft = 160 - kbLength*KEY_WIDTH/2;
 	kbWidth = kbLength * KEY_WIDTH + 3;
-	kbHeight = (this->kb->size() + 1) * KEY_HEIGHT + 3;
+	// kbHeight = (this->kb->size() + 1) * KEY_HEIGHT + 3;
+	kbHeight = (this->kb->size()) * KEY_HEIGHT + 3;
 
 	kbRect.x = kbLeft - 3;
 	kbRect.y = gmenu2x->bottomBarRect.y - kbHeight; // KB_TOP - 2;
@@ -116,10 +117,11 @@ bool InputDialog::exec() {
 	this->bg->box(gmenu2x->bottomBarRect, (RGBAColor){0,0,0,255});
 
 	drawBottomBar(this->bg);
-	gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Press"],
-	gmenu2x->drawButton(this->bg, "y", gmenu2x->tr["Keys"],
 	gmenu2x->drawButton(this->bg, "r", gmenu2x->tr["Space"],
-	gmenu2x->drawButton(this->bg, "l", gmenu2x->tr["Backspace"]))));
+	gmenu2x->drawButton(this->bg, "l", gmenu2x->tr["Backspace"],
+	gmenu2x->drawButton(this->bg, "y", gmenu2x->tr["Shift"],
+	gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Save"]
+	))));
 
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
@@ -252,16 +254,16 @@ int InputDialog::drawVirtualKeyboard() {
 	if (selCol < 0) selCol = selRow == (int)kb->size() ? 1 : kbLength - 1;
 	if (selCol >= (int)kbLength) selCol = 0;
 	if (selRow < 0) selRow = kb->size() - 1;
-	if (selRow > (int)kb->size()) selRow = 0;
+	if (selRow >= (int)kb->size()) selRow = 0;
 
 	//selection
 	if (selRow < (int)kb->size())
 		gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH, kbRect.y + 2 + selRow * KEY_HEIGHT, KEY_WIDTH - 1, KEY_HEIGHT - 2, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-	else {
-		if (selCol > 1) selCol = 0;
-		if (selCol < 0) selCol = 1;
-		gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH * kbLength / 2, kbRect.y + 2 + kb->size() * KEY_HEIGHT, kbLength * KEY_WIDTH / 2 - 1, KEY_HEIGHT - 1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-	}
+	// else {
+	// 	if (selCol > 1) selCol = 0;
+	// 	if (selCol < 0) selCol = 1;
+	// 	gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH * kbLength / 2, kbRect.y + 2 + kb->size() * KEY_HEIGHT, kbLength * KEY_WIDTH / 2 - 1, KEY_HEIGHT - 1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+	// }
 
 	//keys
 	for (uint32_t l = 0; l < kb->size(); l++) {
@@ -290,22 +292,22 @@ int InputDialog::drawVirtualKeyboard() {
 		}
 	}
 
-	//Ok/Cancel
-	SDL_Rect re = {kbLeft, kbRect.y + 2 + kb->size() * KEY_HEIGHT, kbLength * KEY_WIDTH / 2 - 1, KEY_HEIGHT - 1};
-	gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-	if (gmenu2x->f200 && ts.pressed() && ts.inRect(re)) {
-		selCol = 0;
-		selRow = kb->size();
-	}
-	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Cancel"], (int)(160 - kbLength * KEY_WIDTH / 4), kbRect.y + 2 + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2, HAlignCenter | VAlignMiddle);
+	// //Ok/Cancel
+	// SDL_Rect re = {kbLeft, kbRect.y + 2 + kb->size() * KEY_HEIGHT, kbLength * KEY_WIDTH / 2 - 1, KEY_HEIGHT - 1};
+	// gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+	// if (gmenu2x->f200 && ts.pressed() && ts.inRect(re)) {
+	// 	selCol = 0;
+	// 	selRow = kb->size();
+	// }
+	// gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Cancel"], (int)(160 - kbLength * KEY_WIDTH / 4), kbRect.y + 2 + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2, HAlignCenter | VAlignMiddle);
 
-	re.x = kbLeft + kbLength * KEY_WIDTH / 2 - 1;
-	gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-	if (gmenu2x->f200 && ts.pressed() && ts.inRect(re)) {
-		selCol = 1;
-		selRow = kb->size();
-	}
-	gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["OK"], (int)(160 + kbLength * KEY_WIDTH / 4), kbRect.y + 2 + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2, HAlignCenter | VAlignMiddle);
+	// re.x = kbLeft + kbLength * KEY_WIDTH / 2 - 1;
+	// gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+	// if (gmenu2x->f200 && ts.pressed() && ts.inRect(re)) {
+	// 	selCol = 1;
+	// 	selRow = kb->size();
+	// }
+	// gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["OK"], (int)(160 + kbLength * KEY_WIDTH / 4), kbRect.y + 2 + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2, HAlignCenter | VAlignMiddle);
 
 	//if ts released
 	if (gmenu2x->f200 && ts.released() && ts.inRect(kbRect)) {
