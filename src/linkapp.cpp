@@ -357,7 +357,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 		// string ginge_prep = gmenu2x->getExePath() + "/ginge/ginge_prep";
 		// if (fileExists(ginge_prep)) command = cmdclean(ginge_prep) + " " + command;
 	// }
-	if (gmenu2x->confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 
 	if (gmenu2x->confInt["saveSelection"] && (gmenu2x->confInt["section"] != gmenu2x->menu->selSectionIndex() || gmenu2x->confInt["link"] != gmenu2x->menu->selLinkIndex())) {
 		gmenu2x->writeConfig();
@@ -372,7 +371,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"]) gmenu2x->setGamma(gamma());
 #endif
 
-	if (gmenu2x->confInt["outputLogs"]) command += " 2>&1 | tee " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
+	if (gmenu2x->confInt["outputLogs"]) command += " &> " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 
 	gmenu2x->quit();
 
