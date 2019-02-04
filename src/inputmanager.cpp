@@ -209,7 +209,9 @@ bool InputManager::update(bool wait) {
 			while (SDL_PollEvent(&event))
 				WARNING("Skipping event.type: %d", event.type); // clear event queue
 		}
+#if !defined(TARGET_PC)
 		keystate[event.key.keysym.sym] = false;
+#endif
 	}
 	int32_t now = SDL_GetTicks();
 
