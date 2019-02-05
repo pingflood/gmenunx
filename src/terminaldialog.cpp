@@ -20,8 +20,8 @@
 
 #include "terminaldialog.h"
 #include "messagebox.h"
+#include "utilities.h"
 #include "debug.h"
-
 using namespace std;
 
 #include <fstream>
@@ -46,7 +46,8 @@ int TerminalDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t fi
 	return mx;
 }
 
-void TerminalDialog::exec(const string &cmd) {
+void TerminalDialog::exec(const string &_cmd) {
+	string cmd;
 	bool close = false, inputAction = false;
 	int32_t firstCol = 0, maxLine = 0;
 	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
@@ -70,14 +71,15 @@ void TerminalDialog::exec(const string &cmd) {
 
 	this->bg->blit(gmenu2x->s,0,0);
 
-	rawText = "$\n";
-	// rawText = "$ " + cmd + "\n";
-	split(text, rawText, "\n");
-	maxLine = drawText(&text, firstCol, firstRow, rowsPerPage);
-
 	gmenu2x->s->flip();
 
-	FILE* pipe = popen(("/bin/sh -c '" + cmd + "' 2>&1").c_str(), "r");
+	if (fileExists("/usr/bin/script"))
+		cmd = "/usr/bin/script -q -c '" + _cmd + "' /dev/null 2>&1";
+	else
+		cmd = "/bin/sh -c '" + _cmd + "' 2>&1";
+
+	FILE* pipe = popen(cmd.c_str(), "r");
+
 	if (!pipe) return;
 	char buffer[128];
 
@@ -89,19 +91,19 @@ void TerminalDialog::exec(const string &cmd) {
 				} else {
 					pclose(pipe);
 					pipe = NULL;
-					rawText += "\n$";
+					rawText += "\r\n$";
 					system("sync &");
 				}
 				InputManager::pushEvent(NUM_ACTIONS);
-				split(text, rawText, "\n");
+				split(text, rawText, "\r\n");
 			}
-			inputAction = gmenu2x->input.update();
 
 			this->bg->blit(gmenu2x->s,0,0);
 			maxLine = drawText(&text, firstCol, firstRow, rowsPerPage);
 			gmenu2x->s->flip();
 
-			// inputAction = gmenu2x->input.update();
+			inputAction = gmenu2x->input.update();
+
 			if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 			if ( gmenu2x->input[UP] && firstRow > 0 ) firstRow--;

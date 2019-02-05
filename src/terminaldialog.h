@@ -38,7 +38,7 @@ protected:
 
 public:
 	TerminalDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop = "");
-	void exec(const string &cmd);
+	void exec(const string &_cmd);
 };
 
 #endif /*TERMINALDIALOG_H_*/
