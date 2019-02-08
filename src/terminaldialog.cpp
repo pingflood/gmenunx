@@ -83,6 +83,8 @@ void TerminalDialog::exec(const string &_cmd) {
 	if (!pipe) return;
 	char buffer[128];
 
+	system("mount -o remount,rw,async,noatime,iocharset=utf8 /home/retrofw");
+
 	while (!close) {
 		do {
 			if (pipe) {
@@ -91,7 +93,7 @@ void TerminalDialog::exec(const string &_cmd) {
 				} else {
 					pclose(pipe);
 					pipe = NULL;
-					rawText += "\r\n$";
+					rawText += "sync\r\n$";
 					system("sync &");
 				}
 				InputManager::pushEvent(NUM_ACTIONS);
@@ -131,5 +133,6 @@ void TerminalDialog::exec(const string &_cmd) {
 			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
 		} while (!inputAction);
 	}
+	system("mount -o remount,rw,sync,noatime,iocharset=utf8 /home/retrofw");
 	pclose(pipe);
 }
