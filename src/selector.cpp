@@ -38,7 +38,7 @@ Selector::Selector(GMenu2X *gmenu2x, const string &title, const string &descript
 }
 
 const std::string Selector::getPreview(uint32_t i) {
-	string fname = getFileName(i);
+	string fname = getFile(i);
 	string screendir = link->getSelectorScreens();
 	string noext, realdir;
 	int pos = fname.rfind(".");

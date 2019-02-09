@@ -1491,7 +1491,7 @@ void GMenu2X::poweroffDialog() {
 		MessageBox mb(this, tr["Rebooting"]);
 		mb.setAutoHide(500);
 		mb.exec();
-		// setBacklight(0);
+		setBacklight(0);
 #if !defined(TARGET_PC)
 		system("sync; reboot");
 #endif

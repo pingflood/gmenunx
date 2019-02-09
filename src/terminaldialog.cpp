@@ -93,7 +93,7 @@ void TerminalDialog::exec(const string &_cmd) {
 				} else {
 					pclose(pipe);
 					pipe = NULL;
-					rawText += "sync\r\n$";
+					rawText += "\r\n$";
 					system("sync &");
 				}
 				InputManager::pushEvent(NUM_ACTIONS);
