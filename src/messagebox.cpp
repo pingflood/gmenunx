@@ -122,8 +122,11 @@ int MessageBox::exec() {
 	gmenu2x->s->rectangle(box.x+2, box.y+2, box.w-4, box.h-4, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
 
 	//icon+text
-	if (gmenu2x->sc[icon] != NULL)
+	if (gmenu2x->sc[icon] != NULL) {
+		gmenu2x->s->setClipRect({box.x + 8, box.y + 8, 32, 32});
 		gmenu2x->sc[icon]->blit( gmenu2x->s, box.x + 24, box.y + 24 , HAlignCenter | VAlignMiddle);
+		gmenu2x->s->clearClipRect();
+	}
 
 	// gmenu2x->s->box(ix + box.x, box.y, (box.w - ix), box.h, strtorgba("ffff00ff"));
 	gmenu2x->s->write(gmenu2x->font, text, ix + box.x + (box.w - ix) / 2, box.y + box.h / 2, HAlignCenter | VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);

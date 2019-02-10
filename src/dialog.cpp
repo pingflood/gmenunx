@@ -22,7 +22,9 @@ void Dialog::drawTitleIcon(const std::string &icon, Surface *s) {
 
 	if (i == NULL) i = gmenu2x->sc.skinRes("icons/generic.png");
 
+	gmenu2x->s->setClipRect({4, 4, 32, gmenu2x->skinConfInt["sectionBarSize"] - 8});
 	i->blit(s, {4, 4, gmenu2x->resX - 8, gmenu2x->skinConfInt["sectionBarSize"] - 8}, VAlignMiddle);
+	gmenu2x->s->clearClipRect();
 	// s->box(4, 4, 32, 32, strtorgba("ffff00ff"));
 }
 
