@@ -228,6 +228,7 @@ private:
 	}
 
 	void tvOutDialog(int TVOut) {
+		if (!fileExists("/proc/jz/tvselect")) return;
 		if (TVOut < 0){
 			MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
 			mb.setButton(TV_NTSC, tr["NTSC"]);
@@ -262,6 +263,7 @@ private:
 
 public:
 	void setTVOut(unsigned int TVOut) {
+		if (!fileExists("/proc/jz/tvselect")) return;
 		system("echo 0 > /proc/jz/tvselect; echo 0 > /proc/jz/tvout"); // always reset tv out
 		if (TVOut == TV_NTSC)		system("echo 2 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
 		else if (TVOut == TV_PAL)	system("echo 1 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");

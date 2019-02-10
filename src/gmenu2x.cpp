@@ -194,10 +194,9 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	}
 	close(fd);
 
-	system("grep '10.0.1.1' /etc/network/interfaces && mount -o remount,rw / && sed -i 's/10.0.1/169.254.1/' /etc/network/interfaces && sed -i 's/10.0.1/169.254.1/g' /etc/dnsmasq.conf; mount -o remount,ro /");
-	system("mount -o remount,rw,sync,noatime,iocharset=utf8 /home/retrofw");
-
 	usleep(1000);
+
+	// system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -rln sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi");
 
 	app = new GMenuNX();
 	DEBUG("Starting GMenuNX");
