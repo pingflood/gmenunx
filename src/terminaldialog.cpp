@@ -98,7 +98,7 @@ void TerminalDialog::exec(const string &_cmd) {
 				}
 				InputManager::pushEvent(NUM_ACTIONS);
 				split(text, rawText, "\r\n");
-				firstRow = text.size();
+				if (text.size() >= rowsPerPage) firstRow = text.size() - rowsPerPage;
 			}
 
 			this->bg->blit(gmenu2x->s,0,0);
