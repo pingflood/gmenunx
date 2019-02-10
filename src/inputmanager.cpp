@@ -192,27 +192,26 @@ bool InputManager::update(bool wait) {
 	events.clear();
 	SDL_Event event;
 
-	SDL_WaitEvent(&event);
-
-	if (event.type == SDL_KEYDOWN) {
-		anyactions = true;
-		// SDL_Event evcopy = event;
-		events.push_back(event);
-		keystate[event.key.keysym.sym] = true;
-
-		// while (SDL_PollEvent(&event)) { // clear event queue
-		// 	WARNING("Skipping event.type: %d", event.type);
-		// }
-	} else {
-		if (event.type == SDL_KEYUP) {
+	if (wait) {
+		SDL_WaitEvent(&event);
+		if (event.type == SDL_KEYDOWN) {
 			anyactions = true;
-			while (SDL_PollEvent(&event))
-				WARNING("Skipping event.type: %d", event.type); // clear event queue
+			keystate[event.key.keysym.sym] = true;
+			events.push_back(event);
+		} else {
+			if (event.type == SDL_KEYUP) {
+				anyactions = true;
+				while (SDL_PollEvent(&event)) WARNING("Skipping event.type: %d", event.type); // clear event queue
+			}
+			#if !defined(TARGET_PC)
+				keystate[event.key.keysym.sym] = false;
+			#endif
 		}
-#if !defined(TARGET_PC)
-		keystate[event.key.keysym.sym] = false;
-#endif
+	} else {
+		SDL_PumpEvents();
+		while (SDL_PollEvent(&event)) events.push_back(event);
 	}
+
 	int32_t now = SDL_GetTicks();
 
 	for (uint32_t x = 0; x < actions.size(); x++) {

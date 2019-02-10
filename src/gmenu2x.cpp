@@ -209,8 +209,7 @@ int main(int /*argc*/, char * /*argv*/[]) {
 GMenu2X *GMenu2X::instance = NULL;
 void GMenu2X::main() {
 	instance = this;
-	//load config data
-	readConfig();
+	// load config data
 	hwInit();
 
 	path = "";
@@ -226,14 +225,17 @@ void GMenu2X::main() {
 		return;
 	}
 
+	input.init(path + "input.conf");
+	setInputSpeed();
+
 	s = new Surface();
 	SDL_ShowCursor(0);
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	//I'm forced to use SW surfaces since with HW there are issuse with changing the clock frequency
-	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, confInt["videoBpp"], SDL_SWSURFACE);
+	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, 16, SDL_SWSURFACE);
 	s->enableVirtualDoubleBuffer(dbl);
 #else
-	s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, confInt["videoBpp"], SDL_HWSURFACE
+	s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, 16, SDL_HWSURFACE
 	|
 	#ifdef SDL_TRIPLEBUF
 		SDL_TRIPLEBUF
@@ -241,9 +243,10 @@ void GMenu2X::main() {
 		SDL_DOUBLEBUF
 	#endif
 	);
-	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, confInt["videoBpp"], 0, 0, 0, 0);
+	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, 16, 0, 0, 0, 0);
 #endif
 
+	readConfig();
 	setWallpaper(confStr["wallpaper"]);
 	setSkin(confStr["skin"], false, true);
 
@@ -254,9 +257,6 @@ void GMenu2X::main() {
 	mb.exec();
 
 	setBacklight(confInt["backlight"]);
-
-	input.init(path + "input.conf");
-	setInputSpeed();
 
 	tvOutStatus = getTVOutStatus();
 	mmcStatus = getMMCStatus();
@@ -969,7 +969,9 @@ void GMenu2X::readConfig() {
 	else confStr["batteryType"] = "Linear";
 	confInt["saveSelection"] = 1;
 
-	if (fileExists(conffile)) {
+	input.update(false);
+
+	if (!input[SETTINGS] && fileExists(conffile)) {
 		ifstream inf(conffile.c_str(), ios_base::in);
 		if (inf.is_open()) {
 			string line;
@@ -998,7 +1000,6 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["cpuMin"], 342, 200, 1200 );
 	evalIntConf( &confInt["cpuMenu"], 528, 200, 1200 );
 	evalIntConf( &confInt["globalVolume"], 60, 1, 100 );
-	evalIntConf( &confInt["videoBpp"], 16, 8, 32 );
 	evalIntConf( &confInt["backlight"], 70, 1, 100);
 	evalIntConf( &confInt["minBattery"], 3550, 1, 10000);
 	evalIntConf( &confInt["maxBattery"], 3720, 1, 10000);
