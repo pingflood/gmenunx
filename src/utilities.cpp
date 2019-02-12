@@ -229,11 +229,11 @@ string real_path(const string &path) {
 			vector<string>::iterator it = vpath.begin() + 1;
 
 			while (it < vpath.end()) {
-				if (!strcmp(it->c_str(), ".")) {
-					vpath.erase(vpath.begin()+i);
-				} else if (!strcmp(it->c_str(), "..")) {
-					vpath.erase(vpath.begin()+i);
-					vpath.erase(vpath.begin()+i-1);
+				if (*it == "." || it->empty()) {
+					vpath.erase(vpath.begin() + i);
+				} else if (*it == "..") {
+					vpath.erase(vpath.begin() + i);
+					vpath.erase(vpath.begin() + i - 1);
 					it = vpath.begin() + 1;
 					i = 1;
 				} else {

@@ -183,16 +183,28 @@ const string &LinkApp::searchIcon() {
 	string exectitle = base_name(execicon);
 	string dirtitle = base_name(dir_name(exec)) + ".png";
 	string linktitle = base_name(file);
+	string sublinktitle = base_name(file);
+
+	pos = linktitle.find(".");
+	if (pos != string::npos) sublinktitle = linktitle.substr(0, pos);
+	sublinktitle = sublinktitle + ".png";
+
 	pos = linktitle.rfind(".");
+
 	if (pos != string::npos) linktitle = linktitle.substr(0, pos);
+
 	linktitle += ".png";
 
-	if (!gmenu2x->sc.getSkinFilePath("icons/" + linktitle).empty())
+	if (!gmenu2x->sc.getSkinFilePath("icons/" + sublinktitle).empty())
+		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + sublinktitle);
+	else if (!gmenu2x->sc.getSkinFilePath("icons/" + linktitle).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + linktitle);
 	else if (!gmenu2x->sc.getSkinFilePath("icons/" + exectitle).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + exectitle);
 	else if (!gmenu2x->sc.getSkinFilePath("icons/" + dirtitle).empty())
-		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + dirtitle);
+		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + sublinktitle);
+	else if (fileExists(dir_name(exec) + "/" + sublinktitle))
+		iconPath = dir_name(exec) + "/" + sublinktitle;
 	else if (fileExists(execicon))
 		iconPath = execicon;
 	else

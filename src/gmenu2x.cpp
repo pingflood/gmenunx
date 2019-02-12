@@ -336,6 +336,9 @@ void GMenu2X::main() {
 			if (confInt["sectionBar"] == SB_CLASSIC)
 				ix = (resX - skinConfInt["sectionBarSize"] * min(menu->sectionNumItems(), menu->getSections().size())) / 2;
 
+			int selx = (menu->selSectionIndex() - menu->firstDispSection()) * skinConfInt["sectionBarSize"] + ix;
+			s->box(selx, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
+
 			for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
 				if (confInt["sectionBar"] == SB_LEFT || confInt["sectionBar"] == SB_RIGHT) {
 					y = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
@@ -343,11 +346,9 @@ void GMenu2X::main() {
 					x = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"] + ix;
 				}
 
-				if (menu->selSectionIndex() == (int)i)
-					s->box(x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
-
 				sc[menu->getSectionIcon(i)]->blit(s, {x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"]}, HAlignCenter | VAlignMiddle);
 			}
+			if (confInt["sectionLabel"]) s->write(font, tr.translate(menu->selSection()), selx + skinConfInt["sectionBarSize"]/2, y + skinConfInt["sectionBarSize"] - 1, HAlignCenter | VAlignBottom);
 
 			if (confInt["sectionBar"] == SB_CLASSIC) {
 				iconL->blit(s, 0, 0, HAlignLeft | VAlignTop);
@@ -387,7 +388,7 @@ void GMenu2X::main() {
 
 					sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix + 2, iy + 2, linkWidth - 4, linkHeight - 4}, HAlignCenter | VAlignMiddle);
 
-					s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - 1, HAlignCenter | VAlignBottom);
+					if (confInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - 1, HAlignCenter | VAlignBottom);
 				}
 			}
 		}
@@ -967,6 +968,8 @@ void GMenu2X::readConfig() {
 	if (fwType != "RETROARCADE") confStr["batteryType"] = "BL-5B";
 	else confStr["batteryType"] = "Linear";
 	confInt["saveSelection"] = 1;
+	confInt["sectionLabel"] = 1;
+	confInt["linkLabel"] = 1;
 
 	input.update(false);
 
@@ -1222,7 +1225,6 @@ void GMenu2X::skinMenu() {
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &confStr["wallpaper"], &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Background scale"], tr["How to scale wallpaper and backdrops"], &confStr["bgscale"], &bgScale));
-
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin colors"], tr["Customize skin colors"], &tmp, &wpLabel, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::skinColors)));
 		sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &confInt["skinBackdrops"]));
 		sd.addSetting(new MenuSettingInt(this, tr["Font size"], tr["Size of text font"], &skinConfInt["fontSize"], 12, 6, 60));
@@ -1233,6 +1235,8 @@ void GMenu2X::skinMenu() {
 		sd.addSetting(new MenuSettingInt(this, tr["Bottom bar height"], tr["Height of bottom bar"], &skinConfInt["bottomBarHeight"], 16, 1, resY));
 		sd.addSetting(new MenuSettingInt(this, tr["Menu columns"], tr["Number of columns of links in main menu"], &confInt["linkCols"], 1, 1, 8));
 		sd.addSetting(new MenuSettingInt(this, tr["Menu rows"], tr["Number of rows of links in main menu"], &confInt["linkRows"], 6, 1, 8));
+		sd.addSetting(new MenuSettingBool(this, tr["Link label"], tr["Show link labels in main menu"], &confInt["linkLabel"]));
+		sd.addSetting(new MenuSettingBool(this, tr["Section label"], tr["Show the active section label in main menu"], &confInt["sectionLabel"]));
 		sd.exec();
 
 		if (sc.add("skins/" + confStr["skin"] + "/wallpapers/" + confStr["wallpaper"]) != NULL)
