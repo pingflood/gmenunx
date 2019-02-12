@@ -122,9 +122,26 @@ uint32_t Menu::firstDispRow() {
 void Menu::loadIcons() {
 	//reload section icons
 	for (uint32_t i = 0; i < sections.size(); i++) {
+		string subsectionIcon = "";
+		string::size_type pos = sections[i].rfind(".");
+		if (pos != string::npos) {
+			subsectionIcon = sections[i].substr(pos, sections[i].length());
+		}
+
+		string mainsectionIcon = "";
+		pos = sections[i].find(".");
+		if (pos != string::npos) {
+			mainsectionIcon = sections[i].substr(0, pos);
+		}
+
 		string sectionIcon = "sections/" + sections[i] + ".png";
 		if (!gmenu2x->sc.getSkinFilePath(sectionIcon).empty())
 			gmenu2x->sc.add("skin:" + sectionIcon);
+		else if (!gmenu2x->sc.getSkinFilePath("sections/" + subsectionIcon + ".png").empty())
+			gmenu2x->sc.add("skin:sections/" + subsectionIcon + ".png");
+		else if (!gmenu2x->sc.getSkinFilePath("sections/" + mainsectionIcon + ".png").empty())
+			gmenu2x->sc.add("skin:sections/" + mainsectionIcon + ".png");
+
 
 #if 0
 		//check link's icons
