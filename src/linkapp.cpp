@@ -202,7 +202,7 @@ const string &LinkApp::searchIcon() {
 	else if (!gmenu2x->sc.getSkinFilePath("icons/" + exectitle).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + exectitle);
 	else if (!gmenu2x->sc.getSkinFilePath("icons/" + dirtitle).empty())
-		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + sublinktitle);
+		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + dirtitle);
 	else if (fileExists(dir_name(exec) + "/" + sublinktitle))
 		iconPath = dir_name(exec) + "/" + sublinktitle;
 	else if (fileExists(execicon))
