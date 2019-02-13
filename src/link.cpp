@@ -82,11 +82,9 @@ void Link::setIcon(const string &icon) {
 }
 
 const string &Link::searchIcon() {
-	if (!gmenu2x->sc.getSkinFilePath(iconPath).empty()) {
+	if (!gmenu2x->sc.getSkinFilePath(iconPath).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath(iconPath);
-	}	else if (!fileExists(iconPath)) {
-		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
-	} else
+	else
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
 	return iconPath;
 }
