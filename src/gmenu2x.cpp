@@ -972,7 +972,7 @@ void GMenu2X::readConfig() {
 	if (fwType != "RETROARCADE") confStr["batteryType"] = "BL-5B";
 	else confStr["batteryType"] = "Linear";
 	confInt["saveSelection"] = 1;
-	confInt["sectionLabel"] = 1;
+	confInt["sectionLabel"] = 0;
 	confInt["linkLabel"] = 1;
 	confInt["skinBackdrops"] = 1;
 	confStr["defaultDir"] = CARD_ROOT;
@@ -1075,7 +1075,7 @@ void GMenu2X::writeConfig() {
 				(curr->first == "linkCols" && curr->second == 4) ||
 				(curr->first == "linkRows" && curr->second == 4) ||
 				(curr->first == "saveSelection" && curr->second == 1) ||
-				(curr->first == "sectionLabel" && curr->second == 1) ||
+				(curr->first == "sectionLabel" && curr->second == 0) ||
 				(curr->first == "linkLabel" && curr->second == 1) ||
 				(curr->first == "section" && curr->second == 0) ||
 				(curr->first == "link" && curr->second == 0)
