@@ -387,6 +387,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 
 	gmenu2x->quit();
 
+	system("mount -o remount,rw,sync,noatime,iocharset=utf8 /home/retrofw");
 	execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 	//try relaunching gmenu2x

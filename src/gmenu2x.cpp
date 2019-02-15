@@ -197,6 +197,7 @@ int main(int /*argc*/, char * /*argv*/[]) {
 	usleep(1000);
 
 	// system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -rln sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi");
+	system("mount -o remount,rw,async,noatime,iocharset=utf8 /home/retrofw");
 
 	app = new GMenuNX();
 	DEBUG("Starting GMenuNX");
