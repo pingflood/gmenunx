@@ -187,7 +187,7 @@ private:
 	void udcDialog(int udcStatus) {
 		if (udcStatus == UDC_REMOVE) {
 			INFO("USB Disconnected. Unloading modules...");
-			system("/etc/init.d/S80recovery stop");
+			system("/etc/init.d/S99recovery stop");
 			return;
 		}
 
@@ -215,14 +215,14 @@ private:
 		if (option == CONFIRM) { // storage
 			INFO("Enabling gadget-lun storage device");
 			quit();
-			execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage on", NULL);
+			execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S99recovery storage on", NULL);
 			// chdir(getExePath().c_str());
 			// execlp("./gmenu2x", "./gmenu2x", NULL);
 			return;
 		}
 		// else { //if (option == MANUAL) { // network
 			INFO("Enabling usb0 networking device");
-			system("/etc/init.d/S80recovery network on &");
+			system("/etc/init.d/S99recovery network on &");
 			iconInet = sc.skinRes("imgs/inet.png");
 		// }
 	}
