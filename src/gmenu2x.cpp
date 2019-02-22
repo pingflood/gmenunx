@@ -229,6 +229,7 @@ void GMenu2X::main() {
 	setInputSpeed();
 
 	s = new Surface();
+
 	SDL_ShowCursor(0);
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	//I'm forced to use SW surfaces since with HW there are issuse with changing the clock frequency
@@ -245,6 +246,8 @@ void GMenu2X::main() {
 	);
 	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, 16, 0, 0, 0, 0);
 #endif
+
+	bg = new Surface(s);
 
 	readConfig();
 	setWallpaper(confStr["wallpaper"]);
@@ -322,9 +325,9 @@ void GMenu2X::main() {
 		}
 		if (prevBackdrop != currBackdrop) {
 			INFO("New backdrop: %s", currBackdrop.c_str());
-			sc.del(prevBackdrop);
+			// sc.del(prevBackdrop);
 			prevBackdrop = currBackdrop;
-			sc[currBackdrop]->softStretch(resX, resY, false, true);
+			setWallpaper(currBackdrop, false);
 		}
 		sc[currBackdrop]->blit(s,0,0);
 
@@ -664,30 +667,22 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	return false;
 }
 
-void GMenu2X::setWallpaper(const string &wallpaper) {
-	if (bg != NULL) delete bg;
-
-	bg = new Surface(s);
-	bg->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 0});
-
-	confStr["wallpaper"] = wallpaper;
-	if (wallpaper.empty() || sc.add(wallpaper) == NULL) {
+void GMenu2X::setWallpaper(const string &_wallpaper, bool permanent) {
+	string wallpaper = _wallpaper;
+	bg->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
+	if (wallpaper.empty() || sc[wallpaper] == NULL) {
 		DEBUG("Searching wallpaper");
-
-		FileLister fl("skins/" + confStr["skin"] + "/wallpapers", false, true);
+		FileLister fl("skins/Default/wallpapers", false, true);
 		fl.setFilter(".png,.jpg,.jpeg,.bmp");
 		fl.browse();
-		if (fl.getFiles().size() <= 0 && confStr["skin"] != "Default")
-			fl.setPath("skins/Default/wallpapers", true);
-		if (fl.getFiles().size() > 0)
-			confStr["wallpaper"] = fl.getPath() + "/" + fl.getFiles()[0];
+		wallpaper = "skins/Default/wallpapers/" + fl.getFiles()[0];
 	}
-
+	if (sc[wallpaper] == NULL) return;
 	if (confStr["bgscale"] == "Stretch") sc[wallpaper]->softStretch(resX, resY, false, true);
 	else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(resX, resY, true, true);
 	else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(resX, resY, true, false);
-
 	sc[wallpaper]->blit(bg, 0, 0);
+	if (permanent) confStr["wallpaper"] = wallpaper;
 }
 
 void GMenu2X::initLayout() {
@@ -1242,39 +1237,45 @@ void GMenu2X::skinMenu() {
 	bgScale.push_back("Stretch");
 
 	vector<string> wallpapers;
-	string wpPrev = confStr["wallpaper"];
+	string wpSkin = confStr["wallpaper"];
 
 	do {
-
 		if (prevSkin != confStr["skin"]) {
 			prevSkin = confStr["skin"];
 			setSkin(confStr["skin"], false, false);
-	
+
+			if (!skinConfStr["wallpaper"].empty())
+				wpSkin = skinConfStr["wallpaper"];
+
 			wallpapers.clear();
 			FileLister fl_wp("skins/" + confStr["skin"] + "/wallpapers");
 			fl_wp.setFilter(".png,.jpg,.jpeg,.bmp");
-			if (dirExists("skins/" + confStr["skin"] + "/wallpapers")) {
-				fl_wp.browse();
-				wallpapers = fl_wp.getFiles();
-			}
+			fl_wp.browse();
+			wallpapers = fl_wp.getFiles();
+
 			if (confStr["skin"] != "Default") {
 				fl_wp.setPath("skins/Default/wallpapers", true);
-				for (uint32_t i = 0; i < fl_wp.getFiles().size(); i++)
-					wallpapers.push_back(fl_wp.getFiles()[i]);
+				wallpapers.insert( wallpapers.end(), fl_wp.getFiles().begin(), fl_wp.getFiles().end());
 			}
-	
+
 			sc.del("skin:icons/skin.png");
 			sc.del("skin:imgs/buttons/left.png");
 			sc.del("skin:imgs/buttons/right.png");
 			sc.del("skin:imgs/buttons/a.png");
 		}
-		confStr["wallpaper"] = base_name(confStr["wallpaper"]);
+
+		string wpPath = "skins/" + confStr["skin"] + "/wallpapers/" + wpSkin;
+		if (!fileExists(wpPath)) wpPath = "skins/Default/wallpapers/" + wpSkin;
+		if (!fileExists(wpPath)) wpPath = "skins/" + confStr["skin"] + "/wallpapers/" + wallpapers.at(0);
+		if (!fileExists(wpPath)) wpPath = "skins/Default/wallpapers/" + wallpapers.at(0);
+
+		setWallpaper(wpPath);
 
 		SettingsDialog sd(this, ts, tr["Skin"], "skin:icons/skin.png");
 		sd.selected = selected;
 		sd.allowCancel = false;
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
-		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &confStr["wallpaper"], &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &wpSkin, &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Background scale"], tr["How to scale wallpaper and backdrops"], &confStr["bgscale"], &bgScale));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin colors"], tr["Customize skin colors"], &tmp, &wpLabel, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::skinColors)));
 		sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &confInt["skinBackdrops"]));
@@ -1289,13 +1290,6 @@ void GMenu2X::skinMenu() {
 		sd.addSetting(new MenuSettingBool(this, tr["Link label"], tr["Show link labels in main menu"], &confInt["linkLabel"]));
 		sd.addSetting(new MenuSettingBool(this, tr["Section label"], tr["Show the active section label in main menu"], &confInt["sectionLabel"]));
 		sd.exec();
-
-		if (sc.add("skins/" + confStr["skin"] + "/wallpapers/" + confStr["wallpaper"]) != NULL)
-			confStr["wallpaper"] = "skins/" + confStr["skin"] + "/wallpapers/" + confStr["wallpaper"];
-		else if (sc.add("skins/Default/wallpapers/" + confStr["wallpaper"]) != NULL)
-			confStr["wallpaper"] = "skins/Default/wallpapers/" + confStr["wallpaper"];
-
-		setWallpaper(confStr["wallpaper"]);
 
 		selected = sd.selected;
 		save = sd.save;
