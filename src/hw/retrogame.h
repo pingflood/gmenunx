@@ -315,7 +315,7 @@ public:
 			uint32_t m = mhz / 6;
 			memregs[0x10 >> 2] = (m << 24) | 0x090520;
 			INFO("Set CPU clock: %d", mhz);
-			SDL_Delay(50);
+			SDL_Delay(100);
 			setTVOut(TVOut);
 		}
 	}
