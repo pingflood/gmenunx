@@ -1041,7 +1041,9 @@ void GMenu2X::writeConfig() {
 				(curr->first == "lang" && curr->second.empty()) ||
 				(curr->first == "lang" && curr->second.empty()) ||
 				(curr->first == "bgscale" && curr->second.empty()) ||
-				(curr->first == "bgscale" && curr->second == "Original")
+				(curr->first == "bgscale" && curr->second == "Original") ||
+
+				curr->first.empty() || curr->second.empty()
 			) continue;
 
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
@@ -1075,7 +1077,9 @@ void GMenu2X::writeConfig() {
 				(curr->first == "sectionLabel" && curr->second == 0) ||
 				(curr->first == "linkLabel" && curr->second == 1) ||
 				(curr->first == "section" && curr->second == 0) ||
-				(curr->first == "link" && curr->second == 0)
+				(curr->first == "link" && curr->second == 0) ||
+
+				curr->first.empty()
 			) continue;
 
 			inf << curr->first << "=" << curr->second << endl;
@@ -1096,11 +1100,28 @@ void GMenu2X::writeSkinConfig() {
 	string conffile = path + "skins/" + confStr["skin"] + "/skin.conf";
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
-		for (ConfStrHash::iterator curr = skinConfStr.begin(); curr != skinConfStr.end(); curr++)
-			inf << curr->first << "=\"" << curr->second << "\"" << endl;
+		for (ConfStrHash::iterator curr = skinConfStr.begin(); curr != skinConfStr.end(); curr++) {
+			if (
+				curr->first.empty() || curr->second.empty()
+			) continue;
 
+			inf << curr->first << "=\"" << curr->second << "\"" << endl;
+		}
 		for (ConfIntHash::iterator curr = skinConfInt.begin(); curr != skinConfInt.end(); curr++) {
-			if (curr->first == "titleFontSize" || curr->first == "sectionBarHeight" || curr->first == "linkHeight" || curr->first == "selectorPreviewX" || curr->first == "selectorPreviewY" || curr->first == "selectorPreviewWidth" || curr->first == "selectorPreviewHeight" || curr->first == "selectorX" || curr->first == "linkItemHeight"  || curr->first == "topBarHeight" ) continue;
+			if (
+				curr->first == "titleFontSize" ||
+				curr->first == "sectionBarHeight" ||
+				curr->first == "linkHeight" ||
+				curr->first == "selectorPreviewX" ||
+				curr->first == "selectorPreviewY" ||
+				curr->first == "selectorPreviewWidth" ||
+				curr->first == "selectorPreviewHeight" ||
+				curr->first == "selectorX" ||
+				curr->first == "linkItemHeight" ||
+				curr->first == "topBarHeight" ||
+
+				curr->first.empty()
+			) continue;
 			inf << curr->first << "=" << curr->second << endl;
 		}
 
@@ -1124,7 +1145,6 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 //clear collection and change the skin path
 	if (clearSC) sc.clear();
 	sc.setSkin(skin);
-	// if (btnContextMenu != NULL) btnContextMenu->setIcon( btnContextMenu->getIcon() );
 
 	// reset colors to the default values
 	skinConfColors[COLOR_TOP_BAR_BG] = (RGBAColor){255,255,255,130};
@@ -1154,7 +1174,7 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 
 				if (value.length() > 0) {
 					if (value.length() > 1 && value.at(0) == '"' && value.at(value.length() - 1) == '"') {
-							skinConfStr[name] = value.substr(1, value.length() - 2);
+						skinConfStr[name] = value.substr(1, value.length() - 2);
 					} else if (value.at(0) == '#') {
 						// skinConfColor[name] = strtorgba(value.substr(1,value.length()) );
 						skinConfColors[stringToColor(name)] = strtorgba(value);
@@ -1185,10 +1205,9 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 	if (skinConfColors[COLOR_FONT_ALT].r == 253 && skinConfColors[COLOR_FONT_ALT].g == 1 && skinConfColors[COLOR_FONT_ALT].b == 252 && skinConfColors[COLOR_FONT_ALT].a == 0) skinConfColors[COLOR_FONT_ALT] = skinConfColors[COLOR_FONT];
 	if (skinConfColors[COLOR_FONT_ALT_OUTLINE].r == 253 && skinConfColors[COLOR_FONT_ALT_OUTLINE].g == 1 && skinConfColors[COLOR_FONT_ALT_OUTLINE].b == 252 && skinConfColors[COLOR_FONT_ALT_OUTLINE].a == 0) skinConfColors[COLOR_FONT_ALT_OUTLINE] = skinConfColors[COLOR_FONT_OUTLINE];
 
-// prevents breaking current skin until they are updated
+	// prevents breaking current skin until they are updated
 	if (!skinConfInt["fontSizeTitle"] && skinConfInt["titleFontSize"] > 0) skinConfInt["fontSizeTitle"] = skinConfInt["titleFontSize"];
 
-	// evalIntConf( &skinConfInt["topBarHeight"], 40, 1, resY);
 	evalIntConf( &skinConfInt["sectionBarSize"], 40, 1, resX);
 	evalIntConf( &skinConfInt["bottomBarHeight"], 16, 1, resY);
 	evalIntConf( &skinConfInt["previewWidth"], 142, 1, resX);
@@ -1197,7 +1216,6 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 
 	if (menu != NULL && clearSC) menu->loadIcons();
 
-//font
 	initFont();
 }
 
