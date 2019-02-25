@@ -21,11 +21,13 @@
 #include "terminaldialog.h"
 #include "messagebox.h"
 #include "utilities.h"
+#include "powermanager.h"
 #include "debug.h"
-using namespace std;
 
 #include <fstream>
 #include <sstream>
+
+using namespace std;
 
 TerminalDialog::TerminalDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop)
 	: Dialog(gmenu2x), title(title), description(description), icon(icon), backdrop(backdrop)
@@ -74,14 +76,16 @@ void TerminalDialog::exec(const string &_cmd) {
 	gmenu2x->s->flip();
 
 	if (fileExists("/usr/bin/script"))
-		cmd = "/usr/bin/script -q -c '" + _cmd + "' /dev/null 2>&1";
+		cmd = "/usr/bin/script -q -c " + cmdclean(_cmd) + " /dev/null 2>&1";
 	else
-		cmd = "/bin/sh -c '" + _cmd + "' 2>&1";
+		cmd = "/bin/sh -c " + cmdclean(_cmd) + " 2>&1";
 
 	FILE* pipe = popen(cmd.c_str(), "r");
 
 	if (!pipe) return;
 	char buffer[128];
+
+	gmenu2x->powerManager->clearTimer();
 
 	while (!close) {
 		do {
@@ -92,6 +96,7 @@ void TerminalDialog::exec(const string &_cmd) {
 					pclose(pipe);
 					pipe = NULL;
 					rawText += "\r\n$";
+					system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi");
 					system("sync &");
 				}
 				InputManager::pushEvent(NUM_ACTIONS);
@@ -104,8 +109,6 @@ void TerminalDialog::exec(const string &_cmd) {
 			gmenu2x->s->flip();
 
 			inputAction = gmenu2x->input.update();
-
-			if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 			if ( gmenu2x->input[UP] && firstRow > 0 ) firstRow--;
 			else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < text.size() ) firstRow++;
