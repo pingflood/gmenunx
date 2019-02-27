@@ -773,7 +773,7 @@ void GMenu2X::initMenu() {
 	}
 	menu->setSectionIndex(confInt["section"]);
 	menu->setLinkIndex(confInt["link"]);
-	menu->loadIcons();
+	// menu->loadIcons();
 }
 
 void GMenu2X::settings() {
@@ -1215,7 +1215,7 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 	evalIntConf( &skinConfInt["fontSize"], 12, 6, 60);
 	evalIntConf( &skinConfInt["fontSizeTitle"], 20, 6, 60);
 
-	if (menu != NULL && clearSC) menu->loadIcons();
+	// if (menu != NULL && clearSC) menu->loadIcons();
 
 	initFont();
 }

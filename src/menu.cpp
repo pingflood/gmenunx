@@ -119,57 +119,57 @@ uint32_t Menu::firstDispRow() {
 	return iFirstDispRow;
 }
 
-void Menu::loadIcons() {
-	//reload section icons
-	for (uint32_t i = 0; i < sections.size(); i++) {
-		string subsectionIcon = "";
-		string::size_type pos = sections[i].rfind(".");
-		if (pos != string::npos) {
-			subsectionIcon = sections[i].substr(pos, sections[i].length());
-		}
+// void Menu::loadIcons() {
+// 	//reload section icons
+// 	for (uint32_t i = 0; i < sections.size(); i++) {
+// 		string mainsectionIcon = "";
+// 		string subsectionIcon = "";
+// 		string::size_type pos = sections[i].rfind(".");
+// 		if (pos != string::npos) subsectionIcon = sections[i].substr(pos, sections[i].length());
 
-		string mainsectionIcon = "";
-		pos = sections[i].find(".");
-		if (pos != string::npos) {
-			mainsectionIcon = sections[i].substr(0, pos);
-		}
+// 		pos = sections[i].find(".");
+// 		if (pos != string::npos) mainsectionIcon = sections[i].substr(0, pos);
 
-		string sectionIcon = "sections/" + sections[i] + ".png";
-		if (!gmenu2x->sc.getSkinFilePath(sectionIcon).empty())
-			gmenu2x->sc.add("skin:" + sectionIcon);
-		else if (!gmenu2x->sc.getSkinFilePath("sections/" + subsectionIcon + ".png").empty())
-			gmenu2x->sc.add("skin:sections/" + subsectionIcon + ".png");
-		else if (!gmenu2x->sc.getSkinFilePath("sections/" + mainsectionIcon + ".png").empty())
-			gmenu2x->sc.add("skin:sections/" + mainsectionIcon + ".png");
+// 	// if (!gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".png").empty())
+// 		// backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".png");
 
 
-#if 0
-		//check link's icons
-		string linkIcon;
-		for (uint32_t x = 0; x < sectionLinks(i)->size(); x++) {
-			linkIcon = sectionLinks(i)->at(x)->getIcon();
-			sectionLinks(i)->at(x)->updateSurfaces();
-			LinkApp *linkapp = dynamic_cast<LinkApp*>(sectionLinks(i)->at(x));
+// 		string sectionIcon = "sections/" + sections[i] + ".png";
+// 		if (!gmenu2x->sc.getSkinFilePath(sectionIcon).empty())
+// 			gmenu2x->sc.add("skin:" + sectionIcon);
+// 		else if (!gmenu2x->sc.getSkinFilePath("sections/" + subsectionIcon + ".png").empty())
+// 			gmenu2x->sc.add("skin:sections/" + subsectionIcon + ".png");
+// 		else if (!gmenu2x->sc.getSkinFilePath("sections/" + mainsectionIcon + ".png").empty())
+// 			gmenu2x->sc.add("skin:sections/" + mainsectionIcon + ".png");
 
-			if (linkapp != NULL) {
-				linkapp->searchBackdrop();
-				linkapp->searchManual();
-			}
 
-			if (linkIcon.substr(0,5) == "skin:") {
-				linkIcon = gmenu2x->sc.getSkinFilePath(linkIcon.substr(5,linkIcon.length()));
-				if (linkapp != NULL && !fileExists(linkIcon))
-					linkapp->searchIcon();
-				else
-					sectionLinks(i)->at(x)->setIconPath(linkIcon);
+// #if 0
+// 		//check link's icons
+// 		string linkIcon;
+// 		for (uint32_t x = 0; x < sectionLinks(i)->size(); x++) {
+// 			linkIcon = sectionLinks(i)->at(x)->getIcon();
+// 			sectionLinks(i)->at(x)->updateSurfaces();
+// 			LinkApp *linkapp = dynamic_cast<LinkApp*>(sectionLinks(i)->at(x));
 
-			} else if (!fileExists(linkIcon)) {
-				if (linkapp != NULL) linkapp->searchIcon();
-			}
-		}
-#endif
-	}
-}
+// 			if (linkapp != NULL) {
+// 				linkapp->searchBackdrop();
+// 				linkapp->searchManual();
+// 			}
+
+// 			if (linkIcon.substr(0,5) == "skin:") {
+// 				linkIcon = gmenu2x->sc.getSkinFilePath(linkIcon.substr(5,linkIcon.length()));
+// 				if (linkapp != NULL && !fileExists(linkIcon))
+// 					linkapp->searchIcon();
+// 				else
+// 					sectionLinks(i)->at(x)->setIconPath(linkIcon);
+
+// 			} else if (!fileExists(linkIcon)) {
+// 				if (linkapp != NULL) linkapp->searchIcon();
+// 			}
+// 		}
+// #endif
+// 	}
+// }
 
 /*====================================
    SECTION MANAGEMENT
@@ -486,10 +486,47 @@ int Menu::getSectionIndex(const string &name) {
 }
 
 const string Menu::getSectionIcon(int i) {
-	string sectionIcon = "skin:sections/" + sections[i] + ".png";
-	if (!gmenu2x->sc.exists(sectionIcon)) {
-		sectionIcon = "skin:icons/section.png";
-	}
+	string mainsectionIcon = "";
+	string subsectionIcon = "";
+	string::size_type pos = sections[i].rfind(".");
+	if (pos != string::npos) subsectionIcon = sections[i].substr(pos, sections[i].length());
+
+	pos = sections[i].find(".");
+	if (pos != string::npos) mainsectionIcon = sections[i].substr(0, pos);
+
+// if (!gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".png").empty())
+	// backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".png");
+
+
+	// string sectionIcon = "sections/" + sections[i] + ".png";
+	string sectionIcon = gmenu2x->sc.getSkinFilePath("icons/section.png");
+
+	if (!gmenu2x->sc.getSkinFilePath("sections/" + sections[i] + ".png").empty())
+		sectionIcon = gmenu2x->sc.getSkinFilePath("sections/" + sections[i] + ".png");
+	else if (!gmenu2x->sc.getSkinFilePath("sections/" + subsectionIcon + ".png").empty())
+		sectionIcon = gmenu2x->sc.getSkinFilePath("sections/" + subsectionIcon + ".png");
+	else if (!gmenu2x->sc.getSkinFilePath("sections/" + mainsectionIcon + ".png").empty())
+		sectionIcon = gmenu2x->sc.getSkinFilePath("sections/" + mainsectionIcon + ".png");
+
+
+
+
+
+	// string sectionIcon = "skin:sections/" + sections[i] + ".png";
+	// if (!gmenu2x->sc.exists(sectionIcon)) {
+	// 	sectionIcon = "skin:icons/section.png";
+	// }
+
+
+
+
+
+
+
+
+
+
+
 	return sectionIcon;
 }
 
