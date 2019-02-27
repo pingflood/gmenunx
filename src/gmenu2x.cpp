@@ -972,7 +972,7 @@ void GMenu2X::readConfig() {
 	confInt["saveSelection"] = 1;
 	confInt["sectionLabel"] = 0;
 	confInt["linkLabel"] = 1;
-	confInt["skinBackdrops"] = 1;
+	confInt["skinBackdrops"] = 0;
 	confStr["defaultDir"] = CARD_ROOT;
 
 	input.update(false);
@@ -1060,7 +1060,7 @@ void GMenu2X::writeConfig() {
 				curr->first == "TVOut" ||
 
 				/* defaults */
-				(curr->first == "skinBackdrops" && curr->second == 1) ||
+				(curr->first == "skinBackdrops" && curr->second == 0) ||
 				(curr->first == "backlightTimeout" && curr->second == 30) ||
 				(curr->first == "powerTimeout" && curr->second == 10) ||
 				(curr->first == "outputLogs" && curr->second == 0) ||
