@@ -463,7 +463,7 @@ void Surface::softStretch(uint16_t x, uint16_t y, bool keep_aspect, bool maximiz
 		if (x < y) {
 			y = x * raw->h / raw->w;
 		} else {
-			x = y * raw->h / raw->w;
+			x = y * raw->w / raw->h;
 		}
 	}
 

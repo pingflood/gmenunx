@@ -670,6 +670,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 void GMenu2X::setWallpaper(const string &_wallpaper, bool permanent) {
 	string wallpaper = _wallpaper;
 	bg->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
+	// sc.del(wallpaper);
 	if (wallpaper.empty() || sc[wallpaper] == NULL) {
 		DEBUG("Searching wallpaper");
 		FileLister fl("skins/Default/wallpapers", false, true);
