@@ -155,22 +155,37 @@ const string &LinkApp::searchBackdrop() {
 	string exectitle = base_name(execicon);
 	string dirtitle = base_name(dir_name(exec));
 	string linktitle = base_name(file);
+	string sublinktitle = base_name(file);
+
+	pos = linktitle.find(".");
+	if (pos != string::npos) sublinktitle = linktitle.substr(0, pos);
+
 	pos = linktitle.rfind(".");
 	if (pos != string::npos) linktitle = linktitle.substr(0, pos);
 
 // auto backdrop
-	if (!gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png").empty())
+	if (!gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".png").empty())
+		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".png");
+	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".jpg").empty())
+		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".jpg");
+
+	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png").empty())
 		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png");
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".jpg").empty())
 		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".jpg");
+
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png").empty())
 		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png");
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg").empty())
 		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg");
+
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".png").empty())
 		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".png");
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".jpg").empty())
 		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".jpg");
+
+	else if (fileExists(dir_name(exec) + "/backdrop.png"))
+		backdropPath = dir_name(exec) + "/backdrop.png";
 
 	return backdropPath;
 }
@@ -197,12 +212,16 @@ const string &LinkApp::searchIcon() {
 
 	if (!gmenu2x->sc.getSkinFilePath("icons/" + sublinktitle).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + sublinktitle);
+
 	else if (!gmenu2x->sc.getSkinFilePath("icons/" + linktitle).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + linktitle);
+
 	else if (!gmenu2x->sc.getSkinFilePath("icons/" + exectitle).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + exectitle);
+
 	else if (!gmenu2x->sc.getSkinFilePath("icons/" + dirtitle).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + dirtitle);
+
 	else if (fileExists(dir_name(exec) + "/" + sublinktitle))
 		iconPath = dir_name(exec) + "/" + sublinktitle;
 	else if (fileExists(execicon))
