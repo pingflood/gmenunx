@@ -187,26 +187,15 @@ private:
 	void udcDialog(int udcStatus) {
 		if (udcStatus == UDC_REMOVE) {
 			INFO("USB Disconnected. Unloading modules...");
-			system("/etc/init.d/S99recovery stop");
+			system("/etc/init.d/S99recovery stop; /etc/init.d/S80recovery stop");
 			return;
 		}
 
-
-		// if (!fileExists("/lib/modules/g_ether.ko")) return;
-
-		// if (!fileExists("/sys/devices/platform/musb_hdrc.0/gadget/gadget-lun1/file")) {
-		// 	// MessageBox mb(this, tr["This device does not support USB mount."], "skin:icons/usb.png");
-		// 	// mb.setButton(CONFIRM,  tr["Charger"]);
-		// 	// mb.exec();
-		// 	return;
-		// }
 		int option;
 		if (confStr["usbMode"] == "Storage") option = CONFIRM;
 		else if (confStr["usbMode"] == "Charger") option = CANCEL;
-		// else if (confStr["usbMode"] == "Network") option = MANUAL;
 		else {
 			MessageBox mb(this, tr["USB mode"], "skin:icons/usb.png");
-			// mb.setButton(MANUAL, tr["Network"]);
 			mb.setButton(CANCEL,  tr["Charger"]);
 			mb.setButton(CONFIRM, tr["Storage"]);
 			option = mb.exec();
@@ -215,16 +204,14 @@ private:
 		if (option == CONFIRM) { // storage
 			INFO("Enabling gadget-lun storage device");
 			quit();
-			execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S99recovery storage on", NULL);
-			// chdir(getExePath().c_str());
-			// execlp("./gmenu2x", "./gmenu2x", NULL);
+
+			if (fileExists("/etc/init.d/S99recovery")) execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S99recovery storage on", NULL);
+			else if (fileExists("/etc/init.d/S80recovery")) execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage on", NULL);
 			return;
 		}
-		// else { //if (option == MANUAL) { // network
-			INFO("Enabling usb0 networking device");
-			system("/etc/init.d/S99recovery network on &");
-			iconInet = sc.skinRes("imgs/inet.png");
-		// }
+		INFO("Enabling usb0 networking device");
+		system("/etc/init.d/S99recovery network on &");
+		iconInet = sc.skinRes("imgs/inet.png");
 	}
 
 	void tvOutDialog(int TVOut) {
