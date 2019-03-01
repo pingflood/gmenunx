@@ -249,6 +249,16 @@ private:
 
 
 public:
+int setBacklight(int val, bool popup = false) {
+	val = GMenu2X::setBacklight(val, popup);
+
+	char buf[34] = {0};
+	sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
+	system(buf);
+
+	return val;
+}
+
 	void setTVOut(unsigned int TVOut) {
 		if (!fileExists("/proc/jz/tvselect")) return;
 		system("echo 0 > /proc/jz/tvselect; echo 0 > /proc/jz/tvout"); // always reset tv out

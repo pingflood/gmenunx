@@ -201,8 +201,6 @@ public:
 	void setDateTime();
 
 	bool saveScreenshot();
-	int setVolume(int val, bool popup = false);
-	int setBacklight(int val, bool popup = false);
 	void drawSlider(int val, int min, int max, Surface &icon, Surface &bg);
 
 	void setInputSpeed();
@@ -232,8 +230,11 @@ public:
 	virtual uint16_t getBatteryLevel() { return 6; };
 	virtual void setTVOut(unsigned int _TVOut) { };
 	virtual void setCPU(uint32_t mhz) {};
-	virtual void ledOn() {};
-	virtual void ledOff() {};
+	virtual void ledOn() { };
+	virtual void ledOff() { };
+	virtual int setVolume(int val, bool popup = false);
+	virtual int setBacklight(int val, bool popup = false);
+
 };
 
 #endif

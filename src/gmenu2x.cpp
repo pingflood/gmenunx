@@ -236,8 +236,7 @@ void GMenu2X::main() {
 	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, 16, SDL_SWSURFACE);
 	s->enableVirtualDoubleBuffer(dbl);
 #else
-	s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, 16, SDL_HWSURFACE
-	|
+	s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, 16, SDL_HWSURFACE |
 	#ifdef SDL_TRIPLEBUF
 		SDL_TRIPLEBUF
 	#else
@@ -792,10 +791,11 @@ void GMenu2X::settings() {
 	opFactory.push_back(">>");
 	string tmp = ">>";
 
-	// string prevDateTime = confStr["datetime"] = getDateTime();
 
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
+
+	// string prevDateTime = confStr["datetime"] = getDateTime();
 	// sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
 
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
@@ -808,7 +808,6 @@ void GMenu2X::settings() {
 
 	vector<string> usbMode;
 	usbMode.push_back("Ask");
-	// usbMode.push_back("Network");
 	usbMode.push_back("Storage");
 	usbMode.push_back("Charger");
 	sd.addSetting(new MenuSettingMultiString(this, tr["USB mode"], tr["Define default USB mode"], &confStr["usbMode"], &usbMode));
@@ -1216,7 +1215,6 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 	evalIntConf( &skinConfInt["fontSizeTitle"], 20, 6, 60);
 
 	// if (menu != NULL && clearSC) menu->loadIcons();
-
 	initFont();
 }
 
@@ -1959,12 +1957,6 @@ int GMenu2X::setBacklight(int val, bool popup) {
 		confInt["backlight"] = val;
 		writeConfig();
 	}
-
-#if defined(TARGET_RETROGAME)
-	char buf[34] = {0};
-	sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
-	system(buf);
-#endif
 
 	return val;
 }
