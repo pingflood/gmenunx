@@ -1226,7 +1226,7 @@ void GMenu2X::skinMenu() {
 	bool save = false;
 	int selected = 0;
 	string initSkin = confStr["skin"];
-	string prevSkin = "";
+	string prevSkin = "/";
 	int initSkinBackdrops = confInt["skinBackdrops"];
 
 	FileLister fl_sk("skins", true, false);
@@ -1254,17 +1254,17 @@ void GMenu2X::skinMenu() {
 	bgScale.push_back("Stretch");
 
 	vector<string> wallpapers;
-	string wpSkin = confStr["wallpaper"];
+	string wpPath = confStr["wallpaper"];
+	confStr["tmp_wallpaper"] = "";
 
 	do {
 		if (prevSkin != confStr["skin"]) {
 			prevSkin = confStr["skin"];
 			setSkin(confStr["skin"], false, false);
-
-			if (!skinConfStr["wallpaper"].empty())
-				wpSkin = skinConfStr["wallpaper"];
-
+	
+			confStr["tmp_wallpaper"] = (confStr["tmp_wallpaper"].empty() || skinConfStr["wallpaper"].empty()) ? base_name(confStr["wallpaper"]) : skinConfStr["wallpaper"];
 			wallpapers.clear();
+
 			FileLister fl_wp("skins/" + confStr["skin"] + "/wallpapers");
 			fl_wp.setFilter(".png,.jpg,.jpeg,.bmp");
 			fl_wp.browse();
@@ -1281,18 +1281,18 @@ void GMenu2X::skinMenu() {
 			sc.del("skin:imgs/buttons/a.png");
 		}
 
-		string wpPath = "skins/" + confStr["skin"] + "/wallpapers/" + wpSkin;
-		if (!fileExists(wpPath)) wpPath = "skins/Default/wallpapers/" + wpSkin;
+		wpPath = "skins/" + confStr["skin"] + "/wallpapers/" + confStr["tmp_wallpaper"];
+		if (!fileExists(wpPath)) wpPath = "skins/Default/wallpapers/" + confStr["tmp_wallpaper"];
 		if (!fileExists(wpPath)) wpPath = "skins/" + confStr["skin"] + "/wallpapers/" + wallpapers.at(0);
 		if (!fileExists(wpPath)) wpPath = "skins/Default/wallpapers/" + wallpapers.at(0);
 
-		setWallpaper(wpPath);
+		setWallpaper(wpPath, false);
 
 		SettingsDialog sd(this, ts, tr["Skin"], "skin:icons/skin.png");
 		sd.selected = selected;
 		sd.allowCancel = false;
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenu2X"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
-		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &wpSkin, &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &confStr["tmp_wallpaper"], &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Background scale"], tr["How to scale wallpaper and backdrops"], &confStr["bgscale"], &bgScale));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin colors"], tr["Customize skin colors"], &tmp, &wpLabel, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::skinColors)));
 		sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &confInt["skinBackdrops"]));
@@ -1319,6 +1319,8 @@ void GMenu2X::skinMenu() {
 	else if (sectionBar == "Left") confInt["sectionBar"] = SB_LEFT;
 	else confInt["sectionBar"] = SB_CLASSIC;
 
+	confStr["tmp_wallpaper"] = "";
+	setWallpaper(wpPath);
 	writeSkinConfig();
 	writeConfig();
 
@@ -1396,8 +1398,8 @@ void GMenu2X::changeWallpaper() {
 	WallpaperDialog wp(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], "skin:icons/wallpaper.png");
 	if (wp.exec() && confStr["wallpaper"] != wp.wallpaper) {
 		confStr["wallpaper"] = wp.wallpaper;
+		confStr["tmp_wallpaper"] = base_name(confStr["wallpaper"]);
 		setWallpaper(wp.wallpaper);
-		writeConfig();
 	}
 }
 
@@ -1439,7 +1441,7 @@ void GMenu2X::explorer() {
 		} else if (ext == ".ipk") {
 			TerminalDialog td(this, tr["Package installer"], "opkg install " + bd.getFileName(bd.selected), "skin:icons/configure.png");
 			// string cmd = "opkg install --force-reinstall " + bd.getFilePath(bd.selected);
-			td.exec("opkg install --force-reinstall --force-downgrade " + bd.getFilePath(bd.selected));
+			td.exec("opkg install --force-reinstall " + bd.getFilePath(bd.selected));
 			initMenu();
 		} else if (ext == ".sh") {
 			TerminalDialog td(this, tr["Terminal"], "sh" + bd.getFilePath(bd.selected), "skin:icons/terminal.png");
