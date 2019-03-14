@@ -75,7 +75,7 @@
 #include "imageviewerdialog.h"
 // #include "batteryloggerdialog.h"
 // #include "linkscannerdialog.h"
-// #include "menusettingdatetime.h"
+#include "menusettingdatetime.h"
 #include "debug.h"
 
 #define sync() sync(); system("sync &");
@@ -158,7 +158,7 @@ static void quit_all(int err) {
 }
 
 GMenu2X::~GMenu2X() {
-	// confStr["datetime"] = getDateTime();
+	confStr["datetime"] = getDateTime();
 
 	writeConfig();
 
@@ -216,7 +216,7 @@ void GMenu2X::main() {
 	getExePath();
 
 	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
-	// setDateTime();
+	setDateTime();
 
 	//Screen
 	if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0 ) {
@@ -795,8 +795,8 @@ void GMenu2X::settings() {
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
 
-	// string prevDateTime = confStr["datetime"] = getDateTime();
-	// sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
+	string prevDateTime = confStr["datetime"] = getDateTime();
+	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
 
 	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
 	sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the link's output to read with Log Viewer"], &confInt["outputLogs"]));
@@ -843,7 +843,7 @@ void GMenu2X::settings() {
 		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
 #endif
 
-		// if (prevDateTime != confStr["datetime"]) restartDialog();
+		if (prevDateTime != confStr["datetime"]) restartDialog();
 	}
 }
 
@@ -965,7 +965,7 @@ void GMenu2X::readConfig() {
 	string conffile = path + "gmenu2x.conf";
 
 	// Defaults *** Sync with default values in writeConfig
-	// confStr["datetime"] = __BUILDTIME__;
+	confStr["datetime"] = __BUILDTIME__;
 	if (fwType != "RETROARCADE") confStr["batteryType"] = "BL-5B";
 	else confStr["batteryType"] = "Linear";
 	confInt["saveSelection"] = 1;
