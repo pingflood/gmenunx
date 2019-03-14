@@ -1008,7 +1008,7 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["backlight"], 70, 1, 100);
 	evalIntConf( &confInt["minBattery"], 3550, 1, 10000);
 	evalIntConf( &confInt["maxBattery"], 3720, 1, 10000);
-	evalIntConf( &confInt["sectionBar"], SB_CLASSIC, 1, 5);
+	evalIntConf( &confInt["sectionBar"], SB_CLASSIC, 0, 5);
 	evalIntConf( &confInt["linkCols"], 4, 1, 8);
 	evalIntConf( &confInt["linkRows"], 4, 1, 8);
 
