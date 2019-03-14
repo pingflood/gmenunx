@@ -973,6 +973,7 @@ void GMenu2X::readConfig() {
 	confInt["linkLabel"] = 1;
 	confInt["skinBackdrops"] = 0;
 	confStr["defaultDir"] = CARD_ROOT;
+	confInt["sectionBar"] = SB_CLASSIC;
 
 	input.update(false);
 
