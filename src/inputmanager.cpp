@@ -200,7 +200,7 @@ bool InputManager::update(bool wait) {
 			events.push_back(event);
 		} else {
 			if (event.type == SDL_KEYUP) {
-				anyactions = true;
+				// anyactions = false;
 				while (SDL_PollEvent(&event)) WARNING("Skipping event.type: %d", event.type); // clear event queue
 			}
 			#if !defined(TARGET_PC)

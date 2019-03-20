@@ -59,8 +59,8 @@ const std::string Selector::getPreview(uint32_t i) {
 		return noext + ".png";
 	else if (fileExists(noext + ".jpg"))
 		return noext + ".jpg";
-	else
-		return "";
+
+	return "";
 }
 
 void Selector::loadAliases() {

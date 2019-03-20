@@ -23,7 +23,8 @@ bool BrowseDialog::exec() {
 
 	close = false;
 
-	uint32_t i, iY, firstElement = 0, animation = 0, padding = 6;
+	uint32_t i, iY, firstElement = 0, padding = 6;
+	int32_t animation = 0;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
 	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
 
@@ -42,8 +43,6 @@ bool BrowseDialog::exec() {
 	string path = getPath();
 	if (path.empty() || !dirExists(path))
 		directoryEnter(gmenu2x->confStr["defaultDir"]);
-
-	uint32_t tickStart = SDL_GetTicks();
 
 	while (!close) {
 		bool inputAction = false;
@@ -80,22 +79,30 @@ bool BrowseDialog::exec() {
 
 			// preview
 			string preview = getPreview(selected);
-			if (preview != "") {
-				gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-				if (!gmenu2x->sc.exists(preview)) gmenu2x->sc[preview]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
-				gmenu2x->sc[preview]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->resY);
+			Surface anim = new Surface(gmenu2x->s);
 
-				if (animation < gmenu2x->skinConfInt["previewWidth"]) {
-					animation = intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 110);
-					gmenu2x->s->flip();
-					continue;
-				}
-			} else {
-				if (animation > 0) {
+			if (!preview.empty()) {
+				if (!gmenu2x->sc.exists(preview)) gmenu2x->sc[preview]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
+				do {
+					animation += gmenu2x->skinConfInt["previewWidth"] / 8;
+
+					if (animation > gmenu2x->skinConfInt["previewWidth"])
+						animation = gmenu2x->skinConfInt["previewWidth"];
+
+					anim.blit(gmenu2x->s,0,0);
 					gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-					animation = gmenu2x->skinConfInt["previewWidth"] - intTransition(0, gmenu2x->skinConfInt["previewWidth"], tickStart, 80);
+					gmenu2x->sc[preview]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->resY);
 					gmenu2x->s->flip();
-					continue;
+					SDL_Delay(10);
+				} while (animation < gmenu2x->skinConfInt["previewWidth"]);
+			} else {
+				while (animation > 0) {
+					anim.blit(gmenu2x->s,0,0);
+					gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+					gmenu2x->s->flip();
+					animation -= gmenu2x->skinConfInt["previewWidth"] / 8;
+					if (animation < 0) animation = 0;
+					SDL_Delay(10);
 				}
 			}
 
@@ -106,7 +113,6 @@ bool BrowseDialog::exec() {
 		do {
 			inputAction = gmenu2x->input.update();
 			if (gmenu2x->inputCommonActions(inputAction)) continue;
-			if (inputAction) tickStart = SDL_GetTicks();
 
 			if (gmenu2x->input[UP]) {
 				selected -= 1;
