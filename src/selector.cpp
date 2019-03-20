@@ -43,23 +43,19 @@ const std::string Selector::getPreview(uint32_t i) {
 	string noext, realdir;
 	int pos = fname.rfind(".");
 	if (pos != string::npos && pos > 0) noext = fname.substr(0, pos);
-
 	if (noext.empty() || noext == ".") return "";
+	if (screendir.empty()) screendir = "./.images";
+	if (screendir[0] == '.') realdir = real_path(getPath() + "/" + screendir) + "/"; // allow "." as "current directory", therefore, relative paths
+	else realdir = real_path(screendir) + "/";
 
-	if (screendir != "") {
-		realdir = real_path(screendir) + "/";
-		string ff = realdir + noext + ".png";
-		if (screendir[0] == '.') realdir = real_path(getPath() + "/" + screendir) + "/"; // allow "." as "current directory", therefore, relative paths
-		else realdir = real_path(screendir) + "/";
-		// INFO("Searching for screen '%s%s.png'", realdir.c_str(), noext.c_str());
-		if (fileExists(realdir + noext + ".png")) {
+	// INFO("Searching for screen '%s%s.png'", realdir.c_str(), noext.c_str());
+	if (dirExists(realdir)) {
+		if (fileExists(realdir + noext + ".png"))
 			return realdir + noext + ".png";
-		} else if (fileExists(realdir + noext + ".jpg")){
+		else if (fileExists(realdir + noext + ".jpg"))
 			return realdir + noext + ".jpg";
-		}
 	}
-	// fallback - always search for filename.png
-	if (fileExists(noext + ".png"))
+	else if (fileExists(noext + ".png")) // fallback - always search for ./filename.png
 		return noext + ".png";
 	else if (fileExists(noext + ".jpg"))
 		return noext + ".jpg";
