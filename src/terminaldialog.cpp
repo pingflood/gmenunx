@@ -95,7 +95,7 @@ void TerminalDialog::exec(const string &_cmd) {
 				} else {
 					pclose(pipe);
 					pipe = NULL;
-					rawText += "\r\n$";
+					rawText += "\r\n$ Done";
 					system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi");
 					system("sync &");
 				}
