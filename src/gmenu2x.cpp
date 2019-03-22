@@ -1005,7 +1005,7 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["cpuMax"], 642, 200, 1200 );
 	evalIntConf( &confInt["cpuMin"], 342, 200, 1200 );
 	evalIntConf( &confInt["cpuMenu"], 528, 200, 1200 );
-	evalIntConf( &confInt["globalVolume"], 60, 1, 100 );
+	evalIntConf( &confInt["globalVolume"], 60, 0, 100 );
 	evalIntConf( &confInt["backlight"], 70, 1, 100);
 	evalIntConf( &confInt["minBattery"], 3550, 1, 10000);
 	evalIntConf( &confInt["maxBattery"], 3720, 1, 10000);
