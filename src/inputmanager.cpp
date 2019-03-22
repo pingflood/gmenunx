@@ -199,10 +199,13 @@ bool InputManager::update(bool wait) {
 			keystate[event.key.keysym.sym] = true;
 			events.push_back(event);
 		} else {
-			if (event.type == SDL_KEYUP) {
+			// if (event.type == SDL_KEYUP) {
 				// anyactions = false;
-				while (SDL_PollEvent(&event)) WARNING("Skipping event.type: %d", event.type); // clear event queue
-			}
+				while (SDL_PollEvent(&event)){
+					WARNING("Skipping event.type: %d", event.type); // clear event queue
+					SDL_PumpEvents();
+				}
+			// }
 			#if !defined(TARGET_PC)
 				keystate[event.key.keysym.sym] = false;
 			#endif
