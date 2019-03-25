@@ -30,6 +30,9 @@
 #include "browsedialog.h"
 #include "debug.h"
 
+#include "messagebox.h"
+
+
 using namespace std;
 
 LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfile):
@@ -320,6 +323,10 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 }
 
 void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
+	MessageBox mb(gmenu2x, gmenu2x->tr["Launching "] + this->getTitle().c_str(), this->getIconPath());
+	mb.setAutoHide(500);
+	mb.exec();
+
 	save();
 
 	// Set correct working directory

@@ -537,13 +537,6 @@ void GMenu2X::main() {
 
 		if ( input[CONFIRM] && menu->selLink() != NULL ) {
 			setVolume(confInt["globalVolume"]);
-
-			if (menu->selLinkApp() != NULL && menu->selLinkApp()->getSelectorDir().empty()) {
-				MessageBox mb(this, tr["Launching "] + menu->selLink()->getTitle().c_str(), menu->selLink()->getIconPath());
-				mb.setAutoHide(100);
-				mb.exec();
-			}
-
 			menu->selLink()->run();
 		}
 		else if ( input[SETTINGS] ) settings();
