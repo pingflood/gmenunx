@@ -40,7 +40,13 @@ int TerminalDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t fi
 	for (uint32_t i = firstRow; i < firstRow + rowsPerPage && i < text->size(); i++) {
 		int y = gmenu2x->listRect.y + (i - firstRow) * gmenu2x->font->getHeight();
 		mx = max(mx, gmenu2x->font->getTextWidth(text->at(i)));
-		gmenu2x->font->write(gmenu2x->s, text->at(i), 5 + firstCol, y);
+
+		if (text->at(i)=="----") { //draw a line
+			gmenu2x->s->box(5, y, gmenu2x->resX - 10, 1, 255, 255, 255, 130);
+			gmenu2x->s->box(5, y + 1, gmenu2x->resX - 10, 1, 0, 0, 0, 130);
+		} else {
+			gmenu2x->font->write(gmenu2x->s, text->at(i), 5 + firstCol, y);
+		}
 	}
 
 	gmenu2x->s->clearClipRect();
@@ -95,7 +101,7 @@ void TerminalDialog::exec(const string &_cmd) {
 				} else {
 					pclose(pipe);
 					pipe = NULL;
-					rawText += "\r\n$ Done";
+					rawText += "\r\n----\r\nDone.";
 					system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi");
 					system("sync &");
 				}
