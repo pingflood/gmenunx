@@ -77,41 +77,22 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 		else if (name == "manual") setManual(value);
 		else if (name == "clock") setCPU(atoi(value.c_str()));
 
+#if defined(TARGET_GP2X)
 		// else if (name == "wrapper" && value == "true") // wrapper = true;
 		// else if (name == "dontleave" && value == "true") // dontleave = true;
 		// else if (name == "volume") // setVolume(atoi(value.c_str()));
 		// else if (name == "useramtimings" && value == "true") // useRamTimings = true;
 		// else if (name == "useginge" && value == "true") // useGinge = true;
-
-#if defined(TARGET_GP2X)
-		//G
-		} else if (name == "gamma") {
-			setGamma( atoi(value.c_str()) );
+		else if (name == "gamma") setGamma(atoi(value.c_str()));
 #endif
-		// } else if (name == "volume") {
-			// setVolume( atoi(value.c_str()) );
-		} else if (name == "selectordir") {
-			setSelectorDir( value );
-		// } else if (name == "selectorbrowser" && value == "true") {
-		// 	selectorbrowser = true;
-		} else if (name == "selectorbrowser" && value == "false") {
-			selectorbrowser = false;
-		// } else if (name == "useramtimings" && value == "true") {
-			// useRamTimings = true;
-		// } else if (name == "useginge" && value == "true") {
-			// useGinge = true;
-		} else if (name == "selectorfilter") {
-			setSelectorFilter( value );
-		} else if (name == "selectorscreens") {
-			setSelectorScreens( value );
-		} else if (name == "selectoraliases") {
-			setAliasFile( value );
-		} else if (name == "backdrop") {
-			setBackdrop(value);
-			// WARNING("BACKDROP: '%s'", backdrop.c_str());
-		} else {
-			WARNING("Unrecognized option: '%s'", name.c_str());
-		}
+		else if (name == "selectordir") setSelectorDir(value);
+		else if (name == "selectorbrowser" && value == "false") selectorbrowser = false;
+		else if (name == "selectorfilter") setSelectorFilter( value );
+		else if (name == "selectorscreens") setSelectorScreens( value );
+		else if (name == "selectoraliases") setAliasFile( value );
+		else if (name == "selectorelement") setSelectorElement( atoi(value.c_str()) );
+		else if (name == "backdrop") setBackdrop(value);
+		else WARNING("Unrecognized option: '%s'", name.c_str());
 	}
 	infile.close();
 
@@ -323,11 +304,13 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 	bd.setFilter(this->getSelectorFilter());
 
 	if (startSelection > 0) bd.selected = startSelection;
+	else bd.selected = this->getSelectorElement();
 
 	if (bd.exec()) {
 		gmenu2x->writeTmp(bd.selected, bd.getPath());
 
 		setSelectorDir(bd.getPath());
+		setSelectorElement(bd.selected);
 		save();
 
 		launch(bd.getFile(bd.selected), bd.getPath());
@@ -474,9 +457,9 @@ const string &LinkApp::getSelectorDir() {
 }
 
 void LinkApp::setSelectorDir(const string &selectordir) {
+	edited = this->selectordir != selectordir;
 	this->selectordir = selectordir;
 	if (this->selectordir != "") this->selectordir = real_path(this->selectordir);
-	edited = true;
 }
 
 bool LinkApp::getSelectorBrowser() {
@@ -504,6 +487,15 @@ const string &LinkApp::getSelectorScreens() {
 void LinkApp::setSelectorScreens(const string &selectorscreens) {
 	this->selectorscreens = selectorscreens;
 	edited = true;
+}
+
+int LinkApp::getSelectorElement() {
+	return selectorelement;
+}
+
+void LinkApp::setSelectorElement(int i) {
+	edited = selectorelement != i;
+	selectorelement = i;
 }
 
 const string &LinkApp::getAliasFile() {
