@@ -974,6 +974,7 @@ void GMenu2X::readConfig() {
 	confInt["skinBackdrops"] = 0;
 	confStr["defaultDir"] = CARD_ROOT;
 	confInt["sectionBar"] = SB_CLASSIC;
+	confInt["globalVolume"] = 60;
 
 	input.update(false);
 
