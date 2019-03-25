@@ -468,7 +468,7 @@ void GMenu2X::main() {
 						}
 
 						// // CPU indicator
-						{ stringstream ss; ss << menu->selLinkApp()->clock() << "MHz"; ss.get(&buf[0], sizeof(buf)); }
+						{ stringstream ss; ss << menu->selLinkApp()->getCPU() << "MHz"; ss.get(&buf[0], sizeof(buf)); }
 						x += iconPadding + pctWidth;
 						iconCPU->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
 						x += iconWidth + iconPadding;
@@ -497,7 +497,7 @@ void GMenu2X::main() {
 							iconTrayShift++;
 						}
 
-						if (menu->selLinkApp()->clock() != confInt["cpuMenu"] && iconTrayShift < 2) {
+						if (menu->selLinkApp()->getCPU() != confInt["cpuMenu"] && iconTrayShift < 2) {
 							// CPU indicator
 							iconCPU->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
 							iconTrayShift++;
@@ -1678,7 +1678,7 @@ void GMenu2X::editLink() {
 	bool linkSelBrowser = menu->selLinkApp()->getSelectorBrowser();
 	string linkSelScreens = menu->selLinkApp()->getSelectorScreens();
 	string linkSelAliases = menu->selLinkApp()->getAliasFile();
-	int linkClock = menu->selLinkApp()->clock();
+	int linkClock = menu->selLinkApp()->getCPU();
 	string linkBackdrop = menu->selLinkApp()->getBackdrop();
 	string dialogTitle = tr.translate("Edit $1", linkTitle.c_str(), NULL);
 	string dialogIcon = menu->selLinkApp()->getIconPath();

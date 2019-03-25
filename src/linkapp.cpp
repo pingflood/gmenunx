@@ -213,7 +213,7 @@ const string &LinkApp::searchIcon() {
 	return iconPath;
 }
 
-int LinkApp::clock() {
+int LinkApp::getCPU() {
 	return iclock;
 }
 
@@ -384,7 +384,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 
 	if (selectedFile == "") gmenu2x->writeTmp();
 
-	if (clock() != gmenu2x->confInt["cpuMenu"]) gmenu2x->setCPU(clock());
+	if (getCPU() != gmenu2x->confInt["cpuMenu"]) gmenu2x->setCPU(getCPU());
 
 #if defined(TARGET_GP2X)
 	if (fwType == "open2x") gmenu2x->writeConfigOpen2x();

@@ -73,7 +73,7 @@ public:
 	void setSelectorElement(int i);
 	const string &getAliasFile();
 	void setAliasFile(const string &aliasfile);
-	int clock();
+	int getCPU();
 	void setCPU(int mhz = 0);
 
 	// int volume();
