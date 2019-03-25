@@ -309,9 +309,11 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 	if (bd.exec()) {
 		gmenu2x->writeTmp(bd.selected, bd.getPath());
 
-		setSelectorDir(bd.getPath());
-		setSelectorElement(bd.selected);
-		save();
+		if (gmenu2x->confInt["saveSelection"]) {
+			setSelectorDir(bd.getPath());
+			setSelectorElement(bd.selected);
+			save();
+		}
 
 		launch(bd.getFile(bd.selected), bd.getPath());
 	}

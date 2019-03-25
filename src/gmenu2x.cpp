@@ -800,7 +800,7 @@ void GMenu2X::settings() {
 	string prevDateTime = confStr["datetime"] = getDateTime();
 	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
 
-	sd.addSetting(new MenuSettingBool(this, tr["Save last selection"], tr["Save the last selected link and section on exit"], &confInt["saveSelection"]));
+	sd.addSetting(new MenuSettingBool(this, tr["Remember selection"], tr["Remember the last selected section, link and file"], &confInt["saveSelection"]));
 	sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the link's output to read with Log Viewer"], &confInt["outputLogs"]));
 	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Seconds to turn display off if inactive"], &confInt["backlightTimeout"], 30, 10, 300));
 	sd.addSetting(new MenuSettingInt(this,tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
@@ -1674,6 +1674,7 @@ void GMenu2X::editLink() {
 	string linkParams = menu->selLinkApp()->getParams();
 	string linkSelFilter = menu->selLinkApp()->getSelectorFilter();
 	string linkSelDir = menu->selLinkApp()->getSelectorDir();
+	bool useSelector = !linkSelDir.empty();
 	bool linkSelBrowser = menu->selLinkApp()->getSelectorBrowser();
 	string linkSelScreens = menu->selLinkApp()->getSelectorScreens();
 	string linkSelAliases = menu->selLinkApp()->getAliasFile();
@@ -1691,11 +1692,13 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingImage(			this, tr["Icon"],			tr["Select a custom icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", linkExec, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
-	// sd.addSetting(new MenuSettingDir(			this, tr["Selector Path"],	tr["Directory to start the selector"], &linkSelDir, linkDir, dialogTitle, dialogIcon));
-	// sd.addSetting(new MenuSettingDir(			this, tr["Selector Path"],	tr["Directory to start the selector"], &linkSelDir, linkDir, dialogTitle, dialogIcon));
 
-	bool useSelector = !linkSelDir.empty();
-	sd.addSetting(new MenuSettingBool(			this, tr["File Selector"],	tr["Use file browser selector"], &useSelector));
+	if (confInt["saveSelection"]) {
+		sd.addSetting(new MenuSettingBool(		this, tr["File Selector"],	tr["Use file browser selector"], &useSelector));
+	} else {
+		sd.addSetting(new MenuSettingDir(		this, tr["Selector Path"],	tr["Directory to start the selector"], &linkSelDir, linkDir, dialogTitle, dialogIcon));
+	}
+
 	sd.addSetting(new MenuSettingBool(			this, tr["Show Folders"],	tr["Allow the selector to change directory"], &linkSelBrowser));
 	sd.addSetting(new MenuSettingString(		this, tr["File Filter"],	tr["Filter by file extension (separate with commas)"], &linkSelFilter, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingDir(			this, tr["Box Art"],		tr["Directory of the box art for the selector"], &linkSelScreens, linkDir, dialogTitle, dialogIcon));
@@ -1726,7 +1729,7 @@ void GMenu2X::editLink() {
 
 		if (useSelector) {
 			if (linkSelDir.empty()) linkSelDir = confStr["defaultDir"];
-		} else {
+		} else if (confInt["saveSelection"]) {
 			linkSelDir = "";
 		}
 
