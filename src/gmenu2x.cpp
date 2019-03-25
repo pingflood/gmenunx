@@ -169,6 +169,8 @@ GMenu2X::~GMenu2X() {
 }
 
 void GMenu2X::quit() {
+	s->flip(); s->flip(); s->flip(); // flush buffers
+
 	delete menu;
 	delete s;
 	delete font;
