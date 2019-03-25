@@ -279,6 +279,7 @@ bool LinkApp::save() {
 		if (!selectorbrowser)		f << "selectorbrowser=false"				<< endl; // selectorbrowser = true by default
 		if (selectorfilter != "")	f << "selectorfilter="	<< selectorfilter	<< endl;
 		if (selectorscreens != "")	f << "selectorscreens="	<< selectorscreens	<< endl;
+		if (selectorelement > 0)	f << "selectorelement="	<< selectorelement	<< endl;
 		if (aliasfile != "")		f << "selectoraliases="	<< aliasfile		<< endl;
 		if (backdrop != "")			f << "backdrop="		<< backdrop			<< endl;
 		f.close();
