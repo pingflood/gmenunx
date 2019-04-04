@@ -33,6 +33,7 @@ bool BrowseDialog::exec() {
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	int buttonPos = gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Cancel"], 5);
+	if (selected >= size()) selected = 0;
 
 	if (!showFiles && allowSelectDirectory) {
 		buttonPos = gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Select"], buttonPos);
