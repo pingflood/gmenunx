@@ -218,7 +218,6 @@ void GMenu2X::main() {
 	getExePath();
 
 	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
-	setDateTime();
 
 	//Screen
 	if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0 ) {
@@ -229,6 +228,9 @@ void GMenu2X::main() {
 
 	input.init(path + "input.conf");
 	setInputSpeed();
+
+	readConfig();
+	setDateTime();
 
 	s = new Surface();
 
@@ -250,7 +252,7 @@ void GMenu2X::main() {
 
 	bg = new Surface(s);
 
-	readConfig();
+
 	setWallpaper(confStr["wallpaper"]);
 	setSkin(confStr["skin"], false, true);
 
