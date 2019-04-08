@@ -130,24 +130,31 @@ bool BrowseDialog::exec() {
 			} else if ( gmenu2x->input[CANCEL] ) {
 				result = false;
 				close = true;
-			} else if ( gmenu2x->input[MODIFIER] && allowDirUp) { /*Directory Up */
-				directoryEnter(getPath() + "/..");
 			} else if ( gmenu2x->input[MENU]) {
 					if (getPath() == "/media" && isDirectory(selected)) {
 						string umount = "sync; umount -fl " + getFilePath(selected) + "; rm -r " + getFilePath(selected);
 						system(umount.c_str());
 					}
 					directoryEnter(getPath()); // refresh
-			} else if ( gmenu2x->input[SETTINGS] && allowSelectDirectory ) {
-				result = true;
-				close = true;
-			} else if ( gmenu2x->input[CONFIRM] ) {
+			} else if ( allowDirUp && (gmenu2x->input[MODIFIER] || (gmenu2x->input[CONFIRM] && getFile(selected) == "..")) ) { /*Directory Up */
+				selected = 0;
+				if (browse_history.size() > 0) {
+					selected = browse_history.back();
+					browse_history.pop_back();
+				}
+				directoryEnter(getPath() + "/..");
+			} else if (gmenu2x->input[CONFIRM]) {
 				if (allowEnterDirectory && isDirectory(selected)) {
-					directoryEnter(getFilePath(selected));
+					browse_history.push_back(selected);
+					selected = 0;
+					directoryEnter(getFilePath(browse_history.back()));
 				} else {
 					result = true;
 					close = true;
 				}
+			} else if (gmenu2x->input[SETTINGS] && allowSelectDirectory) {
+				result = true;
+				close = true;
 			}
 		} while (!inputAction);
 	}
@@ -155,8 +162,6 @@ bool BrowseDialog::exec() {
 }
 
 void BrowseDialog::directoryEnter(const string &path) {
-	selected = 0;
-
 	MessageBox mb(gmenu2x, gmenu2x->tr["Loading"]);
 	mb.setAutoHide(-1);
 	mb.setBgAlpha(0);
