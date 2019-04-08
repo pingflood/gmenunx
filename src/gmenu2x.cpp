@@ -275,12 +275,15 @@ void GMenu2X::main() {
 
 	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
+	section_changed = SDL_GetTicks();
+	SDL_TimerID sectionChangedTimer = SDL_AddTimer(1500, input.wakeUp, (void*)false);
+
 	//recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
 		menu->selLinkApp()->selector(lastSelectorElement, lastSelectorDir);
 
 	bool quit = false;
-	int i = 0, x = 0, y = 0, ix = 0, iy = 0;
+	int i = 0, x = 0, y = 0, ix = 0, iy = 0, sx = 0, sy = 0;
 	string prevBackdrop = "", currBackdrop = "";
 
 	int8_t brightnessIcon = 5;
@@ -339,11 +342,12 @@ void GMenu2X::main() {
 			s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
 
 			x = sectionBarRect.x; y = sectionBarRect.y; ix = 0;
-			int selx = (menu->selSectionIndex() - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
+			sx = (menu->selSectionIndex() - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
 
 			if (confInt["sectionBar"] == SB_CLASSIC) {
 				ix = (resX - skinConfInt["sectionBarSize"] * min(menu->sectionNumItems(), menu->getSections().size())) / 2;
-				s->box(selx + ix, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
+				sx += ix; sy = y;
+				s->box(sx, sy, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
 			}
 			
 			for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
@@ -353,13 +357,15 @@ void GMenu2X::main() {
 					x = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"] + ix;
 				}
 
-				if (confInt["sectionBar"] != SB_CLASSIC && menu->selSectionIndex() == (int)i)
-					s->box(x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
+				if (confInt["sectionBar"] != SB_CLASSIC && menu->selSectionIndex() == (int)i) {
+					sx = x; sy = y;
+					s->box(sx, sy, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
+				}
 
 				sc[menu->getSectionIcon(i)]->blit(s, {x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"]}, HAlignCenter | VAlignMiddle);
 			}
 
-			if (confInt["sectionLabel"]) s->write(font, menu->selSectionName(), selx + ix + skinConfInt["sectionBarSize"]/2, y + skinConfInt["sectionBarSize"] - 1, HAlignCenter | VAlignBottom);
+			if (confInt["sectionLabel"] || SDL_GetTicks() - section_changed < 1400) s->write(font, menu->selSectionName(), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
 
 			if (confInt["sectionBar"] == SB_CLASSIC) {
 				iconL->blit(s, 0, 0, HAlignLeft | VAlignTop);
@@ -536,6 +542,12 @@ void GMenu2X::main() {
 		}
 
 		if (inputCommonActions(inputAction)) continue;
+
+		if (!confInt["sectionLabel"] && (input[SECTION_PREV] || input[SECTION_NEXT]) ) {
+			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
+			section_changed = SDL_GetTicks();
+			sectionChangedTimer = SDL_AddTimer(1500, input.wakeUp, (void*)false);
+		}
 
 		if ( input[CONFIRM] && menu->selLink() != NULL ) {
 			setVolume(confInt["globalVolume"]);
