@@ -392,14 +392,14 @@ void GMenu2X::main() {
 					ix = linksRect.x + x * linkWidth  + (x + 1) * linkSpacing;
 					iy = linksRect.y + y * linkHeight + (y + 1) * linkSpacing;
 
-					s->setClipRect({ix, iy, linkWidth, linkHeight});
-
+					// s->setClipRect({ix, iy, linkWidth, linkHeight});
 					if (i == (uint32_t)menu->selLinkIndex())
 						s->box(ix, iy, linkWidth, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 
 					sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix + 2, iy + 2, linkWidth - 4, linkHeight - 4}, HAlignCenter | VAlignMiddle);
+					// s->clearClipRect();
 
-					if (confInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkWidth/2, iy + linkHeight - 1, HAlignCenter | VAlignBottom);
+					if (confInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + linkHeight - 1, HAlignCenter | VAlignBottom);
 				}
 			}
 		}
