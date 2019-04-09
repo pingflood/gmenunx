@@ -276,7 +276,7 @@ void GMenu2X::main() {
 	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
 	section_changed = SDL_GetTicks();
-	SDL_TimerID sectionChangedTimer = SDL_AddTimer(1500, input.wakeUp, (void*)false);
+	SDL_TimerID sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
 
 	//recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
@@ -366,6 +366,7 @@ void GMenu2X::main() {
 			}
 
 			if (confInt["sectionLabel"] || SDL_GetTicks() - section_changed < 1400) s->write(font, menu->selSectionName(), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
+			else SDL_RemoveTimer(sectionChangedTimer);
 
 			if (confInt["sectionBar"] == SB_CLASSIC) {
 				iconL->blit(s, 0, 0, HAlignLeft | VAlignTop);
@@ -544,9 +545,9 @@ void GMenu2X::main() {
 		if (inputCommonActions(inputAction)) continue;
 
 		if (!confInt["sectionLabel"] && (input[SECTION_PREV] || input[SECTION_NEXT]) ) {
-			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
+			// SDL_RemoveTimer(sectionChangedTimer);
 			section_changed = SDL_GetTicks();
-			sectionChangedTimer = SDL_AddTimer(1500, input.wakeUp, (void*)false);
+			sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
 		}
 
 		if ( input[CONFIRM] && menu->selLink() != NULL ) {

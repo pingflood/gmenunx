@@ -329,7 +329,7 @@ void InputManager::setWakeUpInterval(int ms) {
 
 uint32_t InputManager::wakeUp(uint32_t interval, void *repeat) {
 	SDL_Event *event = new SDL_Event();
-	event->type = SDL_WAKEUPEVENT;
+	event->type = SDL_KEYUP;//SDL_WAKEUPEVENT;
 	SDL_PushEvent( event );
 	if ((bool*) repeat) return interval;
 	return 0;
