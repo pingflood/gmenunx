@@ -406,7 +406,7 @@ void GMenu2X::main() {
 					icon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 					// s->clearClipRect();
 
-					if (confInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + linkHeight - 1, HAlignCenter | VAlignBottom);
+					if (confInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + (linkHeight + icon->height())/2 - 6 , HAlignCenter);
 				}
 			}
 		}
