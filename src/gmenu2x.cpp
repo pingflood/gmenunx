@@ -285,6 +285,7 @@ void GMenu2X::main() {
 
 	bool quit = false;
 	int i = 0, x = 0, y = 0, ix = 0, iy = 0, sx = 0, sy = 0;
+	const int iconPadding = 4;
 
 	int8_t brightnessIcon = 5;
 	Surface *iconBrightness[6] = {
@@ -395,11 +396,14 @@ void GMenu2X::main() {
 					ix = linksRect.x + x * linkWidth  + (x + 1) * linkSpacing;
 					iy = linksRect.y + y * linkHeight + (y + 1) * linkSpacing;
 
+					Surface *icon = sc[menu->sectionLinks()->at(i)->getIconPath()];
+
 					// s->setClipRect({ix, iy, linkWidth, linkHeight});
 					if (i == (uint32_t)menu->selLinkIndex())
-						s->box(ix, iy, linkWidth, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
+						s->box(ix + (linkWidth - icon->width()) / 2 - 4, iy + (linkHeight - icon->height()) / 2 - 4, icon->width() + 8, icon->height() + 8, skinConfColors[COLOR_SELECTION_BG]);
+						// s->box(ix, iy, linkWidth, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 
-					sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix + 2, iy + 2, linkWidth - 4, linkHeight - 4}, HAlignCenter | VAlignMiddle);
+					icon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 					// s->clearClipRect();
 
 					if (confInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + linkHeight - 1, HAlignCenter | VAlignBottom);
@@ -423,7 +427,7 @@ void GMenu2X::main() {
 			if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
 
 			if (confInt["sectionBar"] == SB_CLASSIC) {
-				const int iconWidth = 16, iconPadding = 4, pctWidth = font->getTextWidth("100");
+				const int iconWidth = 16, pctWidth = font->getTextWidth("100");
 				char buf[32]; int x = 0;
 
 				s->box(bottomBarRect, skinConfColors[COLOR_BOTTOM_BAR_BG]);
