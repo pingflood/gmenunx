@@ -252,16 +252,16 @@ void GMenu2X::main() {
 
 	bg = new Surface(s);
 
-
-	setWallpaper(confStr["wallpaper"]);
 	setSkin(confStr["skin"], false, true);
-
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
 
 	MessageBox mb(this,tr["Loading"]);
 	mb.setAutoHide(1);
 	mb.exec();
 
+	initMenu();
+
+	currBackdrop = confStr["wallpaper"];
 	setBacklight(confInt["backlight"]);
 
 	tvOutStatus = getTVOutStatus();
@@ -269,7 +269,6 @@ void GMenu2X::main() {
 	udcStatus = getUDCStatus();
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
 	
-	initMenu();
 	readTmp();
 	setCPU(confInt["cpuMenu"]);
 
@@ -279,12 +278,13 @@ void GMenu2X::main() {
 	SDL_TimerID sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
 
 	//recover last session
-	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty()))
+	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty())) {
+		setBackground(bg, currBackdrop);
 		menu->selLinkApp()->selector(lastSelectorElement, lastSelectorDir);
+	}
 
 	bool quit = false;
 	int i = 0, x = 0, y = 0, ix = 0, iy = 0, sx = 0, sy = 0;
-	string prevBackdrop = "", currBackdrop = "";
 
 	int8_t brightnessIcon = 5;
 	Surface *iconBrightness[6] = {
@@ -322,20 +322,16 @@ void GMenu2X::main() {
 			*iconR = sc.skinRes("imgs/section-r.png");
 
 	while (!quit) {
-		s->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
-
-		//Background
+		// // //Background
 		currBackdrop = confStr["wallpaper"];
-		if (menu->selLink() != NULL && menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdropPath().empty() && sc.add(menu->selLinkApp()->getBackdropPath()) != NULL) {
+		if (menu->selLink() != NULL && menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdropPath().empty()) {
 			currBackdrop = menu->selLinkApp()->getBackdropPath();
 		}
-		if (prevBackdrop != currBackdrop) {
-			INFO("New backdrop: %s", currBackdrop.c_str());
-			// sc.del(prevBackdrop);
-			prevBackdrop = currBackdrop;
-			setWallpaper(currBackdrop, false);
-		}
-		sc[currBackdrop]->blit(s,0,0);
+
+		if (confInt["skinBackdrops"] & BD_MENU)
+			setBackground(s, currBackdrop);
+		else
+			setBackground(s, confStr["wallpaper"]);
 
 		// SECTIONS
 		if (confInt["sectionBar"]) {
@@ -552,6 +548,13 @@ void GMenu2X::main() {
 
 		if ( input[CONFIRM] && menu->selLink() != NULL ) {
 			setVolume(confInt["globalVolume"]);
+
+			if (confInt["skinBackdrops"] & BD_DIALOG)
+				setBackground(bg, currBackdrop);
+			else
+				setBackground(bg, confStr["wallpaper"]);
+
+
 			menu->selLink()->run();
 		}
 		else if ( input[SETTINGS] ) settings();
@@ -676,23 +679,25 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	return false;
 }
 
-void GMenu2X::setWallpaper(const string &_wallpaper, bool permanent) {
+void GMenu2X::setBackground(Surface *_bg, const string &_wallpaper) {
 	string wallpaper = _wallpaper;
-	bg->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
-	// sc.del(wallpaper);
-	if (wallpaper.empty() || sc[wallpaper] == NULL) {
-		DEBUG("Searching wallpaper");
-		FileLister fl("skins/Default/wallpapers", false, true);
-		fl.setFilter(".png,.jpg,.jpeg,.bmp");
-		fl.browse();
-		wallpaper = "skins/Default/wallpapers/" + fl.getFiles()[0];
+
+	if (sc[wallpaper] == NULL) { // search and scale background
+		if (wallpaper.empty() || sc[wallpaper] == NULL) {
+			DEBUG("Searching wallpaper");
+			FileLister fl("skins/Default/wallpapers", false, true);
+			fl.setFilter(".png,.jpg,.jpeg,.bmp");
+			fl.browse();
+			wallpaper = "skins/Default/wallpapers/" + fl.getFiles()[0];
+		}
+		if (sc[wallpaper] == NULL) return;
+		if (confStr["bgscale"] == "Stretch") sc[wallpaper]->softStretch(resX, resY, false, true);
+		else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(resX, resY, true, true);
+		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(resX, resY, true, false);
 	}
-	if (sc[wallpaper] == NULL) return;
-	if (confStr["bgscale"] == "Stretch") sc[wallpaper]->softStretch(resX, resY, false, true);
-	else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(resX, resY, true, true);
-	else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(resX, resY, true, false);
-	sc[wallpaper]->blit(bg, 0, 0);
-	if (permanent) confStr["wallpaper"] = wallpaper;
+
+	_bg->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
+	sc[wallpaper]->blit(_bg,0,0);
 }
 
 void GMenu2X::initLayout() {
@@ -950,6 +955,7 @@ void GMenu2X::readTmp() {
 		else if (name == "TVOut") TVOut = atoi(value.c_str());
 		else if (name == "tvOutPrev") tvOutPrev = atoi(value.c_str());
 		else if (name == "udcPrev") udcPrev = atoi(value.c_str());
+		else if (name == "currBackdrop") currBackdrop = value.c_str();
 	}
 	if (TVOut > 2) TVOut = 0;
 	inf.close();
@@ -967,6 +973,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 		inf << "udcPrev=" << udcPrev << endl;
 		inf << "tvOutPrev=" << tvOutPrev << endl;
 		inf << "TVOut=" << TVOut << endl;
+		inf << "currBackdrop=" << currBackdrop << endl;
 		inf.close();
 	}
 }
@@ -1205,11 +1212,11 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 			}
 			skinconf.close();
 
-			if (resetWallpaper && !skinConfStr["wallpaper"].empty() && fileExists("skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"])) {
-				setWallpaper("skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"]);
-				// confStr["wallpaper"] = "skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"];
-				// sc[confStr["wallpaper"]]->blit(bg,0,0);
-			}
+			// if (resetWallpaper && !skinConfStr["wallpaper"].empty() && fileExists("skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"])) {
+			// 	setWallpaper("skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"]);
+			// 	// confStr["wallpaper"] = "skins/" + skin + "/wallpapers/" + skinConfStr["wallpaper"];
+			// 	// sc[confStr["wallpaper"]]->blit(bg,0,0);
+			// }
 		}
 	}
 
@@ -1239,7 +1246,6 @@ void GMenu2X::skinMenu() {
 	int selected = 0;
 	string initSkin = confStr["skin"];
 	string prevSkin = "/";
-	int initSkinBackdrops = confInt["skinBackdrops"];
 
 	FileLister fl_sk("skins", true, false);
 	fl_sk.addExclude("..");
@@ -1264,6 +1270,15 @@ void GMenu2X::skinMenu() {
 	bgScale.push_back("Crop");
 	bgScale.push_back("Aspect");
 	bgScale.push_back("Stretch");
+	string bgScalePrev = confStr["bgscale"];
+
+	vector<string> bdStr;
+	bdStr.push_back("OFF");
+	bdStr.push_back("Menu only");
+	bdStr.push_back("Dialog only");
+	bdStr.push_back("Menu & Dialog");
+	int bdPrev = confInt["skinBackdrops"];
+	string skinBackdrops = bdStr[confInt["skinBackdrops"]];
 
 	vector<string> wallpapers;
 	string wpPath = confStr["wallpaper"];
@@ -1298,7 +1313,7 @@ void GMenu2X::skinMenu() {
 		if (!fileExists(wpPath)) wpPath = "skins/" + confStr["skin"] + "/wallpapers/" + wallpapers.at(0);
 		if (!fileExists(wpPath)) wpPath = "skins/Default/wallpapers/" + wallpapers.at(0);
 
-		setWallpaper(wpPath, false);
+		setBackground(bg, wpPath);
 
 		SettingsDialog sd(this, ts, tr["Skin"], "skin:icons/skin.png");
 		sd.selected = selected;
@@ -1307,7 +1322,8 @@ void GMenu2X::skinMenu() {
 		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &confStr["tmp_wallpaper"], &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Background scale"], tr["How to scale wallpaper and backdrops"], &confStr["bgscale"], &bgScale));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin colors"], tr["Customize skin colors"], &tmp, &wpLabel, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::skinColors)));
-		sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &confInt["skinBackdrops"]));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &skinBackdrops, &bdStr));
+		// sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &confInt["skinBackdrops"]));
 		sd.addSetting(new MenuSettingInt(this, tr["Font size"], tr["Size of text font"], &skinConfInt["fontSize"], 12, 6, 60));
 		sd.addSetting(new MenuSettingInt(this, tr["Title font size"], tr["Size of title's text font"], &skinConfInt["fontSizeTitle"], 20, 6, 60));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Section bar layout"], tr["Set the layout and position of the Section Bar"], &sectionBar, &sbStr));
@@ -1324,6 +1340,11 @@ void GMenu2X::skinMenu() {
 		save = sd.save;
 	} while (!save);
 
+	if (skinBackdrops == "OFF") confInt["skinBackdrops"] = BD_OFF;
+	else if (skinBackdrops == "Menu & Dialog") confInt["skinBackdrops"] = BD_MENU | BD_DIALOG;
+	else if (skinBackdrops == "Menu only") confInt["skinBackdrops"] = BD_MENU;
+	else if (skinBackdrops == "Dialog only") confInt["skinBackdrops"] = BD_DIALOG;
+
 	if (sectionBar == "OFF") confInt["sectionBar"] = SB_OFF;
 	else if (sectionBar == "Right") confInt["sectionBar"] = SB_RIGHT;
 	else if (sectionBar == "Top") confInt["sectionBar"] = SB_TOP;
@@ -1332,11 +1353,11 @@ void GMenu2X::skinMenu() {
 	else confInt["sectionBar"] = SB_CLASSIC;
 
 	confStr["tmp_wallpaper"] = "";
-	setWallpaper(wpPath);
+	confStr["wallpaper"] = wpPath;
 	writeSkinConfig();
 	writeConfig();
 
-	if (initSkinBackdrops != confInt["skinBackdrops"] || initSkin != confStr["skin"]) restartDialog();
+	if (bdPrev != confInt["skinBackdrops"] || initSkin != confStr["skin"] || bgScalePrev != confStr["bgscale"]) restartDialog();
 	if (sbPrev != confInt["sectionBar"]) initMenu();
 	initLayout();
 }
@@ -1411,7 +1432,6 @@ void GMenu2X::changeWallpaper() {
 	if (wp.exec() && confStr["wallpaper"] != wp.wallpaper) {
 		confStr["wallpaper"] = wp.wallpaper;
 		confStr["tmp_wallpaper"] = base_name(confStr["wallpaper"]);
-		setWallpaper(wp.wallpaper);
 	}
 }
 
@@ -1420,7 +1440,7 @@ void GMenu2X::showManual() {
 	string linkDescription = menu->selLinkApp()->getDescription();
 	string linkIcon = menu->selLinkApp()->getIcon();
 	string linkManual = menu->selLinkApp()->getManualPath();
-	string linkBackdrop = menu->selLinkApp()->getBackdropPath();
+	string linkBackdrop = confInt["skinBackdrops"] | BD_DIALOG ? menu->selLinkApp()->getBackdropPath() : "";
 
 	if (linkManual == "" || !fileExists(linkManual)) return;
 

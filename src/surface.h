@@ -130,6 +130,9 @@ public:
 
 	void softStretch(uint16_t x, uint16_t y, bool keep_aspect = false, bool maximize = true);
 	void setAlpha(uint8_t alpha);
+
+	int width() { return raw->w; }
+	int height() { return raw->h; }
 };
 
 #endif

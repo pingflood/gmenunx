@@ -75,6 +75,13 @@ enum sb {
 	SB_CLASSIC,
 };
 
+enum bd {
+	BD_OFF,
+	BD_MENU,
+	BD_DIALOG,
+};
+
+
 enum tvout {
 	TV_OFF  = CANCEL,
 	TV_PAL  = MANUAL,
@@ -125,7 +132,7 @@ private:
 	*/
 	void explorer();
 
-	string lastSelectorDir;
+	string lastSelectorDir, currBackdrop;
 	int lastSelectorElement;
 	void readConfig();
 	void readTmp();
@@ -217,7 +224,7 @@ public:
 	void renameSection();
 	void deleteSection();
 
-	void setWallpaper(const string &_wallpaper = "", bool permanent = true);
+	void setBackground(Surface *_bg, const string &_wallpaper);
 
 	int drawButton(Button *btn, int x = 5, int y = -8);
 	int drawButton(Surface *s, const string &btn, const string &text = "", int x = 5, int y = -8);
