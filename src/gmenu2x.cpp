@@ -362,8 +362,11 @@ void GMenu2X::main() {
 				sc[menu->getSectionIcon(i)]->blit(s, {x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"]}, HAlignCenter | VAlignMiddle);
 			}
 
-			if (confInt["sectionLabel"] || SDL_GetTicks() - section_changed < 1400) s->write(font, menu->selSectionName(), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
-			else SDL_RemoveTimer(sectionChangedTimer);
+			if (confInt["sectionLabel"] || SDL_GetTicks() - section_changed < 1400) {
+				s->write(font, menu->selSectionName(), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
+			} else if (sectionChangedTimer != NULL) {
+				SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
+			}
 
 			if (confInt["sectionBar"] == SB_CLASSIC) {
 				iconL->blit(s, 0, 0, HAlignLeft | VAlignTop);
@@ -545,8 +548,8 @@ void GMenu2X::main() {
 		if (inputCommonActions(inputAction)) continue;
 
 		if (!confInt["sectionLabel"] && (input[SECTION_PREV] || input[SECTION_NEXT]) ) {
-			// SDL_RemoveTimer(sectionChangedTimer);
 			section_changed = SDL_GetTicks();
+			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
 			sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
 		}
 
@@ -1997,7 +2000,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 
 		SDL_TimerID wakeUpTimer = NULL;
 		while (!close) {
-			SDL_RemoveTimer(wakeUpTimer);
+			SDL_RemoveTimer(wakeUpTimer); wakeUpTimer = NULL;
 			wakeUpTimer = SDL_AddTimer(3000, input.wakeUp, (void*)false);
 
 			if ( input[LEFT] || input[DEC] )		val = setBacklight(max(5, val - backlightStep), false);

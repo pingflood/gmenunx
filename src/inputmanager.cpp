@@ -223,9 +223,11 @@ bool InputManager::update(bool wait) {
 		if (actions[x].active) {
 			memcpy(input_combo, input_combo + 1, sizeof(input_combo) - 1); // eegg
 			input_combo[sizeof(input_combo) - 1] = x; // eegg
-			if (actions[x].timer == NULL) actions[x].timer = SDL_AddTimer(actions[x].interval, wakeUp, (void*)true);
+			if (actions[x].timer == NULL) {
+				SDL_RemoveTimer(actions[x].timer); actions[x].timer = NULL;
+				actions[x].timer = SDL_AddTimer(actions[x].interval, wakeUp, (void*)true);
+			}
 			anyactions = true;
-			// actions[x].last = now;
 		} else {
 			if (actions[x].timer != NULL) {
 				SDL_RemoveTimer(actions[x].timer);
@@ -328,8 +330,10 @@ void InputManager::setWakeUpInterval(int ms) {
 }
 
 uint32_t InputManager::wakeUp(uint32_t interval, void *repeat) {
+WARNING("WAKE UP EVENT");
 	SDL_Event *event = new SDL_Event();
-	event->type = SDL_KEYUP;//SDL_WAKEUPEVENT;
+	event->type = SDL_WAKEUPEVENT;
+	// event->type = SDL_KEYUP;//SDL_WAKEUPEVENT;
 	SDL_PushEvent( event );
 	if ((bool*) repeat) return interval;
 	return 0;
