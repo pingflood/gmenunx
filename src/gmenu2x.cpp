@@ -744,8 +744,9 @@ void GMenu2X::initFont() {
 	if (font != NULL) delete font;
 	if (titlefont != NULL) delete titlefont;
 
-	font = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
-	titlefont = new FontHelper(sc.getSkinFilePath("font.ttf"), skinConfInt["fontSizeTitle"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
+	string skinFont = confStr["skinFont"] == "Default" ? "skins/Default/font.ttf" : sc.getSkinFilePath("font.ttf");
+	font = new FontHelper(skinFont, skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
+	titlefont = new FontHelper(skinFont, skinConfInt["fontSizeTitle"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
 }
 
 void GMenu2X::initMenu() {
@@ -1280,13 +1281,20 @@ void GMenu2X::skinMenu() {
 	int bdPrev = confInt["skinBackdrops"];
 	string skinBackdrops = bdStr[confInt["skinBackdrops"]];
 
+	vector<string> skinFont;
+	skinFont.push_back("Custom");
+	skinFont.push_back("Default");
+	string skinFontPrev = confStr["skinFont"];
+
 	vector<string> wallpapers;
 	string wpPath = confStr["wallpaper"];
 	confStr["tmp_wallpaper"] = "";
 
 	do {
-		if (prevSkin != confStr["skin"]) {
+		if (prevSkin != confStr["skin"] || skinFontPrev != confStr["skinFont"]) {
 			prevSkin = confStr["skin"];
+			skinFontPrev = confStr["skinFont"];
+
 			setSkin(confStr["skin"], false, false);
 	
 			confStr["tmp_wallpaper"] = (confStr["tmp_wallpaper"].empty() || skinConfStr["wallpaper"].empty()) ? base_name(confStr["wallpaper"]) : skinConfStr["wallpaper"];
@@ -1323,7 +1331,7 @@ void GMenu2X::skinMenu() {
 		sd.addSetting(new MenuSettingMultiString(this, tr["Background scale"], tr["How to scale wallpaper and backdrops"], &confStr["bgscale"], &bgScale));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin colors"], tr["Customize skin colors"], &tmp, &wpLabel, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::skinColors)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &skinBackdrops, &bdStr));
-		// sd.addSetting(new MenuSettingBool(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &confInt["skinBackdrops"]));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Font face"], tr["Override the skin font face"], &confStr["skinFont"], &skinFont, MakeDelegate(this, &GMenu2X::onChangeSkin)));
 		sd.addSetting(new MenuSettingInt(this, tr["Font size"], tr["Size of text font"], &skinConfInt["fontSize"], 12, 6, 60));
 		sd.addSetting(new MenuSettingInt(this, tr["Title font size"], tr["Size of title's text font"], &skinConfInt["fontSizeTitle"], 20, 6, 60));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Section bar layout"], tr["Set the layout and position of the Section Bar"], &sectionBar, &sbStr));
