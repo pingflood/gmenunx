@@ -168,9 +168,9 @@ const string Menu::selSectionName() {
 }
 
 int Menu::sectionNumItems() {
-	if (gmenu2x->confInt["sectionBar"] == SB_LEFT || gmenu2x->confInt["sectionBar"] == SB_RIGHT)
+	if (gmenu2x->skinConfInt["sectionBar"] == SB_LEFT || gmenu2x->skinConfInt["sectionBar"] == SB_RIGHT)
 		return (gmenu2x->resY - 40) / gmenu2x->skinConfInt["sectionBarSize"];
-	else if (gmenu2x->confInt["sectionBar"] == SB_TOP || gmenu2x->confInt["sectionBar"] == SB_BOTTOM)
+	else if (gmenu2x->skinConfInt["sectionBar"] == SB_TOP || gmenu2x->skinConfInt["sectionBar"] == SB_BOTTOM)
 		return (gmenu2x->resX - 40) / gmenu2x->skinConfInt["sectionBarSize"];
 	return (gmenu2x->resX / gmenu2x->skinConfInt["sectionBarSize"]) - 1;
 }

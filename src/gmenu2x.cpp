@@ -341,26 +341,26 @@ void GMenu2X::main() {
 			setBackground(s, confStr["wallpaper"]);
 
 		// SECTIONS
-		if (confInt["sectionBar"]) {
+		if (skinConfInt["sectionBar"]) {
 			s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
 
 			x = sectionBarRect.x; y = sectionBarRect.y; ix = 0;
 			sx = (menu->selSectionIndex() - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
 
-			if (confInt["sectionBar"] == SB_CLASSIC) {
+			if (skinConfInt["sectionBar"] == SB_CLASSIC) {
 				ix = (resX - skinConfInt["sectionBarSize"] * min(menu->sectionNumItems(), menu->getSections().size())) / 2;
 				sx += ix; sy = y;
 				s->box(sx, sy, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
 			}
 			
 			for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
-				if (confInt["sectionBar"] == SB_LEFT || confInt["sectionBar"] == SB_RIGHT) {
+				if (skinConfInt["sectionBar"] == SB_LEFT || skinConfInt["sectionBar"] == SB_RIGHT) {
 					y = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
 				} else {
 					x = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"] + ix;
 				}
 
-				if (confInt["sectionBar"] != SB_CLASSIC && menu->selSectionIndex() == (int)i) {
+				if (skinConfInt["sectionBar"] != SB_CLASSIC && menu->selSectionIndex() == (int)i) {
 					sx = x; sy = y;
 					s->box(sx, sy, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
 				}
@@ -368,13 +368,13 @@ void GMenu2X::main() {
 				sc[menu->getSectionIcon(i)]->blit(s, {x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"]}, HAlignCenter | VAlignMiddle);
 			}
 
-			if (confInt["sectionLabel"] || SDL_GetTicks() - section_changed < 1400) {
+			if (skinConfInt["sectionLabel"] || SDL_GetTicks() - section_changed < 1400) {
 				s->write(font, menu->selSectionName(), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
 			} else if (sectionChangedTimer != NULL) {
 				SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
 			}
 
-			if (confInt["sectionBar"] == SB_CLASSIC) {
+			if (skinConfInt["sectionBar"] == SB_CLASSIC) {
 				iconL->blit(s, 0, 0, HAlignLeft | VAlignTop);
 				iconR->blit(s, resX, 0, HAlignRight | VAlignTop);
 			}
@@ -417,7 +417,7 @@ void GMenu2X::main() {
 					icon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 					// s->clearClipRect();
 
-					if (confInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + (linkHeight + icon->height())/2 - 6 , HAlignCenter);
+					if (skinConfInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + (linkHeight + icon->height())/2 - 6 , HAlignCenter);
 				}
 			}
 		}
@@ -431,13 +431,13 @@ void GMenu2X::main() {
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("0000ffff"));
 		// s->box(sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("ff00ffff"));
 	// drawBottomBar(this->bg);
-		if (confInt["sectionBar"]) {
+		if (skinConfInt["sectionBar"]) {
 			int iconTrayShift = 0;
 
 			brightnessIcon = confInt["backlight"] / 20;
 			if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
 
-			if (confInt["sectionBar"] == SB_CLASSIC) {
+			if (skinConfInt["sectionBar"] == SB_CLASSIC) {
 				const int iconWidth = 16, pctWidth = font->getTextWidth("100");
 				char buf[32]; int x = 0;
 
@@ -543,8 +543,8 @@ void GMenu2X::main() {
 
 		bool inputAction = input.update();
 		if (input.combo()) {
-			confInt["sectionBar"] = ((confInt["sectionBar"] + 1) % 5);
-			if (!confInt["sectionBar"]) confInt["sectionBar"]++;
+			skinConfInt["sectionBar"] = ((skinConfInt["sectionBar"] + 1) % 5);
+			if (!skinConfInt["sectionBar"]) skinConfInt["sectionBar"]++;
 			initMenu();
 			MessageBox mb(this,tr["CHEATER! ;)"]);
 			mb.setBgAlpha(0);
@@ -555,7 +555,7 @@ void GMenu2X::main() {
 
 		if (inputCommonActions(inputAction)) continue;
 
-		if (!confInt["sectionLabel"] && (input[SECTION_PREV] || input[SECTION_NEXT]) ) {
+		if (!skinConfInt["sectionLabel"] && (input[SECTION_PREV] || input[SECTION_NEXT]) ) {
 			section_changed = SDL_GetTicks();
 			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
 			sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
@@ -717,25 +717,25 @@ void GMenu2X::initLayout() {
 	linksRect = (SDL_Rect){0, 0, resX, resY};
 	sectionBarRect = (SDL_Rect){0, 0, resX, resY};
 
-	if (confInt["sectionBar"]) {
+	if (skinConfInt["sectionBar"]) {
 		// x = 0; y = 0;
-		if (confInt["sectionBar"] == SB_LEFT || confInt["sectionBar"] == SB_RIGHT) {
-			sectionBarRect.x = (confInt["sectionBar"] == SB_RIGHT)*(resX - skinConfInt["sectionBarSize"]);
+		if (skinConfInt["sectionBar"] == SB_LEFT || skinConfInt["sectionBar"] == SB_RIGHT) {
+			sectionBarRect.x = (skinConfInt["sectionBar"] == SB_RIGHT)*(resX - skinConfInt["sectionBarSize"]);
 			sectionBarRect.w = skinConfInt["sectionBarSize"];
 			linksRect.w = resX - skinConfInt["sectionBarSize"];
 
-			if (confInt["sectionBar"] == SB_LEFT) {
+			if (skinConfInt["sectionBar"] == SB_LEFT) {
 				linksRect.x = skinConfInt["sectionBarSize"];
 			}
 		} else {
-			sectionBarRect.y = (confInt["sectionBar"] == SB_BOTTOM)*(resY - skinConfInt["sectionBarSize"]);
+			sectionBarRect.y = (skinConfInt["sectionBar"] == SB_BOTTOM)*(resY - skinConfInt["sectionBarSize"]);
 			sectionBarRect.h = skinConfInt["sectionBarSize"];
 			linksRect.h = resY - skinConfInt["sectionBarSize"];
 
-			if (confInt["sectionBar"] == SB_TOP || confInt["sectionBar"] == SB_CLASSIC) {
+			if (skinConfInt["sectionBar"] == SB_TOP || skinConfInt["sectionBar"] == SB_CLASSIC) {
 				linksRect.y = skinConfInt["sectionBarSize"];
 			}
-			if (confInt["sectionBar"] == SB_CLASSIC) {
+			if (skinConfInt["sectionBar"] == SB_CLASSIC) {
 				linksRect.h -= skinConfInt["bottomBarHeight"];
 			}
 		}
@@ -745,8 +745,8 @@ void GMenu2X::initLayout() {
 	bottomBarRect = (SDL_Rect){0, resY - skinConfInt["bottomBarHeight"], resX, skinConfInt["bottomBarHeight"]};
 
 	// WIP
-	linkCols = confInt["linkCols"];
-	linkRows = confInt["linkRows"];
+	linkCols = skinConfInt["linkCols"];
+	linkRows = skinConfInt["linkRows"];
 
 	linkWidth  = (linksRect.w - (linkCols + 1 ) * linkSpacing) / linkCols;
 	linkHeight = (linksRect.h - (linkCols > 1) * (linkRows + 1 ) * linkSpacing) / linkRows;
@@ -827,9 +827,9 @@ void GMenu2X::settings() {
 
 	sd.addSetting(new MenuSettingBool(this, tr["Remember selection"], tr["Remember the last selected section, link and file"], &confInt["saveSelection"]));
 	sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the link's output to read with Log Viewer"], &confInt["outputLogs"]));
-	sd.addSetting(new MenuSettingInt(this,tr["Screen timeout"], tr["Seconds to turn display off if inactive"], &confInt["backlightTimeout"], 30, 10, 300));
-	sd.addSetting(new MenuSettingInt(this,tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
-	sd.addSetting(new MenuSettingInt(this,tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
+	sd.addSetting(new MenuSettingInt(this, tr["Screen timeout"], tr["Seconds to turn display off if inactive"], &confInt["backlightTimeout"], 30, 10, 300));
+	sd.addSetting(new MenuSettingInt(this, tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
+	sd.addSetting(new MenuSettingInt(this, tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
 	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
 	sd.addSetting(new MenuSettingDir(this, tr["Default path"],	tr["Default directory to start the file browser"], &confStr["defaultDir"]));
 
@@ -997,11 +997,8 @@ void GMenu2X::readConfig() {
 	if (fwType != "RETROARCADE") confStr["batteryType"] = "BL-5B";
 	else confStr["batteryType"] = "Linear";
 	confInt["saveSelection"] = 1;
-	confInt["sectionLabel"] = 0;
-	confInt["linkLabel"] = 1;
 	confInt["skinBackdrops"] = 0;
 	confStr["defaultDir"] = CARD_ROOT;
-	confInt["sectionBar"] = SB_CLASSIC;
 	confInt["globalVolume"] = 60;
 
 	input.update(false);
@@ -1038,9 +1035,6 @@ void GMenu2X::readConfig() {
 	evalIntConf( &confInt["backlight"], 70, 1, 100);
 	evalIntConf( &confInt["minBattery"], 3550, 1, 10000);
 	evalIntConf( &confInt["maxBattery"], 3720, 1, 10000);
-	evalIntConf( &confInt["sectionBar"], SB_CLASSIC, 0, 5);
-	evalIntConf( &confInt["linkCols"], 4, 1, 8);
-	evalIntConf( &confInt["linkRows"], 4, 1, 8);
 
 	if (!confInt["saveSelection"]) {
 		confInt["section"] = 0;
@@ -1088,7 +1082,14 @@ void GMenu2X::writeConfig() {
 				curr->first == "menuClock" ||
 				curr->first == "TVOut" ||
 
-				/* defaults */
+				// moved to skin conf
+				curr->first == "linkCols" ||
+				curr->first == "linkRows" ||
+				curr->first == "sectionBar" ||
+				curr->first == "sectionLabel" ||
+				curr->first == "linkLabel" ||
+
+				// defaults
 				(curr->first == "skinBackdrops" && curr->second == 0) ||
 				(curr->first == "backlightTimeout" && curr->second == 30) ||
 				(curr->first == "powerTimeout" && curr->second == 10) ||
@@ -1100,12 +1101,7 @@ void GMenu2X::writeConfig() {
 				(curr->first == "backlight" && curr->second == 70) ||
 				(curr->first == "minBattery" && curr->second == 3550) ||
 				(curr->first == "maxBattery" && curr->second == 3720) ||
-				(curr->first == "sectionBar" && curr->second == SB_CLASSIC) ||
-				(curr->first == "linkCols" && curr->second == 4) ||
-				(curr->first == "linkRows" && curr->second == 4) ||
 				(curr->first == "saveSelection" && curr->second == 1) ||
-				(curr->first == "sectionLabel" && curr->second == 0) ||
-				(curr->first == "linkLabel" && curr->second == 1) ||
 				(curr->first == "section" && curr->second == 0) ||
 				(curr->first == "link" && curr->second == 0) ||
 
@@ -1150,6 +1146,12 @@ void GMenu2X::writeSkinConfig() {
 				curr->first == "linkItemHeight" ||
 				curr->first == "topBarHeight" ||
 
+				(curr->first == "linkCols" && curr->second == 4) ||
+				(curr->first == "linkRows" && curr->second == 4) ||
+				(curr->first == "sectionBar" && curr->second == SB_CLASSIC) ||
+				(curr->first == "sectionLabel" && curr->second == 0) ||
+				(curr->first == "linkLabel" && curr->second == 1) ||
+
 				curr->first.empty()
 			) continue;
 			inf << curr->first << "=" << curr->second << endl;
@@ -1172,8 +1174,16 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 	skinConfStr.clear();
 	skinConfInt.clear();
 
-//clear collection and change the skin path
-	if (clearSC) sc.clear();
+// Defaults *** Sync with default values in writeConfig
+	skinConfInt["sectionBar"] = SB_CLASSIC;
+	skinConfInt["sectionLabel"] = 0;
+	skinConfInt["linkLabel"] = 1;
+
+	// clear collection and change the skin path
+	if (clearSC) {
+		sc.clear();
+	}
+
 	sc.setSkin(skin);
 
 	// reset colors to the default values
@@ -1243,6 +1253,9 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 	evalIntConf( &skinConfInt["previewWidth"], 142, 1, resX);
 	evalIntConf( &skinConfInt["fontSize"], 12, 6, 60);
 	evalIntConf( &skinConfInt["fontSizeTitle"], 20, 6, 60);
+	evalIntConf( &skinConfInt["sectionBar"], SB_CLASSIC, 0, 5);
+	evalIntConf( &skinConfInt["linkCols"], 4, 1, 8);
+	evalIntConf( &skinConfInt["linkRows"], 4, 1, 8);
 
 	// if (menu != NULL && clearSC) menu->loadIcons();
 	initFont();
@@ -1273,8 +1286,8 @@ void GMenu2X::skinMenu() {
 	sbStr.push_back("Right");
 	sbStr.push_back("Top");
 	sbStr.push_back("Classic");
-	int sbPrev = confInt["sectionBar"];
-	string sectionBar = sbStr[confInt["sectionBar"]];
+	int sbPrev = skinConfInt["sectionBar"];
+	string sectionBar = sbStr[skinConfInt["sectionBar"]];
 
 	vector<string> bgScale;
 	bgScale.push_back("Original");
@@ -1302,10 +1315,12 @@ void GMenu2X::skinMenu() {
 
 	do {
 		if (prevSkin != confStr["skin"] || skinFontPrev != confStr["skinFont"]) {
+
 			prevSkin = confStr["skin"];
 			skinFontPrev = confStr["skinFont"];
 
 			setSkin(confStr["skin"], false, false);
+			sectionBar = sbStr[skinConfInt["sectionBar"]];
 	
 			confStr["tmp_wallpaper"] = (confStr["tmp_wallpaper"].empty() || skinConfStr["wallpaper"].empty()) ? base_name(confStr["wallpaper"]) : skinConfStr["wallpaper"];
 			wallpapers.clear();
@@ -1346,12 +1361,11 @@ void GMenu2X::skinMenu() {
 		sd.addSetting(new MenuSettingInt(this, tr["Title font size"], tr["Size of title's text font"], &skinConfInt["fontSizeTitle"], 20, 6, 60));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Section bar layout"], tr["Set the layout and position of the Section Bar"], &sectionBar, &sbStr));
 		sd.addSetting(new MenuSettingInt(this, tr["Section bar size"], tr["Size of section and top bar"], &skinConfInt["sectionBarSize"], 40, 1, resX));
-		// sd.addSetting(new MenuSettingInt(this, tr["Top bar height"], tr["Height of top bar"], &skinConfInt["topBarHeight"], 40, 1, resY));
 		sd.addSetting(new MenuSettingInt(this, tr["Bottom bar height"], tr["Height of bottom bar"], &skinConfInt["bottomBarHeight"], 16, 1, resY));
-		sd.addSetting(new MenuSettingInt(this, tr["Menu columns"], tr["Number of columns of links in main menu"], &confInt["linkCols"], 1, 1, 8));
-		sd.addSetting(new MenuSettingInt(this, tr["Menu rows"], tr["Number of rows of links in main menu"], &confInt["linkRows"], 6, 1, 8));
-		sd.addSetting(new MenuSettingBool(this, tr["Link label"], tr["Show link labels in main menu"], &confInt["linkLabel"]));
-		sd.addSetting(new MenuSettingBool(this, tr["Section label"], tr["Show the active section label in main menu"], &confInt["sectionLabel"]));
+		sd.addSetting(new MenuSettingInt(this, tr["Menu columns"], tr["Number of columns of links in main menu"], &skinConfInt["linkCols"], 4, 1, 8));
+		sd.addSetting(new MenuSettingInt(this, tr["Menu rows"], tr["Number of rows of links in main menu"], &skinConfInt["linkRows"], 4, 1, 8));
+		sd.addSetting(new MenuSettingBool(this, tr["Link label"], tr["Show link labels in main menu"], &skinConfInt["linkLabel"]));
+		sd.addSetting(new MenuSettingBool(this, tr["Section label"], tr["Show the active section label in main menu"], &skinConfInt["sectionLabel"]));
 		sd.exec();
 
 		selected = sd.selected;
@@ -1363,12 +1377,12 @@ void GMenu2X::skinMenu() {
 	else if (skinBackdrops == "Menu only") confInt["skinBackdrops"] = BD_MENU;
 	else if (skinBackdrops == "Dialog only") confInt["skinBackdrops"] = BD_DIALOG;
 
-	if (sectionBar == "OFF") confInt["sectionBar"] = SB_OFF;
-	else if (sectionBar == "Right") confInt["sectionBar"] = SB_RIGHT;
-	else if (sectionBar == "Top") confInt["sectionBar"] = SB_TOP;
-	else if (sectionBar == "Bottom") confInt["sectionBar"] = SB_BOTTOM;
-	else if (sectionBar == "Left") confInt["sectionBar"] = SB_LEFT;
-	else confInt["sectionBar"] = SB_CLASSIC;
+	if (sectionBar == "OFF") skinConfInt["sectionBar"] = SB_OFF;
+	else if (sectionBar == "Right") skinConfInt["sectionBar"] = SB_RIGHT;
+	else if (sectionBar == "Top") skinConfInt["sectionBar"] = SB_TOP;
+	else if (sectionBar == "Bottom") skinConfInt["sectionBar"] = SB_BOTTOM;
+	else if (sectionBar == "Left") skinConfInt["sectionBar"] = SB_LEFT;
+	else skinConfInt["sectionBar"] = SB_CLASSIC;
 
 	confStr["tmp_wallpaper"] = "";
 	confStr["wallpaper"] = wpPath;
@@ -1376,7 +1390,7 @@ void GMenu2X::skinMenu() {
 	writeConfig();
 
 	if (bdPrev != confInt["skinBackdrops"] || initSkin != confStr["skin"] || bgScalePrev != confStr["bgscale"]) restartDialog();
-	if (sbPrev != confInt["sectionBar"]) initMenu();
+	if (sbPrev != skinConfInt["sectionBar"]) initMenu();
 	initLayout();
 }
 
