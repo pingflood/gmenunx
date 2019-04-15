@@ -554,13 +554,10 @@ void GMenu2X::main() {
 		}
 
 		if ( input[CONFIRM] && menu->selLink() != NULL ) {
-			setVolume(confInt["globalVolume"]);
-
 			if (confInt["skinBackdrops"] & BD_DIALOG)
 				setBackground(bg, currBackdrop);
 			else
 				setBackground(bg, confStr["wallpaper"]);
-
 
 			menu->selLink()->run();
 		}
@@ -799,7 +796,6 @@ void GMenu2X::initMenu() {
 }
 
 void GMenu2X::settings() {
-	int curGlobalVolume = confInt["globalVolume"];
 //G
 	// int prevgamma = confInt["gamma"];
 	// bool showRootFolder = fileExists("/mnt/root");
@@ -848,7 +844,6 @@ void GMenu2X::settings() {
 
 	if (sd.exec() && sd.edited() && sd.save) {
 		if (confStr["usbMode"] == "Ask") confStr["usbMode"] = "";
-		if (curGlobalVolume != confInt["globalVolume"]) setVolume(confInt["globalVolume"]);
 		if (lang == "English") lang = "";
 		if (confStr["lang"] != lang) {
 			confStr["lang"] = lang;

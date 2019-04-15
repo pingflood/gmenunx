@@ -326,8 +326,10 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 
 void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	MessageBox mb(gmenu2x, gmenu2x->tr["Launching "] + this->getTitle().c_str(), this->getIconPath());
-	mb.setAutoHide(500);
+	mb.setAutoHide(200);
 	mb.exec();
+
+	gmenu2x->setVolume(gmenu2x->confInt["globalVolume"]);
 
 	save();
 
@@ -336,24 +338,22 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	if (!wd.empty())
 		chdir(wd.c_str());
 
-	//selectedFile
-	if (selectedFile != "") {
+
+	if (!selectedFile.empty()) {
 		string selectedFileExtension;
 		string selectedFileName;
-		string dir;
 		string::size_type i = selectedFile.rfind(".");
 		if (i != string::npos) {
 			selectedFileExtension = selectedFile.substr(i,selectedFile.length());
 			selectedFileName = selectedFile.substr(0,i);
 		}
 
-		if (selectedDir == "")
+		if (dir.empty()) {
 			dir = getSelectorDir();
-		else
-			dir = selectedDir;
+		}
 
-		if (params == "") {
-			params = cmdclean(dir+"/"+selectedFile);
+		if (params.empty()) {
+			params = cmdclean(dir + "/" + selectedFile);
 		} else {
 			string origParams = params;
 			params = strreplace(params, "[selFullPath]", cmdclean(dir + "/" + selectedFile));
@@ -363,9 +363,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 			if (params == origParams) params += " " + cmdclean(dir + "/" + selectedFile);
 		}
 	}
-
-	//if (useRamTimings) gmenu2x->applyRamTimings();
-	//if (volume()>=0) gmenu2x->setVolume(volume());
 
 	INFO("Executing '%s' (%s %s)", title.c_str(), exec.c_str(), params.c_str());
 
@@ -382,10 +379,6 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	} // else, well.. we are no worse off :)
 
 	if (params != "") command += " " + params;
-	// if (useGinge) {
-		// string ginge_prep = gmenu2x->getExePath() + "/ginge/ginge_prep";
-		// if (fileExists(ginge_prep)) command = cmdclean(ginge_prep) + " " + command;
-	// }
 
 	if (gmenu2x->confInt["saveSelection"] && (gmenu2x->confInt["section"] != gmenu2x->menu->selSectionIndex() || gmenu2x->confInt["link"] != gmenu2x->menu->selLinkIndex())) {
 		gmenu2x->writeConfig();
@@ -396,6 +389,11 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	if (getCPU() != gmenu2x->confInt["cpuMenu"]) gmenu2x->setCPU(getCPU());
 
 #if defined(TARGET_GP2X)
+	//if (useRamTimings) gmenu2x->applyRamTimings();
+	// if (useGinge) {
+		// string ginge_prep = gmenu2x->getExePath() + "/ginge/ginge_prep";
+		// if (fileExists(ginge_prep)) command = cmdclean(ginge_prep) + " " + command;
+	// }
 	if (fwType == "open2x") gmenu2x->writeConfigOpen2x();
 	if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"]) gmenu2x->setGamma(gamma());
 #endif
