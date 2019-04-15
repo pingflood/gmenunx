@@ -277,9 +277,12 @@ void GMenu2X::main() {
 	section_changed = SDL_GetTicks();
 	SDL_TimerID sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
 
-	//recover last session
+	// recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty())) {
-		setBackground(bg, currBackdrop);
+		if (confInt["skinBackdrops"] & BD_DIALOG)
+			setBackground(bg, currBackdrop);
+		else
+			setBackground(bg, confStr["wallpaper"]);
 		menu->selLinkApp()->selector(lastSelectorElement, lastSelectorDir);
 	}
 
@@ -1461,7 +1464,7 @@ void GMenu2X::showManual() {
 		return;
 	}
 
-	TextDialog td(this, linkTitle, linkDescription, linkIcon, linkBackdrop);
+	TextDialog td(this, linkTitle, linkDescription, linkIcon); //, linkBackdrop);
 	td.appendFile(linkManual);
 	td.exec();
 }
