@@ -74,7 +74,6 @@ void FileLister::browse() {
 				for (vector<string>::iterator it = vfilter.begin(); it != vfilter.end(); ++it) {
 					if (vfilter.size() > 1 && it->length() == 0 && (int32_t)file.rfind(".") >= 0) continue;
 					if (it->length() <= file.length()) {
-						// if (file.compare(file.length() - it->length(), it->length(), *it) == 0) {
 						if (!strcasecmp(file.substr(file.size() - it->length()).c_str(), it->c_str())) {
 							files.push_back(file);
 							break;

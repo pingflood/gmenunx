@@ -31,11 +31,6 @@ void IconButton::setPosition(int x, int y) {
 
 uint16_t IconButton::paint() {
 	return gmenu2x->drawButton(gmenu2x->s, this->icon, this->label, rect.x, rect.y);
-	// if (iconSurface != NULL)
-	// 	iconSurface->blit(gmenu2x->s, iconRect);
-	// if (label != "") {
-	// 	gmenu2x->s->write(gmenu2x->font, label, labelRect.x, labelRect.y, labelHAlign | labelVAlign, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-	// }
 }
 
 bool IconButton::paintHover() {
@@ -68,12 +63,10 @@ void IconButton::recalcSize() {
 		labelRect.h = gmenu2x->font->getHeight();
 		if (labelPosition == IconButton::DISP_LEFT || labelPosition == IconButton::DISP_RIGHT) {
 			w += margin + labelRect.w;
-			//if (labelRect.h > h) h = labelRect.h;
 			labelHAlign = HAlignLeft;
 			labelVAlign = VAlignMiddle;
 		} else {
 			h += margin + labelRect.h;
-			//if (labelRect.w > w) w = labelRect.w;
 			labelHAlign = HAlignCenter;
 			labelVAlign = VAlignTop;
 		}

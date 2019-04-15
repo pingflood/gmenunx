@@ -37,7 +37,6 @@ class PowerManager;
 #include "inputmanager.h"
 #include "surface.h"
 #include "fonthelper.h"
-#include "debug.h"
 
 
 const int MAX_VOLUME_SCALE_FACTOR = 200;

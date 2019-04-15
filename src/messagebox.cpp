@@ -134,8 +134,7 @@ int MessageBox::exec() {
 	if (this->autohide) {
 		gmenu2x->s->flip();
 		if (this->autohide > 0) SDL_Delay(this->autohide);
-		gmenu2x->powerManager->resetSuspendTimer(); // = SDL_GetTicks(); // prevent immediate suspend
-		// bg.blit(gmenu2x->s,0,0);
+		gmenu2x->powerManager->resetSuspendTimer(); // prevent immediate suspend
 		return -1;
 	}
 	//draw buttons rectangle

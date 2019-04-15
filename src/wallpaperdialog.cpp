@@ -128,6 +128,5 @@ bool WallpaperDialog::exec()
 		else
 			gmenu2x->sc.del("skins/Default/wallpapers/" + wallpapers[i]);
 
-	// gmenu2x->confStr["tmp_wallpaper"] = wallpaper;
 	return result;
 }

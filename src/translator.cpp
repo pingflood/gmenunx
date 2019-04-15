@@ -67,7 +67,6 @@ string Translator::translate(const string &term,const char *replacestr,...) {
 		if (i != translations.end()) {
 			result = i->second;
 		}
-
 		//else WARNING("Untranslated string: '%s'", term.c_str());
 	}
 

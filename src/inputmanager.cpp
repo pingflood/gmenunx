@@ -215,8 +215,7 @@ bool InputManager::update(bool wait) {
 		while (SDL_PollEvent(&event)) events.push_back(event);
 	}
 
-	int32_t now = SDL_GetTicks();
-
+	// int32_t now = SDL_GetTicks();
 	for (uint32_t x = 0; x < actions.size(); x++) {
 		actions[x].active = isActive(x);
 		// WARNING("is active: %d %d", x, actions[x].active);
