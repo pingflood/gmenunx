@@ -323,7 +323,10 @@ void GMenu2X::main() {
 			*iconCPU = sc.skinRes("imgs/cpu.png"),
 			*iconMenu = sc.skinRes("imgs/menu.png"),
 			*iconL = sc.skinRes("imgs/section-l.png"),
-			*iconR = sc.skinRes("imgs/section-r.png");
+			*iconR = sc.skinRes("imgs/section-r.png"),
+			*iconBGoff = sc.skinRes("imgs/iconbg_off.png"),
+			*iconBGon = sc.skinRes("imgs/iconbg_on.png")
+	;
 
 	while (!quit) {
 		// // //Background
@@ -405,9 +408,11 @@ void GMenu2X::main() {
 					Surface *icon = sc[menu->sectionLinks()->at(i)->getIconPath()];
 
 					// s->setClipRect({ix, iy, linkWidth, linkHeight});
-					if (i == (uint32_t)menu->selLinkIndex())
-						s->box(ix + (linkWidth - icon->width()) / 2 - 4, iy + (linkHeight - icon->height()) / 2 - 4, icon->width() + 8, icon->height() + 8, skinConfColors[COLOR_SELECTION_BG]);
+					if (i == (uint32_t)menu->selLinkIndex()) {
+						if (iconBGon != NULL) iconBGon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
+						else s->box(ix + (linkWidth - icon->width()) / 2 - 4, iy + (linkHeight - icon->height()) / 2 - 4, icon->width() + 8, icon->height() + 8, skinConfColors[COLOR_SELECTION_BG]);
 						// s->box(ix, iy, linkWidth, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
+					} else if (iconBGoff != NULL) iconBGoff->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 
 					icon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 					// s->clearClipRect();
