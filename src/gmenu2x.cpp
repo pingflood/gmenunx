@@ -89,6 +89,8 @@ uint16_t batteryIcon = 3;
 
 #if defined(TARGET_RETROGAME)
 	#include "hw/retrogame.h"
+#elif defined(TARGET_BITTBOY)
+	#include "hw/bittboy.h"
 #elif defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	#include "hw/gp2x.h"
 #else //if defined(TARGET_PC)
