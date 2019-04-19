@@ -369,7 +369,7 @@ void GMenu2X::main() {
 			}
 
 			if (skinConfInt["sectionLabel"] && SDL_GetTicks() - section_changed < 1400) {
-				s->write(font, menu->selSectionName(), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
+				s->write(font, tr.translate(menu->selSectionName()), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
 			} else if (sectionChangedTimer != NULL) {
 				SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
 			}
@@ -1151,7 +1151,7 @@ void GMenu2X::writeSkinConfig() {
 				(curr->first == "linkCols" && curr->second == 4) ||
 				(curr->first == "linkRows" && curr->second == 4) ||
 				(curr->first == "sectionBar" && curr->second == SB_CLASSIC) ||
-				(curr->first == "sectionLabel" && curr->second == 0) ||
+				(curr->first == "sectionLabel" && curr->second == 1) ||
 				(curr->first == "linkLabel" && curr->second == 1) ||
 
 				curr->first.empty()
