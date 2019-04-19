@@ -403,7 +403,7 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	gmenu2x->quit();
 
 #if !defined(TARGET_PC)
-	system("mount -o remount,rw,sync,noatime,iocharset=utf8 /home/retrofw");
+	system("[ -d /home/retrofw ] && mount -o remount,rw,sync,noatime,iocharset=utf8 /home/retrofw");
 #endif
 
 	execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);

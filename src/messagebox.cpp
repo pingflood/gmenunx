@@ -52,13 +52,13 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	button[LEFT] = "left";
 	button[RIGHT] = "right";
 	button[MODIFIER] = "a";
-#if defined(TARGET_RETROGAME)
+// #if defined(TARGET_RETROGAME)
 	button[CONFIRM] = "a";
 	button[CANCEL] = "b";
-#else
-	button[CONFIRM] = "b";
-	button[CANCEL] = "x";
-#endif
+// #else
+	// button[CONFIRM] = "b";
+	// button[CANCEL] = "x";
+// #endif
 	button[MANUAL] = "y";
 	button[DEC] = "x";
 	button[INC] = "y";
