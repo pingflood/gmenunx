@@ -808,8 +808,6 @@ void GMenu2X::initMenu() {
 void GMenu2X::settings() {
 //G
 	// int prevgamma = confInt["gamma"];
-	// bool showRootFolder = fileExists("/mnt/root");
-
 	FileLister fl_tr("translations");
 	fl_tr.browse();
 	fl_tr.insertFile("English");
@@ -821,6 +819,8 @@ void GMenu2X::settings() {
 	string tmp = ">>";
 
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
+	sd.allowCancel = false;
+
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenu2X"], &lang, &fl_tr.getFiles()));
 
 	string prevDateTime = confStr["datetime"] = getDateTime();
@@ -871,9 +871,6 @@ void GMenu2X::settings() {
 #endif
 
 		if (prevDateTime != confStr["datetime"]) restartDialog();
-
-		DEBUG("WILL WRITE CONFIGS");
-
 	}
 }
 
