@@ -368,7 +368,7 @@ void GMenu2X::main() {
 				sc[menu->getSectionIcon(i)]->blit(s, {x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"]}, HAlignCenter | VAlignMiddle);
 			}
 
-			if (skinConfInt["sectionLabel"] || SDL_GetTicks() - section_changed < 1400) {
+			if (skinConfInt["sectionLabel"] && SDL_GetTicks() - section_changed < 1400) {
 				s->write(font, menu->selSectionName(), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
 			} else if (sectionChangedTimer != NULL) {
 				SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
@@ -555,13 +555,15 @@ void GMenu2X::main() {
 
 		if (inputCommonActions(inputAction)) continue;
 
-		if (!skinConfInt["sectionLabel"] && (input[SECTION_PREV] || input[SECTION_NEXT]) ) {
+		if (skinConfInt["sectionLabel"] && (input[SECTION_PREV] || input[SECTION_NEXT]) ) {
 			section_changed = SDL_GetTicks();
 			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
 			sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
 		}
 
 		if ( input[CONFIRM] && menu->selLink() != NULL ) {
+			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
+
 			if (confInt["skinBackdrops"] & BD_DIALOG)
 				setBackground(bg, currBackdrop);
 			else
@@ -1174,9 +1176,9 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 	skinConfStr.clear();
 	skinConfInt.clear();
 
-// Defaults *** Sync with default values in writeConfig
+	// Defaults *** Sync with default values in writeConfig
 	skinConfInt["sectionBar"] = SB_CLASSIC;
-	skinConfInt["sectionLabel"] = 0;
+	skinConfInt["sectionLabel"] = 1;
 	skinConfInt["linkLabel"] = 1;
 
 	// clear collection and change the skin path
