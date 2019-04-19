@@ -46,8 +46,10 @@ bool BrowseDialog::exec() {
 		directoryEnter(gmenu2x->confStr["defaultDir"]);
 
 	while (!close) {
-		bool inputAction = false;
+		bool inputAction = false; int tmpButtonPos = buttonPos;
 		this->bg->blit(gmenu2x->s,0,0);
+
+		if (allowDirUp && getPath() != "/") tmpButtonPos = gmenu2x->drawButton(gmenu2x->s, "x", gmenu2x->tr["Folder up"], buttonPos);
 
 		if (!size()) {
 			MessageBox mb(gmenu2x, gmenu2x->tr["This directory is empty"]);
@@ -60,7 +62,7 @@ bool BrowseDialog::exec() {
 			if (selected < firstElement) firstElement = selected;
 
 			if (getPath() == "/media" && getFile(selected) != ".." && isDirectory(selected)) {
-				gmenu2x->drawButton(gmenu2x->s, "select", gmenu2x->tr["Umount"], buttonPos);
+				gmenu2x->drawButton(gmenu2x->s, "select", gmenu2x->tr["Umount"], tmpButtonPos);
 			}
 
 			//Files & Directories
