@@ -133,7 +133,7 @@ bool BrowseDialog::exec() {
 				result = false;
 				close = true;
 			} else if ( gmenu2x->input[MENU]) {
-					if (getPath() == "/media" && isDirectory(selected)) {
+					if (getPath() == "/media" && getFile(selected) != ".." && isDirectory(selected)) {
 						string umount = "sync; umount -fl " + getFilePath(selected) + "; rm -r " + getFilePath(selected);
 						system(umount.c_str());
 					}
