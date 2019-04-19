@@ -96,13 +96,12 @@ bool SettingsDialog::exec() {
 					break;
 				case SD_ACTION_CLOSE:
 					close = true;
-					if (allowCancel) {
-						if (edited()) {
-							MessageBox mb(gmenu2x, gmenu2x->tr["Save changes?"], this->icon);
-							mb.setButton(CONFIRM, gmenu2x->tr["Yes"]);
-							mb.setButton(CANCEL,  gmenu2x->tr["No"]);
-							save = (mb.exec() == CONFIRM);
-						}}
+					if (allowCancel && edited()) {
+						MessageBox mb(gmenu2x, gmenu2x->tr["Save changes?"], this->icon);
+						mb.setButton(CONFIRM, gmenu2x->tr["Yes"]);
+						mb.setButton(CANCEL,  gmenu2x->tr["No"]);
+						save = (mb.exec() == CONFIRM);
+					}
 					break;
 				case SD_ACTION_UP:
 					selected -= 1;
