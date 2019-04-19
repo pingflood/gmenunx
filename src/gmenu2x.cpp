@@ -329,7 +329,7 @@ void GMenu2X::main() {
 	;
 
 	while (!quit) {
-		// // //Background
+		// Background
 		currBackdrop = confStr["wallpaper"];
 		if (menu->selLink() != NULL && menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdropPath().empty()) {
 			currBackdrop = menu->selLinkApp()->getBackdropPath();
@@ -539,7 +539,7 @@ void GMenu2X::main() {
 			}
 		}
 
-		s->flip();
+		if (!powerManager->suspendActive) s->flip();
 
 		bool inputAction = input.update();
 		if (input.combo()) {
@@ -2038,6 +2038,11 @@ int GMenu2X::setBacklight(int val, bool popup) {
 		powerManager->resetSuspendTimer();
 		confInt["backlight"] = val;
 		writeConfig();
+	}
+
+	if (val == 0) {
+		s->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
+		s->flip();
 	}
 
 	return val;
