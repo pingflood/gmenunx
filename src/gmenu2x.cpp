@@ -228,7 +228,7 @@ void GMenu2X::main() {
 		return;
 	}
 
-	input.init(path + "input.conf");
+	input.init(path + "input.conf", default_keymap);
 	setInputSpeed();
 
 	readConfig();

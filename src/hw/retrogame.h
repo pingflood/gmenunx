@@ -14,11 +14,44 @@
 	SELECT     MENU           SDLK_ESCAPE     27         (mem[PDPIN] >> 17 & 0b1)
 	BACKLIGHT  BACKLIGHT      SDLK_3          51        !(mem[PDPIN] >> 21 & 0b1)
 	POWER      POWER          SDLK_END        279       !(mem[PAPIN] >> 30 & 0b1)
-	UP         UP             SDLK_UP                   !(mem[PBPIN] >> 25 & 0b1)
-	DOWN       DOWN           SDLK_DOWN                 !(mem[PBPIN] >> 24 & 0b1)
-	LEFT       LEFT           SDLK_LEFT                 !(mem[PDPIN] >> 00 & 0b1)
-	RIGHT      RIGHT          SDLK_RIGHT                !(mem[PBPIN] >> 26 & 0b1)
+	UP         UP             SDLK_UP         273       !(mem[PBPIN] >> 25 & 0b1)
+	DOWN       DOWN           SDLK_DOWN       274       !(mem[PBPIN] >> 24 & 0b1)
+	RIGHT      RIGHT          SDLK_RIGHT      275       !(mem[PBPIN] >> 26 & 0b1)
+	LEFT       LEFT           SDLK_LEFT       276       !(mem[PDPIN] >> 00 & 0b1)
 */
+
+uint32_t default_keymap[NUM_ACTIONS] = {
+	0, // DO_NOTHING,
+	SDLK_UP, // UP,
+	SDLK_DOWN, // DOWN,
+	SDLK_LEFT, // LEFT,
+	SDLK_RIGHT, // RIGHT,
+	SDLK_LCTRL, // CONFIRM,
+	SDLK_LALT, // CANCEL,
+	SDLK_LSHIFT, // MANUAL,
+	SDLK_SPACE, // MODIFIER,
+	SDLK_TAB, // SECTION_PREV,
+	SDLK_BACKSPACE, // SECTION_NEXT,
+	SDLK_SPACE, // INC,
+	SDLK_LSHIFT, // DEC,
+	SDLK_BACKSPACE, // PAGEUP,
+	SDLK_TAB, // PAGEDOWN,
+	SDLK_RETURN, // SETTINGS,
+	SDLK_ESCAPE, // MENU,
+	0, // VOLUP,
+	0, // VOLDOWN,
+	SDLK_3, // BACKLIGHT,
+	SDLK_END, // POWER,
+	0, // UDC_CONNECT,
+	0, // UDC_REMOVE,
+	0, // MMC_INSERT,
+	0, // MMC_REMOVE,
+	0, // TV_CONNECT,
+	0, // TV_REMOVE,
+	0, // PHONES_CONNECT,
+	0, // PHONES_REMOVE,
+	0, // NUM_ACTIONS
+};
 
 volatile uint32_t *memregs;
 volatile uint8_t memdev = 0;

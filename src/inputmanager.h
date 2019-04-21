@@ -106,7 +106,8 @@ public:
 
 	InputManager();
 	~InputManager();
-	void init(const string &conffile);
+	void init(const string &conffile, uint32_t *default_keymap);
+	// void init(const string &conffile);
 	void initJoysticks();
 	bool readConfFile(const string &conffile = "input.conf");
 

@@ -40,10 +40,21 @@ InputManager::~InputManager() {
 			SDL_JoystickClose(joysticks[x]);
 }
 
-void InputManager::init(const string &conffile) {
+void InputManager::init(const string &conffile, uint32_t *default_keymap) {
+// void InputManager::init(const string &conffile) {
+	setActionsCount(NUM_ACTIONS);
 	initJoysticks();
-	if (!readConfFile(conffile))
-		ERROR("InputManager initialization from config file failed.");
+
+	// default hw keymap
+	for (uint32_t x = 0; x < NUM_ACTIONS; x++) {
+		InputMap map;
+		map.type = InputManager::MAPPING_TYPE_KEYPRESS;
+		map.value = default_keymap[x];
+		actions[x].maplist.push_back(map);
+	}
+
+	if (readConfFile(conffile))
+		INFO("InputManager: Overriding default button mappings.");
 }
 
 void InputManager::initJoysticks() {
@@ -62,10 +73,8 @@ void InputManager::initJoysticks() {
 }
 
 bool InputManager::readConfFile(const string &conffile) {
-	setActionsCount(NUM_ACTIONS);
-
 	if (!fileExists(conffile)) {
-		ERROR("File not found: %s", conffile.c_str());
+		// ERROR("File not found: %s", conffile.c_str());
 		return false;
 	}
 

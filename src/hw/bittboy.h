@@ -1,6 +1,54 @@
 #ifndef HW_BITTBOY_H
 #define HW_BITTBOY_H
 
+/*	BittBoy Key Codes. pingflood, 2019
+	BUTTON     GMENU          SDL             NUMERIC   GPIO
+	-----------------------------------------------------------------------------
+	A          CONFIRM        SDLK_LCTRL      306
+	B          CANCEL         SDLK_SPACE      32
+	TA         MANUAL         SDLK_LALT       308
+	TB         MODIFIER       SDLK_LSHIFT     304
+	R          SECTION_NEXT   SDLK_RCTRL      305
+	START      SETTINGS       SDLK_RETURN     13
+	SELECT     MENU           SDLK_ESCAPE     27
+	UP         UP             SDLK_UP         273
+	DOWN       DOWN           SDLK_DOWN       274
+	RIGHT      RIGHT          SDLK_RIGHT      275
+	LEFT       LEFT           SDLK_LEFT       276
+*/
+
+uint32_t default_keymap[NUM_ACTIONS] = {
+	0, // DO_NOTHING,
+	SDLK_UP, // UP,
+	SDLK_DOWN, // DOWN,
+	SDLK_LEFT, // LEFT,
+	SDLK_RIGHT, // RIGHT,
+	SDLK_LCTRL, // CONFIRM,
+	SDLK_SPACE, // CANCEL,
+	SDLK_LALT, // MANUAL,
+	SDLK_LSHIFT, // MODIFIER,
+	0, // SECTION_PREV,
+	SDLK_RCTRL, // SECTION_NEXT,
+	SDLK_LSHIFT, // INC,
+	SDLK_LALT, // DEC,
+	0, // PAGEUP,
+	0, // PAGEDOWN,
+	SDLK_RETURN, // SETTINGS,
+	SDLK_MENU, // MENU,
+	0, // VOLUP,
+	0, // VOLDOWN,
+	0, // BACKLIGHT,
+	0, // POWER,
+	0, // UDC_CONNECT,
+	0, // UDC_REMOVE,
+	0, // MMC_INSERT,
+	0, // MMC_REMOVE,
+	0, // TV_CONNECT,
+	0, // TV_REMOVE,
+	0, // PHONES_CONNECT,
+	0, // PHONES_REMOVE,
+};
+
 uint32_t oc_table[] = {
 	0x00c81802,
 	0x00cc1013,
