@@ -386,7 +386,12 @@ void GMenu2X::main() {
 
 		i = menu->firstDispRow() * linkCols;
 
-		if (linkCols == 1) {
+		if (!menu->sectionLinks()->size()) {
+			MessageBox mb(this, this->tr["This section is empty"]);
+			mb.setAutoHide(-1);
+			mb.setBgAlpha(0);
+			mb.exec();
+		} else if (linkCols == 1) {
 			// LIST
 			ix = linksRect.x;
 			for (y = 0; y < linkRows && i < menu->sectionLinks()->size(); y++, i++) {
