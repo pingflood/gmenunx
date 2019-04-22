@@ -91,7 +91,7 @@ int MessageBox::exec() {
 
 	gmenu2x->powerManager->clearTimer();
 
-	Surface bg(gmenu2x->s);
+	// Surface bg(gmenu2x->s);
 	//Darken background
 	gmenu2x->s->box((SDL_Rect){0, 0, gmenu2x->resX, gmenu2x->resY}, (RGBAColor){0,0,0,bgalpha});
 
@@ -179,20 +179,22 @@ int MessageBox::exec() {
 
 	gmenu2x->input.dropEvents(); // prevent passing input away
 	gmenu2x->powerManager->resetSuspendTimer();
-	bg.blit(gmenu2x->s,0,0);
+	// bg.blit(gmenu2x->s,0,0);
 	return result;
 }
+
 void MessageBox::exec(uint32_t timeOut) {
 	clearTimer();
 	popupTimer = SDL_AddTimer(timeOut, execTimer, this);
-};
+}
+
 void MessageBox::clearTimer() {
-	if (popupTimer != NULL) SDL_RemoveTimer(popupTimer);
-	popupTimer = NULL;
-};
+	SDL_RemoveTimer(popupTimer); popupTimer = NULL;
+}
+
 uint32_t MessageBox::execTimer(uint32_t interval, void *param) {
 	MessageBox *mb = reinterpret_cast<MessageBox *>(param);
 	mb->clearTimer();
 	mb->exec();
 	return 0;
-};
+}
