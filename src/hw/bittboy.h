@@ -34,7 +34,7 @@ uint32_t default_keymap[NUM_ACTIONS] = {
 	0, // PAGEUP,
 	0, // PAGEDOWN,
 	SDLK_RETURN, // SETTINGS,
-	SDLK_MENU, // MENU,
+	SDLK_ESCAPE, // MENU,
 	0, // VOLUP,
 	0, // VOLDOWN,
 	0, // BACKLIGHT,
