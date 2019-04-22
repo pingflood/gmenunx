@@ -50,7 +50,6 @@ uint32_t default_keymap[NUM_ACTIONS] = {
 	0, // TV_REMOVE,
 	0, // PHONES_CONNECT,
 	0, // PHONES_REMOVE,
-	0, // NUM_ACTIONS
 };
 
 volatile uint32_t *memregs;
