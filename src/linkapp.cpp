@@ -326,7 +326,7 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 
 void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	MessageBox mb(gmenu2x, gmenu2x->tr["Launching "] + this->getTitle().c_str(), this->getIconPath());
-	mb.setAutoHide(200);
+	mb.setAutoHide(-1);
 	mb.exec();
 
 	gmenu2x->setVolume(gmenu2x->confInt["globalVolume"]);

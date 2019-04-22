@@ -255,8 +255,8 @@ void GMenu2X::main() {
 	setSkin(confStr["skin"], false, true);
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
 
-	MessageBox mb(this,tr["Loading"]);
-	mb.setAutoHide(1);
+	MessageBox mb(this, tr["Loading"]);
+	mb.setAutoHide(-1);
 	mb.exec();
 
 	initMenu();
