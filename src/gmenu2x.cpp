@@ -263,6 +263,7 @@ void GMenu2X::main() {
 
 	currBackdrop = confStr["wallpaper"];
 	setBacklight(confInt["backlight"]);
+	setBackground(bg, currBackdrop);
 
 	tvOutStatus = getTVOutStatus();
 	mmcStatus = getMMCStatus();
