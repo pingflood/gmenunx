@@ -95,8 +95,6 @@ bool InputManager::readConfFile(const string &conffile) {
 		value = trim(line.substr(pos + 1));
 
 		if (name == "up")                action = UP;
-		else if (fwType == "RETROARCADE" && name == "cancel")   action = CONFIRM;
-		else if (fwType == "RETROARCADE" && name == "confirm")  action = CANCEL;
 		else if (name == "down")         action = DOWN;
 		else if (name == "left")         action = LEFT;
 		else if (name == "right")        action = RIGHT;
