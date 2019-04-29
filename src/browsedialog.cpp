@@ -45,6 +45,8 @@ bool BrowseDialog::exec() {
 	if (path.empty() || !dirExists(path))
 		directoryEnter(gmenu2x->confStr["defaultDir"]);
 
+	string preview = getPreview(selected);
+
 	while (!close) {
 		bool inputAction = false; int tmpButtonPos = buttonPos;
 		this->bg->blit(gmenu2x->s,0,0);
@@ -80,8 +82,6 @@ bool BrowseDialog::exec() {
 				gmenu2x->s->write(gmenu2x->font, getFileName(i), gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
 			}
 
-			// preview
-			string preview = getPreview(selected);
 			Surface anim = new Surface(gmenu2x->s);
 
 			if (!preview.empty()) {
@@ -131,7 +131,8 @@ bool BrowseDialog::exec() {
 				if (selected >= this->size()) selected = this->size() - 1;
 			} else if ( gmenu2x->input[CANCEL] ) {
 				result = false;
-				close = true;
+				close = preview.empty(); //true; // close only if preview is empty.
+				preview = "";
 			} else if ( gmenu2x->input[MENU]) {
 					if (getPath() == "/media" && getFile(selected) != ".." && isDirectory(selected)) {
 						string umount = "sync; umount -fl " + getFilePath(selected) + "; rm -r " + getFilePath(selected);
@@ -140,6 +141,7 @@ bool BrowseDialog::exec() {
 					directoryEnter(getPath()); // refresh
 			} else if ( allowDirUp && (gmenu2x->input[MODIFIER] || (gmenu2x->input[CONFIRM] && getFile(selected) == "..")) ) { /*Directory Up */
 				selected = 0;
+				preview = "";
 				if (browse_history.size() > 0) {
 					selected = browse_history.back();
 					browse_history.pop_back();
@@ -158,6 +160,11 @@ bool BrowseDialog::exec() {
 				result = true;
 				close = true;
 			}
+
+			if (gmenu2x->input[UP] || gmenu2x->input[DOWN] || gmenu2x->input[LEFT] || gmenu2x->input[RIGHT] || gmenu2x->input[PAGEUP] || gmenu2x->input[PAGEDOWN]) {
+				preview = getPreview(selected);
+			}
+
 		} while (!inputAction);
 	}
 	return result;
