@@ -657,10 +657,10 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 			mb.setAutoHide(1000);
 			mb.exec();
 			return true;
-		} else if (input[SECTION_NEXT]) {
+		} else if (input[BACKLIGHT_HOTKEY]) {
 			setBacklight(confInt["backlight"], true);
 			return true;
-		} else if (input[SECTION_PREV]) {
+		} else if (input[VOLUME_HOTKEY]) {
 			// VOLUME / MUTE
 			setVolume(confInt["globalVolume"], true);
 			return true;
@@ -702,8 +702,8 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 
 void GMenu2X::setBackground(Surface *_bg, const string &_wallpaper) {
 	string wallpaper = _wallpaper;
-
-	if (sc[wallpaper] == NULL) { // search and scale background
+	// if (sc[wallpaper] == NULL) { // search and scale background
+	if (!sc.exists(wallpaper)) { // search and scale background
 		if (wallpaper.empty() || sc[wallpaper] == NULL) {
 			DEBUG("Searching wallpaper");
 			FileLister fl("skins/Default/wallpapers", false, true);
@@ -713,8 +713,8 @@ void GMenu2X::setBackground(Surface *_bg, const string &_wallpaper) {
 		}
 		if (sc[wallpaper] == NULL) return;
 		if (confStr["bgscale"] == "Stretch") sc[wallpaper]->softStretch(resX, resY, false, true);
-		else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(resX, resY, true, true);
-		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(resX, resY, true, false);
+		else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(resX, resY, true, false);
+		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(resX, resY, true, true);
 	}
 
 	_bg->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
@@ -1008,6 +1008,7 @@ void GMenu2X::readConfig() {
 	confInt["skinBackdrops"] = 0;
 	confStr["defaultDir"] = CARD_ROOT;
 	confInt["globalVolume"] = 60;
+	confStr["bgscale"] = "Stretch";
 
 	input.update(false);
 
@@ -1073,7 +1074,7 @@ void GMenu2X::writeConfig() {
 				(curr->first == "lang" && curr->second.empty()) ||
 				(curr->first == "lang" && curr->second.empty()) ||
 				(curr->first == "bgscale" && curr->second.empty()) ||
-				(curr->first == "bgscale" && curr->second == "Original") ||
+				(curr->first == "bgscale" && curr->second == "Stretch") ||
 
 				curr->first.empty() || curr->second.empty()
 			) continue;

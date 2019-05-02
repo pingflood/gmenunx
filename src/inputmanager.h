@@ -41,6 +41,9 @@ enum actions {
 	NUM_ACTIONS
 };
 
+#define VOLUME_HOTKEY		SECTION_PREV
+#define BACKLIGHT_HOTKEY	SECTION_NEXT
+
 #include <SDL.h>
 #include <vector>
 #include <string>
