@@ -191,7 +191,7 @@ public:
 	void resetSettings();
 	void cpuSettings();
 
-	void setSkin(const string &skin, bool resetWallpaper = true, bool clearSC = true);
+	void setSkin(const string &skin, bool clearSC = true);
 	void skinMenu();
 	void skinColors();
 	uint32_t onChangeSkin();
