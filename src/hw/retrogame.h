@@ -253,8 +253,22 @@ private:
 		return atoi(buf);
 	}
 
-
 public:
+	int setVolume(int val, bool popup = false) {
+		val = GMenu2X::setVolume(val, popup);
+
+		uint32_t soundDev = open("/dev/mixer", O_RDWR);
+		if (soundDev) {
+			int vol = (val << 8) | val;
+			ioctl(soundDev, SOUND_MIXER_WRITE_VOLUME, &vol);
+			close(soundDev);
+
+		}
+		volumeMode = getVolumeMode(val);
+
+		return val;
+	}
+
 	int setBacklight(int val, bool popup = false) {
 		val = GMenu2X::setBacklight(val, popup);
 

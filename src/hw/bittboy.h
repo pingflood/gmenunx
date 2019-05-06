@@ -23,6 +23,11 @@
 #define VOLUME_HOTKEY		MANUAL
 #define BACKLIGHT_HOTKEY	MODIFIER
 
+#define MIYOO_SND_SET_VOLUME  _IOWR(0x100, 0, unsigned long)
+#define MIYOO_KBD_GET_HOTKEY  _IOWR(0x100, 0, unsigned long)
+#define MIYOO_KBD_SET_VER     _IOWR(0x101, 0, unsigned long)
+#define MIYOO_FB0_GET_VER     _IOWR(0x102, 0, unsigned long)
+
 uint32_t oc_table[] = {
 	0x00c81802,
 	0x00cc1013,
@@ -313,9 +318,66 @@ static int read_conf(const char *file)
 volatile uint32_t *memregs;
 uint8_t memdev = 0;
 int SOUND_MIXER_READ = SOUND_MIXER_READ_PCM;
-int SOUND_MIXER_WRITE = SOUND_MIXER_WRITE_PCM;
+// int SOUND_MIXER_WRITE = SOUND_MIXER_WRITE_PCM;
 
 uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
+
+  unsigned long ret;
+
+int fb0 = open("/dev/miyoo_fb0", O_RDWR);
+int kbd = open("/dev/miyoo_kbd", O_RDWR);
+  ioctl(fb0, MIYOO_FB0_GET_VER, &ret);
+  ioctl(kbd, MIYOO_KBD_SET_VER, ret);
+// int vir = open("/dev/miyoo_vir", O_RDWR);
+  // ioctl(vir, MIYOO_VIR_SET_VER, ret);
+  // close(vir);
+    ioctl(kbd, MIYOO_KBD_GET_HOTKEY, &ret);
+    if (!ret) return 0;
+
+    switch(ret) {
+    case 1:
+      printf("backlight++\n");
+      // if(lid < 10){
+        // lid+= 1;
+        // write_conf(MIYOO_LID_FILE, lid);
+        // sprintf(buf, "echo %d > %s", lid, MIYOO_LID_CONF);
+        // system(buf);
+        // info_fb0(fb0, lid, vol, 1);
+      // }
+      break;
+    case 2:
+      printf("backlight--\n");
+      // if(lid > 1){
+      //   lid-= 1;
+      //   write_conf(MIYOO_LID_FILE, lid);
+      //   sprintf(buf, "echo %d > %s", lid, MIYOO_LID_CONF);
+      //   system(buf);
+      //   info_fb0(fb0, lid, vol, 1);
+      // }
+      break;
+    case 3:
+      printf("sound++\n");
+      // if(vol < 9){
+      //   vol+= 1;
+      //   write_conf(MIYOO_VOL_FILE, vol);
+      //   ioctl(snd, MIYOO_SND_SET_VOLUME, vol);
+      //   info_fb0(fb0, lid, vol, 1);
+      // }
+      break;
+    case 4:
+      printf("sound--\n");
+      // if(vol > 0){
+      //   vol-= 1;
+      //   write_conf(MIYOO_VOL_FILE, vol);
+      //   ioctl(snd, MIYOO_SND_SET_VOLUME, vol);
+      //   info_fb0(fb0, lid, vol, 1);
+      // }
+      break;
+    }
+  close(fb0);
+  close(kbd);
+  // close(snd);
+
 	return 0;
 }
 
@@ -375,6 +437,21 @@ private:
 	}
 
 public:
+	int setVolume(int val, bool popup = false) {
+		val = GMenu2X::setVolume(val, popup);
+
+		uint32_t snd = open("/dev/miyoo_snd", O_RDWR);
+
+		if (snd) {
+			int vol = val / 20;
+			ioctl(snd, MIYOO_SND_SET_VOLUME, &vol);
+			close(snd);
+		}
+		volumeMode = getVolumeMode(val);
+
+		return val;
+	}
+
 	int setBacklight(int val, bool popup = false) {
 		val = GMenu2X::setBacklight(val, popup);
 		char buf[128] = {0};

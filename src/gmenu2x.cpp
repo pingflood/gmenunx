@@ -2011,14 +2011,6 @@ int GMenu2X::setVolume(int val, bool popup) {
 		writeConfig();
 	}
 
-	uint32_t soundDev = open("/dev/mixer", O_RDWR);
-	if (soundDev) {
-		int vol = (val << 8) | val;
-		ioctl(soundDev, SOUND_MIXER_WRITE, &vol);
-		close(soundDev);
-
-	}
-	volumeMode = getVolumeMode(val);
 	return val;
 }
 
