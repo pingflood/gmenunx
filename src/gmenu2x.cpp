@@ -235,6 +235,8 @@ void GMenu2X::main() {
 	readConfig();
 	setDateTime();
 
+	setScaleMode(0);
+
 	s = new Surface();
 
 	SDL_ShowCursor(0);
@@ -1762,6 +1764,13 @@ void GMenu2X::editLink() {
 	string dialogIcon = menu->selLinkApp()->getIconPath();
 	string linkDir = dir_name(linkExec);
 
+	vector<string> scaleMode;
+	// scaleMode.push_back("Original");
+	// scaleMode.push_back("Crop");
+	scaleMode.push_back("Stretch");
+	scaleMode.push_back("Aspect");
+	string linkScaleMode = scaleMode[menu->selLinkApp()->getScaleMode() ? 1 : 0];
+
 	SettingsDialog sd(this, ts, dialogTitle, dialogIcon);
 	sd.addSetting(new MenuSettingFile(			this, tr["Executable"],		tr["Application this link points to"], &linkExec, ".dge,.gpu,.gpe,.sh,.bin,.elf,", linkExec, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingString(		this, tr["Title"],			tr["Link title"], &linkTitle, dialogTitle, dialogIcon));
@@ -1770,6 +1779,13 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingImage(			this, tr["Icon"],			tr["Select a custom icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", linkExec, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], 6));
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
+
+#if !defined(TARGET_PC)
+	if (fileExists("/proc/jz/ipu_ratio"))
+#endif
+	{
+		sd.addSetting(new MenuSettingMultiString(this, tr["Scale Mode"],		tr["Hardware scaling mode"], &linkScaleMode, &scaleMode));
+	}
 
 	if (confInt["saveSelection"]) {
 		sd.addSetting(new MenuSettingBool(		this, tr["File Selector"],	tr["Use file browser selector"], &useSelector));
@@ -1811,6 +1827,7 @@ void GMenu2X::editLink() {
 			linkSelDir = "";
 		}
 
+		menu->selLinkApp()->setScaleMode(linkScaleMode == "Aspect");
 		menu->selLinkApp()->setSelectorDir(linkSelDir);
 		menu->selLinkApp()->setSelectorBrowser(linkSelBrowser);
 		menu->selLinkApp()->setSelectorScreens(linkSelScreens);

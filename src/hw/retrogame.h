@@ -255,15 +255,23 @@ private:
 
 
 public:
-int setBacklight(int val, bool popup = false) {
-	val = GMenu2X::setBacklight(val, popup);
+	int setBacklight(int val, bool popup = false) {
+		val = GMenu2X::setBacklight(val, popup);
 
-	char buf[34] = {0};
-	sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
-	system(buf);
+		char buf[128] = {0};
+		sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
+		system(buf);
 
-	return val;
-}
+		return val;
+	}
+
+	void setScaleMode(unsigned int mode) {
+		if (!fileExists("/proc/jz/ipu_ratio")) return;
+
+		char buf[128] = {0};
+		sprintf(buf, "echo %d > /proc/jz/ipu_ratio", mode);
+		system(buf);
+	}
 
 	void setTVOut(unsigned int TVOut) {
 		if (!fileExists("/proc/jz/tvselect")) return;

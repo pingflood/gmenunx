@@ -237,6 +237,7 @@ public:
 	@return A number representing battery charge. 0 means fully discharged. 5 means fully charged. 6 represents a gp2x using AC power.
 	*/
 	virtual uint16_t getBatteryLevel() { return 6; };
+	virtual void setScaleMode(unsigned int mode) { };
 	virtual void setTVOut(unsigned int _TVOut) { };
 	virtual void setCPU(uint32_t mhz) {};
 	virtual void ledOn() { };

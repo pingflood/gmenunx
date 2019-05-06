@@ -56,6 +56,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	selectorfilter = "";
 	icon = iconPath = "";
 	selectorbrowser = true;
+	scalemode = 0;
 	// useRamTimings = false;
 	// useGinge = false;
 	workdir = "";
@@ -91,12 +92,13 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 #endif
 		else if (name == "selectordir") setSelectorDir(value);
 		else if (name == "selectorbrowser" && value == "false") selectorbrowser = false;
-		else if (name == "selectorfilter") setSelectorFilter( value );
-		else if (name == "selectorscreens") setSelectorScreens( value );
-		else if (name == "selectoraliases") setAliasFile( value );
-		else if (name == "selectorelement") setSelectorElement( atoi(value.c_str()) );
+		else if (name == "scalemode") scalemode = atoi(value.c_str());
+		else if (name == "selectorfilter") setSelectorFilter(value);
+		else if (name == "selectorscreens") setSelectorScreens(value);
+		else if (name == "selectoraliases") setAliasFile(value);
+		else if (name == "selectorelement") setSelectorElement(atoi(value.c_str()));
 		else if (name == "backdrop") setBackdrop(value);
-		else WARNING("Unrecognized option: '%s'", name.c_str());
+		// else WARNING("Unrecognized option: '%s'", name.c_str());
 	}
 	infile.close();
 
@@ -278,6 +280,7 @@ bool LinkApp::save() {
 
 		if (selectordir != "")		f << "selectordir="		<< selectordir		<< endl;
 		if (!selectorbrowser)		f << "selectorbrowser=false"				<< endl; // selectorbrowser = true by default
+		if (scalemode)				f << "scalemode="		<< scalemode		<< endl; // scalemode = 0 by default
 		if (selectorfilter != "")	f << "selectorfilter="	<< selectorfilter	<< endl;
 		if (selectorscreens != "")	f << "selectorscreens="	<< selectorscreens	<< endl;
 		if (selectorelement > 0)	f << "selectorelement="	<< selectorelement	<< endl;
@@ -398,6 +401,8 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 	if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"]) gmenu2x->setGamma(gamma());
 #endif
 
+	gmenu2x->setScaleMode(scalemode);
+
 	if (gmenu2x->confInt["outputLogs"]) command += " &> " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 
 	gmenu2x->quit();
@@ -480,6 +485,15 @@ bool LinkApp::getSelectorBrowser() {
 
 void LinkApp::setSelectorBrowser(bool value) {
 	selectorbrowser = value;
+	edited = true;
+}
+
+int LinkApp::getScaleMode() {
+	return scalemode;
+}
+
+void LinkApp::setScaleMode(int value) {
+	scalemode = value;
 	edited = true;
 }
 
