@@ -1765,11 +1765,11 @@ void GMenu2X::editLink() {
 	string linkDir = dir_name(linkExec);
 
 	vector<string> scaleMode;
-	// scaleMode.push_back("Original");
 	// scaleMode.push_back("Crop");
 	scaleMode.push_back("Stretch");
 	scaleMode.push_back("Aspect");
-	string linkScaleMode = scaleMode[menu->selLinkApp()->getScaleMode() ? 1 : 0];
+	scaleMode.push_back("Original");
+	string linkScaleMode = scaleMode[menu->selLinkApp()->getScaleMode()];
 
 	SettingsDialog sd(this, ts, dialogTitle, dialogIcon);
 	sd.addSetting(new MenuSettingFile(			this, tr["Executable"],		tr["Application this link points to"], &linkExec, ".dge,.gpu,.gpe,.sh,.bin,.elf,", linkExec, dialogTitle, dialogIcon));
@@ -1827,7 +1827,11 @@ void GMenu2X::editLink() {
 			linkSelDir = "";
 		}
 
-		menu->selLinkApp()->setScaleMode(linkScaleMode == "Aspect");
+		int scale_mode = 0;
+		if (linkScaleMode == "Aspect") scale_mode = 1;
+		else if (linkScaleMode == "Original") scale_mode = 2;
+		menu->selLinkApp()->setScaleMode(scale_mode);
+
 		menu->selLinkApp()->setSelectorDir(linkSelDir);
 		menu->selLinkApp()->setSelectorBrowser(linkSelBrowser);
 		menu->selLinkApp()->setSelectorScreens(linkSelScreens);
