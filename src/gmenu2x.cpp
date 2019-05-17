@@ -395,7 +395,7 @@ void GMenu2X::main() {
 			mb.setAutoHide(-1);
 			mb.setBgAlpha(0);
 			mb.exec();
-		} else if (linkCols == 1) {
+		} else if (linkCols == 1 && linkRows > 1) {
 			// LIST
 			ix = linksRect.x;
 			for (y = 0; y < linkRows && i < menu->sectionLinks()->size(); y++, i++) {
@@ -583,8 +583,8 @@ void GMenu2X::main() {
 		else if ( input[SETTINGS] ) settings();
 		else if ( input[MENU]     ) contextMenu();
 		// LINK NAVIGATION
-		else if ( input[LEFT ] && linkCols == 1) menu->pageUp();
-		else if ( input[RIGHT] && linkCols == 1) menu->pageDown();
+		else if ( input[LEFT ] && linkCols == 1 && linkRows > 1) menu->pageUp();
+		else if ( input[RIGHT] && linkCols == 1 && linkRows > 1) menu->pageDown();
 		else if ( input[LEFT ] ) menu->linkLeft();
 		else if ( input[RIGHT] ) menu->linkRight();
 		else if ( input[UP   ] ) menu->linkUp();
