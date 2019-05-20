@@ -181,20 +181,21 @@ bool InputManager::update(bool wait) {
 			events.push_back(event);
 		} else {
 			if (event.type == SDL_KEYUP) {
-				// anyactions = false;
-				while (SDL_PollEvent(&event)){
-					WARNING("Skipping event.type: %d", event.type); // clear event queue
-					SDL_PumpEvents();
-				}
+				anyactions = true;
 			}
+
 			#if !defined(TARGET_PC)
 				keystate[event.key.keysym.sym] = false;
 			#endif
 		}
-	} else {
-		SDL_PumpEvents();
-		while (SDL_PollEvent(&event)) events.push_back(event);
 	}
+
+	while (SDL_PollEvent(&event)) {
+		// WARNING("Skipping event.type: %d", event.type); // clear event queue
+		SDL_PumpEvents();
+	}
+
+	if (!wait) events.push_back(event);
 
 	// int32_t now = SDL_GetTicks();
 	for (uint32_t x = 0; x < actions.size(); x++) {
