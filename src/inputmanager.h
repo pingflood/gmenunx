@@ -86,7 +86,7 @@ Manages all input peripherals
 class InputManager {
 private:
 	InputMap getInputMapping(int action);
-	SDLEventList events;
+	// SDLEventList events;
 	SDL_TimerID wakeUpTimer;
 
 	vector <SDL_Joystick*> joysticks;
