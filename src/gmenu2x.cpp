@@ -228,18 +228,15 @@ void GMenu2X::main() {
 		quit();
 		return;
 	}
+	SDL_ShowCursor(0);
 
 	input.init(path + "input.conf");
-	setInputSpeed();
 
-	readConfig();
-	setDateTime();
+	setInputSpeed();
 
 	setScaleMode(0);
 
 	s = new Surface();
-
-	SDL_ShowCursor(0);
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	//I'm forced to use SW surfaces since with HW there are issuse with changing the clock frequency
 	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, 16, SDL_SWSURFACE);
@@ -252,8 +249,10 @@ void GMenu2X::main() {
 	);
 	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, 16, 0, 0, 0, 0);
 #endif
-
 	bg = new Surface(s);
+
+	readConfig();
+	setDateTime();
 
 	setSkin(confStr["skin"], true);
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
