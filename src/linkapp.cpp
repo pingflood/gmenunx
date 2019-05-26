@@ -43,22 +43,22 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	file = linkfile;
 	setCPU(gmenu2x->confInt["cpuMenu"]);
 
-	// wrapper = false;
-	// dontleave = false;
-	// setVolume(-1);
 
 #if defined(TARGET_GP2X)
 	//G
 	setGamma(0);
+	// wrapper = false;
+	// dontleave = false;
+	// setVolume(-1);
+	// useRamTimings = false;
+	// useGinge = false;
 #endif
 
 	selectordir = "";
 	selectorfilter = "";
 	icon = iconPath = "";
 	selectorbrowser = true;
-	scalemode = 0;
-	// useRamTimings = false;
-	// useGinge = false;
+	scalemode = 1;
 	workdir = "";
 	backdrop = backdropPath = "";
 
@@ -280,7 +280,7 @@ bool LinkApp::save() {
 
 		if (selectordir != "")		f << "selectordir="		<< selectordir		<< endl;
 		if (!selectorbrowser)		f << "selectorbrowser=false"				<< endl; // selectorbrowser = true by default
-		if (scalemode)				f << "scalemode="		<< scalemode		<< endl; // scalemode = 0 by default
+		if (scalemode != 1)			f << "scalemode="		<< scalemode		<< endl; // scalemode = 1 by default
 		if (selectorfilter != "")	f << "selectorfilter="	<< selectorfilter	<< endl;
 		if (selectorscreens != "")	f << "selectorscreens="	<< selectorscreens	<< endl;
 		if (selectorelement > 0)	f << "selectorelement="	<< selectorelement	<< endl;
