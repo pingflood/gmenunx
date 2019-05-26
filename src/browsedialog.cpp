@@ -129,16 +129,12 @@ bool BrowseDialog::exec() {
 			} else if (gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT]) {
 				selected += numRows;
 				if (selected >= this->size()) selected = this->size() - 1;
-			} else if ( gmenu2x->input[CANCEL] ) {
-				result = false;
-				close = preview.empty(); //true; // close only if preview is empty.
-				preview = "";
 			} else if ( gmenu2x->input[MENU]) {
-					if (getPath() == "/media" && getFile(selected) != ".." && isDirectory(selected)) {
-						string umount = "sync; umount -fl " + getFilePath(selected) + "; rm -r " + getFilePath(selected);
-						system(umount.c_str());
-					}
-					directoryEnter(getPath()); // refresh
+				if (getPath() == "/media" && getFile(selected) != ".." && isDirectory(selected)) {
+					string umount = "sync; umount -fl " + getFilePath(selected) + "; rm -r " + getFilePath(selected);
+					system(umount.c_str());
+				}
+				directoryEnter(getPath()); // refresh
 			} else if ( allowDirUp && (gmenu2x->input[MODIFIER] || (gmenu2x->input[CONFIRM] && getFile(selected) == "..")) ) { /*Directory Up */
 				selected = 0;
 				preview = "";
@@ -159,6 +155,10 @@ bool BrowseDialog::exec() {
 			} else if (gmenu2x->input[SETTINGS] && allowSelectDirectory) {
 				result = true;
 				close = true;
+			} else if (gmenu2x->input[CANCEL] || gmenu2x->input[SETTINGS]) {
+				result = false;
+				close = preview.empty(); //true; // close only if preview is empty.
+				preview = "";
 			}
 
 			if (gmenu2x->input[UP] || gmenu2x->input[DOWN] || gmenu2x->input[LEFT] || gmenu2x->input[RIGHT] || gmenu2x->input[PAGEUP] || gmenu2x->input[PAGEDOWN]) {
