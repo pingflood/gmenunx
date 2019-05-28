@@ -51,7 +51,7 @@ void InputManager::initJoysticks() {
 	//SDL_JoystickEventState(SDL_IGNORE);
 
 	int numJoy = SDL_NumJoysticks();
-	// INFO("%d joysticks found", numJoy);
+	INFO("%d joysticks found", numJoy);
 	for (int x = 0; x < numJoy; x++) {
 		SDL_Joystick *joy = SDL_JoystickOpen(x);
 		if (joy) {
@@ -129,6 +129,7 @@ bool InputManager::readConfFile(const string &conffile) {
 				map.value = atoi(values[2].c_str());
 				map.treshold = 0;
 				actions[action].maplist.push_back(map);
+				// INFO("ADDING: joystickbutton %d  %d ", map.num, map.value);
 			} else if (values[0] == "joystickaxis" && values.size() == 4) {
 				InputMap map;
 				map.type = InputManager::MAPPING_TYPE_AXIS;
@@ -188,10 +189,15 @@ bool InputManager::update(bool wait) {
 		}
 	}
 
-	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_KEYUP){
-			keystate[event.key.keysym.sym] = false;
-			// WARNING("Skipping event.type: %d", event.type); // clear event queue
+	// WARNING("SDL_JOYBUTTONDOWN=%d SDL_JOYAXISMOTION=%d event.type: %d", SDL_JOYBUTTONDOWN, SDL_JOYAXISMOTION, event.type); // clear event queue
+	// WARNING("event.jbutton.button=%d event.jaxis.axis=%d event.jaxis.value=%d", event.jbutton.button, event.jaxis.axis, event.jaxis.value); // clear event queue
+
+	if (event.type != SDL_JOYBUTTONDOWN && event.type != SDL_JOYAXISMOTION) {
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_KEYUP){
+				keystate[event.key.keysym.sym] = false;
+				// WARNING("Skipping event.type: %d", event.type); // clear event queue
+			}
 		}
 	}
 
@@ -330,22 +336,27 @@ bool InputManager::isActive(int action) {
 	MappingList mapList = actions[action].maplist;
 	for (MappingList::const_iterator it = mapList.begin(); it != mapList.end(); ++it) {
 		InputMap map = *it;
+		// WARNING("map.type: %d   joysticks.size(): %d ", map.type, joysticks.size());
 
 		switch (map.type) {
 			case InputManager::MAPPING_TYPE_BUTTON:
-				if (map.num < joysticks.size() && SDL_JoystickGetButton(joysticks[map.num], map.value))
-					return true;
-			break;
+				// WARNING("map.num: %d   joysticks.size(): %d  %d", map.num, joysticks.size(), SDL_JoystickGetButton(joysticks[map.num], map.value));
+				// if (map.num < joysticks.size() && SDL_JoystickGetButton(joysticks[map.num], map.value))
+					// return true;
+				for (int j = 0; j < joysticks.size(); j++) {
+					if (SDL_JoystickGetButton(joysticks[j], map.value)) return true;
+				}
+				break;
 			case InputManager::MAPPING_TYPE_AXIS:
 				if (map.num < joysticks.size()) {
 					int axyspos = SDL_JoystickGetAxis(joysticks[map.num], map.value);
 					if (map.treshold < 0 && axyspos < map.treshold) return true;
 					if (map.treshold > 0 && axyspos > map.treshold) return true;
 				}
-			break;
+				break;
 			case InputManager::MAPPING_TYPE_KEYPRESS:
-				return keystate[map.value];
-			break;
+				if (keystate[map.value]) return true;
+				break;
 		}
 	}
 	return false;
