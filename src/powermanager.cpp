@@ -57,7 +57,7 @@ uint32_t PowerManager::doSuspend(uint32_t interval, void *param) {
 #endif
 		PowerManager::instance->gmenu2x->setBacklight(0);
 		PowerManager::instance->gmenu2x->setTVOut(0);
-		PowerManager::instance->gmenu2x->setCPU(PowerManager::instance->gmenu2x->confInt["cpuMin"]);
+		PowerManager::instance->gmenu2x->setCPU(PowerManager::instance->gmenu2x->confInt["cpuMenu"]);
 		PowerManager::instance->resetPowerTimer();
 
 		PowerManager::instance->suspendActive = true;

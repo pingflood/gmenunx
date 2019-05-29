@@ -334,7 +334,7 @@ public:
 
 	void setCPU(uint32_t mhz) {
 		// return; // temp
-		mhz = constrain(mhz, confInt["cpuMin"], confInt["cpuMax"]);
+		mhz = constrain(mhz, confInt["cpuMenu"], confInt["cpuMax"]);
 		if (memdev > 0) {
 			DEBUG("Setting clock to %d", mhz);
 
