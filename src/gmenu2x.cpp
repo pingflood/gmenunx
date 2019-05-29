@@ -1503,10 +1503,13 @@ void GMenu2X::showManual() {
 	td.exec();
 }
 
+string explorerLastDir = "";
 void GMenu2X::explorer() {
 	BrowseDialog bd(this, tr["Explorer"], tr["Select a file or application"]);
 	bd.showDirectories = true;
 	bd.showFiles = true;
+
+	if (confInt["saveSelection"]) bd.setPath(explorerLastDir);
 
 	while (bd.exec()) {
 		string ext = bd.getExt(bd.selected);
@@ -1552,6 +1555,8 @@ void GMenu2X::explorer() {
 			return;
 		}
 	}
+
+	explorerLastDir = bd.getPath();
 }
 
 const string GMenu2X::getDateTime() {
