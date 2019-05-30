@@ -101,14 +101,10 @@ void TextDialog::exec() {
 
 	bool close = false, inputAction = false;
 
-	drawTopBar(this->bg, title, description);
+	if (gmenu2x->sc.skinRes(icon) == NULL)
+		icon = "icons/ebook.png";
 
-	//link icon
-	if (gmenu2x->sc.skinRes(icon)==NULL)
-		drawTitleIcon("icons/ebook.png", this->bg);
-	else
-		drawTitleIcon(icon, this->bg);
-
+	drawTopBar(this->bg, title, description, icon);
 	drawBottomBar(this->bg);
 
 	gmenu2x->drawButton(this->bg, "down", gmenu2x->tr["Scroll"],

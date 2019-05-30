@@ -1162,6 +1162,7 @@ void GMenu2X::writeSkinConfig() {
 				(curr->first == "sectionBar" && curr->second == SB_CLASSIC) ||
 				(curr->first == "sectionLabel" && curr->second == 1) ||
 				(curr->first == "linkLabel" && curr->second == 1) ||
+				(curr->first == "showDialogIcon" && curr->second == 1) ||
 
 				curr->first.empty()
 			) continue;
@@ -1189,6 +1190,7 @@ void GMenu2X::setSkin(const string &skin, bool clearSC) {
 	skinConfInt["sectionBar"] = SB_CLASSIC;
 	skinConfInt["sectionLabel"] = 1;
 	skinConfInt["linkLabel"] = 1;
+	skinConfInt["showDialogIcon"] = 1;
 
 	// clear collection and change the skin path
 	if (clearSC) {

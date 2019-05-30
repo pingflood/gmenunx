@@ -60,14 +60,10 @@ void TerminalDialog::exec(const string &_cmd) {
 	int32_t firstCol = 0, lineWidth = 0;
 	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 
-	drawTopBar(this->bg, title, description);
+	if (gmenu2x->sc.skinRes(icon) == NULL)
+		icon = "icons/terminal.png";
 
-	//link icon
-	if (gmenu2x->sc.skinRes(icon)==NULL)
-		drawTitleIcon("icons/terminal.png", this->bg);
-	else
-		drawTitleIcon(icon, this->bg);
-
+	drawTopBar(this->bg, title, description, icon);
 	drawBottomBar(this->bg);
 
 	gmenu2x->drawButton(this->bg, "down", gmenu2x->tr["Scroll"],

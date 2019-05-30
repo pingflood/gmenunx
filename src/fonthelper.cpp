@@ -39,7 +39,7 @@ void FontHelper::loadFont(const string &fontName, int fontSize) {
 	height = 0;
 	// Get maximum line height with a sample text
 	TTF_SizeUTF8(this->font, "AZ0987654321", NULL, &height);
-	halfHeight = height/2;
+	halfHeight = height / 2;
 }
 
 bool FontHelper::utf8Code(uint8_t c) {
@@ -76,15 +76,15 @@ uint32_t FontHelper::getTextWidth(const string &text) {
 		vector<string> textArr;
 		split(textArr,text,"\n");
 		return getTextWidth(&textArr);
-	} else
-		return getLineWidth(text);
+	}
+	return getLineWidth(text);
 }
 
 uint32_t FontHelper::getTextWidth(vector<string> *text) {
 	int w = 0;
 	for (uint32_t i = 0; i < text->size(); i++) {
-			w = max( getLineWidth(text->at(i)), w );
-		};
+		w = max(getLineWidth(text->at(i)), w);
+	};
 	return w;
 }
 
@@ -104,10 +104,11 @@ void FontHelper::write(Surface *surface, vector<string> *text, int x, int y, con
 	} else if (align & VAlignBottom) {
 		y -= getHeight() * text->size();
 	}
+
 	for (uint32_t i = 0; i < text->size(); i++) {
 		int ix = x;
 		if (align & HAlignCenter) {
-			ix -= getTextWidth(text->at(i))/2;
+			ix -= getTextWidth(text->at(i)) / 2;
 		} else if (align & HAlignRight) {
 			ix -= getTextWidth(text->at(i));
 		}
@@ -124,7 +125,7 @@ void FontHelper::write(Surface* surface, const string &text, int x, int y, const
 	}
 
 	if (align & HAlignCenter) {
-		x -= getTextWidth(text)/2;
+		x -= getTextWidth(text) / 2;
 	} else if (align & HAlignRight) {
 		x -= getTextWidth(text);
 	}

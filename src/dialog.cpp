@@ -11,35 +11,6 @@ Dialog::~Dialog() {
 	delete bg;
 }
 
-void Dialog::drawTitleIcon(const std::string &icon, Surface *s) {
-	if (s == NULL) s = gmenu2x->s;
-
-	Surface *i = NULL;
-	if (!icon.empty()) {
-		i = gmenu2x->sc[icon];
-		if (i == NULL) i = gmenu2x->sc.skinRes(icon);
-	}
-
-	if (i == NULL) i = gmenu2x->sc.skinRes("icons/generic.png");
-
-	gmenu2x->s->setClipRect({4, 4, gmenu2x->skinConfInt["sectionBarSize"] - 8, gmenu2x->skinConfInt["sectionBarSize"] - 8});
-	i->blit(s, {4, 4, gmenu2x->skinConfInt["sectionBarSize"] - 8, gmenu2x->skinConfInt["sectionBarSize"] - 8}, HAlignCenter | VAlignMiddle);
-	gmenu2x->s->clearClipRect();
-	// s->box(4, 4, 32, 32, strtorgba("ffff00ff"));
-}
-
-void Dialog::writeTitle(const std::string &title, Surface *s) {
-	if (s == NULL) s = gmenu2x->s;
-	s->write(gmenu2x->titlefont, title, gmenu2x->skinConfInt["sectionBarSize"], 2, VAlignTop, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-	// s->box(40, 16 - gmenu2x->titlefont->getHalfHeight(), 15, gmenu2x->titlefont->getHeight(), strtorgba("ff00ffff"));
-}
-
-void Dialog::writeSubTitle(const std::string &subtitle, Surface *s) {
-	if (s == NULL) s = gmenu2x->s;
-	s->write(gmenu2x->font, subtitle, gmenu2x->skinConfInt["sectionBarSize"], gmenu2x->skinConfInt["sectionBarSize"] - 2, VAlignBottom, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-	// s->box(40, 32 - gmenu2x->font->getHalfHeight(), 15, gmenu2x->font->getHeight(), strtorgba("00ffffff"));
-}
-
 void Dialog::drawTopBar(Surface *s = NULL, const std::string &title, const std::string &description, const std::string &icon) {
 	if (s == NULL) s = gmenu2x->s;
 	// Surface *bar = sc.skinRes("imgs/topbar.png");
@@ -47,9 +18,28 @@ void Dialog::drawTopBar(Surface *s = NULL, const std::string &title, const std::
 	// else
 	s->setClipRect({0, 0, gmenu2x->resX, gmenu2x->skinConfInt["sectionBarSize"]});
 	s->box(0, 0, gmenu2x->resX, gmenu2x->skinConfInt["sectionBarSize"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
-	if (!title.empty()) writeTitle(title, s);
-	if (!description.empty()) writeSubTitle(description, s);
-	if (!icon.empty()) drawTitleIcon(icon, s);
+
+	int iconOffset = 2;
+
+	if (!icon.empty() && gmenu2x->skinConfInt["showDialogIcon"]) { // drawTitleIcon
+		Surface *i = NULL;
+
+		i = gmenu2x->sc[icon];
+		if (i == NULL) i = gmenu2x->sc.skinRes(icon);
+		if (i == NULL) i = gmenu2x->sc.skinRes("icons/generic.png");
+
+		iconOffset = gmenu2x->skinConfInt["sectionBarSize"];
+		gmenu2x->s->setClipRect({4, 4, iconOffset - 8, iconOffset - 8});
+		i->blit(s, {4, 4, iconOffset - 8, iconOffset - 8}, HAlignCenter | VAlignMiddle);
+		gmenu2x->s->clearClipRect();
+	}
+
+	if (!title.empty()) // writeTitle
+		s->write(gmenu2x->titlefont, title, iconOffset, 2, VAlignTop, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+
+	if (!description.empty()) // writeSubTitle
+		s->write(gmenu2x->font, description, iconOffset, gmenu2x->skinConfInt["sectionBarSize"] - 2, VAlignBottom, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+
 	s->clearClipRect();
 }
 
