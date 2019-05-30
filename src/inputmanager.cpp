@@ -50,9 +50,12 @@ void InputManager::init(const string &conffile) {
 void InputManager::initJoysticks() {
 	//SDL_JoystickEventState(SDL_IGNORE);
 
-	int numJoy = SDL_NumJoysticks();
-	INFO("%d joysticks found", numJoy);
-	for (int x = 0; x < numJoy; x++) {
+	int newJoy = SDL_NumJoysticks();
+
+	if (newJoy == numJoy) return;
+	numJoy = newJoy;
+	INFO("%d joysticks found", newJoy);
+	for (int x = 0; x < newJoy; x++) {
 		SDL_Joystick *joy = SDL_JoystickOpen(x);
 		if (joy) {
 			INFO("Initialized joystick: '%s'", SDL_JoystickName(x));

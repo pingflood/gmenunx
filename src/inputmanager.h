@@ -95,6 +95,8 @@ private:
 	static uint32_t checkRepeat(uint32_t interval, void *_data);
 	SDL_Event *fakeEventForAction(int action);
 
+	int numJoy = 0; // number of connected joysticks
+
 	const char konami[10] = {UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, CANCEL, CONFIRM}; // eegg
 	char input_combo[10] = {POWER}; // eegg
 
