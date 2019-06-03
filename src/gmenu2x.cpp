@@ -551,13 +551,14 @@ void GMenu2X::main() {
 
 		bool inputAction = input.update();
 		if (input.combo()) {
-			skinConfInt["sectionBar"] = ((skinConfInt["sectionBar"] + 1) % 5);
+			skinConfInt["sectionBar"] = ((skinConfInt["sectionBar"] + 1) % 6);
 			if (!skinConfInt["sectionBar"]) skinConfInt["sectionBar"]++;
 			initMenu();
 			MessageBox mb(this,tr["CHEATER! ;)"]);
 			mb.setBgAlpha(0);
 			mb.setAutoHide(200);
 			mb.exec();
+			SDL_AddTimer(100, input.wakeUp, (void*)false);
 			continue;
 		}
 
@@ -1523,8 +1524,11 @@ void GMenu2X::explorer() {
 			td.appendFile(bd.getFilePath(bd.selected));
 			td.exec();
 		} else if (ext == ".ipk") {
+			string cmd = "opkg install --force-reinstall --force-overwrite ";
+			input.update(false);
+			if (input[MANUAL]) cmd += "--force-downgrade ";
 			TerminalDialog td(this, tr["Package installer"], "opkg install " + bd.getFileName(bd.selected), "skin:icons/configure.png");
-			td.exec("opkg install --force-reinstall --force-overwrite " + cmdclean(bd.getFilePath(bd.selected)));
+			td.exec(cmd + cmdclean(bd.getFilePath(bd.selected)));
 			initMenu();
 		} else if (ext == ".sh") {
 			TerminalDialog td(this, tr["Terminal"], "sh" + cmdclean(bd.getFileName(bd.selected)), "skin:icons/terminal.png");
