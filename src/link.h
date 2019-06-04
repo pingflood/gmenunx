@@ -48,7 +48,7 @@ private:
 protected:
 	GMenu2X *gmenu2x;
 	bool edited;
-	string title, description, icon, iconPath;
+	string title, description, icon, iconPath, backdrop, backdropPath;
 
 	Surface *iconSurface;
 
@@ -68,6 +68,10 @@ public:
 	virtual const string &searchIcon();
 	const string &getIconPath();
 	void setIconPath(const string &icon);
+
+	void setBackdrop(const string &backdrop);
+	const string &getBackdrop() { return backdrop; }
+	const string &getBackdropPath() { return backdropPath; }
 
 	virtual void run();
 };

@@ -333,15 +333,18 @@ void GMenu2X::main() {
 
 	while (!quit) {
 		// Background
-		currBackdrop = confStr["wallpaper"];
-		if (menu->selLink() != NULL && menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdropPath().empty()) {
-			currBackdrop = menu->selLinkApp()->getBackdropPath();
-		}
-
-		if (confInt["skinBackdrops"] & BD_MENU)
+		if (confInt["skinBackdrops"] & BD_MENU){
+			if (menu->selLink() != NULL && !menu->selLink()->getBackdropPath().empty()) {
+				currBackdrop = menu->selLink()->getBackdropPath();
+			} else if (menu->selLinkApp() != NULL && !menu->selLinkApp()->getBackdropPath().empty()) {
+				currBackdrop = menu->selLinkApp()->getBackdropPath();
+			} else {
+				currBackdrop = confStr["wallpaper"];
+			}
 			setBackground(s, currBackdrop);
-		else
+		} else {
 			setBackground(s, confStr["wallpaper"]);
+		}
 
 		// SECTIONS
 		if (skinConfInt["sectionBar"]) {
@@ -780,33 +783,35 @@ void GMenu2X::initMenu() {
 	menu = new Menu(this);
 
 	for (uint32_t i = 0; i < menu->getSections().size(); i++) {
-		//Add virtual links in the applications section
+		// Add virtual links in the applications section
 		if (menu->getSections()[i] == "applications") {
-			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Browse files and launch apps"], "skin:icons/explorer.png");
-			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external media device"], "skin:icons/eject.png");
+			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Browse files and launch apps"], "explorer.png");
+			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external media device"], "eject.png");
 
 // #if !defined(TARGET_PC)
 // 			if (getBatteryLevel() > 5) // show only if charging
 // #endif
-// 				menu->addActionLink(i, tr["Battery Logger"], MakeDelegate(this, &GMenu2X::batteryLogger), tr["Log battery power to battery.csv"], "skin:icons/ebook.png");
+// 				menu->addActionLink(i, tr["Battery Logger"], MakeDelegate(this, &GMenu2X::batteryLogger), tr["Log battery power to battery.csv"], "ebook.png");
 		}
 
-		//Add virtual links in the setting section
+		// Add virtual links in the setting section
 		else if (menu->getSections()[i] == "settings") {
-			menu->addActionLink(i, tr["Settings"], MakeDelegate(this, &GMenu2X::settings), tr["Configure system"], "skin:icons/configure.png");
-			menu->addActionLink(i, tr["Skin"], MakeDelegate(this, &GMenu2X::skinMenu), tr["Appearance & skin settings"], "skin:icons/skin.png");
+			menu->addActionLink(i, tr["Settings"], MakeDelegate(this, &GMenu2X::settings), tr["Configure system"], "configure.png");
+			menu->addActionLink(i, tr["Skin"], MakeDelegate(this, &GMenu2X::skinMenu), tr["Appearance & skin settings"], "skin.png");
 #if defined(TARGET_GP2X)
-			if (fwType == "open2x")
-				menu->addActionLink(i, "Open2x", MakeDelegate(this, &GMenu2X::settingsOpen2x), tr["Configure Open2x system settings"], "skin:icons/o2xconfigure.png");
-			menu->addActionLink(i, "USB SD", MakeDelegate(this, &GMenu2X::activateSdUsb), tr["Activate USB on SD"], "skin:icons/usb.png");
-			if (fwType == "gph" && !f200)
-				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "skin:icons/usb.png");
+			if (fwType == "open2x") {
+				menu->addActionLink(i, "Open2x", MakeDelegate(this, &GMenu2X::settingsOpen2x), tr["Configure Open2x system settings"], "o2xconfigure.png");
+			}
+			menu->addActionLink(i, "USB SD", MakeDelegate(this, &GMenu2X::activateSdUsb), tr["Activate USB on SD"], "usb.png");
+			if (fwType == "gph" && !f200) {
+				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "usb.png");
+			}
 #endif
 			if (fileExists(path + "log.txt"))
-				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "skin:icons/ebook.png");
+				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "ebook.png");
 
-			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "skin:icons/about.png");
-			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroffDialog), tr["Power menu"], "skin:icons/exit.png");
+			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "about.png");
+			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroffDialog), tr["Power menu"], "exit.png");
 		}
 	}
 	menu->setSectionIndex(confInt["section"]);

@@ -206,8 +206,9 @@ bool Menu::addActionLink(uint32_t section, const string &title, fastdelegate::Fa
 	Link *linkact = new Link(gmenu2x, action);
 	linkact->setTitle(title);
 	linkact->setDescription(description);
-	if (gmenu2x->sc.exists(icon) || (icon.substr(0,5) == "skin:" && !gmenu2x->sc.getSkinFilePath(icon.substr(5, icon.length())).empty()) || fileExists(icon))
-	linkact->setIcon(icon);
+	// if (gmenu2x->sc.exists(icon) || (icon.substr(0,5) == "skin:" && !gmenu2x->sc.getSkinFilePath(icon.substr(5, icon.length())).empty()) || fileExists(icon))
+	linkact->setIcon("skin:icons/" + icon);
+	linkact->setBackdrop("skin:backdrops/" + icon);
 
 	sectionLinks(section)->push_back(linkact);
 	return true;

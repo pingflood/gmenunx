@@ -38,19 +38,11 @@ class LinkApp : public Link {
 private:
 	InputManager &inputMgr;
 	int iclock = 0, selectorelement = 0, scalemode; //, ivolume = 0;
-
-	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, backdrop, backdropPath; //, resolution;
 	bool selectorbrowser;
-
-	string aliasfile;
-	string file;
+	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, aliasfile, file; //, backdrop, backdropPath, resolution;
 
 public:
 	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* linkfile);
-	virtual const string &searchIcon();
-	virtual const string &searchBackdrop();
-	virtual const string &searchManual();
-
 	const string &getExec();
 	void setExec(const string &exec);
 	const string &getParams();
@@ -77,7 +69,15 @@ public:
 	void setAliasFile(const string &aliasfile);
 	int getCPU();
 	void setCPU(int mhz = 0);
+	bool save();
+	void run();
+	void selector(int startSelection=0, const string &selectorDir = "");
+	void launch(const string &selectedFile="", string selectedDir = "");
+	bool targetExists();
+	void renameFile(const string &name);
+	const string &getFile() { return file; }
 
+#if defined(TARGET_GP2X)
 	// int volume();
 	// const string &volumeStr();
 	// void setVolume(int vol);
@@ -86,27 +86,18 @@ public:
 	// bool getUseGinge();
 	// void setUseGinge(bool value);
 	// const string &clockStr(int maxClock);
-
-#if defined(TARGET_GP2X)
 	// string sgamma;
 	int igamma;
 	int gamma();
 	// const string &gammaStr();
 	void setGamma(int gamma);
-#endif
-
-	bool save();
-	void run();
-	void selector(int startSelection=0, const string &selectorDir = "");
-	void launch(const string &selectedFile="", const string &selectedDir = "");
-	bool targetExists();
-	void renameFile(const string &name);
-	const string &getFile() { return file; }
-	const string &getBackdrop() { return backdrop; }
-	const string &getBackdropPath() { return backdropPath; }
-	void setBackdrop(const string selectedFile = "");
 	// bool &needsWrapperRef() { return wrapper; }
 	// bool &runsInBackgroundRef() { return dontleave; }
+#endif
+
+	const string &searchIcon();
+	const string &searchBackdrop();
+	const string &searchManual();
 };
 
 #endif

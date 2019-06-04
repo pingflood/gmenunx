@@ -241,11 +241,6 @@ void LinkApp::setGamma(int gamma) {
 }
 #endif
 
-void LinkApp::setBackdrop(const string selectedFile) {
-	backdrop = backdropPath = selectedFile;
-	edited = true;
-}
-
 bool LinkApp::targetExists() {
 #if defined(TARGET_PC)
 	return true; //For displaying elements during testing on pc
