@@ -75,23 +75,25 @@ void TextDialog::preProcess() {
 	}
 }
 
-void TextDialog::drawText(vector<string> *text, uint32_t firstRow, uint32_t rowsPerPage) {
+int TextDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t firstRow, uint32_t rowsPerPage) {
 	gmenu2x->s->setClipRect(gmenu2x->listRect);
+	int mx = 0;
 
 	for (uint32_t i = firstRow; i < firstRow + rowsPerPage && i < text->size(); i++) {
-		int rowY;
+		int y = gmenu2x->listRect.y + (i - firstRow) * gmenu2x->font->getHeight();
+		mx = max(mx, gmenu2x->font->getTextWidth(text->at(i)));
+
 		if (text->at(i)=="----") { //draw a line
-			rowY = gmenu2x->listRect.y + (int)((i - firstRow + 0.5) * gmenu2x->font->getHeight());
-			gmenu2x->s->box(5, rowY, gmenu2x->resX - 16, 1, 255, 255, 255, 130);
-			gmenu2x->s->box(5, rowY + 1, gmenu2x->resX - 16, 1, 0, 0, 0, 130);
+			gmenu2x->s->box(5, y, gmenu2x->resX - 10, 1, 255, 255, 255, 130);
+			gmenu2x->s->box(5, y + 1, gmenu2x->resX - 10, 1, 0, 0, 0, 130);
 		} else {
-			rowY = gmenu2x->listRect.y + (i - firstRow) * gmenu2x->font->getHeight();
-			gmenu2x->font->write(gmenu2x->s, text->at(i), 5, rowY);
+			gmenu2x->font->write(gmenu2x->s, text->at(i), 5 + firstCol, y);
 		}
 	}
 
 	gmenu2x->s->clearClipRect();
 	gmenu2x->drawScrollBar(rowsPerPage, text->size(), firstRow, gmenu2x->listRect);
+	return mx;
 }
 
 void TextDialog::exec() {
@@ -100,6 +102,8 @@ void TextDialog::exec() {
 	preProcess();
 
 	bool close = false, inputAction = false;
+	int32_t firstCol = 0, lineWidth = 0;
+	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 
 	if (gmenu2x->sc.skinRes(icon) == NULL)
 		icon = "icons/ebook.png";
@@ -114,25 +118,26 @@ void TextDialog::exec() {
 
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 	while (!close) {
 		this->bg->blit(gmenu2x->s,0,0);
-		drawText(&text, firstRow, rowsPerPage);
+		lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
 		gmenu2x->s->flip();
 
 		do {
 			inputAction = gmenu2x->input.update();
 			if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-			if ( gmenu2x->input[UP  ] && firstRow > 0 ) firstRow--;
-			else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < text.size() ) firstRow++;
-			else if ( gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT]) {
+			if (gmenu2x->input[UP] && firstRow > 0) firstRow--;
+			else if (gmenu2x->input[DOWN] && firstRow + rowsPerPage < text.size()) firstRow++;
+			else if (gmenu2x->input[RIGHT] && firstCol > -1 * (lineWidth - gmenu2x->listRect.w) - 10) firstCol -= 30;
+			else if (gmenu2x->input[LEFT] && firstCol < 0) firstCol += 30;
+			else if (gmenu2x->input[PAGEUP] || (gmenu2x->input[LEFT] && firstCol == 0)) {
 				if (firstRow >= rowsPerPage - 1)
 					firstRow -= rowsPerPage - 1;
 				else
 					firstRow = 0;
 			}
-			else if ( gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT]) {
+			else if (gmenu2x->input[PAGEDOWN] || (gmenu2x->input[RIGHT] && firstCol == 0)) {
 				if (firstRow + rowsPerPage * 2 - 1 < text.size())
 					firstRow += rowsPerPage - 1;
 				else
