@@ -277,8 +277,9 @@ void GMenu2X::main() {
 
 	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
-	section_changed = SDL_GetTicks();
+	section_changed = icon_changed = SDL_GetTicks();
 	SDL_TimerID sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
+	SDL_TimerID iconChangedTimer = SDL_AddTimer(1000, input.wakeUp, (void*)false);
 
 	// recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty())) {
@@ -376,7 +377,7 @@ void GMenu2X::main() {
 
 			if (skinConfInt["sectionLabel"] && SDL_GetTicks() - section_changed < 1400) {
 				s->write(font, tr.translate(menu->selSectionName()), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
-			} else if (sectionChangedTimer != NULL) {
+			} else {
 				SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
 			}
 
@@ -441,7 +442,6 @@ void GMenu2X::main() {
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38 + 1 * 20, sectionBarRect.y + sectionBarRect.h - 18,16,16, strtorgba("00ff00ff"));
 		// s->box(sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("0000ffff"));
 		// s->box(sectionBarRect.x + sectionBarRect.w - 18, sectionBarRect.y + sectionBarRect.h - 38,16,16, strtorgba("ff00ffff"));
-	// drawBottomBar(this->bg);
 		if (skinConfInt["sectionBar"]) {
 			int iconTrayShift = 0;
 
@@ -454,59 +454,69 @@ void GMenu2X::main() {
 
 				s->box(bottomBarRect, skinConfColors[COLOR_BOTTOM_BAR_BG]);
 
-				// Volume indicator
-				// TODO: use drawButton(s, iconVolume[volumeMode], confInt["globalVolume"], x);
-				{ stringstream ss; ss << confInt["globalVolume"] /*<< "%"*/; ss.get(&buf[0], sizeof(buf)); }
-				x = iconPadding; //1 * (iconWidth + 2 * iconPadding) + iconPadding + 1 * pctWidth;
-				iconVolume[volumeMode]->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
-				x += iconWidth + iconPadding;
-				s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+				if (menu->selLinkApp() != NULL && !menu->selLinkApp()->getDescription().empty()
+				&& SDL_GetTicks() - icon_changed < 300
+				) {
+					x = iconPadding;
+					iconManual->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+					x += iconWidth + iconPadding;
+					s->write(font, menu->selLinkApp()->getDescription().c_str(), x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+				} else {
+					SDL_RemoveTimer(iconChangedTimer); iconChangedTimer = NULL;
 
-				// Brightness indicator
-				{ stringstream ss; ss << confInt["backlight"] /*<< "%"*/; ss.get(&buf[0], sizeof(buf)); }
-				x += iconPadding + pctWidth;
-				iconBrightness[brightnessIcon]->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
-				x += iconWidth + iconPadding;
-				s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+					// Volume indicator
+					// TODO: use drawButton(s, iconVolume[volumeMode], confInt["globalVolume"], x);
+					{ stringstream ss; ss << confInt["globalVolume"] /*<< "%"*/; ss.get(&buf[0], sizeof(buf)); }
+					x = iconPadding; // 1 * (iconWidth + 2 * iconPadding) + iconPadding + 1 * pctWidth;
+					iconVolume[volumeMode]->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+					x += iconWidth + iconPadding;
+					s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 
-				// // Menu indicator
-				// iconMenu->blit(s, iconPadding, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
-				// sc.skinRes("imgs/debug.png")->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
+					// Brightness indicator
+					{ stringstream ss; ss << confInt["backlight"] /*<< "%"*/; ss.get(&buf[0], sizeof(buf)); }
+					x += iconPadding + pctWidth;
+					iconBrightness[brightnessIcon]->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+					x += iconWidth + iconPadding;
+					s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 
-				iconTrayShift = 0;
+					// // Menu indicator
+					// iconMenu->blit(s, iconPadding, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+					// sc.skinRes("imgs/debug.png")->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
 
-				// Battery indicator
-				iconBattery[batteryIcon]->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
-				iconTrayShift++;
+					iconTrayShift = 0;
 
-				if (iconInet != NULL) {
+					// Battery indicator
+					iconBattery[batteryIcon]->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
+					iconTrayShift++;
+
+					// SD Card indicator
+					if (mmcStatus == MMC_INSERT) {
+						iconSD->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
+						iconTrayShift++;
+					}
+
 					// Network indicator
-					iconInet->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
-					iconTrayShift++;
-				}
+					if (iconInet != NULL) {
+						iconInet->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
+						iconTrayShift++;
+					}
 
-				// SD Card indicator
-				if (mmcStatus == MMC_INSERT) {
-					iconSD->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
-					iconTrayShift++;
-				}
+					if (menu->selLink() != NULL) {
+						if (menu->selLinkApp() != NULL) {
+							if (!menu->selLinkApp()->getManualPath().empty()) {
+								// Manual indicator
+								iconManual->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
+							}
 
-				if (menu->selLink() != NULL) {
-					if (menu->selLinkApp() != NULL) {
-						if (!menu->selLinkApp()->getManualPath().empty()) {
-							// Manual indicator
-							iconManual->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
+							// CPU indicator
+							{ stringstream ss; ss << menu->selLinkApp()->getCPU() << "MHz"; ss.get(&buf[0], sizeof(buf)); }
+							x += iconPadding + pctWidth;
+							iconCPU->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+							x += iconWidth + iconPadding;
+							s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 						}
-
-						// // CPU indicator
-						{ stringstream ss; ss << menu->selLinkApp()->getCPU() << "MHz"; ss.get(&buf[0], sizeof(buf)); }
-						x += iconPadding + pctWidth;
-						iconCPU->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
-						x += iconWidth + iconPadding;
-						s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 					}
 				}
-		
 			} else {
 				// TRAY 0,0
 				iconVolume[volumeMode]->blit(s, sectionBarRect.x + sectionBarRect.w - 38, sectionBarRect.y + sectionBarRect.h - 38);
@@ -567,14 +577,10 @@ void GMenu2X::main() {
 
 		if (inputCommonActions(inputAction)) continue;
 
-		if (skinConfInt["sectionLabel"] && (input[SECTION_PREV] || input[SECTION_NEXT]) ) {
-			section_changed = SDL_GetTicks();
-			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
-			sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
-		}
-
 		if ( input[CONFIRM] && menu->selLink() != NULL ) {
 			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
+			SDL_RemoveTimer(iconChangedTimer); iconChangedTimer = NULL;
+			icon_changed = section_changed = 0;
 
 			if (confInt["skinBackdrops"] & BD_DIALOG)
 				setBackground(bg, currBackdrop);
@@ -583,8 +589,15 @@ void GMenu2X::main() {
 
 			menu->selLink()->run();
 		}
+		else if ( input[CANCEL] ) {
+			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
+			SDL_RemoveTimer(iconChangedTimer); iconChangedTimer = NULL;
+			icon_changed = section_changed = 0;
+			continue;
+		}
 		else if ( input[SETTINGS] ) settings();
 		else if ( input[MENU]     ) contextMenu();
+		
 		// LINK NAVIGATION
 		else if ( input[LEFT ] && linkCols == 1 && linkRows > 1) menu->pageUp();
 		else if ( input[RIGHT] && linkCols == 1 && linkRows > 1) menu->pageDown();
@@ -592,27 +605,27 @@ void GMenu2X::main() {
 		else if ( input[RIGHT] ) menu->linkRight();
 		else if ( input[UP   ] ) menu->linkUp();
 		else if ( input[DOWN ] ) menu->linkDown();
+
 		// SECTION
 		else if ( input[SECTION_PREV] ) menu->decSectionIndex();
 		else if ( input[SECTION_NEXT] ) menu->incSectionIndex();
 
 		// SELLINKAPP SELECTED
-		else if (input[MANUAL] && menu->selLinkApp() != NULL) showManual(); // menu->selLinkApp()->showManual();
-
+		else if (input[MANUAL] && menu->selLinkApp() != NULL && !menu->selLinkApp()->getManualPath().empty()) showManual();
 		// On Screen Help
-		// else if (input[MODIFIER]) {
+		// else if (input[MANUAL]) {
 		// 	s->box(10,50,300,162, skinConfColors[COLOR_MESSAGE_BOX_BG]);
 		// 	s->rectangle( 12,52,296,158, skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
 		// 	int line = 60; s->write( font, tr["CONTROLS"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["A: Confirm action"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["B: Cancel action"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["X: Show manual"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["A: Select"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["B: Cancel"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Y: Show manual"], 20, line);
 		// 	line += font->getHeight() + 5; s->write( font, tr["L, R: Change section"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Select: Modifier"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Start: Contextual menu"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Select+Start: Options menu"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Backlight: Adjust backlight level"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Power: Toggle speaker on/off"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Start: Settings"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Select: Menu"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Select+Start: Save screenshot"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Select+L: Adjust volume level"], 20, line);
+		// 	line += font->getHeight() + 5; s->write( font, tr["Select+R: Adjust backlight level"], 20, line);
 		// 	s->flip();
 		// 	bool close = false;
 		// 	while (!close) {
@@ -620,6 +633,21 @@ void GMenu2X::main() {
 		// 		if (input[MODIFIER] || input[CONFIRM] || input[CANCEL]) close = true;
 		// 	}
 		// }
+
+		if (
+			menu->selLinkApp() != NULL && !menu->selLinkApp()->getDescription().empty()
+			&& (input[LEFT ] || input[RIGHT] || input[LEFT ] || input[RIGHT] || input[UP   ] || input[DOWN ] || input[SECTION_PREV] || input[SECTION_NEXT])
+		) {
+			icon_changed = SDL_GetTicks();
+			SDL_RemoveTimer(iconChangedTimer); iconChangedTimer = NULL;
+			iconChangedTimer = SDL_AddTimer(1000, input.wakeUp, (void*)false);
+		}
+
+		if (skinConfInt["sectionLabel"] && (input[SECTION_PREV] || input[SECTION_NEXT]) ) {
+			section_changed = SDL_GetTicks();
+			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
+			sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
+		}
 	}
 }
 
