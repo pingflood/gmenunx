@@ -159,8 +159,6 @@ static void quit_all(int err) {
 }
 
 GMenu2X::~GMenu2X() {
-	confStr["datetime"] = getDateTime();
-
 	writeConfig();
 
 	sc.clear();
@@ -252,7 +250,6 @@ void GMenu2X::main() {
 	bg = new Surface(s);
 
 	readConfig();
-	setDateTime();
 
 	setSkin(confStr["skin"], true);
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
@@ -865,8 +862,9 @@ void GMenu2X::settings() {
 
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenuNX"], &lang, &fl_tr.getFiles()));
 
-	string prevDateTime = confStr["datetime"] = getDateTime();
-	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &confStr["datetime"]));
+	string prevDateTime = getDateTime();
+	string newDateTime = prevDateTime;
+	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &newDateTime));
 
 	sd.addSetting(new MenuSettingBool(this, tr["Remember selection"], tr["Remember the last selected section, link and file"], &confInt["saveSelection"]));
 	sd.addSetting(new MenuSettingBool(this, tr["Output logs"], tr["Logs the link's output to read with Log Viewer"], &confInt["outputLogs"]));
@@ -912,7 +910,11 @@ void GMenu2X::settings() {
 		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
 #endif
 
-		if (prevDateTime != confStr["datetime"]) restartDialog();
+		if (prevDateTime != newDateTime) {
+			setDateTime(newDateTime.c_str());
+			powerManager->resetSuspendTimer();
+			restartDialog();
+		}
 	}
 }
 
@@ -1036,7 +1038,6 @@ void GMenu2X::readConfig() {
 	string conffile = path + "gmenu2x.conf";
 
 	// Defaults *** Sync with default values in writeConfig
-	confStr["datetime"] = __BUILDTIME__;
 	if (fwType != "RETROARCADE") confStr["batteryType"] = "BL-5B";
 	else confStr["batteryType"] = "Linear";
 	confInt["saveSelection"] = 1;
@@ -1101,6 +1102,7 @@ void GMenu2X::writeConfig() {
 				// deprecated
 				curr->first == "sectionBarPosition" ||
 				curr->first == "tvoutEncoding" ||
+				curr->first == "datetime" ||
 
 				// defaults
 				(curr->first == "defaultDir" && curr->second == CARD_ROOT) ||
@@ -1606,11 +1608,10 @@ const string GMenu2X::getDateTime() {
 	return buf;
 }
 
-void GMenu2X::setDateTime() {
+void GMenu2X::setDateTime(const char* _datetime) {
 	int imonth, iday, iyear, ihour, iminute;
-	string value = confStr["datetime"];
 
-	sscanf(value.c_str(), "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
+	sscanf(_datetime, "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
 
 	struct tm datetime = { 0 };
 
@@ -1629,6 +1630,7 @@ void GMenu2X::setDateTime() {
 
 #if !defined(TARGET_PC)
 	settimeofday(&newtime, NULL);
+	system("hwclock --systohc");
 #endif
 }
 

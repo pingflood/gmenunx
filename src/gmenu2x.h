@@ -207,7 +207,7 @@ public:
 	void changeWallpaper();
 
 	const string getDateTime();
-	void setDateTime();
+	void setDateTime(const char* _datetime);
 
 	bool saveScreenshot();
 	void drawSlider(int val, int min, int max, Surface &icon, Surface &bg);
