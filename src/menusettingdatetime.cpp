@@ -98,7 +98,7 @@ void MenuSettingDateTime::setYear(int16_t i) {
 void MenuSettingDateTime::setMonth(int16_t i) {
 	imonth = i;
 	if (i < 1) imonth = 12;
-	else if (i > 12) imonth = 0;
+	else if (i > 12) imonth = 1;
 	stringstream ss;
 	ss << std::setw(2) << std::setfill('0') << imonth;
 	ss >> month;
@@ -107,7 +107,7 @@ void MenuSettingDateTime::setMonth(int16_t i) {
 void MenuSettingDateTime::setDay(int16_t i) {
 	iday = i;
 	if (i < 1) iday = 31;
-	else if (i > 31) iday = 0;
+	else if (i > 31) iday = 1;
 	stringstream ss;
 	ss << std::setw(2) << std::setfill('0') << iday;
 	ss >> day;
