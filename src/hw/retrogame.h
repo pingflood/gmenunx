@@ -90,20 +90,23 @@ void printbin(const char *id, int n) {
 	printf("\e[0K\n");
 }
 
+
+uint8_t numJoyPrev = 0;
+
 uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 	tickBattery++;
 	if (tickBattery > 30) { // update battery level every 30 hwChecks
 		tickBattery = 0;
 		batteryIcon = 0; // 0% :(
 		int32_t val = getBatteryStatus();
-		if (fwType != "RETROARCADE") { // && confStr["batteryType"] == "BL-5B") {
+		// if (fwType != "RETROARCADE") { // && confStr["batteryType"] == "BL-5B") {
 			if ((val > 10000) || (val < 0)) batteryIcon = 6;
 			else if (val > 4000) batteryIcon = 5; // 100%
 			else if (val > 3900) batteryIcon = 4; // 80%
 			else if (val > 3800) batteryIcon = 3; // 60%
 			else if (val > 3730) batteryIcon = 2; // 40%
 			else if (val > 3600) batteryIcon = 1; // 20%
-		}
+		// }
 	}
 
 	if (memdev > 0) {
@@ -151,6 +154,15 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 			volumeModePrev = volumeMode;
 			InputManager::pushEvent(PHONES_CONNECT);
 		}
+
+		numJoy = SDL_NumJoysticks();
+		if (numJoyPrev != numJoy) {
+			numJoyPrev = numJoy;
+			InputManager::pushEvent(JOYSTICK_CONNECT);
+		}
+
+
+
 
 		// volumeMode = getVolumeMode(confInt["globalVolume"]);
 		// if (volumeModePrev != volumeMode && volumeMode == VOLUME_MODE_PHONES) {
@@ -297,7 +309,7 @@ public:
 	uint16_t getBatteryLevel() {
 		int32_t val = getBatteryStatus();
 
-		if (fwType != "RETROARCADE" && confStr["batteryType"] == "BL-5B") {
+		// if (fwType != "RETROARCADE" && confStr["batteryType"] == "BL-5B") {
 			if ((val > 10000) || (val < 0)) return 6;
 			else if (val > 4000) return 5; // 100%
 			else if (val > 3900) return 4; // 80%
@@ -305,7 +317,7 @@ public:
 			else if (val > 3730) return 2; // 40%
 			else if (val > 3600) return 1; // 20%
 			return 0; // 0% :(
-		}
+		// }
 
 		val = constrain(val, 0, 4500);
 

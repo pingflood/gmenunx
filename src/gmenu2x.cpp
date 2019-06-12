@@ -86,6 +86,7 @@ uint16_t udcPrev = UDC_REMOVE, udcStatus;
 uint16_t tvOutPrev = TV_REMOVE, tvOutStatus;
 uint16_t volumeModePrev, volumeMode;
 uint16_t batteryIcon = 3;
+uint8_t numJoy = 0; // number of connected joysticks
 
 #if defined(TARGET_RETROGAME)
 	#include "hw/retrogame.h"
@@ -721,6 +722,9 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	} else if ( input[TV_REMOVE] ) {
 		tvOutDialog(TV_OFF);
 		return true;
+	} else if ( input[JOYSTICK_CONNECT] ) {
+		input.initJoysticks();
+		return true;
 	// } else if ( input[PHONES_CONNECT] ) {
 	// 	// tvOutDialog(TV_OFF);
 	// 	WARNING("volume mode changed");
@@ -882,12 +886,12 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingMultiString(this, tr["USB mode"], tr["Define default USB mode"], &confStr["usbMode"], &usbMode));
 
 #if defined(TARGET_RETROGAME)
-	if (fwType == "RETROGAME") {
+	// if (fwType == "RETROGAME") {
 		vector<string> batteryType;
 		batteryType.push_back("BL-5B");
 		batteryType.push_back("Linear");
 		sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
-	}
+	// }
 	sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
 #endif
 	sd.addSetting(new MenuSettingMultiString(this, tr["Reset settings"], tr["Choose settings to reset back to defaults"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::resetSettings)));
@@ -1162,8 +1166,8 @@ void GMenu2X::writeConfig() {
 	sync();
 
 #if defined(TARGET_GP2X)
-		if (fwType == "open2x" && savedVolumeMode != volumeMode)
-			writeConfigOpen2x();
+	if (fwType == "open2x" && savedVolumeMode != volumeMode)
+		writeConfigOpen2x();
 #endif
 	ledOff();
 }

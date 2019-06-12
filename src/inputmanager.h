@@ -38,6 +38,8 @@ enum actions {
 	TV_REMOVE,
 	PHONES_CONNECT,
 	PHONES_REMOVE,
+	JOYSTICK_CONNECT,
+	JOYSTICK_REMOVE,
 	NUM_ACTIONS
 };
 
@@ -76,8 +78,8 @@ enum InputManagerActionState {
 };
 
 //firmware type and version
-extern string fwType; //, fwVersion;
-
+// extern string fwType; //, fwVersion;
+extern uint8_t numJoy; // number of connected joysticks
 
 /**
 Manages all input peripherals
@@ -95,7 +97,6 @@ private:
 	static uint32_t checkRepeat(uint32_t interval, void *_data);
 	SDL_Event *fakeEventForAction(int action);
 
-	int numJoy = 0; // number of connected joysticks
 
 	const char konami[10] = {UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, CANCEL, CONFIRM}; // eegg
 	char input_combo[10] = {POWER}; // eegg
