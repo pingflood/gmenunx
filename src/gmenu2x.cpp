@@ -275,8 +275,8 @@ void GMenu2X::main() {
 	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
 	section_changed = icon_changed = SDL_GetTicks();
-	SDL_TimerID sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
-	SDL_TimerID iconChangedTimer = SDL_AddTimer(1000, input.wakeUp, (void*)false);
+	SDL_TimerID sectionChangedTimer = SDL_AddTimer(2000, input.doNothing, (void*)false);
+	SDL_TimerID iconChangedTimer = SDL_AddTimer(1000, input.doNothing, (void*)false);
 
 	// recover last session
 	if (lastSelectorElement >- 1 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty())) {
@@ -557,19 +557,20 @@ void GMenu2X::main() {
 			}
 		}
 
-		if (!powerManager->suspendActive) s->flip();
+		if (!powerManager->suspendActive && !input.combo()) s->flip();
 
 		bool inputAction = input.update();
+
 		if (input.combo()) {
 			skinConfInt["sectionBar"] = ((skinConfInt["sectionBar"] + 1) % 6);
 			if (!skinConfInt["sectionBar"]) skinConfInt["sectionBar"]++;
 			initMenu();
 			MessageBox mb(this,tr["CHEATER! ;)"]);
+			SDL_AddTimer(200, input.doNothing, (void*)false);
 			mb.setBgAlpha(0);
-			mb.setAutoHide(200);
+			mb.setAutoHide(100);
 			mb.exec();
-			SDL_AddTimer(100, input.wakeUp, (void*)false);
-			continue;
+			input[CONFIRM] = false;
 		}
 
 		if (inputCommonActions(inputAction)) continue;
@@ -637,13 +638,13 @@ void GMenu2X::main() {
 		) {
 			icon_changed = SDL_GetTicks();
 			SDL_RemoveTimer(iconChangedTimer); iconChangedTimer = NULL;
-			iconChangedTimer = SDL_AddTimer(1000, input.wakeUp, (void*)false);
+			iconChangedTimer = SDL_AddTimer(1000, input.doNothing, (void*)false);
 		}
 
 		if (skinConfInt["sectionLabel"] && (input[SECTION_PREV] || input[SECTION_NEXT]) ) {
 			section_changed = SDL_GetTicks();
 			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
-			sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
+			sectionChangedTimer = SDL_AddTimer(2000, input.doNothing, (void*)false);
 		}
 	}
 }

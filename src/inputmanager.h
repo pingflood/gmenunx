@@ -102,6 +102,7 @@ private:
 
 public:
 	static uint32_t wakeUp(uint32_t interval, void *repeat);
+	static uint32_t doNothing(uint32_t interval, void *repeat);
 	static uint32_t pushEventEnd(uint32_t interval, void *action);
 	static const int MAPPING_TYPE_UNDEFINED = -1;
 	static const int MAPPING_TYPE_BUTTON = 0;

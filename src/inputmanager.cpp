@@ -181,6 +181,8 @@ bool InputManager::update(bool wait) {
 		if (event.type == SDL_KEYDOWN) {
 			anyactions = true;
 			keystate[event.key.keysym.sym] = true;
+		} else if (event.type == SDL_USEREVENT && event.user.code == DO_NOTHING) {
+			return true;
 		} else {
 			if (event.type == SDL_KEYUP) {
 				anyactions = true;
@@ -189,6 +191,7 @@ bool InputManager::update(bool wait) {
 			#if !defined(TARGET_PC)
 				keystate[event.key.keysym.sym] = false;
 			#endif
+
 		}
 	}
 
@@ -197,7 +200,7 @@ bool InputManager::update(bool wait) {
 
 	if (event.type != SDL_JOYBUTTONDOWN && event.type != SDL_JOYAXISMOTION) {
 		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_KEYUP){
+			if (event.type == SDL_KEYUP) {
 				keystate[event.key.keysym.sym] = false;
 				// WARNING("Skipping event.type: %d", event.type); // clear event queue
 			}
@@ -329,6 +332,15 @@ uint32_t InputManager::wakeUp(uint32_t interval, void *repeat) {
 	if ((bool*) repeat) return interval;
 	return 0;
 }
+
+uint32_t InputManager::doNothing(uint32_t interval, void *repeat) {
+	SDL_Event event;
+	event.type = SDL_USEREVENT;
+	event.user.code = DO_NOTHING;
+	SDL_PushEvent(&event);
+	return 0;
+}
+
 
 bool &InputManager::operator[](int action) {
 	// if (action<0 || (uint32_t)action>=actions.size()) return false;
