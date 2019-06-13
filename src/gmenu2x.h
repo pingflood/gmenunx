@@ -237,6 +237,7 @@ public:
 	virtual void ledOff() { };
 	virtual int setVolume(int val, bool popup = false);
 	virtual int setBacklight(int val, bool popup = false);
+	virtual string hwPreLinkLaunch() { return ""; };
 
 };
 

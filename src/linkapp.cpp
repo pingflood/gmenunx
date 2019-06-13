@@ -20,7 +20,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
 #include <fstream>
 #include <sstream>
 
@@ -28,10 +27,8 @@
 #include "menu.h"
 #include "selector.h"
 #include "browsedialog.h"
-#include "debug.h"
-
 #include "messagebox.h"
-
+#include "debug.h"
 
 using namespace std;
 
@@ -323,7 +320,7 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 	}
 }
 
-void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
+void LinkApp::launch(const string &selectedFile, string dir) {
 	MessageBox mb(gmenu2x, gmenu2x->tr["Launching "] + this->getTitle().c_str(), this->getIconPath());
 	mb.setAutoHide(-1);
 	mb.exec();
@@ -399,13 +396,11 @@ void LinkApp::launch(const string &selectedFile, const string &selectedDir) {
 
 	gmenu2x->setScaleMode(scalemode);
 
+	command = gmenu2x->hwPreLinkLaunch() + command;
+
 	if (gmenu2x->confInt["outputLogs"]) command += " &> " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 
 	gmenu2x->quit();
-
-#if !defined(TARGET_PC)
-	system("[ -d /home/retrofw ] && mount -o remount,rw,sync,noatime,iocharset=utf8 /home/retrofw");
-#endif
 
 	execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
