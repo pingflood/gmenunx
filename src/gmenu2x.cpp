@@ -139,20 +139,67 @@ static const char *colorToString(enum color c) {
 	return colorNames[c];
 }
 
-char *ms2hms(uint32_t t, bool mm = true, bool ss = true) {
-	static char buf[10];
+// char *ms2hms(uint32_t t, bool mm = true, bool ss = true) {
+// 	static char buf[10];
 
-	t = t / 1000;
-	int s = (t % 60);
-	int m = (t % 3600) / 60;
-	int h = (t % 86400) / 3600;
-	// int d = (t % (86400 * 30)) / 86400;
+// 	t = t / 1000;
+// 	int s = (t % 60);
+// 	int m = (t % 3600) / 60;
+// 	int h = (t % 86400) / 3600;
+// 	// int d = (t % (86400 * 30)) / 86400;
 
-	if (!ss) sprintf(buf, "%02d:%02d", h, m);
-	else if (!mm) sprintf(buf, "%02d", h);
-	else sprintf(buf, "%02d:%02d:%02d", h, m, s);
+// 	if (!ss) sprintf(buf, "%02d:%02d", h, m);
+// 	else if (!mm) sprintf(buf, "%02d", h);
+// 	else sprintf(buf, "%02d:%02d:%02d", h, m, s);
+// 	return buf;
+// };
+
+void syncDateTime(time_t t) {
+#if !defined(TARGET_PC)
+	struct timeval tv = { t, 0 };
+	settimeofday(&tv, NULL);
+	system("hwclock --systohc");
+#endif
+}
+
+const string getDateTime() {
+	char buf[80];
+	time_t now = time(0);
+	struct tm tstruct = *localtime(&now);
+	strftime(buf, sizeof(buf), "%F %R", &tstruct);
 	return buf;
-};
+}
+
+void initDateTime() {
+	time_t now = time(0);
+	uint32_t t = __BUILDTIME__;
+
+	if (now < t) {
+		syncDateTime(t);
+	}
+}
+
+void setDateTime(const char* timestamp) {
+	int imonth, iday, iyear, ihour, iminute;
+
+	sscanf(timestamp, "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
+
+	struct tm datetime = { 0 };
+
+	datetime.tm_year = iyear - 1900;
+	datetime.tm_mon  = imonth - 1;
+	datetime.tm_mday = iday;
+	datetime.tm_hour = ihour;
+	datetime.tm_min  = iminute;
+	datetime.tm_sec  = 0;
+
+	if (datetime.tm_year < 0) datetime.tm_year = 0;
+
+	time_t t = mktime(&datetime);
+
+	syncDateTime(t);
+}
+
 
 static void quit_all(int err) {
 	delete app;
@@ -220,6 +267,8 @@ void GMenu2X::main() {
 	getExePath();
 
 	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
+
+	initDateTime();
 
 	//Screen
 	if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0 ) {
@@ -1482,13 +1531,12 @@ void GMenu2X::about() {
 
 	// temp = tr["Build date: "] + __DATE__ + "\n";
 
-	float battlevel = getBatteryStatus();
-	{ stringstream ss; ss.precision(2); ss << battlevel/1000; ss >> buf; }
-	temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : buf + " V") + "\n";
+	// float battlevel = getBatteryStatus();
+	// { stringstream ss; ss.precision(2); ss << battlevel/1000; ss >> buf; }
+	// temp += tr["Battery: "] + ((battlevel < 0 || battlevel > 10000) ? tr["Charging"] : buf + " V") + "\n";
+	// temp += tr["Uptime: "] + ms2hms(SDL_GetTicks()) + "\n";
 
-	temp += tr["Uptime: "] + ms2hms(SDL_GetTicks()) + "\n";
-
-	temp += "----\n";
+	// temp += "----\n";
 
 	TextDialog td(this, "GMenuNX", tr["Info about GMenuNX"], "skin:icons/about.png");
 
@@ -1603,40 +1651,6 @@ void GMenu2X::explorer() {
 	}
 
 	explorerLastDir = bd.getPath();
-}
-
-const string GMenu2X::getDateTime() {
-	char buf[80];
-	time_t now = time(0);
-	struct tm  tstruct = *localtime(&now);
-	strftime(buf, sizeof(buf), "%F %R", &tstruct);
-	return buf;
-}
-
-void GMenu2X::setDateTime(const char* _datetime) {
-	int imonth, iday, iyear, ihour, iminute;
-
-	sscanf(_datetime, "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
-
-	struct tm datetime = { 0 };
-
-	datetime.tm_year = iyear - 1900;
-	datetime.tm_mon  = imonth - 1;
-	datetime.tm_mday = iday;
-	datetime.tm_hour = ihour;
-	datetime.tm_min  = iminute;
-	datetime.tm_sec  = 0;
-
-	if (datetime.tm_year < 0) datetime.tm_year = 0;
-
-	time_t t = mktime(&datetime);
-
-	struct timeval newtime = { t, 0 };
-
-#if !defined(TARGET_PC)
-	settimeofday(&newtime, NULL);
-	system("hwclock --systohc");
-#endif
 }
 
 bool GMenu2X::saveScreenshot() {

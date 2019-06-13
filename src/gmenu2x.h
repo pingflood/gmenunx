@@ -82,7 +82,6 @@ enum bd {
 	BD_DIALOG,
 };
 
-
 enum tvout {
 	TV_OFF  = CANCEL,
 	TV_PAL  = MANUAL,
@@ -101,8 +100,6 @@ struct MenuOption {
 	string text;
 	MenuAction action;
 };
-
-char *ms2hms(uint32_t t, bool mm, bool ss);
 
 class Menu;
 
@@ -202,12 +199,8 @@ public:
 	unsigned int TVOut = 0;
 	void about();
 	void viewLog();
-	// void batteryLogger();
 	void contextMenu();
 	void changeWallpaper();
-
-	const string getDateTime();
-	void setDateTime(const char* _datetime);
 
 	bool saveScreenshot();
 	void drawSlider(int val, int min, int max, Surface &icon, Surface &bg);
