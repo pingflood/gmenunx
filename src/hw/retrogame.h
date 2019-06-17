@@ -33,6 +33,7 @@ uint16_t getMMCStatus() {
 }
 
 uint16_t getUDCStatus() {
+	// if (memdev > 0 && ((memregs[0x10300 >> 2] >> 7 & 0b1) || (memregs[0x10400 >> 2] >> 13 & 0b1))) return UDC_CONNECT;
 	if (memdev > 0 && (memregs[0x10300 >> 2] >> 7 & 0b1)) return UDC_CONNECT;
 	return UDC_REMOVE;
 }
@@ -155,10 +156,18 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 			InputManager::pushEvent(PHONES_CONNECT);
 		}
 
+
+// SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+// SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+// SDL_JOYDEVICEADDED
+// SDL_JoystickUpdate()
 		numJoy = SDL_NumJoysticks();
 		if (numJoyPrev != numJoy) {
 			numJoyPrev = numJoy;
 			InputManager::pushEvent(JOYSTICK_CONNECT);
+
+
+
 		}
 
 
@@ -347,7 +356,7 @@ public:
 	}
 
 	void setCPU(uint32_t mhz) {
-		// return; // temp
+		return; // temp
 		mhz = constrain(mhz, confInt["cpuMenu"], confInt["cpuMax"]);
 		if (memdev > 0) {
 			DEBUG("Setting clock to %d", mhz);

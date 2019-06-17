@@ -962,8 +962,9 @@ void GMenu2X::settings() {
 #endif
 
 		if (prevDateTime != newDateTime) {
+			powerManager->setPowerTimeout(0);
+			powerManager->setSuspendTimeout(0);
 			setDateTime(newDateTime.c_str());
-			powerManager->resetSuspendTimer();
 			restartDialog();
 		}
 	}
