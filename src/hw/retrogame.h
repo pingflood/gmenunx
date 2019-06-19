@@ -185,7 +185,7 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 class GMenuNX : public GMenu2X {
 private:
 	void hwInit() {
-		system("[ -d /home/retrofw ] && mount -o remount,rw,async,noatime,iocharset=utf8,shortname=win95 /home/retrofw");
+		system("[ -d /media/mmcblk0p3 ] && mount -o remount,rw,async,noatime,iocharset=utf8,shortname=win95 /media/mmcblk0p3");
 
 		setenv("SDL_NOMOUSE", "1", 1);
 		memdev = open("/dev/mem", O_RDWR);
@@ -370,11 +370,9 @@ public:
 	}
 
 	string hwPreLinkLaunch() {
-		system("[ -d /home/retrofw ] && mount -o remount,rw,sync,noatime,iocharset=utf8 /home/retrofw");
+		system("[ -d /media/mmcblk0p3 ] && mount -o remount,rw,sync,noatime,iocharset=utf8,shortname=win95 /media/mmcblk0p3");
 		return "";
 	}
-
-
 };
 
 #endif

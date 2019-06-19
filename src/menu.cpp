@@ -214,66 +214,67 @@ bool Menu::addActionLink(uint32_t section, const string &title, fastdelegate::Fa
 	return true;
 }
 
-bool Menu::addLink(string path, string file, string section) {
-	if (section == "")
+bool Menu::addLink(string exec, string section, string title, string description, string icon) {
+	if (section.empty()) {
 		section = selSection();
-	else if (find(sections.begin(), sections.end(), section) == sections.end()) {
-		//section directory doesn't exists
+	} else if (find(sections.begin(), sections.end(), section) == sections.end()) {
+		// section directory doesn't exists
 		if (!addSection(section))
 			return false;
 	}
 
-	//if the extension is not equal to gpu or gpe then enable the wrapper by default
-	// bool wrapper = true;
+	string path = dir_name(exec);
+	string file = base_name(exec);
 
-	//strip the extension from the filename
-	string title = file;
-	string::size_type pos = title.rfind(".");
-	if (pos != string::npos && pos > 0) {
-		string ext = title.substr(pos, title.length());
-		transform(ext.begin(), ext.end(), ext.begin(), (int(*)(int)) tolower);
-		// if (ext == ".gpu" || ext == ".gpe") wrapper = false;
-		title = title.substr(0, pos);
+	if (title.empty()) {
+		title = file;
+		// strip the extension from the filename
+		string::size_type pos = title.rfind(".");
+		if (pos != string::npos && pos > 0) {
+			title = title.substr(0, pos);
+		}
 	}
 
 	string linkpath = "sections/" + section + "/" + title;
-	int x = 2;
-	while (fileExists(linkpath)) {
-		stringstream ss;
-		linkpath = "";
-		ss << x;
-		ss >> linkpath;
-		linkpath = "sections/" + section + "/" + title + linkpath;
-		x++;
+	if (section != "favourites") {
+		int x = 2;
+		while (fileExists(linkpath)) {
+			stringstream ss;
+			linkpath = ""; ss << x; ss >> linkpath;
+			linkpath = "sections/" + section + "/" + title + linkpath;
+			x++;
+		}
 	}
 
-	INFO("Adding link: '%s'", linkpath.c_str());
-
-	if (path[path.length() - 1] != '/') path += "/";
-
-	string shorttitle = title, exec = path + file;
-
-	//Reduce title length to fit the link width
-	if ((int)gmenu2x->font->getTextWidth(shorttitle) > gmenu2x->linkWidth) {
-		while ((int)gmenu2x->font->getTextWidth(shorttitle + "..") > gmenu2x->linkWidth) {
-			shorttitle = shorttitle.substr(0, shorttitle.length() - 1);
+	// Reduce title length to fit the link width
+	if ((int)gmenu2x->font->getTextWidth(title) > gmenu2x->linkWidth) {
+		while ((int)gmenu2x->font->getTextWidth(title + "..") > gmenu2x->linkWidth) {
+			title = title.substr(0, title.length() - 1);
 		}
-		shorttitle += "..";
+		title += "..";
 	}
 	
-	int isection;
+	INFO("Adding link: '%s'", linkpath.c_str());
 	ofstream f(linkpath.c_str());
 	if (f.is_open()) {
-		f << "title=" << shorttitle << endl;
+		f << "title=" << title << endl;
 		f << "exec=" << exec << endl;
 
-		string selectoraliases = dir_name(exec) + "/aliases.txt";
+		INFO("ICON: '%s'", icon.c_str());
+
+		if (!icon.empty() && fileExists(icon))
+			f << "icon=" << icon << endl;
+
+		if (!description.empty())
+			f << "description=" << description << endl;
+
+		string selectoraliases = path + "/aliases.txt";
 		if (fileExists(selectoraliases))
 			f << "selectoraliases=" << selectoraliases << endl;
 
 		f.close();
 
-		isection = find(sections.begin(), sections.end(), section) - sections.begin();
+		int isection = find(sections.begin(), sections.end(), section) - sections.begin();
 
 		if (isection >= 0 && isection < (int)sections.size()) {
 			INFO("Section: '%s(%i)'", sections[isection].c_str(), isection);
@@ -284,12 +285,12 @@ bool Menu::addLink(string path, string file, string section) {
 			else
 				delete link;
 		}
+		setLinkIndex(links[isection].size() - 1);
+
 	} else {
 		ERROR("Error while opening the file '%s' for write.", linkpath.c_str());
 		return false;
 	}
-
-	setLinkIndex(links[isection].size() - 1);
 
 	return true;
 }

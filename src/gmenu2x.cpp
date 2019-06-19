@@ -1791,7 +1791,7 @@ void GMenu2X::addLink() {
 	bd.setFilter(".dge,.gpu,.gpe,.sh,.bin,.elf,");
 	if (bd.exec()) {
 		ledOn();
-		if (menu->addLink(bd.getPath(), bd.getFile(bd.selected))) {
+		if (menu->addLink(bd.getFilePath(bd.selected))) {
 			editLink();
 		}
 		sync();

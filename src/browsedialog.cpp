@@ -116,6 +116,7 @@ bool BrowseDialog::exec() {
 		do {
 			inputAction = gmenu2x->input.update();
 			if (gmenu2x->inputCommonActions(inputAction)) continue;
+			if (customAction(inputAction)) continue;
 
 			if (gmenu2x->input[UP]) {
 				selected -= 1;

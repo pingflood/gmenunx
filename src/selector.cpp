@@ -27,6 +27,7 @@
 #include "linkapp.h"
 #include "selector.h"
 #include "debug.h"
+#include "menu.h"
 
 using namespace std;
 
@@ -48,17 +49,17 @@ const std::string Selector::getPreview(uint32_t i) {
 	if (screendir[0] == '.') realdir = real_path(getPath() + "/" + screendir) + "/"; // allow "." as "current directory", therefore, relative paths
 	else realdir = real_path(screendir) + "/";
 
-	// INFO("Searching for screen '%s%s.png'", realdir.c_str(), noext.c_str());
+	INFO("Searching for screen '%s%s.png'", realdir.c_str(), noext.c_str());
 	if (dirExists(realdir)) {
 		if (fileExists(realdir + noext + ".png"))
 			return realdir + noext + ".png";
 		else if (fileExists(realdir + noext + ".jpg"))
 			return realdir + noext + ".jpg";
 	}
-	else if (fileExists(noext + ".png")) // fallback - always search for ./filename.png
-		return noext + ".png";
-	else if (fileExists(noext + ".jpg"))
-		return noext + ".jpg";
+	else if (fileExists(getPath() + "/" + noext + ".png")) // fallback - always search for ./filename.png
+		return getPath() + "/" + noext + ".png";
+	else if (fileExists(getPath() + "/" + noext + ".jpg"))
+		return getPath() + "/" + noext + ".jpg";
 
 	return "";
 }
@@ -87,4 +88,14 @@ const std::string Selector::getFileName(uint32_t i) {
 		return fname;
 	else
 		return it->second;
+}
+
+bool Selector::customAction(bool &inputAction) {
+	if ( gmenu2x->input[MENU] ) {
+		string icon = getPreview(selected);
+		if (icon.empty()) icon = this->icon;
+		gmenu2x->menu->addLink(link->getExec() + " " + link->getParams() + " " + getFilePath(selected), "favourites", getFileName(selected), description, icon);
+		return true;
+	}
+	return false;
 }
