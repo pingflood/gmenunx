@@ -42,6 +42,7 @@ private:
 	vector<SDL_Rect> buttonPosition;
 
 public:
+	MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options);
 	MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon = "");
 	~MessageBox();
 

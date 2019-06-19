@@ -27,12 +27,66 @@
 
 using namespace std;
 
+MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
+	Surface bg(gmenu2x->s);
+	bool close = false, inputAction = false;
+	int sel = 0;
+	uint32_t i, fadeAlpha = 0, h = gmenu2x->font->getHeight(), h2 = gmenu2x->font->getHalfHeight();
+
+	SDL_Rect box;
+	box.h = h * options.size() + 8;
+	box.w = 0;
+	for (i = 0; i < options.size(); i++) {
+		int w = gmenu2x->font->getTextWidth(options[i].text);
+		if (w > box.w) box.w = w;
+	}
+	box.w += 23;
+	box.x = gmenu2x->resX/2 - box.w/2;
+	box.y = gmenu2x->resY/2 - box.h/2;
+
+	uint32_t tickStart = SDL_GetTicks();
+	while (!close) {
+		bg.blit(gmenu2x->s, 0, 0);
+
+		gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0, fadeAlpha);
+		gmenu2x->s->box(box.x, box.y, box.w, box.h, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
+		gmenu2x->s->rectangle(box.x + 2, box.y + 2, box.w - 4, box.h - 4, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
+
+		//draw selection rect
+		gmenu2x->s->box( box.x + 4, box.y + 4 + h * sel, box.w - 8, h, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_SELECTION] );
+		for (i = 0; i < options.size(); i++)
+			gmenu2x->s->write(gmenu2x->font, options[i].text, box.x + 12, box.y + h2 + 3 + h * i, VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+
+		gmenu2x->s->flip();
+
+		if (fadeAlpha < 200) {
+			fadeAlpha = intTransition(0, 200, tickStart, 200);
+			continue;
+		}
+		do {
+			inputAction = gmenu2x->input.update();
+
+			if (gmenu2x->inputCommonActions(inputAction)) continue;
+
+			if ( gmenu2x->input[MENU] || gmenu2x->input[CANCEL]) close = true;
+			else if ( gmenu2x->input[UP] ) sel = (sel - 1 < 0) ? (int)options.size() - 1 : sel - 1 ;
+			else if ( gmenu2x->input[DOWN] ) sel = (sel + 1 > (int)options.size() - 1) ? 0 : sel + 1;
+			else if ( gmenu2x->input[LEFT] || gmenu2x->input[PAGEUP] ) sel = 0;
+			else if ( gmenu2x->input[RIGHT] || gmenu2x->input[PAGEDOWN] ) sel = (int)options.size() - 1;
+			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) { options[sel].action(); close = true; }
+		} while (!inputAction);
+	}
+}
+
 MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon) {
 	this->gmenu2x = gmenu2x;
 	this->text = text;
 	this->icon = icon;
 	this->autohide = 0;
 	this->bgalpha = 200;
+
+	;
+
 
 	buttonText.resize(19);
 	button.resize(19);

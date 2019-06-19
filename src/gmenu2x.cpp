@@ -622,11 +622,13 @@ void GMenu2X::main() {
 
 		if (inputCommonActions(inputAction)) continue;
 
-		if ( input[CONFIRM] && menu->selLink() != NULL ) {
+		if ( input[CANCEL] || input[SETTINGS] || input[MENU] || input[CONFIRM] ) {
 			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
 			SDL_RemoveTimer(iconChangedTimer); iconChangedTimer = NULL;
 			icon_changed = section_changed = 0;
+		}
 
+		if ( input[CONFIRM] && menu->selLink() != NULL ) {
 			if (confInt["skinBackdrops"] & BD_DIALOG)
 				setBackground(bg, currBackdrop);
 			else
@@ -634,12 +636,7 @@ void GMenu2X::main() {
 
 			menu->selLink()->run();
 		}
-		else if ( input[CANCEL] ) {
-			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
-			SDL_RemoveTimer(iconChangedTimer); iconChangedTimer = NULL;
-			icon_changed = section_changed = 0;
-			continue;
-		}
+		else if ( input[CANCEL] ) continue;
 		else if ( input[SETTINGS] ) settings();
 		else if ( input[MENU]     ) contextMenu();
 		
@@ -1723,65 +1720,18 @@ void GMenu2X::umountSdDialog() {
 }
 
 void GMenu2X::contextMenu() {
-	vector<MenuOption> voices;
+	vector<MenuOption> options;
 	if (menu->selLinkApp() != NULL) {
-		voices.push_back((MenuOption){tr.translate("Edit $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::editLink)});
-		voices.push_back((MenuOption){tr.translate("Delete $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::deleteLink)});
+		options.push_back((MenuOption){tr.translate("Edit $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::editLink)});
+		options.push_back((MenuOption){tr.translate("Delete $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::deleteLink)});
 	}
-	voices.push_back((MenuOption){tr["Add link"], 		MakeDelegate(this, &GMenu2X::addLink)});
-	voices.push_back((MenuOption){tr["Add section"],	MakeDelegate(this, &GMenu2X::addSection)});
-	voices.push_back((MenuOption){tr["Rename section"],	MakeDelegate(this, &GMenu2X::renameSection)});
-	voices.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
-	// voices.push_back((MenuOption){tr["Link scanner"],	MakeDelegate(this, &GMenu2X::linkScanner)});
+	options.push_back((MenuOption){tr["Add link"], 		MakeDelegate(this, &GMenu2X::addLink)});
+	options.push_back((MenuOption){tr["Add section"],	MakeDelegate(this, &GMenu2X::addSection)});
+	options.push_back((MenuOption){tr["Rename section"],	MakeDelegate(this, &GMenu2X::renameSection)});
+	options.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
+	// options.push_back((MenuOption){tr["Link scanner"],	MakeDelegate(this, &GMenu2X::linkScanner)});
 
-	Surface bg(s);
-	bool close = false, inputAction = false;
-	int sel = 0;
-	uint32_t i, fadeAlpha = 0, h = font->getHeight(), h2 = font->getHalfHeight();
-
-	SDL_Rect box;
-	box.h = h * voices.size() + 8;
-	box.w = 0;
-	for (i = 0; i < voices.size(); i++) {
-		int w = font->getTextWidth(voices[i].text);
-		if (w > box.w) box.w = w;
-	}
-	box.w += 23;
-	box.x = resX/2 - box.w/2;
-	box.y = resY/2 - box.h/2;
-
-	uint32_t tickStart = SDL_GetTicks();
-	while (!close) {
-		bg.blit(s, 0, 0);
-
-		s->box(0, 0, resX, resY, 0,0,0, fadeAlpha);
-		s->box(box.x, box.y, box.w, box.h, skinConfColors[COLOR_MESSAGE_BOX_BG]);
-		s->rectangle( box.x + 2, box.y + 2, box.w - 4, box.h - 4, skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
-
-		//draw selection rect
-		s->box( box.x + 4, box.y + 4 + h * sel, box.w - 8, h, skinConfColors[COLOR_MESSAGE_BOX_SELECTION] );
-		for (i = 0; i < voices.size(); i++)
-			s->write( font, voices[i].text, box.x + 12, box.y + h2 + 3 + h * i, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-
-		s->flip();
-
-		if (fadeAlpha < 200) {
-			fadeAlpha = intTransition(0, 200, tickStart, 200);
-			continue;
-		}
-		do {
-			inputAction = input.update();
-
-			if (inputCommonActions(inputAction)) continue;
-
-			if ( input[MENU] || input[CANCEL]) close = true;
-			else if ( input[UP] ) sel = (sel - 1 < 0) ? (int)voices.size() - 1 : sel - 1 ;
-			else if ( input[DOWN] ) sel = (sel + 1 > (int)voices.size() - 1) ? 0 : sel + 1;
-			else if ( input[LEFT] || input[PAGEUP] ) sel = 0;
-			else if ( input[RIGHT] || input[PAGEDOWN] ) sel = (int)voices.size() - 1;
-			else if ( input[SETTINGS] || input[CONFIRM] ) { voices[sel].action(); close = true; }
-		} while (!inputAction);
-	}
+	MessageBox mb(this, options);
 }
 
 void GMenu2X::addLink() {
