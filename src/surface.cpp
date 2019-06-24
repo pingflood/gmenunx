@@ -68,11 +68,11 @@ Surface::Surface(const string &img, const string &skin, bool alpha) {
 Surface::Surface(SDL_Surface *s, SDL_PixelFormat *fmt, uint32_t flags) {
 	dblbuffer = NULL;
 	this->operator =(s);
-	if (fmt != NULL || flags != 0) {
-		if (fmt == NULL) fmt = s->format;
-		if (flags == 0) flags = s->flags;
-		raw = SDL_ConvertSurface(s, fmt, flags);
-	}
+	// if (fmt != NULL || flags != 0) {
+	if (fmt == NULL) fmt = s->format;
+	if (flags == 0) flags = s->flags;
+	raw = SDL_ConvertSurface(s, fmt, flags);
+	// }
 }
 
 Surface::Surface(Surface *s) {
@@ -475,8 +475,6 @@ void Surface::softStretch(uint16_t w, uint16_t h, bool keep_aspect, bool maximiz
 
 	Surface *thisSurface = new Surface(this);
 	Surface *outSurface = new Surface(w, h);
-
-	// SDL_BlitSurface(raw, NULL, outSurface->raw, NULL);
 	SDL_SoftStretch(thisSurface->raw, NULL, outSurface->raw, NULL);
 	raw = outSurface->raw;
 }
