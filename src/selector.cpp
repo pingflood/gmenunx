@@ -23,7 +23,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <fstream>
-
+#include "messagebox.h"
 #include "linkapp.h"
 #include "selector.h"
 #include "debug.h"
@@ -90,12 +90,39 @@ const std::string Selector::getFileName(uint32_t i) {
 		return it->second;
 }
 
+
+string favicon;
 bool Selector::customAction(bool &inputAction) {
 	if ( gmenu2x->input[MENU] ) {
-		string icon = getPreview(selected);
-		if (icon.empty()) icon = this->icon;
-		gmenu2x->menu->addLink(link->getExec() + " " + link->getParams() + " " + getFilePath(selected), "favourites", getFileName(selected), description, icon);
+		favicon = getPreview(selected);
+		WARNING("favicon1: %s", favicon.c_str());
+		if (favicon.empty()) favicon = this->icon;
+		WARNING("favicon2: %s", favicon.c_str());
+		contextMenu();
 		return true;
 	}
 	return false;
+}
+
+void Selector::addFavourite() {
+	WARNING("favicon3: %s", favicon.c_str());
+	gmenu2x->menu->addLink(link->getExec() + " " + link->getParams() + " " + getFilePath(selected), "favourites", getFileName(selected), description, favicon);
+}
+
+void Selector::contextMenu() {
+	ERROR("%s:%d", __func__, __LINE__);
+	vector<MenuOption> options;
+	// if (menu->selLinkApp() != NULL) {
+	// 	options.push_back((MenuOption){tr.translate("Edit $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::editLink)});
+	// 	options.push_back((MenuOption){tr.translate("Delete $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::deleteLink)});
+	// }
+	ERROR("%s:%d", __func__, __LINE__);
+	options.push_back((MenuOption){gmenu2x->tr["Add to home screen"], 		MakeDelegate(this, &Selector::addFavourite)});
+	// options.push_back((MenuOption){tr["Add section"],	MakeDelegate(this, &GMenu2X::addSection)});
+	// options.push_back((MenuOption){tr["Rename section"],	MakeDelegate(this, &GMenu2X::renameSection)});
+	// options.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
+	// options.push_back((MenuOption){tr["Link scanner"],	MakeDelegate(this, &GMenu2X::linkScanner)});
+	ERROR("%s:%d", __func__, __LINE__);
+
+	MessageBox mb(gmenu2x, options);
 }

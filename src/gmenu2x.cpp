@@ -442,10 +442,12 @@ void GMenu2X::main() {
 			mb.setAutoHide(-1);
 			mb.setBgAlpha(0);
 			mb.exec();
-		} else if (linkCols == 1 && linkRows > 1) {
-			// LIST
+		} else if (linkCols == 1 && linkRows > 1) { // LIST
 			ix = linksRect.x;
 			for (y = 0; y < linkRows && i < menu->sectionLinks()->size(); y++, i++) {
+				// Surface icon(sc[menu->sectionLinks()->at(i)->getIconPath()]);
+				// icon.softStretch(linkWidth, linkHeight, true, false);
+
 				iy = linksRect.y + y * linkHeight;
 
 				if (i == (uint32_t)menu->selLinkIndex())
@@ -455,13 +457,13 @@ void GMenu2X::main() {
 				s->write(titlefont, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkSpacing + 36, iy + titlefont->getHeight()/2, VAlignMiddle);
 				s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + linkSpacing + 36, iy + linkHeight - linkSpacing/2, VAlignBottom);
 			}
-		} else {
+		} else { // CLASSIC
 			for (y = 0; y < linkRows; y++) {
 				for (x = 0; x < linkCols && i < menu->sectionLinks()->size(); x++, i++) {
+					Surface *icon = sc[menu->sectionLinks()->at(i)->getIconPath()];
+
 					ix = linksRect.x + x * linkWidth  + (x + 1) * linkSpacing;
 					iy = linksRect.y + y * linkHeight + (y + 1) * linkSpacing;
-
-					Surface *icon = sc[menu->sectionLinks()->at(i)->getIconPath()];
 
 					// s->setClipRect({ix, iy, linkWidth, linkHeight});
 					if (i == (uint32_t)menu->selLinkIndex()) {
@@ -473,7 +475,7 @@ void GMenu2X::main() {
 					icon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 					// s->clearClipRect();
 
-					if (skinConfInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + (linkHeight + icon->height())/2 - 6 , HAlignCenter);
+					if (skinConfInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + linkHeight - 4 , HAlignCenter | VAlignBottom);
 				}
 			}
 		}
@@ -1725,8 +1727,8 @@ void GMenu2X::contextMenu() {
 		options.push_back((MenuOption){tr.translate("Edit $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::editLink)});
 		options.push_back((MenuOption){tr.translate("Delete $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::deleteLink)});
 	}
-	options.push_back((MenuOption){tr["Add link"], 		MakeDelegate(this, &GMenu2X::addLink)});
-	options.push_back((MenuOption){tr["Add section"],	MakeDelegate(this, &GMenu2X::addSection)});
+	options.push_back((MenuOption){tr["Add link"], 			MakeDelegate(this, &GMenu2X::addLink)});
+	options.push_back((MenuOption){tr["Add section"],		MakeDelegate(this, &GMenu2X::addSection)});
 	options.push_back((MenuOption){tr["Rename section"],	MakeDelegate(this, &GMenu2X::renameSection)});
 	options.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
 	// options.push_back((MenuOption){tr["Link scanner"],	MakeDelegate(this, &GMenu2X::linkScanner)});

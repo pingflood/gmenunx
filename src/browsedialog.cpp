@@ -85,7 +85,12 @@ bool BrowseDialog::exec() {
 			Surface anim = new Surface(gmenu2x->s);
 
 			if (!preview.empty()) {
-				if (!gmenu2x->sc.exists(preview)) gmenu2x->sc[preview]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
+				if (!gmenu2x->sc.exists(preview + "scaled")) {
+					Surface *previm = new Surface(preview);
+					gmenu2x->sc.add(previm, preview + "scaled");
+					gmenu2x->sc[preview + "scaled"]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
+				}
+
 				do {
 					animation += gmenu2x->skinConfInt["previewWidth"] / 8;
 
@@ -94,7 +99,7 @@ bool BrowseDialog::exec() {
 
 					anim.blit(gmenu2x->s,0,0);
 					gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
-					gmenu2x->sc[preview]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->resY);
+					gmenu2x->sc[preview + "scaled"]->blit(gmenu2x->s, {gmenu2x->resX - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->resY);
 					gmenu2x->s->flip();
 					SDL_Delay(10);
 				} while (animation < gmenu2x->skinConfInt["previewWidth"]);

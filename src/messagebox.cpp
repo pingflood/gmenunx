@@ -28,6 +28,7 @@
 using namespace std;
 
 MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
+	ERROR("%s:%d", __func__, __LINE__);
 	Surface bg(gmenu2x->s);
 	bool close = false, inputAction = false;
 	int sel = 0;
@@ -73,7 +74,14 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
 			else if ( gmenu2x->input[DOWN] ) sel = (sel + 1 > (int)options.size() - 1) ? 0 : sel + 1;
 			else if ( gmenu2x->input[LEFT] || gmenu2x->input[PAGEUP] ) sel = 0;
 			else if ( gmenu2x->input[RIGHT] || gmenu2x->input[PAGEDOWN] ) sel = (int)options.size() - 1;
-			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) { options[sel].action(); close = true; }
+			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) { 
+	ERROR("%s:%d", __func__, __LINE__);
+
+				options[sel].action(); close = true; 
+
+	ERROR("%s:%d", __func__, __LINE__);
+
+			}
 		} while (!inputAction);
 	}
 }

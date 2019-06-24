@@ -185,7 +185,7 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 class GMenuNX : public GMenu2X {
 private:
 	void hwInit() {
-		system("[ -d /media/mmcblk0p3 ] && mount -o remount,rw,async,noatime,iocharset=utf8,shortname=win95 /media/mmcblk0p3");
+		system("[ -d /home/retrofw ] && mount -o remount,rw,async,noatime,iocharset=utf8,shortname=win95 /home/retrofw");
 
 		setenv("SDL_NOMOUSE", "1", 1);
 		memdev = open("/dev/mem", O_RDWR);
@@ -216,7 +216,7 @@ private:
 	void udcDialog(int udcStatus) {
 		if (udcStatus == UDC_REMOVE) {
 			INFO("USB Disconnected. Unloading modules...");
-			system("/etc/init.d/S99recovery stop; /etc/init.d/S80recovery stop");
+			system("/usr/bin/retrofw stop; /etc/init.d/S99recovery stop; /etc/init.d/S80recovery stop");
 			return;
 		}
 
@@ -234,12 +234,13 @@ private:
 			INFO("Enabling gadget-lun storage device");
 			quit();
 
-			if (fileExists("/etc/init.d/S99recovery")) execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S99recovery storage on", NULL);
+			if (fileExists("/usr/bin/retrofw")) execlp("/bin/sh", "/bin/sh", "-c", "/usr/bin/retrofw storage on", NULL);
+			else if (fileExists("/etc/init.d/S99recovery")) execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S99recovery storage on", NULL);
 			else if (fileExists("/etc/init.d/S80recovery")) execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage on", NULL);
 			return;
 		}
 		INFO("Enabling usb0 networking device");
-		system("/etc/init.d/S99recovery network on &");
+		system("/usr/bin/retrofw network on &");
 		iconInet = sc.skinRes("imgs/inet.png");
 	}
 
@@ -370,7 +371,7 @@ public:
 	}
 
 	string hwPreLinkLaunch() {
-		system("[ -d /media/mmcblk0p3 ] && mount -o remount,rw,sync,noatime,iocharset=utf8,shortname=win95 /media/mmcblk0p3");
+		system("[ -d /home/retrofw ] && mount -o remount,rw,sync,noatime,iocharset=utf8,shortname=win95 /home/retrofw");
 		return "";
 	}
 };
