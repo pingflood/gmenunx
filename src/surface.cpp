@@ -474,7 +474,7 @@ void Surface::softStretch(uint16_t w, uint16_t h, bool keep_aspect, bool maximiz
 	}
 
 	Surface *thisSurface = new Surface(this);
-	Surface *outSurface = new Surface(x, y);
+	Surface *outSurface = new Surface(w, h);
 
 	// SDL_BlitSurface(raw, NULL, outSurface->raw, NULL);
 	SDL_SoftStretch(thisSurface->raw, NULL, outSurface->raw, NULL);

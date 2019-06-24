@@ -14,12 +14,9 @@ void ImageViewerDialog::exec() {
 	drawTopBar(this->bg, title, description, icon);
 	drawBottomBar(this->bg);
 
-	gmenu2x->drawButton(this->bg, "right", gmenu2x->tr["Pan"],
-	gmenu2x->drawButton(this->bg, "down", "",
-	gmenu2x->drawButton(this->bg, "up", "",
-	gmenu2x->drawButton(this->bg, "left", "",
+	gmenu2x->drawButton(this->bg, "dpad", gmenu2x->tr["Pan"],
 	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
-	5))-12)-14)-12);
+	5));
 
 	this->bg->blit(gmenu2x->s,0,0);
 

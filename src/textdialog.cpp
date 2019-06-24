@@ -111,10 +111,9 @@ void TextDialog::exec() {
 	drawTopBar(this->bg, title, description, icon);
 	drawBottomBar(this->bg);
 
-	gmenu2x->drawButton(this->bg, "down", gmenu2x->tr["Scroll"],
-	gmenu2x->drawButton(this->bg, "up", "",
+	gmenu2x->drawButton(this->bg, "dpad", gmenu2x->tr["Scroll"],
 	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
-	5))-10);
+	5));
 
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
