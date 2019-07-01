@@ -39,6 +39,7 @@ bool WallpaperDialog::exec()
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
 	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
 	int32_t selected = 0;
+	string skin;
 
 	FileLister fl("skins/" + gmenu2x->confStr["skin"] + "/wallpapers");
 	fl.setFilter(".png,.jpg,.jpeg,.bmp");
@@ -61,11 +62,13 @@ bool WallpaperDialog::exec()
 
 	// DEBUG("Wallpapers: %i", wallpapers.size());
 	while (!close) {
-		//Wallpaper
+		// Wallpaper
 		if (selected < wallpapers.size() - fl.getFiles().size())
-			gmenu2x->sc["skins/"+gmenu2x->confStr["skin"] + "/wallpapers/" + wallpapers[selected]]->blit(gmenu2x->s,0,0);
+			skin = gmenu2x->confStr["skin"];
 		else
-			gmenu2x->sc["skins/Default/wallpapers/" + wallpapers[selected]]->blit(gmenu2x->s,0,0);
+			skin = "Default";
+
+		gmenu2x->setBackground(gmenu2x->s, "skins/" + skin + "/wallpapers/" + wallpapers[selected]);
 
 		drawTopBar(gmenu2x->s, title, description, icon);
 		drawBottomBar(gmenu2x->s);

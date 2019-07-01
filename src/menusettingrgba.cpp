@@ -82,7 +82,7 @@ uint32_t MenuSettingRGBA::manageInput() {
 			btn = new IconButton(gmenu2x, "a", gmenu2x->tr["Edit"]);
 			buttonBox.add(btn);
 		}
-		return 1;
+		return -1;
 	} else if (gmenu2x->input[CONFIRM]) {
 		editing = true;
 
@@ -94,6 +94,7 @@ uint32_t MenuSettingRGBA::manageInput() {
 		btn = new IconButton(gmenu2x, "a", gmenu2x->tr["OK"]);
 		buttonBox.add(btn);
 	}
+	return 0;
 }
 
 // void MenuSettingRGBA::handleTS() {
