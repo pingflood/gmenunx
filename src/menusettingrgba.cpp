@@ -36,20 +36,7 @@ MenuSettingRGBA::MenuSettingRGBA(GMenu2X *gmenu2x, const string &title, const st
 	this->setB(this->value().b);
 	this->setA(this->value().a);
 
-	// btn = new IconButton(gmenu2x, "left");
-	// btn->setAction(MakeDelegate(this, &MenuSettingRGBA::leftComponent));
-	// buttonBox.add(btn);
-
-	btn = new IconButton(gmenu2x, "dpad", gmenu2x->tr["Component"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingRGBA::rightComponent));
-	buttonBox.add(btn);
-
-	btn = new IconButton(gmenu2x, "y", gmenu2x->tr["-"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingRGBA::dec));
-	buttonBox.add(btn);
-
-	btn = new IconButton(gmenu2x, "x", gmenu2x->tr["+"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingRGBA::inc));
+	btn = new IconButton(gmenu2x, "a", gmenu2x->tr["Edit"]);
 	buttonBox.add(btn);
 }
 
@@ -64,26 +51,63 @@ void MenuSettingRGBA::draw(int y) {
 	gmenu2x->s->write(gmenu2x->font, /*"A: "+*/ strA, 277, y + gmenu2x->font->getHalfHeight(), VAlignMiddle);
 }
 
-void MenuSettingRGBA::handleTS() {
-	if (gmenu2x->ts.pressed()) {
-		for (int i=0; i<4; i++) {
-			if (i!=selPart && gmenu2x->ts.inRect(166+i*36,y,36,14)) {
-				selPart = i;
-				i = 4;
-			}
-		}
-	}
+void MenuSettingRGBA::drawSelected(int y) {
+	if (editing) {
+		int x = 166 + selPart * 36;
 
-	MenuSetting::handleTS();
+		RGBAColor color;
+		switch (selPart) {
+			case 0: color = (RGBAColor){255,   0,   0, 255}; break;
+			case 1: color = (RGBAColor){  0, 255,   0, 255}; break;
+			case 2: color = (RGBAColor){  0,   0, 255, 255}; break;
+			default: color = gmenu2x->skinConfColors[COLOR_SELECTION_BG]; break;
+		}
+		gmenu2x->s->box(x, y, 36, gmenu2x->font->getHeight() + 1, color);
+		gmenu2x->s->rectangle(x, y, 36, gmenu2x->font->getHeight() + 1, 0, 0, 0,255);
+	}
+	MenuSetting::drawSelected(y);
 }
 
 uint32_t MenuSettingRGBA::manageInput() {
-	if (gmenu2x->input[INC]) inc();
-	if (gmenu2x->input[DEC]) dec();
-	if (gmenu2x->input[LEFT]) leftComponent();
-	if (gmenu2x->input[RIGHT]) rightComponent();
-	return 0; // SD_NO_ACTION
+	if (editing) {
+		if (gmenu2x->input[SETTINGS]) return 0;
+		if (gmenu2x->input[INC] || gmenu2x->input[UP]) inc();
+		else if (gmenu2x->input[DEC] || gmenu2x->input[DOWN]) dec();
+		else if (gmenu2x->input[LEFT]) leftComponent();
+		else if (gmenu2x->input[RIGHT]) rightComponent();
+		else if (gmenu2x->input[CONFIRM] || gmenu2x->input[CANCEL]) {
+			editing = false;
+			buttonBox.remove(2);
+
+			btn = new IconButton(gmenu2x, "a", gmenu2x->tr["Edit"]);
+			buttonBox.add(btn);
+		}
+		return 1;
+	} else if (gmenu2x->input[CONFIRM]) {
+		editing = true;
+
+		buttonBox.remove(1);
+
+		btn = new IconButton(gmenu2x, "dpad", gmenu2x->tr["Edit"]);
+		buttonBox.add(btn);
+
+		btn = new IconButton(gmenu2x, "a", gmenu2x->tr["OK"]);
+		buttonBox.add(btn);
+	}
 }
+
+// void MenuSettingRGBA::handleTS() {
+// 	if (gmenu2x->ts.pressed()) {
+// 		for (int i=0; i<4; i++) {
+// 			if (i!=selPart && gmenu2x->ts.inRect(166+i*36,y,36,14)) {
+// 				selPart = i;
+// 				i = 4;
+// 			}
+// 		}
+// 	}
+
+// 	MenuSetting::handleTS();
+// }
 
 void MenuSettingRGBA::dec() {
 	setSelPart(constrain(getSelPart()-1,0,255));
@@ -150,21 +174,6 @@ uint16_t MenuSettingRGBA::getSelPart() {
 void MenuSettingRGBA::adjustInput() {
 	gmenu2x->input.setInterval(30, INC );
 	gmenu2x->input.setInterval(30, DEC );
-}
-
-void MenuSettingRGBA::drawSelected(int y) {
-	int x = 166 + selPart * 36;
-
-	RGBAColor color;
-	switch (selPart) {
-		case 0: color = (RGBAColor){255,   0,   0, 255}; break;
-		case 1: color = (RGBAColor){  0, 255,   0, 255}; break;
-		case 2: color = (RGBAColor){  0,   0, 255, 255}; break;
-		default: color = gmenu2x->skinConfColors[COLOR_SELECTION_BG]; break;
-	}
-	gmenu2x->s->box( x, y, 36, gmenu2x->font->getHeight() + 1, color );
-	gmenu2x->s->rectangle( x, y, 36, gmenu2x->font->getHeight() + 1, 0,0,0,255 );
-	MenuSetting::drawSelected(y);
 }
 
 bool MenuSettingRGBA::edited() {

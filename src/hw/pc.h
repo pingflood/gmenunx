@@ -37,6 +37,10 @@ private:
 		resX = 480;
 		resY = 272;
 	}
+
+	uint16_t getBatteryLevel() {
+		return 6;
+	};
 };
 
 #endif

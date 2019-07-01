@@ -41,20 +41,7 @@ MenuSettingDateTime::MenuSettingDateTime(GMenu2X *gmenu2x, const string &title, 
 	this->setHour(ihour);
 	this->setMinute(iminute);
 
-	// btn = new IconButton(gmenu2x, "left");
-	// btn->setAction(MakeDelegate(this, &MenuSettingDateTime::leftComponent));
-	// buttonBox.add(btn);
-
-	btn = new IconButton(gmenu2x, "dpad", gmenu2x->tr["Component"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingDateTime::rightComponent));
-	buttonBox.add(btn);
-
-	btn = new IconButton(gmenu2x, "y", gmenu2x->tr["-"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingDateTime::dec));
-	buttonBox.add(btn);
-
-	btn = new IconButton(gmenu2x, "x", gmenu2x->tr["+"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingDateTime::inc));
+	btn = new IconButton(gmenu2x, "a", gmenu2x->tr["Edit"]);
 	buttonBox.add(btn);
 }
 
@@ -64,11 +51,63 @@ void MenuSettingDateTime::draw(int y) {
 	gmenu2x->s->write(gmenu2x->font, year + "-" + month + "-" + day + " " + hour + ":" + minute, 155, y+gmenu2x->font->getHalfHeight(), VAlignMiddle);
 }
 
+void MenuSettingDateTime::drawSelected(int y) {
+	if (editing) {
+		int x = 155, w = 40;
+		switch (selPart) {
+			case 1:
+				x += gmenu2x->font->getTextWidth(year + "-");
+				w = gmenu2x->font->getTextWidth(month);
+				break;
+			case 2:
+				x += gmenu2x->font->getTextWidth(year + "-" + month + "-");
+				w = gmenu2x->font->getTextWidth(day);
+				break;
+			case 3:
+				x += gmenu2x->font->getTextWidth(year + "-" + month + "-" + day + " ");
+				w = gmenu2x->font->getTextWidth(hour);
+				break;
+			case 4:
+				x += gmenu2x->font->getTextWidth(year + "-" + month + "-" + day + " " + hour + ":");
+				w = gmenu2x->font->getTextWidth(minute);
+				break;
+			default:
+				w = gmenu2x->font->getTextWidth(year);
+				break;
+		}
+		gmenu2x->s->box( x - 2, y, w + 3, gmenu2x->font->getHeight() + 1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		gmenu2x->s->rectangle( x - 2, y, w + 3, gmenu2x->font->getHeight() + 1, 0,0,0,255 );
+	}
+	MenuSetting::drawSelected(y);
+}
+
 uint32_t MenuSettingDateTime::manageInput() {
-	if (gmenu2x->input[INC]) inc();
-	if (gmenu2x->input[DEC]) dec();
-	if (gmenu2x->input[LEFT]) leftComponent();
-	if (gmenu2x->input[RIGHT]) rightComponent();
+	if (editing) {
+		if (gmenu2x->input[SETTINGS]) return 0;
+		if (gmenu2x->input[INC] || gmenu2x->input[UP]) inc();
+		else if (gmenu2x->input[DEC] || gmenu2x->input[DOWN]) dec();
+		else if (gmenu2x->input[LEFT]) leftComponent();
+		else if (gmenu2x->input[RIGHT]) rightComponent();
+		else if (gmenu2x->input[CONFIRM] || gmenu2x->input[CANCEL]) {
+			editing = false;
+			buttonBox.remove(2);
+
+			btn = new IconButton(gmenu2x, "a", gmenu2x->tr["Edit"]);
+			buttonBox.add(btn);
+		}
+		return 1;
+	} else if (gmenu2x->input[CONFIRM]) {
+		editing = true;
+
+		buttonBox.remove(1);
+
+		btn = new IconButton(gmenu2x, "dpad", gmenu2x->tr["Edit"]);
+		buttonBox.add(btn);
+
+		btn = new IconButton(gmenu2x, "a", gmenu2x->tr["OK"]);
+		buttonBox.add(btn);
+	}
+
 	return 0; // SD_NO_ACTION
 }
 
@@ -155,21 +194,6 @@ uint16_t MenuSettingDateTime::getSelPart() {
 		case 4: return iminute;
 		default: return iyear;
 	}
-}
-
-void MenuSettingDateTime::drawSelected(int y) {
-	int x = 155, w = 40;
-	switch (selPart) {
-		case 1: x += gmenu2x->font->getTextWidth(year + "-"); w = gmenu2x->font->getTextWidth(month); break;
-		case 2: x += gmenu2x->font->getTextWidth(year + "-" + month + "-"); w = gmenu2x->font->getTextWidth(day); break;
-		case 3: x += gmenu2x->font->getTextWidth(year + "-" + month + "-" + day + " "); w = gmenu2x->font->getTextWidth(hour); break;
-		case 4: x += gmenu2x->font->getTextWidth(year + "-" + month + "-" + day + " " + hour + ":"); w = gmenu2x->font->getTextWidth(minute); break;
-		default: w = gmenu2x->font->getTextWidth(year); break;
-	}
-	gmenu2x->s->box( x - 2, y, w + 3, gmenu2x->font->getHeight() + 1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-	gmenu2x->s->rectangle( x - 2, y, w + 3, gmenu2x->font->getHeight() + 1, 0,0,0,255 );
-
-	MenuSetting::drawSelected(y);
 }
 
 bool MenuSettingDateTime::edited() {

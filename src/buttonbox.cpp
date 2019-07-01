@@ -18,6 +18,11 @@ void ButtonBox::add(Button *button)
 	buttons.push_back(button);
 }
 
+void ButtonBox::remove(uint32_t n)
+{
+	for (uint32_t i = 0; i < n; i++) buttons.pop_back();
+}
+
 void ButtonBox::paint(uint32_t posX)
 {
 	for (ButtonList::const_iterator it = buttons.begin(); it != buttons.end(); ++it)
