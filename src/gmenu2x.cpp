@@ -469,18 +469,19 @@ void GMenu2X::main() {
 					iy = linksRect.y + y * linkHeight + (y + 1) * linkSpacing;
 
 					if (i == (uint32_t)menu->selLinkIndex() && iconBGon == NULL)
-						s->box(ix + (linkWidth - icon->width()) / 2 - 4, iy + (linkHeight - icon->height()) / 2 - 4, icon->width() + 8, icon->height() + 8, skinConfColors[COLOR_SELECTION_BG]);
+						s->box(ix + (linkWidth - min(linkWidth, icon->width())) / 2 - 4, iy + (linkHeight - min(linkHeight, icon->height())) / 2 - 4, min(linkWidth, icon->width()) + 8, min(linkHeight, icon->height()) + 8, skinConfColors[COLOR_SELECTION_BG]);
+					else if (iconBGoff != NULL)
+						iconBGoff->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 
 					icon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 
 					// s->setClipRect({ix, iy, linkWidth, linkHeight});
 					if (i == (uint32_t)menu->selLinkIndex() && iconBGon != NULL)
 						iconBGon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle, 50);
-					else if (iconBGoff != NULL)
-						iconBGoff->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 					// s->clearClipRect();
 
-					if (skinConfInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + linkHeight - 4 , HAlignCenter | VAlignBottom);
+					// if (skinConfInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + min(linkHeight, icon->height()) - 4 , HAlignCenter | VAlignBottom);
+					if (skinConfInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + (linkHeight + min(linkHeight, icon->height()))/2, HAlignCenter | VAlignMiddle);
 				}
 			}
 		}
