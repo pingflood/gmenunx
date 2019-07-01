@@ -83,9 +83,9 @@ enum bd {
 };
 
 enum tvout {
-	TV_OFF  = CANCEL,
-	TV_PAL  = MANUAL,
-	TV_NTSC = CONFIRM,
+	TV_OFF,
+	TV_PAL,
+	TV_NTSC,
 };
 
 using std::string;
@@ -231,14 +231,13 @@ public:
 	*/
 	virtual uint16_t getBatteryLevel() { return 6; };
 	virtual void setScaleMode(unsigned int mode) { };
-	virtual void setTVOut(unsigned int _TVOut) { };
-	virtual void setCPU(uint32_t mhz) {};
+	virtual void setTVOut(unsigned int mode) { };
+	virtual void setCPU(uint32_t mhz) { };
 	virtual void ledOn() { };
 	virtual void ledOff() { };
 	virtual int setVolume(int val, bool popup = false);
 	virtual int setBacklight(int val, bool popup = false);
 	virtual string hwPreLinkLaunch() { return ""; };
-
 };
 
 #endif

@@ -267,7 +267,11 @@ void GMenu2X::main() {
 
 	initDateTime();
 
-	//Screen
+	readConfig();
+
+	setCPU(confInt["cpuMenu"]);
+
+	// Screen
 	if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0 ) {
 		ERROR("Could not initialize SDL: %s", SDL_GetError());
 		quit();
@@ -283,7 +287,7 @@ void GMenu2X::main() {
 
 	s = new Surface();
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	//I'm forced to use SW surfaces since with HW there are issuse with changing the clock frequency
+	// I'm forced to use SW surfaces since with HW there are issuse with changing the clock frequency
 	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, 16, SDL_SWSURFACE);
 	s->enableVirtualDoubleBuffer(dbl);
 #else
@@ -296,7 +300,6 @@ void GMenu2X::main() {
 #endif
 	bg = new Surface(s);
 
-	readConfig();
 
 	setSkin(confStr["skin"], true);
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
@@ -317,7 +320,6 @@ void GMenu2X::main() {
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
 	
 	readTmp();
-	setCPU(confInt["cpuMenu"]);
 
 	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
@@ -766,7 +768,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		tvOutDialog();
 		return true;
 	} else if ( input[TV_REMOVE] ) {
-		tvOutDialog(TV_OFF);
+		setTVOut(0);
 		return true;
 	} else if ( input[JOYSTICK_CONNECT] ) {
 		input.initJoysticks();
@@ -1060,12 +1062,12 @@ void GMenu2X::readTmp() {
 		else if (name == "link") menu->setLinkIndex(atoi(value.c_str()));
 		else if (name == "selectorelem") lastSelectorElement = atoi(value.c_str());
 		else if (name == "selectordir") lastSelectorDir = value;
-		else if (name == "TVOut") TVOut = atoi(value.c_str());
+		// else if (name == "TVOut") TVOut = atoi(value.c_str());
 		else if (name == "tvOutPrev") tvOutPrev = atoi(value.c_str());
 		else if (name == "udcPrev") udcPrev = atoi(value.c_str());
 		else if (name == "currBackdrop") currBackdrop = value.c_str();
 	}
-	if (TVOut > 2) TVOut = 0;
+	// if (TVOut > 2) TVOut = 0;
 	inf.close();
 	unlink("/tmp/gmenu2x.tmp");
 }
@@ -1080,7 +1082,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 		if (selectordir != "") inf << "selectordir=" << selectordir << endl;
 		inf << "udcPrev=" << udcPrev << endl;
 		inf << "tvOutPrev=" << tvOutPrev << endl;
-		inf << "TVOut=" << TVOut << endl;
+		// inf << "TVOut=" << TVOut << endl;
 		inf << "currBackdrop=" << currBackdrop << endl;
 		inf.close();
 	}
@@ -1098,9 +1100,10 @@ void GMenu2X::readConfig() {
 	confInt["globalVolume"] = 60;
 	confStr["bgscale"] = "Stretch";
 
-	input.update(false);
+	// input.update(false);
 
-	if (!input[SETTINGS] && fileExists(conffile)) {
+	// if (!input[SETTINGS] && fileExists(conffile)) {
+	if (fileExists(conffile)) {
 		ifstream inf(conffile.c_str(), ios_base::in);
 		if (inf.is_open()) {
 			string line;

@@ -39,7 +39,7 @@ uint16_t getUDCStatus() {
 }
 
 uint16_t getTVOutStatus() {
-	return TV_REMOVE;
+	// return TV_REMOVE;
 	if (memdev > 0 && !(memregs[0x10300 >> 2] >> 25 & 0b1)) return TV_CONNECT;
 	return TV_REMOVE;
 
@@ -57,6 +57,17 @@ int32_t getBatteryStatus() {
 	}
 	return atol(buf);
 }
+
+uint16_t getTVOut() {
+	char buf[32] = "0";
+	FILE *f = fopen("/proc/jz/tvselect", "r");
+	if (f) {
+		fgets(buf, sizeof(buf), f);
+		fclose(f);
+	}
+	return atoi(buf);
+}
+
 
 // char *entryPoint() {
 // 	static char buf[10] = { 0 };
@@ -244,26 +255,31 @@ private:
 		iconInet = sc.skinRes("imgs/inet.png");
 	}
 
-	void tvOutDialog(int TVOut) {
+	void tvOutDialog() {
 		if (!fileExists("/proc/jz/tvselect")) return;
-		if (TVOut < 0){
-			MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
-			mb.setButton(TV_NTSC, tr["NTSC"]);
-			mb.setButton(TV_PAL,  tr["PAL"]);
-			mb.setButton(TV_OFF,  tr["OFF"]);
-			TVOut = mb.exec();
+
+		MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
+		mb.setButton(CONFIRM, tr["NTSC"]);
+		mb.setButton(MANUAL,  tr["PAL"]);
+		mb.setButton(CANCEL,  tr["OFF"]);
+
+		uint16_t mode = TV_OFF;
+		switch (mb.exec()) {
+			case CONFIRM:
+				mode = TV_NTSC;
+				break;
+			case MANUAL:
+				mode = TV_PAL;
+				break;
 		}
 
-		setTVOut(TVOut);
-
-		switch (TVOut) {
-			case TV_NTSC:
-			case TV_PAL:
-				setBacklight(0);
-				return;
-			default:
-				setBacklight(confInt["backlight"]);
-				break;
+		if (mode != getTVOut()) {
+			setTVOut(mode);
+			setBacklight(confInt["backlight"]);
+			SDL_Delay(500);
+			INFO("Re-launching gmenu2x");
+			writeTmp();
+			exit(0);
 		}
 	}
 
@@ -311,11 +327,11 @@ public:
 		system(buf);
 	}
 
-	void setTVOut(unsigned int TVOut) {
-		if (!fileExists("/proc/jz/tvselect")) return;
-		system("echo 0 > /proc/jz/tvselect; echo 0 > /proc/jz/tvout"); // always reset tv out
-		if (TVOut == TV_NTSC)		system("echo 2 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
-		else if (TVOut == TV_PAL)	system("echo 1 > /proc/jz/tvselect; echo 1 > /proc/jz/tvout");
+	void setTVOut(unsigned int mode) {
+		if (!fileExists("/proc/jz/tvselect") || mode > 2) return;
+		char buf[128] = {0};
+		sprintf(buf, "echo %d > /proc/jz/tvselect; echo 1 > /proc/jz/tvout", mode);
+		system(buf);
 	}
 
 	uint16_t getBatteryLevel() {
@@ -357,16 +373,12 @@ public:
 	}
 
 	void setCPU(uint32_t mhz) {
-		return; // temp
 		mhz = constrain(mhz, confInt["cpuMenu"], confInt["cpuMax"]);
 		if (memdev > 0) {
 			DEBUG("Setting clock to %d", mhz);
-
 			uint32_t m = mhz / 6;
 			memregs[0x10 >> 2] = (m << 24) | 0x090520;
 			INFO("Set CPU clock: %d", mhz);
-			SDL_Delay(100);
-			setTVOut(TVOut);
 		}
 	}
 
