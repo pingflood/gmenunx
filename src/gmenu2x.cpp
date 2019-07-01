@@ -935,10 +935,10 @@ void GMenu2X::settings() {
 
 #if defined(TARGET_RETROGAME)
 	// if (fwType == "RETROGAME") {
-		vector<string> batteryType;
-		batteryType.push_back("BL-5B");
-		batteryType.push_back("Linear");
-		sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
+		// vector<string> batteryType;
+		// batteryType.push_back("BL-5B");
+		// batteryType.push_back("Linear");
+		// sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
 	// }
 	sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
 #endif
@@ -1092,8 +1092,6 @@ void GMenu2X::readConfig() {
 	string conffile = path + "gmenu2x.conf";
 
 	// Defaults *** Sync with default values in writeConfig
-	if (fwType != "RETROARCADE") confStr["batteryType"] = "BL-5B";
-	else confStr["batteryType"] = "Linear";
 	confInt["saveSelection"] = 1;
 	confInt["skinBackdrops"] = 0;
 	confStr["defaultDir"] = CARD_ROOT;
@@ -1982,6 +1980,34 @@ void GMenu2X::setInputSpeed() {
 	// input.setInterval(500, PAGEUP);
 	// input.setInterval(500, PAGEDOWN);
 	// input.setInterval(200, BACKLIGHT);
+}
+
+uint16_t GMenu2X::getBatteryLevel() {
+	int32_t val = getBatteryStatus();
+
+	val = constrain(val, 0, 5000);
+
+	bool needWriteConfig = false;
+	int32_t max = confInt["maxBattery"];
+	int32_t min = confInt["minBattery"];
+
+	if (val > max) {
+		needWriteConfig = true;
+		max = confInt["maxBattery"] = val;
+	}
+	if (val < min) {
+		needWriteConfig = true;
+		min = confInt["minBattery"] = val;
+	}
+
+	if (needWriteConfig)
+		writeConfig();
+
+	if (max == min)
+		return 0;
+
+	// return 5 - 5*(100-val)/(100);
+	return 5 - 5 * (max - val) / (max - min);
 }
 
 int GMenu2X::getVolume() {

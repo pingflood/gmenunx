@@ -111,14 +111,12 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 		tickBattery = 0;
 		batteryIcon = 0; // 0% :(
 		int32_t val = getBatteryStatus();
-		// if (fwType != "RETROARCADE") { // && confStr["batteryType"] == "BL-5B") {
-			if ((val > 10000) || (val < 0)) batteryIcon = 6;
-			else if (val > 4000) batteryIcon = 5; // 100%
-			else if (val > 3900) batteryIcon = 4; // 80%
-			else if (val > 3800) batteryIcon = 3; // 60%
-			else if (val > 3730) batteryIcon = 2; // 40%
-			else if (val > 3600) batteryIcon = 1; // 20%
-		// }
+		if ((val > 10000) || (val < 0)) batteryIcon = 6;
+		else if (val > 4000) batteryIcon = 5; // 100%
+		else if (val > 3900) batteryIcon = 4; // 80%
+		else if (val > 3800) batteryIcon = 3; // 60%
+		else if (val > 3730) batteryIcon = 2; // 40%
+		else if (val > 3600) batteryIcon = 1; // 20%
 	}
 
 	if (memdev > 0) {
@@ -336,40 +334,13 @@ public:
 
 	uint16_t getBatteryLevel() {
 		int32_t val = getBatteryStatus();
-
-		// if (fwType != "RETROARCADE" && confStr["batteryType"] == "BL-5B") {
-			if ((val > 10000) || (val < 0)) return 6;
-			else if (val > 4000) return 5; // 100%
-			else if (val > 3900) return 4; // 80%
-			else if (val > 3800) return 3; // 60%
-			else if (val > 3730) return 2; // 40%
-			else if (val > 3600) return 1; // 20%
-			return 0; // 0% :(
-		// }
-
-		val = constrain(val, 0, 4500);
-
-		bool needWriteConfig = false;
-		int32_t max = confInt["maxBattery"];
-		int32_t min = confInt["minBattery"];
-
-		if (val > max) {
-			needWriteConfig = true;
-			max = confInt["maxBattery"] = val;
-		}
-		if (val < min) {
-			needWriteConfig = true;
-			min = confInt["minBattery"] = val;
-		}
-
-		if (needWriteConfig)
-			writeConfig();
-
-		if (max == min)
-			return 0;
-
-		// return 5 - 5*(100-val)/(100);
-		return 5 - 5 * (max - val) / (max - min);
+		if ((val > 10000) || (val < 0)) return 6;
+		else if (val > 4000) return 5; // 100%
+		else if (val > 3900) return 4; // 80%
+		else if (val > 3800) return 3; // 60%
+		else if (val > 3730) return 2; // 40%
+		else if (val > 3600) return 1; // 20%
+		return 0; // 0% :(
 	}
 
 	void setCPU(uint32_t mhz) {
