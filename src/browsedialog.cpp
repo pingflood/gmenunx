@@ -20,6 +20,8 @@ bool BrowseDialog::exec() {
 	Surface *iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
 	Surface *iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
 	Surface *iconFile = gmenu2x->sc.skinRes("imgs/file.png");
+	Surface *iconSd = gmenu2x->sc.skinRes("imgs/sd.png");
+	Surface *iconCur;
 
 	close = false;
 
@@ -62,8 +64,9 @@ bool BrowseDialog::exec() {
 			// Selection
 			if (selected >= firstElement + numRows) firstElement = selected - numRows;
 			if (selected < firstElement) firstElement = selected;
+			string curPath = getPath();
 
-			if (getPath() == "/media" && getFile(selected) != ".." && isDirectory(selected)) {
+			if (curPath == "/media" && getFile(selected) != ".." && isDirectory(selected)) {
 				gmenu2x->drawButton(gmenu2x->s, "select", gmenu2x->tr["Umount"], tmpButtonPos);
 			}
 
@@ -71,14 +74,18 @@ bool BrowseDialog::exec() {
 			iY = gmenu2x->listRect.y + 1;
 			for (i = firstElement; i < size() && i <= firstElement + numRows; i++, iY += rowHeight) {
 				if (i == selected) gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+
 				if (isDirectory(i)) {
 					if (at(i) == "..")
-						iconGoUp->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
+						iconCur = iconGoUp;
+					else if ((curPath == "/" && getFileName(i) == "media") || curPath == "/media")
+						iconCur = iconSd;
 					else
-						iconFolder->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
-				} else {
-					iconFile->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
+						iconCur = iconFolder;
 				}
+
+				iconCur->blit(gmenu2x->s, gmenu2x->listRect.x + 10, iY + rowHeight/2, HAlignCenter | VAlignMiddle);
+
 				gmenu2x->s->write(gmenu2x->font, getFileName(i), gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
 			}
 
