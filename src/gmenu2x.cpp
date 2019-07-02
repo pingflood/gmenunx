@@ -468,7 +468,7 @@ void GMenu2X::main() {
 			for (y = 0; y < linkRows; y++) {
 				for (x = 0; x < linkCols && i < menu->sectionLinks()->size(); x++, i++) {
 					Surface *icon = sc[menu->sectionLinks()->at(i)->getIconPath()];
-				// icon->softStretch(linkWidth, linkHeight, true, true);
+					if (file_ext(menu->sectionLinks()->at(i)->getIconPath()) == ".jpg") icon->softStretch(linkWidth, linkHeight, true, true);
 
 					ix = linksRect.x + x * linkWidth  + (x + 1) * linkSpacing;
 					iy = linksRect.y + y * linkHeight + (y + 1) * linkSpacing;
