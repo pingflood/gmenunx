@@ -25,6 +25,7 @@ volatile uint8_t memdev = 0;
 int SOUND_MIXER_READ = SOUND_MIXER_READ_VOLUME;
 int SOUND_MIXER_WRITE = SOUND_MIXER_WRITE_VOLUME;
 int32_t tickBattery = 0;
+uint8_t numJoyPrev = 0;
 // batteryIcon = 3;
 
 uint16_t getMMCStatus() {
@@ -68,25 +69,6 @@ uint16_t getTVOut() {
 	return atoi(buf);
 }
 
-
-// char *entryPoint() {
-// 	static char buf[10] = { 0 };
-// 	FILE *f = fopen("/dev/mmcblk0", "r");
-// 	fseek(f, 0x400014, SEEK_SET); // Set the new position
-// 	if (f) {
-// 		for (int i = 0; i < 4; i++) {
-// 			int c = fgetc(f);
-// 			snprintf(buf + strlen(buf), sizeof(buf), "%02X", c);
-// 		}
-// 	}
-// 	fclose(f);
-// 	// if (!strcmp(buf, "80015840")) return "JZ4760B";
-
-// 	if (!strcmp(buf, "800155C0")) return "JZ4760B";
-// 	else if (!strcmp(buf, "80015560")) return "JZ4760";
-// 	else return "Unknown";
-// }
-
 uint16_t getVolumeMode(uint8_t vol) {
 	if (!vol) return VOLUME_MODE_MUTE;
 	else if (memdev > 0 && !(memregs[0x10300 >> 2] >> 6 & 0b1)) return VOLUME_MODE_PHONES;
@@ -101,9 +83,6 @@ void printbin(const char *id, int n) {
 	}
 	printf("\e[0K\n");
 }
-
-
-uint8_t numJoyPrev = 0;
 
 uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 	tickBattery++;
@@ -174,12 +153,7 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 		if (numJoyPrev != numJoy) {
 			numJoyPrev = numJoy;
 			InputManager::pushEvent(JOYSTICK_CONNECT);
-
-
-
 		}
-
-
 
 
 		// volumeMode = getVolumeMode(confInt["globalVolume"]);
@@ -253,29 +227,30 @@ private:
 		iconInet = sc.skinRes("imgs/inet.png");
 	}
 
-	void tvOutDialog() {
+	void tvOutDialog(int16_t mode) {
 		if (!fileExists("/proc/jz/tvselect")) return;
 
-		MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
-		mb.setButton(CONFIRM, tr["NTSC"]);
-		mb.setButton(MANUAL,  tr["PAL"]);
-		mb.setButton(CANCEL,  tr["OFF"]);
+		if (mode < 0) {
+			MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
+			mb.setButton(CONFIRM, tr["NTSC"]);
+			mb.setButton(MANUAL,  tr["PAL"]);
+			mb.setButton(CANCEL,  tr["OFF"]);
 
-		uint16_t mode = TV_OFF;
-		switch (mb.exec()) {
-			case CONFIRM:
-				mode = TV_NTSC;
-				break;
-			case MANUAL:
-				mode = TV_PAL;
-				break;
+			mode = TV_OFF;
+			switch (mb.exec()) {
+				case CONFIRM:
+					mode = TV_NTSC;
+					break;
+				case MANUAL:
+					mode = TV_PAL;
+					break;
+			}
 		}
 
 		if (mode != getTVOut()) {
 			setTVOut(mode);
 			setBacklight(confInt["backlight"]);
 			SDL_Delay(500);
-			INFO("Re-launching gmenu2x");
 			writeTmp();
 			exit(0);
 		}
@@ -350,6 +325,7 @@ public:
 			uint32_t m = mhz / 6;
 			memregs[0x10 >> 2] = (m << 24) | 0x090520;
 			INFO("Set CPU clock: %d", mhz);
+			setTVOut(getTVOut());
 		}
 	}
 

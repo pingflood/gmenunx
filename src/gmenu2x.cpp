@@ -771,7 +771,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		tvOutDialog();
 		return true;
 	} else if ( input[TV_REMOVE] ) {
-		setTVOut(0);
+		tvOutDialog(TV_OFF);
 		return true;
 	} else if ( input[JOYSTICK_CONNECT] ) {
 		input.initJoysticks();
@@ -2009,7 +2009,6 @@ uint16_t GMenu2X::getBatteryLevel() {
 	if (max == min)
 		return 0;
 
-	// return 5 - 5*(100-val)/(100);
 	return 5 - 5 * (max - val) / (max - min);
 }
 

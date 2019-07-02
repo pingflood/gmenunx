@@ -142,7 +142,7 @@ private:
 	void umountSdDialog();
 
 	virtual void udcDialog(int udcStatus = -1) { };
-	virtual void tvOutDialog(int TVOut = -1) { };
+	virtual void tvOutDialog(int16_t mode = -1) { };
 	virtual void hwInit() { };
 	virtual void hwDeinit() {};
 	virtual int getBacklight() { return -1; };
