@@ -467,11 +467,19 @@ void GMenu2X::main() {
 		} else { // CLASSIC
 			for (y = 0; y < linkRows; y++) {
 				for (x = 0; x < linkCols && i < menu->sectionLinks()->size(); x++, i++) {
-					Surface *icon = sc[menu->sectionLinks()->at(i)->getIconPath()];
-					if (file_ext(menu->sectionLinks()->at(i)->getIconPath()) == ".jpg") icon->softStretch(linkWidth, linkHeight, true, true);
-
 					ix = linksRect.x + x * linkWidth  + (x + 1) * linkSpacing;
 					iy = linksRect.y + y * linkHeight + (y + 1) * linkSpacing;
+
+					string iconfile = menu->sectionLinks()->at(i)->getIconPath();
+					Surface *icon;
+
+					if (!sc.exists(iconfile + "icon")) {
+						icon = new Surface(iconfile);
+						sc.add(icon, iconfile + "icon");
+						if (file_ext(iconfile) == ".jpg") sc[iconfile + "icon"]->softStretch(linkWidth, linkHeight, true, true);
+						icon = sc[iconfile + "icon"];
+					}
+					icon = sc[iconfile + "icon"];
 
 					if (i == (uint32_t)menu->selLinkIndex()) {
 						if (iconBGon != NULL && icon->width() <= iconBGon->width() && icon->height() <= iconBGon->height())
