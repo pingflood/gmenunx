@@ -422,7 +422,12 @@ void GMenu2X::main() {
 			}
 
 			if (skinConfInt["sectionLabel"] && SDL_GetTicks() - section_changed < 1400) {
-				s->write(font, tr.translate(menu->selSectionName()), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
+				if (skinConfInt["sectionBar"] == SB_LEFT)
+					s->write(font, tr.translate(menu->selSectionName()), sx, sy + skinConfInt["sectionBarSize"], HAlignLeft | VAlignBottom);
+				else if (skinConfInt["sectionBar"] == SB_RIGHT)
+					s->write(font, tr.translate(menu->selSectionName()), sx + skinConfInt["sectionBarSize"], sy + skinConfInt["sectionBarSize"], HAlignRight | VAlignBottom);
+				else
+					s->write(font, tr.translate(menu->selSectionName()), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
 			} else {
 				SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
 			}
