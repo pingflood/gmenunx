@@ -471,15 +471,12 @@ void GMenu2X::main() {
 					iy = linksRect.y + y * linkHeight + (y + 1) * linkSpacing;
 
 					string iconfile = menu->sectionLinks()->at(i)->getIconPath();
-					Surface *icon;
-
 					if (!sc.exists(iconfile + "icon")) {
-						icon = new Surface(iconfile);
+						Surface *icon = new Surface(iconfile);
 						sc.add(icon, iconfile + "icon");
 						if (file_ext(iconfile) == ".jpg") sc[iconfile + "icon"]->softStretch(linkWidth, linkHeight, true, true);
-						icon = sc[iconfile + "icon"];
 					}
-					icon = sc[iconfile + "icon"];
+					Surface *icon = sc[iconfile + "icon"];
 
 					if (i == (uint32_t)menu->selLinkIndex()) {
 						if (iconBGon != NULL && icon->width() <= iconBGon->width() && icon->height() <= iconBGon->height())
@@ -487,7 +484,7 @@ void GMenu2X::main() {
 						else
 							s->box(ix + (linkWidth - min(linkWidth, icon->width())) / 2 - 4, iy + (linkHeight - min(linkHeight, icon->height())) / 2 - 4, min(linkWidth, icon->width()) + 8, min(linkHeight, icon->height()) + 8, skinConfColors[COLOR_SELECTION_BG]);
 
-					} else if (iconBGoff != NULL)
+					} else if (iconBGoff != NULL && icon->width() <= iconBGoff->width() && icon->height() <= iconBGoff->height())
 						iconBGoff->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 
 					icon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
