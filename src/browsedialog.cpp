@@ -2,7 +2,6 @@
 #include "browsedialog.h"
 #include "FastDelegate.h"
 #include "debug.h"
-#include <algorithm>
 
 using namespace fastdelegate;
 using namespace std;
@@ -204,14 +203,7 @@ const std::string BrowseDialog::getFilePath(uint32_t i) {
 	return getPath() + "/" + getFile(i);
 }
 const std::string BrowseDialog::getExt(uint32_t i) {
-	string filename = getFile(i);
-	string ext = "";
-	string::size_type pos = filename.rfind(".");
-	if (pos != string::npos && pos > 0) {
-		ext = filename.substr(pos, filename.length());
-		transform(ext.begin(), ext.end(), ext.begin(), (int(*)(int)) tolower);
-	}
-	return ext;
+	return file_ext(getFile(i), true);
 }
 const std::string BrowseDialog::getPreview(uint32_t i) {
 	string ext = getExt(i);

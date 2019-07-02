@@ -72,5 +72,6 @@ string exec(const char* cmd);
 string real_path(const string &path);
 string dir_name(const string &path);
 string base_name(const string &path);
+string file_ext(const string &path, bool lowercase = false);
 
 #endif

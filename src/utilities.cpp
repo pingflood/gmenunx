@@ -32,6 +32,8 @@
 
 #include <SDL.h>
 
+#include <algorithm>
+
 #include "utilities.h"
 #include "debug.h"
 
@@ -264,4 +266,14 @@ string base_name(const string &path) {
 	string::size_type p = path.rfind("/");
 	if (p == path.size() - 1) p = path.rfind("/", p - 1);
 	return path.substr(p + 1, path.length());
+}
+
+string file_ext(const string &path, bool lowercase) {
+	string ext = "";
+	string::size_type pos = path.rfind(".");
+	if (pos != string::npos && pos > 0) {
+		ext = path.substr(pos, path.length());
+		if (lowercase) transform(ext.begin(), ext.end(), ext.begin(), (int(*)(int)) tolower);
+	}
+	return ext;
 }
