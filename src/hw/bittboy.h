@@ -15,6 +15,23 @@
 	DOWN       DOWN           SDLK_DOWN       274
 	RIGHT      RIGHT          SDLK_RIGHT      275
 	LEFT       LEFT           SDLK_LEFT       276
+
+	Pocket-Go Key Codes. pingflood, 2019
+	BUTTON     GMENU          SDL             NUMERIC   GPIO
+	-----------------------------------------------------------------------------
+	A          CONFIRM        SDLK_LALT       308
+	B          CANCEL         SDLK_LCTRL      306
+	X          MODIFIER       SDLK_LSHIFT     304
+	Y          MANUAL         SDLK_SPACE      32
+	L          SECTION_PREV   SDLK_TAB        9
+	R          SECTION_NEXT   BACKSPACE       8
+	RESET      POWER          SDLK_RCTRL      305
+	START      SETTINGS       SDLK_RETURN     13
+	SELECT     MENU           SDLK_ESCAPE     27
+	UP         UP             SDLK_UP         273
+	DOWN       DOWN           SDLK_DOWN       274
+	RIGHT      RIGHT          SDLK_RIGHT      275
+	LEFT       LEFT           SDLK_LEFT       276
 */
 
 #undef VOLUME_HOTKEY
@@ -410,6 +427,8 @@ uint8_t getVolumeMode(uint8_t vol) {
 class GMenuNX : public GMenu2X {
 private:
 	void hwInit() {
+		system("mount -o remount,async /mnt");
+
 		setenv("SDL_NOMOUSE", "1", 1);
 		memdev = open("/dev/mem", O_RDWR);
 		if (memdev > 0) {
@@ -459,8 +478,8 @@ public:
 		// return 80;
 		// if (val == 0) lid = 0;
 		// sprintf(buf, "echo %d > /sys/devices/platform/backlight/backlight/backlight/brightness", lid);
-		sprintf(buf, "echo %d > /sys/devices/platform/backlight/backlight/backlight/brightness", val);
-		system(buf);
+		// sprintf(buf, "echo %d > /sys/devices/platform/backlight/backlight/backlight/brightness", val);
+		// system(buf);
 		return val;
 	}
 
@@ -479,6 +498,11 @@ public:
 		}
 
 		INFO("Set CPU clock: %d(0x%08x)", mhz, v);
+	}
+
+	string hwPreLinkLaunch() {
+		system("mount -o remount,sync /mnt");
+		return "";
 	}
 };
 

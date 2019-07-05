@@ -286,7 +286,7 @@ public:
 		val = GMenu2X::setBacklight(val, popup);
 
 		char buf[128] = {0};
-		sprintf(buf, "echo %d > /proc/jz/lcd_backlight", val);
+		sprintf(buf, "echo %d > /proc/jz/lcd_backlight; echo %d > /proc/jz/backlight_control", val);
 		system(buf);
 
 		return val;
@@ -303,7 +303,7 @@ public:
 	void setTVOut(unsigned int mode) {
 		if (!fileExists("/proc/jz/tvselect") || mode > 2) return;
 		char buf[128] = {0};
-		sprintf(buf, "echo %d > /proc/jz/tvselect; echo 1 > /proc/jz/tvout", mode);
+		sprintf(buf, "echo %d > /proc/jz/tvselect; echo 1 > /proc/jz/tvout 2> /dev/null", mode);
 		system(buf);
 	}
 
@@ -325,7 +325,6 @@ public:
 			uint32_t m = mhz / 6;
 			memregs[0x10 >> 2] = (m << 24) | 0x090520;
 			INFO("Set CPU clock: %d", mhz);
-			setTVOut(getTVOut());
 		}
 	}
 

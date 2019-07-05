@@ -76,6 +76,11 @@
 #include "menusettingdatetime.h"
 #include "debug.h"
 
+using std::ifstream;
+using std::ofstream;
+using std::stringstream;
+using namespace fastdelegate;
+
 #define sync() sync(); system("sync &");
 
 enum vol_mode_t {
@@ -94,21 +99,15 @@ uint8_t numJoy = 0; // number of connected joysticks
 	#include "hw/bittboy.h"
 #elif defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	#include "hw/gp2x.h"
+	string fwType = "";
 #else //if defined(TARGET_PC)
 	#include "hw/pc.h"
 #endif
 
-const char *CARD_ROOT = getenv("HOME"); //Note: Add a trailing /!
-const int CARD_ROOT_LEN = 1;
-int FB_SCREENPITCH = 1;
-string fwType = "";
+const char *CARD_ROOT = getenv("HOME"); // Note: Add a trailing /!
+// const int CARD_ROOT_LEN = 1;
 
 static GMenu2X *app;
-
-using std::ifstream;
-using std::ofstream;
-using std::stringstream;
-using namespace fastdelegate;
 
 // Note: Keep this in sync with the enum!
 static const char *colorNames[NUM_COLORS] = {
@@ -200,7 +199,6 @@ void setDateTime(const char* timestamp) {
 	syncDateTime(t);
 }
 
-
 static void quit_all(int err) {
 	delete app;
 	exit(err);
@@ -291,7 +289,7 @@ void GMenu2X::main() {
 	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, 16, SDL_SWSURFACE);
 	s->enableVirtualDoubleBuffer(dbl);
 #else
-	s->ScreenSurface = SDL_SetVideoMode(resX, resY * FB_SCREENPITCH, 16, SDL_HWSURFACE
+	s->ScreenSurface = SDL_SetVideoMode(resX, resY, 16, SDL_HWSURFACE
 	#ifdef SDL_TRIPLEBUF
 		| SDL_TRIPLEBUF
 	#endif

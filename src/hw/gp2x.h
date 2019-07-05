@@ -1,6 +1,13 @@
 #ifndef HW_GP2X_H
 #define HW_GP2X_H
 
+const int MAX_VOLUME_SCALE_FACTOR = 200;
+// Default values - going to add settings adjustment, saving, loading and such
+const int VOLUME_SCALER_MUTE = 0;
+const int VOLUME_SCALER_PHONES = 65;
+const int VOLUME_SCALER_NORMAL = 100;
+const int BATTERY_READS = 10;
+
 volatile uint16_t *memregs;
 int SOUND_MIXER = SOUND_MIXER_READ_PCM;
 int memdev = 0;

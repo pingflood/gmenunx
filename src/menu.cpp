@@ -214,7 +214,7 @@ bool Menu::addActionLink(uint32_t section, const string &title, fastdelegate::Fa
 	return true;
 }
 
-bool Menu::addLink(string exec, string section, string title, string description, string icon) {
+bool Menu::addLink(string exec, string section, string title, string description, string icon, string params) {
 	if (section.empty()) {
 		section = selSection();
 	} else if (find(sections.begin(), sections.end(), section) == sections.end()) {
@@ -264,6 +264,9 @@ bool Menu::addLink(string exec, string section, string title, string description
 
 		if (!icon.empty() && fileExists(icon))
 			f << "icon=" << icon << endl;
+
+		if (!params.empty())
+			f << "params=" << params << endl;
 
 		if (!description.empty())
 			f << "description=" << description << endl;
