@@ -45,6 +45,11 @@
 #define MIYOO_KBD_SET_VER     _IOWR(0x101, 0, unsigned long)
 #define MIYOO_FB0_GET_VER     _IOWR(0x102, 0, unsigned long)
 
+const int CPU_MENU = 702;
+const int CPU_MAX = 900;
+const int CPU_MIN = 200;
+const int CPU_STEP = 6;
+
 uint32_t oc_table[] = {
 	0x00c81802,
 	0x00cc1013,

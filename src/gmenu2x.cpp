@@ -942,15 +942,15 @@ void GMenu2X::settings() {
 	usbMode.push_back("Charger");
 	sd.addSetting(new MenuSettingMultiString(this, tr["USB mode"], tr["Define default USB mode"], &confStr["usbMode"], &usbMode));
 
-#if defined(TARGET_RETROGAME)
+// #if defined(TARGET_RETROGAME)
 	// if (fwType == "RETROGAME") {
 		// vector<string> batteryType;
 		// batteryType.push_back("BL-5B");
 		// batteryType.push_back("Linear");
 		// sd.addSetting(new MenuSettingMultiString(this, tr["Battery profile"], tr["Set the battery discharge profile"], &confStr["batteryType"], &batteryType));
 	// }
-	sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
-#endif
+	// sd.addSetting(new MenuSettingMultiString(this, tr["CPU settings"], tr["Define CPU and overclock settings"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::cpuSettings)));
+// #endif
 	sd.addSetting(new MenuSettingMultiString(this, tr["Reset settings"], tr["Choose settings to reset back to defaults"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::resetSettings)));
 
 	if (sd.exec() && sd.edited() && sd.save) {
@@ -1044,17 +1044,17 @@ void GMenu2X::resetSettings() {
 	}
 }
 
-void GMenu2X::cpuSettings() {
-	SettingsDialog sd(this, ts, tr["CPU settings"], "skin:icons/configure.png");
-	sd.addSetting(new MenuSettingInt(this, tr["Default CPU clock"], tr["Set the default working CPU frequency"], &confInt["cpuMenu"], 528, 528, 600, 6));
-	sd.addSetting(new MenuSettingInt(this, tr["Maximum CPU clock"], tr["Maximum overclock for launching links"], &confInt["cpuMax"], 740, 600, 1200, 6));
-	// sd.addSetting(new MenuSettingInt(this, tr["Minimum CPU clock"], tr["Minimum underclock used in Suspend mode"], &confInt["cpuMin"], 342, 200, 528, 6));
+// void GMenu2X::cpuSettings() {
+// 	SettingsDialog sd(this, ts, tr["CPU settings"], "skin:icons/configure.png");
+// 	sd.addSetting(new MenuSettingInt(this, tr["Default CPU clock"], tr["Set the default working CPU frequency"], &confInt["cpuMenu"], 528, 528, 600, 6));
+// 	sd.addSetting(new MenuSettingInt(this, tr["Maximum CPU clock"], tr["Maximum overclock for launching links"], &confInt["cpuMax"], 740, 600, 1200, 6));
+// 	// sd.addSetting(new MenuSettingInt(this, tr["Minimum CPU clock"], tr["Minimum underclock used in Suspend mode"], &confInt["cpuMin"], 342, 200, 528, 6));
 
-	if (sd.exec() && sd.edited() && sd.save) {
-		setCPU(confInt["cpuMenu"]);
-		writeConfig();
-	}
-}
+// 	if (sd.exec() && sd.edited() && sd.save) {
+// 		setCPU(confInt["cpuMenu"]);
+// 		writeConfig();
+// 	}
+// }
 
 void GMenu2X::readTmp() {
 	lastSelectorElement = -1;
@@ -1109,6 +1109,10 @@ void GMenu2X::readConfig() {
 	confInt["globalVolume"] = 60;
 	confStr["bgscale"] = "Stretch";
 
+	confInt["cpuMenu"] = CPU_MENU;
+	confInt["cpuMax"] = CPU_MAX;
+	confInt["cpuMin"] = CPU_MIN;
+
 	// input.update(false);
 
 	// if (!input[SETTINGS] && fileExists(conffile)) {
@@ -1134,16 +1138,16 @@ void GMenu2X::readConfig() {
 	if (!confStr["wallpaper"].empty() && !fileExists(confStr["wallpaper"])) confStr["wallpaper"] = "";
 	if (confStr["skin"].empty() || !dirExists("skins/" + confStr["skin"])) confStr["skin"] = "Default";
 
-	evalIntConf( &confInt["backlightTimeout"], 30, 10, 300);
-	evalIntConf( &confInt["powerTimeout"], 10, 1, 300);
-	evalIntConf( &confInt["outputLogs"], 0, 0, 1 );
-	evalIntConf( &confInt["cpuMax"], 740, 200, 1200 );
-	// evalIntConf( &confInt["cpuMin"], 342, 200, 1200 );
-	evalIntConf( &confInt["cpuMenu"], 528, 200, 1200 );
-	evalIntConf( &confInt["globalVolume"], 60, 0, 100 );
-	evalIntConf( &confInt["backlight"], 70, 1, 100);
-	evalIntConf( &confInt["minBattery"], 3550, 1, 10000);
-	evalIntConf( &confInt["maxBattery"], 3720, 1, 10000);
+	evalIntConf(&confInt["backlightTimeout"], 30, 10, 300);
+	evalIntConf(&confInt["powerTimeout"], 10, 1, 300);
+	evalIntConf(&confInt["outputLogs"], 0, 0, 1 );
+	// evalIntConf(&confInt["cpuMax"], 2000, 200, 2000 );
+	// evalIntConf(&confInt["cpuMin"], 342, 200, 1200 );
+	// evalIntConf(&confInt["cpuMenu"], 528, 200, 1200 );
+	evalIntConf(&confInt["globalVolume"], 60, 0, 100 );
+	evalIntConf(&confInt["backlight"], 70, 1, 100);
+	evalIntConf(&confInt["minBattery"], 3550, 1, 10000);
+	evalIntConf(&confInt["maxBattery"], 3720, 1, 10000);
 
 	if (!confInt["saveSelection"]) {
 		confInt["section"] = 0;
@@ -1206,8 +1210,8 @@ void GMenu2X::writeConfig() {
 				(curr->first == "powerTimeout" && curr->second == 10) ||
 				(curr->first == "outputLogs" && curr->second == 0) ||
 				// (curr->first == "cpuMin" && curr->second == 342) ||
-				(curr->first == "cpuMax" && curr->second == 740) ||
-				(curr->first == "cpuMenu" && curr->second == 528) ||
+				// (curr->first == "cpuMax" && curr->second == 740) ||
+				// (curr->first == "cpuMenu" && curr->second == 528) ||
 				(curr->first == "globalVolume" && curr->second == 60) ||
 				(curr->first == "backlight" && curr->second == 70) ||
 				(curr->first == "minBattery" && curr->second == 3550) ||
@@ -1804,7 +1808,7 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingString(		this, tr["Description"],	tr["Link description"], &linkDescription, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingMultiString(	this, tr["Section"],		tr["The section this link belongs to"], &newSection, &menu->getSections()));
 	sd.addSetting(new MenuSettingImage(			this, tr["Icon"],			tr["Select a custom icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", linkExec, dialogTitle, dialogIcon));
-	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMenu"], confInt["cpuMax"], 6));
+	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMenu"], confInt["cpuMax"], CPU_STEP));
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
 
 #if !defined(TARGET_PC)
