@@ -76,7 +76,7 @@ void TerminalDialog::exec(const string &_cmd) {
 
 	gmenu2x->s->flip();
 
-	if (fileExists("/usr/bin/script"))
+	if (file_exists("/usr/bin/script"))
 		cmd = "/usr/bin/script -q -c " + cmdclean(_cmd) + " /dev/null 2>&1";
 	else
 		cmd = "/bin/sh -c " + cmdclean(_cmd) + " 2>&1";

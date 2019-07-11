@@ -65,12 +65,12 @@ char *string_copy(const string &s) {
 	return cs;
 }
 
-bool dirExists(const string &path) {
+bool dir_exists(const string &path) {
 	struct stat s;
 	return (stat(path.c_str(), &s) == 0 && s.st_mode & S_IFDIR); // exists and is dir
 }
 
-bool fileExists(const string &path) {
+bool file_exists(const string &path) {
 	struct stat s;
 	return (stat(path.c_str(), &s) == 0 && s.st_mode & S_IFREG); // exists and is file
 }

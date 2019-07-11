@@ -138,7 +138,7 @@ void Surface::load(const string &img, bool alpha, const string &skin) {
 	string skinpath;
 	if (!skin.empty() && !img.empty() && img[0]!='/') {
 		skinpath = "skins/"+skin+"/"+img;
-		if (!fileExists(skinpath))
+		if (!file_exists(skinpath))
 			skinpath = "skins/Default/"+img;
 	} else {
 		skinpath = img;

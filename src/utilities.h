@@ -47,8 +47,8 @@ string cmdclean (string cmdline);
 char *string_copy(const string &);
 void string_copy(const string &, char **);
 
-bool fileExists(const string &path);
-bool dirExists(const string &path);
+bool file_exists(const string &path);
+bool dir_exists(const string &path);
 bool rmtree(string path);
 
 int max(int a, int b);

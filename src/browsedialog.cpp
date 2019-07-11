@@ -43,7 +43,7 @@ bool BrowseDialog::exec() {
 	}
 
 	string path = getPath();
-	if (path.empty() || !dirExists(path))
+	if (path.empty() || !dir_exists(path))
 		directoryEnter(gmenu2x->confStr["defaultDir"]);
 
 	string preview = getPreview(selected);

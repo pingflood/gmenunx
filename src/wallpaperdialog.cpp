@@ -44,7 +44,7 @@ bool WallpaperDialog::exec()
 	FileLister fl("skins/" + gmenu2x->confStr["skin"] + "/wallpapers");
 	fl.setFilter(".png,.jpg,.jpeg,.bmp");
 	vector<string> wallpapers;
-	if (dirExists("skins/" + gmenu2x->confStr["skin"] + "/wallpapers")) {
+	if (dir_exists("skins/" + gmenu2x->confStr["skin"] + "/wallpapers")) {
 		fl.browse();
 		wallpapers = fl.getFiles();
 	}

@@ -121,11 +121,11 @@ const string &LinkApp::searchManual() {
 	if (pos != string::npos) linktitle = linktitle.substr(0, pos);
 	linktitle = dname + linktitle + ".man.txt";
 
-	if (fileExists(linktitle))
+	if (file_exists(linktitle))
 		manualPath = linktitle;
-	else if (fileExists(filename))
+	else if (file_exists(filename))
 		manualPath = filename;
-	else if (fileExists(dirtitle))
+	else if (file_exists(dirtitle))
 		manualPath = dirtitle;
 
 	return manualPath;
@@ -168,7 +168,7 @@ const string &LinkApp::searchBackdrop() {
 	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".jpg").empty())
 		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".jpg");
 
-	else if (fileExists(dir_name(exec) + "/backdrop.png"))
+	else if (file_exists(dir_name(exec) + "/backdrop.png"))
 		backdropPath = dir_name(exec) + "/backdrop.png";
 
 	return backdropPath;
@@ -206,9 +206,9 @@ const string &LinkApp::searchIcon() {
 	else if (!gmenu2x->sc.getSkinFilePath("icons/" + dirtitle).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + dirtitle);
 
-	else if (fileExists(dir_name(exec) + "/" + sublinktitle))
+	else if (file_exists(dir_name(exec) + "/" + sublinktitle))
 		iconPath = dir_name(exec) + "/" + sublinktitle;
-	else if (fileExists(execicon))
+	else if (file_exists(execicon))
 		iconPath = execicon;
 	else
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
@@ -247,7 +247,7 @@ bool LinkApp::targetExists() {
 	if (!exec.empty() && exec[0] != '/' && !workdir.empty())
 		target = workdir + "/" + exec;
 
-	return fileExists(target);
+	return file_exists(target);
 }
 
 bool LinkApp::save() {
@@ -388,7 +388,7 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	//if (useRamTimings) gmenu2x->applyRamTimings();
 	// if (useGinge) {
 		// string ginge_prep = gmenu2x->getExePath() + "/ginge/ginge_prep";
-		// if (fileExists(ginge_prep)) command = cmdclean(ginge_prep) + " " + command;
+		// if (file_exists(ginge_prep)) command = cmdclean(ginge_prep) + " " + command;
 	// }
 	if (fwType == "open2x") gmenu2x->writeConfigOpen2x();
 	if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"]) gmenu2x->setGamma(gamma());
@@ -520,7 +520,7 @@ const string &LinkApp::getAliasFile() {
 }
 
 void LinkApp::setAliasFile(const string &aliasfile) {
-	if (aliasfile == "" || fileExists(aliasfile)) {
+	if (aliasfile == "" || file_exists(aliasfile)) {
 		this->aliasfile = aliasfile;
 		edited = true;
 	}

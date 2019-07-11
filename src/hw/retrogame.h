@@ -222,9 +222,9 @@ private:
 			INFO("Enabling gadget-lun storage device");
 			quit();
 
-			if (fileExists("/usr/bin/retrofw")) execlp("/bin/sh", "/bin/sh", "-c", "/usr/bin/retrofw storage on", NULL);
-			else if (fileExists("/etc/init.d/S99recovery")) execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S99recovery storage on", NULL);
-			else if (fileExists("/etc/init.d/S80recovery")) execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage on", NULL);
+			if (file_exists("/usr/bin/retrofw")) execlp("/bin/sh", "/bin/sh", "-c", "/usr/bin/retrofw storage on", NULL);
+			else if (file_exists("/etc/init.d/S99recovery")) execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S99recovery storage on", NULL);
+			else if (file_exists("/etc/init.d/S80recovery")) execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage on", NULL);
 			return;
 		}
 		INFO("Enabling usb0 networking device");
@@ -233,7 +233,7 @@ private:
 	}
 
 	void tvOutDialog(int16_t mode) {
-		if (!fileExists("/proc/jz/tvout")) return;
+		if (!file_exists("/proc/jz/tvout")) return;
 
 		if (mode < 0) {
 			MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
@@ -298,7 +298,7 @@ public:
 	}
 
 	void setScaleMode(unsigned int mode) {
-		if (!fileExists("/proc/jz/ipu_ratio")) return;
+		if (!file_exists("/proc/jz/ipu_ratio")) return;
 
 		char buf[128] = {0};
 		sprintf(buf, "echo %d > /proc/jz/ipu_ratio", mode);
@@ -306,7 +306,7 @@ public:
 	}
 
 	void setTVOut(unsigned int mode) {
-		if (!fileExists("/proc/jz/tvout") || mode > 2) return;
+		if (!file_exists("/proc/jz/tvout") || mode > 2) return;
 		char buf[128] = {0};
 		// sprintf(buf, "echo %d > /proc/jz/tvout; echo 1 > /proc/jz/tvout &> /dev/null", mode);
 		sprintf(buf, "echo %d > /proc/jz/tvout", mode);

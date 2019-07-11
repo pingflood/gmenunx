@@ -38,9 +38,9 @@ void SurfaceCollection::setSkin(const string &skin) {
 }
 
 string SurfaceCollection::getSkinFilePath(const string &file) {
-	if (fileExists("skins/"+skin+"/"+file))
+	if (file_exists("skins/"+skin+"/"+file))
 		return "skins/"+skin+"/"+file;
-	else if (fileExists("skins/Default/"+file))
+	else if (file_exists("skins/Default/"+file))
 		return "skins/Default/"+file;
 
 	return "";
@@ -72,7 +72,7 @@ Surface *SurfaceCollection::add(const string &path, bool alpha) {
 		filePath = getSkinFilePath(filePath.substr(5,filePath.length()));
 		if (filePath.empty())
 			return NULL;
-	} else if (!fileExists(filePath)) return NULL;
+	} else if (!file_exists(filePath)) return NULL;
 
 	DEBUG("Adding surface: '%s'", path.c_str());
 	Surface *s = new Surface(filePath,alpha);

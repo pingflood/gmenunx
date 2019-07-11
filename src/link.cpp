@@ -73,7 +73,7 @@ void Link::setIcon(const string &icon) {
 
 	if (icon.compare(0, 5, "skin:") == 0)
 		this->iconPath = gmenu2x->sc.getSkinFilePath(icon.substr(5, string::npos));
-	else if (fileExists(icon))
+	else if (file_exists(icon))
 		this->iconPath = icon;
 	else
 		this->iconPath = "";
@@ -87,7 +87,7 @@ void Link::setBackdrop(const string &backdrop) {
 
 	if (backdrop.compare(0, 5, "skin:") == 0)
 		this->backdropPath = gmenu2x->sc.getSkinFilePath(backdrop.substr(5, string::npos));
-	else if (fileExists(backdrop))
+	else if (file_exists(backdrop))
 		this->backdropPath = backdrop;
 	else
 		this->backdropPath = "";
@@ -109,7 +109,7 @@ const string &Link::getIconPath() {
 }
 
 void Link::setIconPath(const string &icon) {
-	if (fileExists(icon))
+	if (file_exists(icon))
 		iconPath = icon;
 	else
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");

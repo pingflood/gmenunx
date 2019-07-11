@@ -894,7 +894,7 @@ void GMenu2X::initMenu() {
 				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "usb.png");
 			}
 #endif
-			if (fileExists(path + "log.txt"))
+			if (file_exists(path + "log.txt"))
 				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "ebook.png");
 
 			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "about.png");
@@ -1058,7 +1058,7 @@ void GMenu2X::resetSettings() {
 
 void GMenu2X::readTmp() {
 	lastSelectorElement = -1;
-	if (!fileExists("/tmp/gmenu2x.tmp")) return;
+	if (!file_exists("/tmp/gmenu2x.tmp")) return;
 	ifstream inf("/tmp/gmenu2x.tmp", ios_base::in);
 	if (!inf.is_open()) return;
 	string line, name, value;
@@ -1115,8 +1115,8 @@ void GMenu2X::readConfig() {
 
 	// input.update(false);
 
-	// if (!input[SETTINGS] && fileExists(conffile)) {
-	if (fileExists(conffile)) {
+	// if (!input[SETTINGS] && file_exists(conffile)) {
+	if (file_exists(conffile)) {
 		ifstream inf(conffile.c_str(), ios_base::in);
 		if (inf.is_open()) {
 			string line;
@@ -1135,8 +1135,8 @@ void GMenu2X::readConfig() {
 	}
 
 	if (!confStr["lang"].empty()) tr.setLang(confStr["lang"]);
-	if (!confStr["wallpaper"].empty() && !fileExists(confStr["wallpaper"])) confStr["wallpaper"] = "";
-	if (confStr["skin"].empty() || !dirExists("skins/" + confStr["skin"])) confStr["skin"] = "Default";
+	if (!confStr["wallpaper"].empty() && !file_exists(confStr["wallpaper"])) confStr["wallpaper"] = "";
+	if (confStr["skin"].empty() || !dir_exists("skins/" + confStr["skin"])) confStr["skin"] = "Default";
 
 	evalIntConf(&confInt["backlightTimeout"], 30, 10, 300);
 	evalIntConf(&confInt["powerTimeout"], 10, 1, 300);
@@ -1320,7 +1320,7 @@ void GMenu2X::setSkin(const string &skin, bool clearSC) {
 
 	// load skin settings
 	string skinconfname = "skins/" + skin + "/skin.conf";
-	if (fileExists(skinconfname)) {
+	if (file_exists(skinconfname)) {
 		ifstream skinconf(skinconfname.c_str(), ios_base::in);
 		if (skinconf.is_open()) {
 			string line;
@@ -1463,9 +1463,9 @@ void GMenu2X::skinMenu() {
 		}
 
 		wpPath = "skins/" + confStr["skin"] + "/wallpapers/" + confStr["tmp_wallpaper"];
-		if (!fileExists(wpPath)) wpPath = "skins/Default/wallpapers/" + confStr["tmp_wallpaper"];
-		if (!fileExists(wpPath)) wpPath = "skins/" + confStr["skin"] + "/wallpapers/" + wallpapers.at(0);
-		if (!fileExists(wpPath)) wpPath = "skins/Default/wallpapers/" + wallpapers.at(0);
+		if (!file_exists(wpPath)) wpPath = "skins/Default/wallpapers/" + confStr["tmp_wallpaper"];
+		if (!file_exists(wpPath)) wpPath = "skins/" + confStr["skin"] + "/wallpapers/" + wallpapers.at(0);
+		if (!file_exists(wpPath)) wpPath = "skins/Default/wallpapers/" + wallpapers.at(0);
 
 		setBackground(bg, wpPath);
 
@@ -1562,7 +1562,7 @@ void GMenu2X::about() {
 
 void GMenu2X::viewLog() {
 	string logfile = path + "log.txt";
-	if (!fileExists(logfile)) return;
+	if (!file_exists(logfile)) return;
 
 	TextDialog td(this, tr["Log Viewer"], tr["Last launched program's output"], "skin:icons/ebook.png");
 	td.appendFile(path + "log.txt");
@@ -1595,7 +1595,7 @@ void GMenu2X::showManual() {
 	string linkManual = menu->selLinkApp()->getManualPath();
 	string linkBackdrop = confInt["skinBackdrops"] | BD_DIALOG ? menu->selLinkApp()->getBackdropPath() : "";
 
-	if (linkManual == "" || !fileExists(linkManual)) return;
+	if (linkManual == "" || !file_exists(linkManual)) return;
 
 	string ext = linkManual.substr(linkManual.size() - 4, 4);
 	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == "jpeg") {
@@ -1651,7 +1651,7 @@ void GMenu2X::explorer() {
 			setCPU(confInt["cpuMenu"]);
 
 			if (confInt["outputLogs"]) {
-				if (fileExists("/usr/bin/gdb")) command = "gdb -batch -ex \"run\" -ex \"bt\" --args " + command;
+				if (file_exists("/usr/bin/gdb")) command = "gdb -batch -ex \"run\" -ex \"bt\" --args " + command;
 				command += " 2>&1 | tee " + cmdclean(getExePath()) + "/log.txt";
 			}
 			execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
@@ -1680,7 +1680,7 @@ bool GMenu2X::saveScreenshot() {
 		ss << x;
 		ss >> fname;
 		fname = "screenshots/screen" + fname + ".bmp";
-	} while (fileExists(fname));
+	} while (file_exists(fname));
 	x = SDL_SaveBMP(s->raw, fname.c_str());
 	sync();
 	ledOff();
@@ -1812,7 +1812,7 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
 
 #if !defined(TARGET_PC)
-	if (fileExists("/proc/jz/ipu_ratio"))
+	if (file_exists("/proc/jz/ipu_ratio"))
 #endif
 	{
 		sd.addSetting(new MenuSettingMultiString(this, tr["Scale Mode"],		tr["Hardware scaling mode"], &linkScaleMode, &scaleMode));
@@ -1834,7 +1834,7 @@ void GMenu2X::editLink() {
 #if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	bool linkUseGinge = menu->selLinkApp()->getUseGinge();
 	string ginge_prep = getExePath() + "/ginge/ginge_prep";
-	if (fileExists(ginge_prep))
+	if (file_exists(ginge_prep))
 		sd.addSetting(new MenuSettingBool(		this, tr["Use Ginge"],			tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
 #elif defined(TARGET_GP2X)
 	int linkGamma = menu->selLinkApp()->gamma();
@@ -1882,7 +1882,7 @@ void GMenu2X::editLink() {
 			if (newSectionIndex == menu->getSections().end()) return;
 			string newFileName = "sections/" + newSection + "/" + linkTitle;
 			uint32_t x = 2;
-			while (fileExists(newFileName)) {
+			while (file_exists(newFileName)) {
 				string id = "";
 				stringstream ss; ss << x; ss >> id;
 				newFileName = "sections/" + newSection + "/" + linkTitle + id;
@@ -1950,7 +1950,7 @@ void GMenu2X::renameSection() {
 					newicon = oldicon;
 					newicon.replace(newicon.find(oldpng), oldpng.length(), newpng);
 
-					if (!fileExists(newicon)) {
+					if (!file_exists(newicon)) {
 						rename(oldicon.c_str(), "tmpsectionicon");
 						rename("tmpsectionicon", newicon.c_str());
 						sc.move("skin:" + oldpng, "skin:" + newpng);

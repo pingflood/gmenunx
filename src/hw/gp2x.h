@@ -88,11 +88,11 @@ private:
 			}
 		}
 
-	#if defined(TARGET_GP2X)
-		if (fileExists("/etc/open2x")) fwType = "open2x";
+#if defined(TARGET_GP2X)
+		if (file_exists("/etc/open2x")) fwType = "open2x";
 		else fwType = "gph";
 
-		f200 = fileExists("/dev/touchscreen/wm97xx");
+		f200 = file_exists("/dev/touchscreen/wm97xx");
 
 		//open2x
 		savedVolumeMode = 0;
@@ -325,7 +325,7 @@ public:
 
 	void readConfigOpen2x() {
 		string conffile = "/etc/config/open2x.conf";
-		if (!fileExists(conffile)) return;
+		if (!file_exists(conffile)) return;
 		ifstream inf(conffile.c_str(), ios_base::in);
 		if (!inf.is_open()) return;
 		string line;
@@ -461,7 +461,7 @@ public:
 	}
 
 	void readCommonIni() {
-		if (!fileExists("/usr/gp2x/common.ini")) return;
+		if (!file_exists("/usr/gp2x/common.ini")) return;
 		ifstream inf("/usr/gp2x/common.ini", ios_base::in);
 		if (!inf.is_open()) return;
 		string line;
@@ -532,9 +532,9 @@ public:
 
 // // #if defined(TARGET_CAANOO)
 // // 	string versionFile = "";
-// // // 	if (fileExists("/usr/gp2x/version"))
+// // // 	if (file_exists("/usr/gp2x/version"))
 // // // 		versionFile = "/usr/gp2x/version";
-// // // 	else if (fileExists("/tmp/gp2x/version"))
+// // // 	else if (file_exists("/tmp/gp2x/version"))
 // // // 		versionFile = "/tmp/gp2x/version";
 // // // 	if (!versionFile.empty()) {
 // // // 		ifstream f(versionFile.c_str(), ios_base::in);

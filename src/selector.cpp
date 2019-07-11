@@ -50,15 +50,15 @@ const std::string Selector::getPreview(uint32_t i) {
 	else realdir = real_path(screendir) + "/";
 
 	INFO("Searching for screen '%s%s.png'", realdir.c_str(), noext.c_str());
-	if (dirExists(realdir)) {
-		if (fileExists(realdir + noext + ".png"))
+	if (dir_exists(realdir)) {
+		if (file_exists(realdir + noext + ".png"))
 			return realdir + noext + ".png";
-		else if (fileExists(realdir + noext + ".jpg"))
+		else if (file_exists(realdir + noext + ".jpg"))
 			return realdir + noext + ".jpg";
 	}
-	else if (fileExists(getPath() + "/" + noext + ".png")) // fallback - always search for ./filename.png
+	else if (file_exists(getPath() + "/" + noext + ".png")) // fallback - always search for ./filename.png
 		return getPath() + "/" + noext + ".png";
-	else if (fileExists(getPath() + "/" + noext + ".jpg"))
+	else if (file_exists(getPath() + "/" + noext + ".jpg"))
 		return getPath() + "/" + noext + ".jpg";
 
 	return "";
@@ -66,7 +66,7 @@ const std::string Selector::getPreview(uint32_t i) {
 
 void Selector::loadAliases() {
 	aliases.clear();
-	if (fileExists(link->getAliasFile())) {
+	if (file_exists(link->getAliasFile())) {
 		string line;
 		ifstream infile (link->getAliasFile().c_str(), ios_base::in);
 		while (getline(infile, line, '\n')) {
