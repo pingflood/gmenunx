@@ -270,7 +270,7 @@ void GMenu2X::main() {
 	setCPU(confInt["cpuMenu"]);
 
 	// Screen
-	if ( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0 ) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0) {
 		ERROR("Could not initialize SDL: %s", SDL_GetError());
 		quit();
 		return;
@@ -284,20 +284,16 @@ void GMenu2X::main() {
 	setScaleMode(0);
 
 	s = new Surface();
+
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	// I'm forced to use SW surfaces since with HW there are issuse with changing the clock frequency
 	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, 16, SDL_SWSURFACE);
 	s->enableVirtualDoubleBuffer(dbl);
 #else
-	s->ScreenSurface = SDL_SetVideoMode(resX, resY, 16, SDL_HWSURFACE
-	#ifdef SDL_TRIPLEBUF
-		| SDL_TRIPLEBUF
-	#endif
-	);
-	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, 16, 0, 0, 0, 0);
+	s->raw = SDL_SetVideoMode(resX, resY, 16, SDL_SWSURFACE);
 #endif
-	bg = new Surface(s);
 
+	bg = new Surface(s);
 
 	setSkin(confStr["skin"], true);
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
@@ -633,6 +629,8 @@ void GMenu2X::main() {
 			mb.exec();
 			input[CONFIRM] = false;
 		}
+
+		if (!powerManager->suspendActive && !input.combo()) s->flip();
 
 		if (inputCommonActions(inputAction)) continue;
 

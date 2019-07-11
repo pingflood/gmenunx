@@ -75,7 +75,6 @@ public:
 	void enableAlpha();
 
 	SDL_Surface *raw;
-	SDL_Surface *ScreenSurface;
 
 	void free();
 	void load(const string &img, bool alpha=true, const string &skin="");
