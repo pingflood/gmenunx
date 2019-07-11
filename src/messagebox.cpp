@@ -28,7 +28,6 @@
 using namespace std;
 
 MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
-	ERROR("%s:%d", __func__, __LINE__);
 	Surface bg(gmenu2x->s);
 	bool close = false, inputAction = false;
 	int sel = 0;
@@ -75,12 +74,8 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
 			else if ( gmenu2x->input[LEFT] || gmenu2x->input[PAGEUP] ) sel = 0;
 			else if ( gmenu2x->input[RIGHT] || gmenu2x->input[PAGEDOWN] ) sel = (int)options.size() - 1;
 			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) { 
-	ERROR("%s:%d", __func__, __LINE__);
-
-				options[sel].action(); close = true; 
-
-	ERROR("%s:%d", __func__, __LINE__);
-
+				options[sel].action();
+				close = true; 
 			}
 		} while (!inputAction);
 	}
@@ -92,9 +87,6 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	this->icon = icon;
 	this->autohide = 0;
 	this->bgalpha = 200;
-
-	;
-
 
 	buttonText.resize(19);
 	button.resize(19);
@@ -114,13 +106,8 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	button[LEFT] = "left";
 	button[RIGHT] = "right";
 	button[MODIFIER] = "a";
-// #if defined(TARGET_RETROGAME)
 	button[CONFIRM] = "a";
 	button[CANCEL] = "b";
-// #else
-	// button[CONFIRM] = "b";
-	// button[CANCEL] = "x";
-// #endif
 	button[MANUAL] = "y";
 	button[DEC] = "x";
 	button[INC] = "y";
@@ -153,7 +140,6 @@ int MessageBox::exec() {
 
 	gmenu2x->powerManager->clearTimer();
 
-	// Surface bg(gmenu2x->s);
 	//Darken background
 	gmenu2x->s->box((SDL_Rect){0, 0, gmenu2x->resX, gmenu2x->resY}, (RGBAColor){0,0,0,bgalpha});
 
@@ -164,7 +150,7 @@ int MessageBox::exec() {
 	box.w = gmenu2x->font->getTextWidth(text) + 24;// + (gmenu2x->sc[icon] != NULL ? 42 : 0);
 	int ix = 0;
 	for (uint32_t i = 0; i < buttonText.size(); i++) {
-		if (buttonText[i] != "")
+		if (!buttonText[i].empty())
 			ix += gmenu2x->font->getTextWidth(buttonText[i]) + 24;
 	}
 	ix += 6;
@@ -174,19 +160,19 @@ int MessageBox::exec() {
 	ix = (gmenu2x->sc[icon] != NULL ? 42 : 0);
 	box.w += ix;
 
-	box.x = gmenu2x->resX/2 - box.w/2 - 2;
-	box.y = gmenu2x->resY/2 - box.h/2 - 2;
+	box.x = (gmenu2x->resX - box.w) / 2 - 2;
+	box.y = (gmenu2x->resY - box.h) / 2 - 2;
 
 	//outer box
 	gmenu2x->s->box(box, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 	
 	//draw inner rectangle
-	gmenu2x->s->rectangle(box.x+2, box.y+2, box.w-4, box.h-4, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
+	gmenu2x->s->rectangle(box.x + 2, box.y + 2, box.w - 4, box.h - 4, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
 
 	//icon+text
 	if (gmenu2x->sc[icon] != NULL) {
 		gmenu2x->s->setClipRect({box.x + 8, box.y + 8, 32, 32});
-		gmenu2x->sc[icon]->blit( gmenu2x->s, box.x + 24, box.y + 24 , HAlignCenter | VAlignMiddle);
+		gmenu2x->sc[icon]->blit(gmenu2x->s, box.x + 24, box.y + 24, HAlignCenter | VAlignMiddle);
 		gmenu2x->s->clearClipRect();
 	}
 
@@ -199,10 +185,11 @@ int MessageBox::exec() {
 		gmenu2x->powerManager->resetSuspendTimer(); // prevent immediate suspend
 		return -1;
 	}
+
 	//draw buttons rectangle
 	gmenu2x->s->box(box.x, box.y+box.h, box.w, gmenu2x->font->getHeight(), gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 
-	int btnX = gmenu2x->resX/2 + box.w/2 - 6;
+	int btnX = (gmenu2x->resX + box.w) / 2 - 6;
 	for (uint32_t i = 0; i < buttonText.size(); i++) {
 		if (buttonText[i] != "") {
 			buttonPosition[i].y = box.y+box.h+gmenu2x->font->getHalfHeight();
@@ -218,14 +205,14 @@ int MessageBox::exec() {
 
 	while (result < 0) {
 		//touchscreen
-		if (gmenu2x->f200 && gmenu2x->ts.poll()) {
-			for (uint32_t i = 0; i < buttonText.size(); i++) {
-				if (buttonText[i] != "" && gmenu2x->ts.inRect(buttonPosition[i])) {
-					result = i;
-					break;
-				}
-			}
-		}
+		// if (gmenu2x->f200 && gmenu2x->ts.poll()) {
+		// 	for (uint32_t i = 0; i < buttonText.size(); i++) {
+		// 		if (buttonText[i] != "" && gmenu2x->ts.inRect(buttonPosition[i])) {
+		// 			result = i;
+		// 			break;
+		// 		}
+		// 	}
+		// }
 
 		bool inputAction = gmenu2x->input.update();
 		if (inputAction) {
@@ -241,7 +228,6 @@ int MessageBox::exec() {
 
 	gmenu2x->input.dropEvents(); // prevent passing input away
 	gmenu2x->powerManager->resetSuspendTimer();
-	// bg.blit(gmenu2x->s,0,0);
 	return result;
 }
 

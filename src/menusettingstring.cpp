@@ -43,6 +43,6 @@ MenuSettingString::MenuSettingString(
 
 void MenuSettingString::edit()
 {
-	InputDialog id(gmenu2x, gmenu2x->ts, description, value(), dialogTitle, dialogIcon);
+	InputDialog id(gmenu2x, /*gmenu2x->ts,*/ description, value(), dialogTitle, dialogIcon);
 	if (id.exec()) setValue(id.getInput());
 }

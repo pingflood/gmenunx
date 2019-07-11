@@ -26,10 +26,9 @@ using namespace std;
 using namespace fastdelegate;
 
 InputDialog::InputDialog(GMenu2X *gmenu2x,
-		Touchscreen &ts_, const string &text,
+		/*Touchscreen &ts_, */ const string &text,
 		const string &startvalue, const string &title, const string &icon)
-	: Dialog(gmenu2x)
-	, ts(ts_)
+	: Dialog(gmenu2x) /*, ts(ts_)*/
 {
 	if (title == "") {
 		this->title = text;
@@ -83,19 +82,20 @@ void InputDialog::setKeyboard(int kb) {
 	curKeyboard = kb;
 	this->kb = &(keyboard[kb]);
 	kbLength = this->kb->at(0).length();
-	for (int x = 0, l = kbLength; x<l; x++)
+
+	for (int x = 0, l = kbLength; x < l; x++) {
 		if (gmenu2x->font->utf8Code(this->kb->at(0)[x])) {
 			kbLength--;
 			x++;
 		}
+	}
 
-	kbLeft = 160 - kbLength*KEY_WIDTH/2;
+	kbLeft = (gmenu2x->resX - kbLength * KEY_WIDTH) / 2;
 	kbWidth = kbLength * KEY_WIDTH + 3;
-	// kbHeight = (this->kb->size() + 1) * KEY_HEIGHT + 3;
 	kbHeight = (this->kb->size()) * KEY_HEIGHT + 3;
 
 	kbRect.x = kbLeft - 3;
-	kbRect.y = gmenu2x->bottomBarRect.y - kbHeight; // KB_TOP - 2;
+	kbRect.y = gmenu2x->bottomBarRect.y - kbHeight;
 	kbRect.w = kbWidth;
 	kbRect.h = kbHeight;
 }
@@ -113,7 +113,6 @@ bool InputDialog::exec() {
 	close = false;
 	ok = true;
 
-	// drawTopBar(this->bg, title, text, icon);
 	this->bg->box(gmenu2x->bottomBarRect, (RGBAColor){0,0,0,255});
 
 	drawBottomBar(this->bg);
@@ -132,14 +131,9 @@ bool InputDialog::exec() {
 
 		this->bg->blit(gmenu2x->s,0,0);
 
-		// box.w = gmenu2x->font->getTextWidth(input) + 18;
-		// box.x = 160 - box.w / 2;
-
 		gmenu2x->s->box(gmenu2x->listRect.x, box.y - 2, gmenu2x->listRect.w, box.h + 2, (RGBAColor){0,0,0,220});
 		gmenu2x->s->box(box, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 		gmenu2x->s->setClipRect(box);
-
-		// gmenu2x->s->rectangle(box.x, box.y, box.w, box.h, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
 		gmenu2x->s->write(gmenu2x->font, input, box.x + box.w / 2, box.y + box.h / 2, HAlignCenter | VAlignMiddle);
 
@@ -152,7 +146,7 @@ bool InputDialog::exec() {
 		if (caretOn) gmenu2x->s->box(box.x + (box.w + gmenu2x->font->getTextWidth(input)) / 2, box.y + 3, 8, box.h - 6, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 		gmenu2x->s->clearClipRect();
 
-		if (gmenu2x->f200) ts.poll();
+		// if (gmenu2x->f200) ts.poll();
 		action = drawVirtualKeyboard();
 		gmenu2x->s->flip();
 
@@ -206,7 +200,6 @@ bool InputDialog::exec() {
 				break;
 		}
 	}
-	// gmenu2x->input.setWakeUpInterval(0);
 
 	return ok;
 }
@@ -246,26 +239,16 @@ int InputDialog::drawVirtualKeyboard() {
 
 	gmenu2x->s->box(gmenu2x->listRect.x, kbRect.y, gmenu2x->listRect.w, kbRect.h, (RGBAColor){0,0,0,220});
 
-	// int kbRect.y + 2 = gmenu2x->resY - 4 * gmenu2x->font->getHeight();
-
-	//keyboard border
-	// gmenu2x->s->rectangle(kbRect, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-
 	if (selCol < 0) selCol = selRow == (int)kb->size() ? 1 : kbLength - 1;
 	if (selCol >= (int)kbLength) selCol = 0;
 	if (selRow < 0) selRow = kb->size() - 1;
 	if (selRow >= (int)kb->size()) selRow = 0;
 
-	//selection
+	// selection
 	if (selRow < (int)kb->size())
 		gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH, kbRect.y + 2 + selRow * KEY_HEIGHT, KEY_WIDTH - 1, KEY_HEIGHT - 2, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-	// else {
-	// 	if (selCol > 1) selCol = 0;
-	// 	if (selCol < 0) selCol = 1;
-	// 	gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH * kbLength / 2, kbRect.y + 2 + kb->size() * KEY_HEIGHT, kbLength * KEY_WIDTH / 2 - 1, KEY_HEIGHT - 1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-	// }
 
-	//keys
+	// keys
 	for (uint32_t l = 0; l < kb->size(); l++) {
 		string line = kb->at(l);
 		for (uint32_t x = 0, xc = 0; x < line.length(); x++) {
@@ -280,11 +263,11 @@ int InputDialog::drawVirtualKeyboard() {
 
 			SDL_Rect re = {kbLeft + xc * KEY_WIDTH, kbRect.y + 2 + l * KEY_HEIGHT, KEY_WIDTH - 1, KEY_HEIGHT - 2};
 
-			//if ts on rect, change selection
-			if (gmenu2x->f200 && ts.pressed() && ts.inRect(re)) {
-				selCol = xc;
-				selRow = l;
-			}
+			// if ts on rect, change selection
+			// if (gmenu2x->f200 && ts.pressed() && ts.inRect(re)) {
+			// 	selCol = xc;
+			// 	selRow = l;
+			// }
 
 			gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 			gmenu2x->s->write(gmenu2x->font, charX, kbLeft + xc * KEY_WIDTH + KEY_WIDTH / 2, kbRect.y + 2 + l * KEY_HEIGHT + KEY_HEIGHT / 2 - 2, HAlignCenter | VAlignMiddle, (RGBAColor){0xff,0xff,0xff,0xff}, (RGBAColor){0,0,0,200});
@@ -292,27 +275,10 @@ int InputDialog::drawVirtualKeyboard() {
 		}
 	}
 
-	// //Ok/Cancel
-	// SDL_Rect re = {kbLeft, kbRect.y + 2 + kb->size() * KEY_HEIGHT, kbLength * KEY_WIDTH / 2 - 1, KEY_HEIGHT - 1};
-	// gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-	// if (gmenu2x->f200 && ts.pressed() && ts.inRect(re)) {
-	// 	selCol = 0;
-	// 	selRow = kb->size();
+	// if ts released
+	// if (gmenu2x->f200 && ts.released() && ts.inRect(kbRect)) {
+	// 	action = ID_ACTION_SELECT;
 	// }
-	// gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["Cancel"], (int)(160 - kbLength * KEY_WIDTH / 4), kbRect.y + 2 + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2, HAlignCenter | VAlignMiddle);
-
-	// re.x = kbLeft + kbLength * KEY_WIDTH / 2 - 1;
-	// gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-	// if (gmenu2x->f200 && ts.pressed() && ts.inRect(re)) {
-	// 	selCol = 1;
-	// 	selRow = kb->size();
-	// }
-	// gmenu2x->s->write(gmenu2x->font, gmenu2x->tr["OK"], (int)(160 + kbLength * KEY_WIDTH / 4), kbRect.y + 2 + kb->size() * KEY_HEIGHT + KEY_HEIGHT / 2, HAlignCenter | VAlignMiddle);
-
-	//if ts released
-	if (gmenu2x->f200 && ts.released() && ts.inRect(kbRect)) {
-		action = ID_ACTION_SELECT;
-	}
 
 	return action;
 }
