@@ -1074,7 +1074,8 @@ void GMenu2X::readTmp() {
 		// else if (name == "TVOut") TVOut = atoi(value.c_str());
 		else if (name == "tvOutPrev") tvOutPrev = atoi(value.c_str());
 		else if (name == "udcPrev") udcPrev = atoi(value.c_str());
-		else if (name == "currBackdrop") currBackdrop = value.c_str();
+		else if (name == "currBackdrop") currBackdrop = value;
+		else if (name == "explorerLastDir") confStr["explorerLastDir"] = value;
 	}
 	// if (TVOut > 2) TVOut = 0;
 	inf.close();
@@ -1093,6 +1094,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 		inf << "tvOutPrev=" << tvOutPrev << endl;
 		// inf << "TVOut=" << TVOut << endl;
 		inf << "currBackdrop=" << currBackdrop << endl;
+		if (!confStr["explorerLastDir"].empty()) inf << "explorerLastDir=" << confStr["explorerLastDir"] << endl;
 		inf.close();
 	}
 }
@@ -1165,6 +1167,7 @@ void GMenu2X::writeConfig() {
 				curr->first == "sectionBarPosition" ||
 				curr->first == "tvoutEncoding" ||
 				curr->first == "datetime" ||
+				curr->first == "explorerLastDir" ||
 
 				// defaults
 				(curr->first == "defaultDir" && curr->second == CARD_ROOT) ||
@@ -1602,13 +1605,12 @@ void GMenu2X::showManual() {
 	td.exec();
 }
 
-string explorerLastDir = "";
 void GMenu2X::explorer() {
 	BrowseDialog bd(this, tr["Explorer"], tr["Select a file or application"]);
 	bd.showDirectories = true;
 	bd.showFiles = true;
 
-	if (confInt["saveSelection"]) bd.setPath(explorerLastDir);
+	if (confInt["saveSelection"]) bd.setPath(confStr["explorerLastDir"]);
 
 	while (bd.exec()) {
 		string ext = bd.getExt(bd.selected);
@@ -1658,7 +1660,7 @@ void GMenu2X::explorer() {
 		}
 	}
 
-	explorerLastDir = bd.getPath();
+	confStr["explorerLastDir"] = bd.getPath();
 }
 
 bool GMenu2X::saveScreenshot() {
