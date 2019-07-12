@@ -74,7 +74,7 @@ public:
 	void enableVirtualDoubleBuffer(SDL_Surface *surface, bool alpha=true);
 	void enableAlpha();
 
-	SDL_Surface *raw;
+	SDL_Surface *raw, *screen;
 
 	void free();
 	void load(const string &img, bool alpha=true, const string &skin="");

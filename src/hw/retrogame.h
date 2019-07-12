@@ -255,7 +255,6 @@ private:
 		if (mode != getTVOut()) {
 			setTVOut(mode);
 			setBacklight(confInt["backlight"]);
-			SDL_Delay(500);
 			writeTmp();
 			exit(0);
 		}

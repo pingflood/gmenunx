@@ -259,7 +259,7 @@ void GMenu2X::main() {
 	hwInit();
 
 	path = "";
-	getExePath();
+	chdir(getExePath().c_str());
 
 	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 
@@ -290,7 +290,14 @@ void GMenu2X::main() {
 	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, 16, SDL_SWSURFACE);
 	s->enableVirtualDoubleBuffer(dbl);
 #else
-	s->raw = SDL_SetVideoMode(resX, resY, 16, SDL_SWSURFACE);
+	s->screen = SDL_SetVideoMode(resX, resY, 16, SDL_HWSURFACE |
+	#ifdef SDL_TRIPLEBUF
+		SDL_TRIPLEBUF
+	#else
+		SDL_DOUBLEBUF
+	#endif
+	);
+	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, 16, 0, 0, 0, 0);
 #endif
 
 	bg = new Surface(s);

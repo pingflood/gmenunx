@@ -188,8 +188,10 @@ void Surface::flip() {
 		SDL_BlitSurface(raw, NULL, dblbuffer, NULL);
 		// SDL_SoftStretch(raw, NULL, dblbuffer, NULL);
 		SDL_Flip(dblbuffer);
-	} else 
-		SDL_Flip(raw);
+	} else {
+		SDL_BlitSurface(raw, NULL, screen, NULL);
+		SDL_Flip(screen);
+	}
 }
 
 void Surface::putPixel(int x, int y, RGBAColor color) {
