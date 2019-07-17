@@ -106,7 +106,7 @@ bool Selector::customAction(bool &inputAction) {
 
 void Selector::addFavourite() {
 	WARNING("favicon3: %s", favicon.c_str());
-	gmenu2x->menu->addLink(link->getExec(), "favourites", getFileName(selected), description, favicon,  link->getParams() + " " + getFilePath(selected));
+	gmenu2x->menu->addLink(link->getExec(), "favourites", getFileName(selected), description, favicon, link->getParams() + " " + cmdclean(getFilePath(selected)));
 }
 
 void Selector::contextMenu() {
