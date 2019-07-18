@@ -1630,7 +1630,7 @@ void GMenu2X::explorer() {
 			TextDialog td(this, tr["Text viewer"], bd.getFile(bd.selected), "skin:icons/ebook.png");
 			td.appendFile(bd.getFilePath(bd.selected));
 			td.exec();
-		} else if (ext == ".ipk") {
+		} else if (ext == ".ipk" && file_exists("/usr/bin/opkg")) {
 			string cmd = "opkg install --force-reinstall --force-overwrite ";
 			input.update(false);
 			if (input[MANUAL]) cmd += "--force-downgrade ";
@@ -1640,10 +1640,10 @@ void GMenu2X::explorer() {
 		} else if (ext == ".sh") {
 			TerminalDialog td(this, tr["Terminal"], "sh" + cmdclean(bd.getFileName(bd.selected)), "skin:icons/terminal.png");
 			td.exec(bd.getFilePath(bd.selected));
-		} else if (ext == ".zip" && (bd.getFile(bd.selected).rfind("gmenu2x-skin-", 0) == 0) || (bd.getFile(bd.selected).rfind("gmenunx-skin-", 0) == 0)) {
+		} else if (ext == ".zip" && file_exists("/usr/bin/unzip") && (bd.getFile(bd.selected).rfind("gmenu2x-skin-", 0) == 0) || (bd.getFile(bd.selected).rfind("gmenunx-skin-", 0) == 0)) {
 			TerminalDialog td(this, tr["Skin installer"], bd.getFileName(bd.selected), "skin:icons/skin.png");
 			td.exec("rm -rf /tmp/skins; mkdir -p /tmp/skins; unzip -o " + cmdclean(bd.getFilePath(bd.selected)) + " -d /tmp/skins; cp -rf /tmp/skins/ " + getExePath() + "/skins 2> /dev/null; rm -rf /tmp/skins; sync");
-		} else if (ext == ".zip") {
+		} else if (ext == ".zip" && file_exists("/usr/bin/unzip")) {
 			TerminalDialog td(this, tr["Zip content"], bd.getFileName(bd.selected), "skin:icons/terminal.png");
 			td.exec("unzip -l " + cmdclean(bd.getFilePath(bd.selected)));
 		} else {
