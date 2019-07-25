@@ -28,6 +28,8 @@
 #include <math.h>
 #include <signal.h>
 
+// #include <sys/reboot.h>
+
 #include <sys/statvfs.h>
 #include <errno.h>
 
@@ -94,14 +96,14 @@ uint16_t batteryIcon = 3;
 uint8_t numJoy = 0; // number of connected joysticks
 
 #if defined(TARGET_RETROGAME)
-	#include "hw/retrogame.h"
+	#include "hw/retrogame.cpp"
 #elif defined(TARGET_BITTBOY)
-	#include "hw/bittboy.h"
+	#include "hw/bittboy.cpp"
 #elif defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	#include "hw/gp2x.h"
+	#include "hw/gp2x.cpp"
 	string fwType = "";
 #else //if defined(TARGET_PC)
-	#include "hw/pc.h"
+	#include "hw/pc.cpp"
 #endif
 
 const char *CARD_ROOT = getenv("HOME"); // Note: Add a trailing /!
@@ -878,12 +880,10 @@ void GMenu2X::initMenu() {
 		// Add virtual links in the applications section
 		if (menu->getSections()[i] == "applications") {
 			menu->addActionLink(i, tr["Explorer"], MakeDelegate(this, &GMenu2X::explorer), tr["Browse files and launch apps"], "explorer.png");
-			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external media device"], "eject.png");
 
-// #if !defined(TARGET_PC)
-// 			if (getBatteryLevel() > 5) // show only if charging
-// #endif
-// 				menu->addActionLink(i, tr["Battery Logger"], MakeDelegate(this, &GMenu2X::batteryLogger), tr["Log battery power to battery.csv"], "ebook.png");
+#if defined(HW_EXT_SD)
+			menu->addActionLink(i, tr["Umount"], MakeDelegate(this, &GMenu2X::umountSdDialog), tr["Umount external media device"], "eject.png");
+#endif
 		}
 
 		// Add virtual links in the setting section
@@ -941,11 +941,13 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
 	sd.addSetting(new MenuSettingDir(this, tr["Default path"],	tr["Default directory to start the file browser"], &confStr["defaultDir"]));
 
+#if defined(HW_UDC)
 	vector<string> usbMode;
 	usbMode.push_back("Ask");
 	usbMode.push_back("Storage");
 	usbMode.push_back("Charger");
 	sd.addSetting(new MenuSettingMultiString(this, tr["USB mode"], tr["Define default USB mode"], &confStr["usbMode"], &usbMode));
+#endif
 
 // #if defined(TARGET_RETROGAME)
 	// if (fwType == "RETROGAME") {
@@ -973,9 +975,9 @@ void GMenu2X::settings() {
 		powerManager->setSuspendTimeout(confInt["backlightTimeout"]);
 		powerManager->setPowerTimeout(confInt["powerTimeout"]);
 
-#if defined(TARGET_GP2X)
-		if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
-#endif
+		#if defined(TARGET_GP2X)
+			if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
+		#endif
 
 		if (prevDateTime != newDateTime) {
 			powerManager->setPowerTimeout(0);
@@ -1234,10 +1236,6 @@ void GMenu2X::writeConfig() {
 	}
 	sync();
 
-#if defined(TARGET_GP2X)
-	if (fwType == "open2x" && savedVolumeMode != volumeMode)
-		writeConfigOpen2x();
-#endif
 	ledOff();
 }
 
@@ -1708,7 +1706,7 @@ void GMenu2X::restartDialog(bool showDialog) {
 
 void GMenu2X::poweroffDialog() {
 	MessageBox mb(this, tr["Poweroff or reboot the device?"], "skin:icons/exit.png");
-	mb.setButton(SECTION_NEXT, tr["Reboot"]);
+	// mb.setButton(SECTION_NEXT, tr["Reboot"]);
 	mb.setButton(CONFIRM, tr["Poweroff"]);
 	mb.setButton(CANCEL,  tr["Cancel"]);
 	int response = mb.exec();
@@ -1718,18 +1716,18 @@ void GMenu2X::poweroffDialog() {
 		mb.setAutoHide(500);
 		mb.exec();
 		setBacklight(0);
-#if !defined(TARGET_PC)
-		system("sync; poweroff");
-#endif
+		#if !defined(TARGET_PC)
+			system("sync; mount -o remount,ro $HOME; poweroff");
+		#endif
 	}
 	else if (response == SECTION_NEXT) {
 		MessageBox mb(this, tr["Rebooting"]);
 		mb.setAutoHide(500);
 		mb.exec();
 		setBacklight(0);
-#if !defined(TARGET_PC)
-		system("sync; reboot");
-#endif
+		#if !defined(TARGET_PC)
+			system("sync; mount -o remount,ro $HOME; reboot");
+		#endif
 	}
 }
 
@@ -1816,12 +1814,14 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMenu"], confInt["cpuMax"], CPU_STEP));
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
 
-#if !defined(TARGET_PC)
-	if (file_exists("/proc/jz/ipu_ratio"))
-#endif
-	{
-		sd.addSetting(new MenuSettingMultiString(this, tr["Scale Mode"],		tr["Hardware scaling mode"], &linkScaleMode, &scaleMode));
-	}
+	#if defined(HW_SCALER)
+		#if !defined(TARGET_PC) && defined(HW_SCALER)
+			if (file_exists("/proc/jz/ipu_ratio"))
+		#endif
+		{
+			sd.addSetting(new MenuSettingMultiString(this, tr["Scale Mode"],		tr["Hardware scaling mode"], &linkScaleMode, &scaleMode));
+		}
+	#endif
 
 	if (confInt["saveSelection"]) {
 		sd.addSetting(new MenuSettingBool(		this, tr["File Selector"],	tr["Use file browser selector"], &useSelector));
@@ -1836,15 +1836,15 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingImage(			this, tr["Backdrop"],		tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", linkExec, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingFile(			this, tr["Manual"],			tr["Select a Manual or Readme file"], &linkManual, ".man.png,.txt,.me", linkExec, dialogTitle, dialogIcon));
 
-#if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	bool linkUseGinge = menu->selLinkApp()->getUseGinge();
-	string ginge_prep = getExePath() + "/ginge/ginge_prep";
-	if (file_exists(ginge_prep))
-		sd.addSetting(new MenuSettingBool(		this, tr["Use Ginge"],			tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
-#elif defined(TARGET_GP2X)
-	int linkGamma = menu->selLinkApp()->gamma();
-	sd.addSetting(new MenuSettingInt(			this, tr["Gamma (default: 0)"],	tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
-#endif
+	#if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+		bool linkUseGinge = menu->selLinkApp()->getUseGinge();
+		string ginge_prep = getExePath() + "/ginge/ginge_prep";
+		if (file_exists(ginge_prep))
+			sd.addSetting(new MenuSettingBool(		this, tr["Use Ginge"],			tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
+	#elif defined(TARGET_GP2X)
+		int linkGamma = menu->selLinkApp()->gamma();
+		sd.addSetting(new MenuSettingInt(			this, tr["Gamma (default: 0)"],	tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
+	#endif
 
 	if (sd.exec() && sd.edited() && sd.save) {
 		ledOn();
@@ -1875,11 +1875,11 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setBackdrop(linkBackdrop);
 		menu->selLinkApp()->setCPU(linkClock);
 
-#if defined(TARGET_GP2X)
-		menu->selLinkApp()->setGamma(linkGamma);
-#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-		menu->selLinkApp()->setUseGinge(linkUseGinge);
-#endif
+		#if defined(TARGET_GP2X)
+			menu->selLinkApp()->setGamma(linkGamma);
+		#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+			menu->selLinkApp()->setUseGinge(linkUseGinge);
+		#endif
 
 		// if section changed move file and update link->file
 		if (oldSection != newSection) {

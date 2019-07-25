@@ -1,6 +1,10 @@
 #ifndef HW_PC_H
 #define HW_PC_H
 
+#define HW_UDC // hardware have UDC support
+#define HW_EXT_SD // hardware have external sd card support
+#define HW_SCALER // hardware have screen scaler (e.g., IPU)
+
 volatile uint16_t *memregs;
 uint8_t memdev = 0;
 int SOUND_MIXER_READ = SOUND_MIXER_READ_PCM;

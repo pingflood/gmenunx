@@ -93,6 +93,7 @@ const std::string Selector::getFileName(uint32_t i) {
 
 string favicon;
 bool Selector::customAction(bool &inputAction) {
+	return false;
 	if ( gmenu2x->input[MENU] ) {
 		favicon = getPreview(selected);
 		WARNING("favicon1: %s", favicon.c_str());
