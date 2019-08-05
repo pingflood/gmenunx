@@ -122,7 +122,7 @@ bool InputDialog::exec() {
 	gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Save"]
 	))));
 
-	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
+	// this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
 	SDL_TimerID wakeUpTimer = NULL;
 	while (!close) {
@@ -132,10 +132,10 @@ bool InputDialog::exec() {
 		this->bg->blit(gmenu2x->s,0,0);
 
 		gmenu2x->s->box(gmenu2x->listRect.x, box.y - 2, gmenu2x->listRect.w, box.h + 2, (RGBAColor){0,0,0,220});
-		gmenu2x->s->box(box, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		gmenu2x->s->box(box, (RGBAColor){0x33,0x33,0x33,220});
 		gmenu2x->s->setClipRect(box);
 
-		gmenu2x->s->write(gmenu2x->font, input, box.x + box.w / 2, box.y + box.h / 2, HAlignCenter | VAlignMiddle);
+		gmenu2x->s->write(gmenu2x->font, input, box.x + box.w / 2, box.y + box.h / 2, HAlignCenter | VAlignMiddle, (RGBAColor){0xff,0xff,0xff,0xff}, (RGBAColor){0,0,0,200});
 
 		curTick = SDL_GetTicks();
 		if (curTick - caretTick >= 600) {
@@ -143,7 +143,7 @@ bool InputDialog::exec() {
 			caretTick = curTick;
 		}
 
-		if (caretOn) gmenu2x->s->box(box.x + (box.w + gmenu2x->font->getTextWidth(input)) / 2, box.y + 3, 8, box.h - 6, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		if (caretOn) gmenu2x->s->box(box.x + (box.w + gmenu2x->font->getTextWidth(input)) / 2, box.y + 3, 8, box.h - 6, (RGBAColor){0xff,0xff,0xff,220});
 		gmenu2x->s->clearClipRect();
 
 		// if (gmenu2x->f200) ts.poll();
@@ -248,7 +248,7 @@ int InputDialog::drawVirtualKeyboard() {
 
 	// selection
 	if (selRow < (int)kb->size())
-		gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH, kbRect.y + 2 + selRow * KEY_HEIGHT, KEY_WIDTH - 1, KEY_HEIGHT - 2, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH, kbRect.y + 2 + selRow * KEY_HEIGHT, KEY_WIDTH - 1, KEY_HEIGHT - 2, (RGBAColor){0xff,0xff,0xff,220});
 
 	// keys
 	for (uint32_t l = 0; l < kb->size(); l++) {
@@ -271,7 +271,7 @@ int InputDialog::drawVirtualKeyboard() {
 			// 	selRow = l;
 			// }
 
-			gmenu2x->s->rectangle(re, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+			gmenu2x->s->rectangle(re, (RGBAColor){0xff,0xff,0xff,220});
 			gmenu2x->s->write(gmenu2x->font, charX, kbLeft + xc * KEY_WIDTH + KEY_WIDTH / 2, kbRect.y + 2 + l * KEY_HEIGHT + KEY_HEIGHT / 2 - 2, HAlignCenter | VAlignMiddle, (RGBAColor){0xff,0xff,0xff,0xff}, (RGBAColor){0,0,0,200});
 			xc++;
 		}

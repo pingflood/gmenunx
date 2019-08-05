@@ -1706,7 +1706,7 @@ void GMenu2X::restartDialog(bool showDialog) {
 
 void GMenu2X::poweroffDialog() {
 	MessageBox mb(this, tr["Poweroff or reboot the device?"], "skin:icons/exit.png");
-	// mb.setButton(SECTION_NEXT, tr["Reboot"]);
+	mb.setButton(SECTION_NEXT, tr["Reboot"]);
 	mb.setButton(CONFIRM, tr["Poweroff"]);
 	mb.setButton(CANCEL,  tr["Cancel"]);
 	int response = mb.exec();
