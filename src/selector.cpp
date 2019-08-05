@@ -84,10 +84,8 @@ const std::string Selector::getFileName(uint32_t i) {
 	int pos = fname.rfind(".");
 	if (pos != string::npos && pos > 0) noext = fname.substr(0, pos);
 	unordered_map<string, string>::iterator it = aliases.find(noext);
-	if (it == aliases.end())
-		return fname;
-	else
-		return it->second;
+	if (it == aliases.end()) return fname;
+	return it->second;
 }
 
 

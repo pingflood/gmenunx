@@ -62,14 +62,14 @@ void FileLister::browse() {
 			filepath = path + "/" + file;
 			int statRet = stat(filepath.c_str(), &st);
 			if (statRet == -1) {
-				ERROR("Stat failed on '%s' with error '%s'", filepath.c_str(), strerror(errno));
+				ERROR("Stat failed on '%s': '%s'", filepath.c_str(), strerror(errno));
 				continue;
 			}
 			if (find(excludes.begin(), excludes.end(), file) != excludes.end())
 				continue;
 
-			if (showDirectories && S_ISDIR(st.st_mode)) {
-				directories.push_back(file);
+			if (S_ISDIR(st.st_mode)) {
+				if (showDirectories) directories.push_back(file); // warning: do not merge the _if_
 			} else if (showFiles) {
 				for (vector<string>::iterator it = vfilter.begin(); it != vfilter.end(); ++it) {
 					if (vfilter.size() > 1 && it->length() == 0 && (int32_t)file.rfind(".") >= 0) continue;
@@ -92,8 +92,7 @@ const string &FileLister::getPath() {
 }
 void FileLister::setPath(const string &path, bool doBrowse) {
 	this->path = real_path(path);
-	if (doBrowse)
-		browse();
+	if (doBrowse) browse();
 }
 const string &FileLister::getFilter() {
 	return filter;
@@ -115,10 +114,8 @@ string FileLister::operator[](uint32_t x) {
 }
 string FileLister::at(uint32_t x) {
 	if (x >= size()) return "";
-	if (x < directories.size())
-		return directories[x];
-	else
-		return files[x - directories.size()];
+	if (x < directories.size()) return directories[x];
+	return files[x - directories.size()];
 }
 bool FileLister::isFile(uint32_t x) {
 	return x >= directories.size() && x < size();

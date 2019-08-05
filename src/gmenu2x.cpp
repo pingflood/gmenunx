@@ -321,7 +321,7 @@ void GMenu2X::main() {
 	mmcStatus = getMMCStatus();
 	udcStatus = getUDCStatus();
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
-	
+
 	readTmp();
 
 	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
@@ -408,7 +408,7 @@ void GMenu2X::main() {
 				sx += ix; sy = y;
 				s->box(sx, sy, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
 			}
-			
+
 			for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
 				if (skinConfInt["sectionBar"] == SB_LEFT || skinConfInt["sectionBar"] == SB_RIGHT) {
 					y = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
@@ -660,7 +660,7 @@ void GMenu2X::main() {
 		else if ( input[CANCEL] ) continue;
 		else if ( input[SETTINGS] ) settings();
 		else if ( input[MENU]     ) contextMenu();
-		
+
 		// LINK NAVIGATION
 		else if ( input[LEFT ] && linkCols == 1 && linkRows > 1) menu->pageUp();
 		else if ( input[RIGHT] && linkCols == 1 && linkRows > 1) menu->pageDown();
@@ -1445,7 +1445,7 @@ void GMenu2X::skinMenu() {
 
 			setSkin(confStr["skin"], false);
 			sectionBar = sbStr[skinConfInt["sectionBar"]];
-	
+
 			confStr["tmp_wallpaper"] = (confStr["tmp_wallpaper"].empty() || skinConfStr["wallpaper"].empty()) ? base_name(confStr["wallpaper"]) : skinConfStr["wallpaper"];
 			wallpapers.clear();
 
