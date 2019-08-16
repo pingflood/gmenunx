@@ -271,6 +271,17 @@ void GMenu2X::main() {
 
 	setCPU(confInt["cpuMenu"]);
 
+	input.init(path + "input.conf");
+
+	setInputSpeed();
+
+	setScaleMode(0);
+
+	setBacklight(confInt["backlight"]);
+
+	setSkin(confStr["skin"], true);
+	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
+
 	// Screen
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0) {
 		ERROR("Could not initialize SDL: %s", SDL_GetError());
@@ -278,12 +289,6 @@ void GMenu2X::main() {
 		return;
 	}
 	SDL_ShowCursor(0);
-
-	input.init(path + "input.conf");
-
-	setInputSpeed();
-
-	setScaleMode(0);
 
 	s = new Surface();
 
@@ -302,20 +307,17 @@ void GMenu2X::main() {
 	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, 16, 0, 0, 0, 0);
 #endif
 
-	bg = new Surface(s);
+	currBackdrop = confStr["wallpaper"];
+	setBackground(s, currBackdrop);
 
-	setSkin(confStr["skin"], true);
-	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
+	bg = new Surface(s);
 
 	MessageBox mb(this, tr["Loading"]);
 	mb.setAutoHide(-1);
+	mb.setBgAlpha(0);
 	mb.exec();
 
 	initMenu();
-
-	currBackdrop = confStr["wallpaper"];
-	setBacklight(confInt["backlight"]);
-	setBackground(bg, currBackdrop);
 
 	tvOutStatus = getTVOutStatus();
 	mmcStatus = getMMCStatus();
