@@ -8,7 +8,7 @@ using namespace std;
 
 BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
 : Dialog(gmenu2x), title(title), description(description), icon(icon) {
-	directoryEnter(gmenu2x->confStr["defaultDir"]);
+	directoryEnter(gmenu2x->confStr["homePath"]);
 }
 BrowseDialog::~BrowseDialog() {
 }
@@ -44,7 +44,7 @@ bool BrowseDialog::exec() {
 
 	string path = getPath();
 	if (path.empty() || !dir_exists(path))
-		directoryEnter(gmenu2x->confStr["defaultDir"]);
+		directoryEnter(gmenu2x->confStr["homePath"]);
 
 	string preview = getPreview(selected);
 

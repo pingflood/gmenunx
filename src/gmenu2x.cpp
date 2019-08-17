@@ -941,7 +941,7 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingInt(this, tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
 	sd.addSetting(new MenuSettingInt(this, tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
 	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
-	sd.addSetting(new MenuSettingDir(this, tr["Default path"],	tr["Default directory to start the file browser"], &confStr["defaultDir"]));
+	sd.addSetting(new MenuSettingDir(this, tr["Home path"],	tr["Alternative home for launched links"], &confStr["homePath"]));
 
 #if defined(HW_UDC)
 	vector<string> usbMode;
@@ -1114,7 +1114,7 @@ void GMenu2X::readConfig() {
 	// Defaults *** Sync with default values in writeConfig
 	confInt["saveSelection"] = 1;
 	confInt["skinBackdrops"] = 0;
-	confStr["defaultDir"] = CARD_ROOT;
+	confStr["homePath"] = CARD_ROOT;
 	confInt["globalVolume"] = 60;
 	confStr["bgscale"] = "Stretch";
 
@@ -1181,9 +1181,10 @@ void GMenu2X::writeConfig() {
 				curr->first == "tvoutEncoding" ||
 				curr->first == "datetime" ||
 				curr->first == "explorerLastDir" ||
+				curr->first == "defaultDir" ||
 
 				// defaults
-				(curr->first == "defaultDir" && curr->second == CARD_ROOT) ||
+				(curr->first == "homePath" && curr->second == CARD_ROOT) ||
 				(curr->first == "skin" && curr->second == "Default") ||
 				(curr->first == "usbMode" && curr->second.empty()) ||
 				(curr->first == "lang" && curr->second.empty()) ||
@@ -1865,7 +1866,7 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setSelectorFilter(linkSelFilter);
 
 		if (useSelector) {
-			if (linkSelDir.empty()) linkSelDir = confStr["defaultDir"];
+			if (linkSelDir.empty()) linkSelDir = confStr["homePath"];
 		} else if (confInt["saveSelection"]) {
 			linkSelDir = "";
 		}

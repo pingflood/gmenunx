@@ -32,6 +32,8 @@
 
 using namespace std;
 
+extern char** environ;
+
 LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfile):
 	Link(gmenu2x_, MakeDelegate(this, &LinkApp::run)),
 	inputMgr(inputMgr_)
@@ -336,7 +338,6 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	if (!wd.empty())
 		chdir(wd.c_str());
 
-
 	if (!selectedFile.empty()) {
 		string selectedFileExtension;
 		string selectedFileName;
@@ -366,6 +367,7 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	INFO("Executing '%s' (%s %s)", title.c_str(), exec.c_str(), params.c_str());
 
 	string command = cmdclean(exec);
+	// string command = exec;
 
 	if (file_ext(command, true) == ".opk") {
 		command = "retrofw opkrun " + command;
@@ -406,9 +408,20 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 	if (gmenu2x->confInt["outputLogs"]) command += " &> " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 
+	if (!gmenu2x->confStr["homePath"].empty() && dir_exists(gmenu2x->confStr["homePath"])) {
+		gmenu2x->confStr["homePath"] = "HOME=" + gmenu2x->confStr["homePath"];
+		// populate environ
+		environ[0] = (char*)gmenu2x->confStr["homePath"].c_str();
+		environ[1] = (char*)"PATH=/bin:/sbin:/usr/bin:/usr/sbin",
+		environ[2] = (char*)"TERM=vt100",
+		environ[3] = (char*)"SDL_NOMOUSE=1",
+		environ[4] = NULL;
+	}
+
 	gmenu2x->quit();
 
-	execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
+	execle("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL, environ);
+
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 	//try relaunching gmenu2x
 	chdir(gmenu2x->getExePath().c_str());
