@@ -180,6 +180,8 @@ bool BrowseDialog::exec() {
 
 		} while (!inputAction);
 	}
+	gmenu2x->input.dropEvents(); // prevent passing input away
+
 	return result;
 }
 

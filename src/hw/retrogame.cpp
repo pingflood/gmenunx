@@ -294,7 +294,7 @@ public:
 		val = GMenu2X::setBacklight(val, popup);
 
 		char buf[128] = {0};
-		sprintf(buf, "echo %d > /proc/jz/lcd_backlight; echo %d > /proc/jz/backlight_control", val);
+		sprintf(buf, "echo %d > /proc/jz/lcd_backlight; echo %d > /proc/jz/backlight_control", val, val);
 		system(buf);
 
 		return val;

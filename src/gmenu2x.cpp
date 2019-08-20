@@ -1698,8 +1698,12 @@ void GMenu2X::restartDialog(bool showDialog) {
 }
 
 void GMenu2X::poweroffDialog() {
+#if !defined(TARGET_BITTBOY)
 	MessageBox mb(this, tr["Poweroff or reboot the device?"], "skin:icons/exit.png");
 	mb.setButton(SECTION_NEXT, tr["Reboot"]);
+#else
+	MessageBox mb(this, tr["Poweroff the device?"], "skin:icons/exit.png");
+#endif
 	mb.setButton(CONFIRM, tr["Poweroff"]);
 	mb.setButton(CANCEL,  tr["Cancel"]);
 	int response = mb.exec();
@@ -1749,7 +1753,7 @@ void GMenu2X::contextMenu() {
 		if (file_exists("/usr/bin/retrofw"))
 	#endif
 	{
-		options.push_back((MenuOption){tr["OPK scanner"],	MakeDelegate(this, &GMenu2X::opkScanner)});
+		options.push_back((MenuOption){tr["Refresh OPK list"],	MakeDelegate(this, &GMenu2X::opkScanner)});
 	}
 	MessageBox mb(this, options);
 }
@@ -1804,7 +1808,7 @@ void GMenu2X::editLink() {
 	string linkScaleMode = scaleMode[menu->selLinkApp()->getScaleMode()];
 
 	SettingsDialog sd(this, ts, dialogTitle, dialogIcon);
-	sd.addSetting(new MenuSettingFile(			this, tr["Executable"],		tr["Application this link points to"], &linkExec, ".dge,.gpu,.gpe,.sh,.bin,.elf,", linkExec, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingFile(			this, tr["Executable"],		tr["Application this link points to"], &linkExec, ".dge,.gpu,.gpe,.sh,.bin,.opk,.elf,", linkExec, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingString(		this, tr["Title"],			tr["Link title"], &linkTitle, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingString(		this, tr["Description"],	tr["Link description"], &linkDescription, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingMultiString(	this, tr["Section"],		tr["The section this link belongs to"], &newSection, &menu->getSections()));
