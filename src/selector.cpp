@@ -40,28 +40,42 @@ Selector::Selector(GMenu2X *gmenu2x, const string &title, const string &descript
 
 const std::string Selector::getPreview(uint32_t i) {
 	string fname = getFile(i);
-	string screendir = link->getSelectorScreens();
-	string noext, realdir;
-	int pos = fname.rfind(".");
-	if (pos != string::npos && pos > 0) noext = fname.substr(0, pos);
-	if (noext.empty() || noext == ".") return "";
-	if (screendir.empty()) screendir = "./.images";
-	if (screendir[0] == '.') realdir = real_path(getPath() + "/" + screendir) + "/"; // allow "." as "current directory", therefore, relative paths
-	else realdir = real_path(screendir) + "/";
+	string fpath = getFilePath(i);
 
-	INFO("Searching for screen '%s%s.png'", realdir.c_str(), noext.c_str());
-	if (dir_exists(realdir)) {
-		if (file_exists(realdir + noext + ".png"))
-			return realdir + noext + ".png";
-		else if (file_exists(realdir + noext + ".jpg"))
-			return realdir + noext + ".jpg";
+	if (previews[fpath].empty()) {
+		string path = getPath();
+		string screendir = link->getSelectorScreens();
+		string noext, realdir;
+		previews[fpath] = "#"; // dummy path
+
+		int d1 = fname.rfind(".");
+		if (d1 != string::npos && d1 > 0) noext = fname.substr(0, d1);
+
+		if (noext.empty() || noext == ".") return previews[fpath];
+
+		if (screendir.empty()) screendir = "./.images";
+
+		if (screendir[0] == '.') realdir = real_path(path + "/" + screendir) + "/"; // allow "." as "current directory", therefore, relative paths
+		else realdir = real_path(screendir) + "/";
+
+		INFO("Searching for screen '%s%s.(png|jpg)'", realdir.c_str(), noext.c_str());
+
+		if (dir_exists(realdir)) {
+			if (file_exists(realdir + noext + ".png"))
+				previews[fpath] = realdir + noext + ".png";
+			else if (file_exists(realdir + noext + ".jpg"))
+				previews[fpath] = realdir + noext + ".jpg";
+		}
+
+		if (previews[fpath] == "#") { // fallback - always search for ./filename.png
+			if (file_exists(path + "/" + noext + ".png"))
+				previews[fpath] = path + "/" + noext + ".png";
+			else if (file_exists(path + "/" + noext + ".jpg"))
+				previews[fpath] = path + "/" + noext + ".jpg";
+		}
 	}
-	else if (file_exists(getPath() + "/" + noext + ".png")) // fallback - always search for ./filename.png
-		return getPath() + "/" + noext + ".png";
-	else if (file_exists(getPath() + "/" + noext + ".jpg"))
-		return getPath() + "/" + noext + ".jpg";
 
-	return "";
+	return previews[fpath];
 }
 
 void Selector::loadAliases() {
@@ -78,7 +92,6 @@ void Selector::loadAliases() {
 
 			name = lowercase(trim(line.substr(0, d1)));
 			aliases[name] = trim(line.substr(d1 + 1, d2));
-
 
 			if (d2 > 0)
 				params[name] = trim(line.substr(d1 + d2 + 2));

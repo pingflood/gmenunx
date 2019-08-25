@@ -32,6 +32,7 @@ private:
 
 	unordered_map<string, string> aliases;
 	unordered_map<string, string> params;
+	unordered_map<string, string> previews;
 	void loadAliases();
 	const std::string getPreview(uint32_t i = 0);
 

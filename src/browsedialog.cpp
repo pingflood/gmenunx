@@ -90,7 +90,16 @@ bool BrowseDialog::exec() {
 
 			Surface anim = new Surface(gmenu2x->s);
 
-			if (!preview.empty()) {
+			if (preview.empty() || preview == "#") { // hide preview
+				while (animation > 0) {
+					anim.blit(gmenu2x->s,0,0);
+					gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
+					gmenu2x->s->flip();
+					animation -= gmenu2x->skinConfInt["previewWidth"] / 8;
+					if (animation < 0) animation = 0;
+					SDL_Delay(10);
+				}
+			} else { // show preview
 				if (!gmenu2x->sc.exists(preview + "scaled")) {
 					Surface *previm = new Surface(preview);
 					gmenu2x->sc.add(previm, preview + "scaled");
@@ -110,15 +119,6 @@ bool BrowseDialog::exec() {
 					gmenu2x->s->flip();
 					SDL_Delay(10);
 				} while (animation < gmenu2x->skinConfInt["previewWidth"]);
-			} else {
-				while (animation > 0) {
-					anim.blit(gmenu2x->s,0,0);
-					gmenu2x->s->box(gmenu2x->resX - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
-					gmenu2x->s->flip();
-					animation -= gmenu2x->skinConfInt["previewWidth"] / 8;
-					if (animation < 0) animation = 0;
-					SDL_Delay(10);
-				}
 			}
 
 			gmenu2x->drawScrollBar(numRows, size(), firstElement, gmenu2x->listRect);
@@ -209,7 +209,7 @@ const std::string BrowseDialog::getFilePath(uint32_t i) {
 	return getPath() + "/" + getFile(i);
 }
 const std::string BrowseDialog::getExt(uint32_t i) {
-	return file_ext(getFile(i), true);
+	return file_ext(at(i), true);
 }
 const std::string BrowseDialog::getPreview(uint32_t i) {
 	string ext = getExt(i);
