@@ -41,15 +41,15 @@ public:
 	uint32_t dirCount();
 	uint32_t fileCount();
 	string operator[](uint32_t);
-	string at(uint32_t);
+	string getFile(uint32_t);
 	bool isFile(uint32_t);
 	bool isDirectory(uint32_t);
-
+	const string getExt(uint32_t i = 0);
+	const string getFilePath(uint32_t i = 0);
 	const string &getPath();
 	void setPath(const string &path, bool doBrowse=true);
 	const string &getFilter();
 	void setFilter(const string &filter);
-
 	const vector<string> &getDirectories() { return directories; }
 	const vector<string> &getFiles() { return files; }
 	void insertFile(const string &file);

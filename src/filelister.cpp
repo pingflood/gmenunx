@@ -110,12 +110,18 @@ uint32_t FileLister::fileCount() {
 	return files.size();
 }
 string FileLister::operator[](uint32_t x) {
-	return at(x);
+	return getFile(x);
 }
-string FileLister::at(uint32_t x) {
+string FileLister::getFile(uint32_t x) {
 	if (x >= size()) return "";
 	if (x < directories.size()) return directories[x];
 	return files[x - directories.size()];
+}
+const string FileLister::getFilePath(uint32_t i) {
+	return getPath() + "/" + getFile(i);
+}
+const string FileLister::getExt(uint32_t i) {
+	return file_ext(getFile(i), true);
 }
 bool FileLister::isFile(uint32_t x) {
 	return x >= directories.size() && x < size();

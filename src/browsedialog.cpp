@@ -74,8 +74,10 @@ bool BrowseDialog::exec() {
 			for (i = firstElement; i < size() && i <= firstElement + numRows; i++, iY += rowHeight) {
 				if (i == selected) gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 
+				iconCur = iconFile;
+
 				if (isDirectory(i)) {
-					if (at(i) == "..")
+					if (getFile(i) == "..")
 						iconCur = iconGoUp;
 					else if ((curPath == "/" && getFileName(i) == "media") || curPath == "/media")
 						iconCur = iconSd;
@@ -196,20 +198,12 @@ void BrowseDialog::directoryEnter(const string &path) {
 
 	mb.clearTimer();
 }
-const std::string BrowseDialog::getFile(uint32_t i) {
-	return at(i);
-}
+
 const std::string BrowseDialog::getFileName(uint32_t i) {
-	return at(i);
+	return getFile(i);
 }
 const std::string BrowseDialog::getParams(uint32_t i) {
 	return "";
-}
-const std::string BrowseDialog::getFilePath(uint32_t i) {
-	return getPath() + "/" + getFile(i);
-}
-const std::string BrowseDialog::getExt(uint32_t i) {
-	return file_ext(at(i), true);
 }
 const std::string BrowseDialog::getPreview(uint32_t i) {
 	string ext = getExt(i);

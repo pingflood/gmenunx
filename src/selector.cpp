@@ -101,7 +101,7 @@ void Selector::loadAliases() {
 }
 
 const std::string Selector::getFileName(uint32_t i) {
-	string fname = at(i);
+	string fname = getFile(i);
 	string noext = lowercase(fname);
 	int d1 = fname.rfind(".");
 	if (d1 != string::npos && d1 > 0)
@@ -113,7 +113,7 @@ const std::string Selector::getFileName(uint32_t i) {
 }
 
 const std::string Selector::getParams(uint32_t i) {
-	string fname = at(i);
+	string fname = getFile(i);
 	string noext = fname;
 	int d1 = fname.rfind(".");
 	if (d1 != string::npos && d1 > 0)
