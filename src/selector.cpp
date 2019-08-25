@@ -19,9 +19,9 @@
  ***************************************************************************/
 
 //for browsing the filesystem
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
+// #include <sys/stat.h>
+// #include <sys/types.h>
+// #include <dirent.h>
 #include <fstream>
 #include "messagebox.h"
 #include "linkapp.h"
@@ -66,28 +66,50 @@ const std::string Selector::getPreview(uint32_t i) {
 
 void Selector::loadAliases() {
 	aliases.clear();
+	params.clear();
 	if (file_exists(link->getAliasFile())) {
 		string line;
 		ifstream infile (link->getAliasFile().c_str(), ios_base::in);
 		while (getline(infile, line, '\n')) {
-			string::size_type position = line.find("=");
-			string name = trim(line.substr(0,position));
-			string value = trim(line.substr(position+1));
-			aliases[name] = value;
+			string name, value;
+			int d1 = line.find("=");
+			int d2 = line.find(";");
+			if (d2 > d1) d2 -= d1 + 1;
+
+			name = lowercase(trim(line.substr(0, d1)));
+			aliases[name] = trim(line.substr(d1 + 1, d2));
+
+
+			if (d2 > 0)
+				params[name] = trim(line.substr(d1 + d2 + 2));
 		}
 		infile.close();
 	}
 }
 
 const std::string Selector::getFileName(uint32_t i) {
-	string noext, fname = at(i);
-	int pos = fname.rfind(".");
-	if (pos != string::npos && pos > 0) noext = fname.substr(0, pos);
+	string fname = at(i);
+	string noext = lowercase(fname);
+	int d1 = fname.rfind(".");
+	if (d1 != string::npos && d1 > 0)
+		noext = lowercase(fname.substr(0, d1));
+
 	unordered_map<string, string>::iterator it = aliases.find(noext);
-	if (it == aliases.end()) return fname;
+	if (it == aliases.end() || it->second.empty()) return fname;
 	return it->second;
 }
 
+const std::string Selector::getParams(uint32_t i) {
+	string fname = at(i);
+	string noext = fname;
+	int d1 = fname.rfind(".");
+	if (d1 != string::npos && d1 > 0)
+		noext = lowercase(fname.substr(0, d1));
+
+	unordered_map<string, string>::iterator it = params.find(noext);
+	if (it == params.end()) return "";
+	return it->second;
+}
 
 string favicon;
 bool Selector::customAction(bool &inputAction) {

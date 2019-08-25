@@ -21,14 +21,8 @@
 //for browsing the filesystem
 #include <unistd.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <dirent.h>
-#include <fstream>
-#include <iostream>
-#include <stdio.h>
-#include <strings.h>
 #include <math.h>
-#include <errno.h>
 
 #include <SDL.h>
 
@@ -273,7 +267,12 @@ string file_ext(const string &path, bool lowercase) {
 	string::size_type pos = path.rfind(".");
 	if (pos != string::npos && pos > 0) {
 		ext = path.substr(pos, path.length());
-		if (lowercase) transform(ext.begin(), ext.end(), ext.begin(), (int(*)(int)) tolower);
+		if (lowercase) transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 	}
 	return ext;
+}
+
+string lowercase(string s) {
+	transform(s.begin(), s.end(), s.begin(), ::tolower);
+	return s;
 }

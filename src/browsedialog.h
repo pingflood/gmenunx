@@ -51,6 +51,7 @@ public:
 	const std::string getFilePath(uint32_t i = 0);
 	const std::string getFile(uint32_t i = 0);
 	virtual const std::string getFileName(uint32_t i = 0);
+	virtual const std::string getParams(uint32_t i = 0);
 	virtual bool customAction(bool &inputAction) { return false; };
 };
 

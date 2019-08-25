@@ -1,9 +1,9 @@
 #include "messagebox.h"
 #include "browsedialog.h"
-#include "FastDelegate.h"
+// #include "FastDelegate.h"
 #include "debug.h"
 
-using namespace fastdelegate;
+// using namespace fastdelegate;
 using namespace std;
 
 BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
@@ -201,6 +201,9 @@ const std::string BrowseDialog::getFile(uint32_t i) {
 }
 const std::string BrowseDialog::getFileName(uint32_t i) {
 	return at(i);
+}
+const std::string BrowseDialog::getParams(uint32_t i) {
+	return "";
 }
 const std::string BrowseDialog::getFilePath(uint32_t i) {
 	return getPath() + "/" + getFile(i);

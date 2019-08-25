@@ -17,11 +17,11 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <sys/types.h>
+// #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fstream>
-#include <sstream>
+// #include <sstream>
 
 #include "linkapp.h"
 #include "menu.h"
@@ -320,6 +320,8 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 			save();
 		}
 
+		params = trim(params + " " + bd.getParams(bd.selected));
+
 		launch(bd.getFile(bd.selected), bd.getPath());
 	}
 }
@@ -330,8 +332,6 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	mb.exec();
 
 	gmenu2x->setVolume(gmenu2x->confInt["globalVolume"]);
-
-	save();
 
 	// Set correct working directory
 	string wd = getRealWorkdir();
