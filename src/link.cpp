@@ -17,13 +17,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <fstream>
-#include <sstream>
 #include "link.h"
-#include "menu.h"
-#include "selector.h"
-// #include "debug.h"
-#include "fonthelper.h"
+#include "gmenu2x.h"
 
 Link::Link(GMenu2X *gmenu2x_, LinkAction action)
 	: Button(gmenu2x_->ts, true)

@@ -281,7 +281,6 @@ void GMenu2X::main() {
 
 	setSkin(confStr["skin"], true);
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
-
 	// Screen
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0) {
 		ERROR("Could not initialize SDL: %s", SDL_GetError());

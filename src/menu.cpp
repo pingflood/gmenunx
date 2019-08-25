@@ -29,8 +29,6 @@
 #include "gmenu2x.h"
 #include "linkapp.h"
 #include "menu.h"
-#include "filelister.h"
-#include "utilities.h"
 #include "debug.h"
 
 using namespace std;
@@ -40,18 +38,14 @@ Menu::Menu(GMenu2X *gmenu2x) {
 	iFirstDispSection = 0;
 
 	DIR *dirp;
-	struct stat st;
 	struct dirent *dptr;
-	string filepath;
 
 	if ((dirp = opendir("sections")) == NULL) return;
 
 	while ((dptr = readdir(dirp))) {
 		if (dptr->d_name[0] == '.') continue;
-		filepath = (string)"sections/" + dptr->d_name;
-		int statRet = stat(filepath.c_str(), &st);
-		if (!S_ISDIR(st.st_mode)) continue;
-		if (statRet != -1) {
+		string filepath = (string)"sections/" + dptr->d_name;
+		if (dir_exists(filepath)) {
 			sections.push_back((string)dptr->d_name);
 			linklist ll;
 			links.push_back(ll);
@@ -62,7 +56,7 @@ Menu::Menu(GMenu2X *gmenu2x) {
 	addSection("applications");
 
 	closedir(dirp);
-	sort(sections.begin(),sections.end(),case_less());
+	sort(sections.begin(),sections.end(), case_less());
 	setSectionIndex(0);
 	readLinks();
 }
@@ -78,9 +72,7 @@ void Menu::readLinks() {
 	iFirstDispRow = 0;
 
 	DIR *dirp;
-	struct stat st;
 	struct dirent *dptr;
-	string filepath;
 
 	for (uint32_t i = 0; i < links.size(); i++) {
 		links[i].clear();
@@ -91,17 +83,20 @@ void Menu::readLinks() {
 		}
 
 		while ((dptr = readdir(dirp))) {
-			if (dptr->d_name[0] == '.') continue;
-			filepath = sectionPath(i) + dptr->d_name;
-			if (filepath.substr(filepath.size() - 5, 5) == "-opkg") continue;
-			int statRet = stat(filepath.c_str(), &st);
-			// if (S_ISDIR(st.st_mode)) continue;
-			if (statRet != -1 && st.st_mode & S_IFREG) {
+			if (dptr->d_name[0] == '.') {
+				continue;
+			}
+			string filepath = sectionPath(i) + dptr->d_name;
+			if (filepath.substr(filepath.size() - 5, 5) == "-opkg") {
+				continue;
+			}
+
+			if (file_exists(filepath)) {
 				linkfiles.push_back(filepath);
 			}
 		}
 
-		sort(linkfiles.begin(), linkfiles.end(),case_less());
+		sort(linkfiles.begin(), linkfiles.end(), case_less());
 		for (uint32_t x = 0; x < linkfiles.size(); x++) {
 			LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkfiles[x].c_str());
 			if (link->targetExists()) {
@@ -176,18 +171,22 @@ int Menu::sectionNumItems() {
 }
 
 void Menu::setSectionIndex(int i) {
-	if (i < 0)
+	if (i < 0) {
 		i = sections.size() - 1;
-	else if (i >= (int)sections.size())
+	} else if (i >= (int)sections.size()) {
 		i = 0;
+	}
+
 	iSection = i;
 
-	int numRows = sectionNumItems();
-	numRows -= 1;
-	if ( i >= (int)iFirstDispSection + numRows)
+	int numRows = sectionNumItems() - 1;
+
+	if (i >= (int)iFirstDispSection + numRows) {
 		iFirstDispSection = i - numRows;
-	else if ( i < (int)iFirstDispSection)
+	} else if (i < (int)iFirstDispSection) {
 		iFirstDispSection = i;
+	}
+
 	iLink = 0;
 	iFirstDispRow = 0;
 }
@@ -253,7 +252,7 @@ bool Menu::addLink(string exec, string section, string title, string description
 		}
 		title += "..";
 	}
-	
+
 	INFO("Adding link: '%s'", linkpath.c_str());
 	ofstream f(linkpath.c_str());
 	if (f.is_open()) {
@@ -300,7 +299,7 @@ bool Menu::addLink(string exec, string section, string title, string description
 
 bool Menu::addSection(const string &sectionName) {
 	string sectiondir = "sections/" + sectionName;
-	if (mkdir(sectiondir.c_str(),0777) == 0) {
+	if (mkdir(sectiondir.c_str(), 0777) == 0) {
 		sections.push_back(sectionName);
 		linklist ll;
 		links.push_back(ll);

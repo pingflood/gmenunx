@@ -17,16 +17,13 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fstream>
-// #include <sstream>
 
 #include "linkapp.h"
 #include "menu.h"
 #include "selector.h"
-#include "browsedialog.h"
 #include "messagebox.h"
 #include "debug.h"
 
@@ -41,7 +38,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	manual = manualPath = "";
 	file = linkfile;
 	setCPU(gmenu2x->confInt["cpuMenu"]);
-
 
 #if defined(TARGET_GP2X)
 	//G
@@ -387,8 +383,6 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	if (gmenu2x->confInt["saveSelection"] && (gmenu2x->confInt["section"] != gmenu2x->menu->selSectionIndex() || gmenu2x->confInt["link"] != gmenu2x->menu->selLinkIndex())) {
 		gmenu2x->writeConfig();
 	}
-
-	if (selectedFile == "") gmenu2x->writeTmp();
 
 	if (getCPU() != gmenu2x->confInt["cpuMenu"]) gmenu2x->setCPU(getCPU());
 

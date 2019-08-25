@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 #include <fstream>
-#include <iostream>
 #include <sstream>
 #include <stdarg.h>
 
@@ -52,7 +51,7 @@ void Translator::setLang(const string &lang) {
 			if (line[0]=='#') continue;
 
 			string::size_type position = line.find("=");
-			translations[ trim(line.substr(0,position)) ] = trim(line.substr(position+1));
+			translations[trim(line.substr(0, position))] = trim(line.substr(position + 1));
 		}
 		infile.close();
 		_lang = lang;
@@ -77,9 +76,9 @@ string Translator::translate(const string &term,const char *replacestr,...) {
 	while (param!=NULL) {
 		string id = "";
 		stringstream ss; ss << argnum; ss >> id;
-		result = strreplace(result,"$"+id,param);
+		result = strreplace(result, "$" + id, param);
 
-		param = va_arg(arglist,const char*);
+		param = va_arg(arglist, const char*);
 		argnum++;
 	}
 	va_end(arglist);

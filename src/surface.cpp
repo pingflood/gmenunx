@@ -458,6 +458,8 @@ bool Surface::blit(Surface *destination, SDL_Rect destrect, const uint8_t align,
 }
 
 void Surface::softStretch(uint16_t w, uint16_t h, bool keep_aspect, bool maximize) {
+// const SDL_VideoInfo* info = SDL_GetVideoInfo();   //<-- calls SDL_GetVideoInfo();
+// WARNING("VIDEO RESOLUTION: %dx%d", info->current_w, info->current_h);
 	// if (!maximize && raw->w <= x && raw->h <= y) return;
 	if (keep_aspect && !maximize) {
 		if (w < h) {

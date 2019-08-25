@@ -23,7 +23,6 @@
 #include "utilities.h"
 #include "gmenu2x.h"
 
-#include <iostream>
 #include <fstream>
 
 using namespace std;

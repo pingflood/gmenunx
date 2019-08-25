@@ -1,6 +1,5 @@
 #include "button.h"
 #include "gmenu2x.h"
-
 #include "buttonbox.h"
 
 ButtonBox::ButtonBox(GMenu2X *gmenu2x) : gmenu2x(gmenu2x)

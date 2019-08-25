@@ -39,7 +39,7 @@ class PowerManager;
 #include "fonthelper.h"
 
 
-extern const char *CARD_ROOT;
+// extern const char *CARD_ROOT;
 
 // Note: Keep this in sync with colorNames!
 enum color {
