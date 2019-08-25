@@ -42,8 +42,8 @@ int TerminalDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t fi
 		mx = max(mx, gmenu2x->font->getTextWidth(text->at(i)));
 
 		if (text->at(i)=="----") { //draw a line
-			gmenu2x->s->box(5, y, gmenu2x->resX - 10, 1, 255, 255, 255, 130);
-			gmenu2x->s->box(5, y + 1, gmenu2x->resX - 10, 1, 0, 0, 0, 130);
+			gmenu2x->s->box(5, y, gmenu2x->w - 10, 1, 255, 255, 255, 130);
+			gmenu2x->s->box(5, y + 1, gmenu2x->w - 10, 1, 0, 0, 0, 130);
 		} else {
 			gmenu2x->font->write(gmenu2x->s, text->at(i), 5 + firstCol, y);
 		}

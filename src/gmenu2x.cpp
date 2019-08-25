@@ -294,17 +294,17 @@ void GMenu2X::main() {
 
 #if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	// I'm forced to use SW surfaces since with HW there are issuse with changing the clock frequency
-	SDL_Surface *dbl = SDL_SetVideoMode(resX, resY, 16, SDL_SWSURFACE);
+	SDL_Surface *dbl = SDL_SetVideoMode(this->w, this->h, 16, SDL_SWSURFACE);
 	s->enableVirtualDoubleBuffer(dbl);
 #else
-	s->screen = SDL_SetVideoMode(resX, resY, 16, SDL_HWSURFACE |
+	s->screen = SDL_SetVideoMode(this->w, this->h, 16, SDL_HWSURFACE |
 	#ifdef SDL_TRIPLEBUF
 		SDL_TRIPLEBUF
 	#else
 		SDL_DOUBLEBUF
 	#endif
 	);
-	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, resX, resY, 16, 0, 0, 0, 0);
+	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, this->w, this->h, 16, 0, 0, 0, 0);
 #endif
 
 	currBackdrop = confStr["wallpaper"];
@@ -406,7 +406,7 @@ void GMenu2X::main() {
 			sx = (menu->selSectionIndex() - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
 
 			if (skinConfInt["sectionBar"] == SB_CLASSIC) {
-				ix = (resX - skinConfInt["sectionBarSize"] * min(menu->sectionNumItems(), menu->getSections().size())) / 2;
+				ix = (this->w - skinConfInt["sectionBarSize"] * min(menu->sectionNumItems(), menu->getSections().size())) / 2;
 				sx += ix; sy = y;
 				s->box(sx, sy, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
 			}
@@ -439,7 +439,7 @@ void GMenu2X::main() {
 
 			if (skinConfInt["sectionBar"] == SB_CLASSIC) {
 				iconL->blit(s, 0, 0, HAlignLeft | VAlignTop);
-				iconR->blit(s, resX, 0, HAlignRight | VAlignTop);
+				iconR->blit(s, this->w, 0, HAlignRight | VAlignTop);
 			}
 		}
 
@@ -450,7 +450,7 @@ void GMenu2X::main() {
 		i = menu->firstDispRow() * linkCols;
 
 		if (!menu->sectionLinks()->size()) {
-			MessageBox mb(this, this->tr["This section is empty"]);
+			MessageBox mb(this, tr["This section is empty"]);
 			mb.setAutoHide(-1);
 			mb.setBgAlpha(0);
 			mb.exec();
@@ -813,34 +813,34 @@ void GMenu2X::setBackground(Surface *_bg, const string &_wallpaper) {
 			wallpaper = "skins/Default/wallpapers/" + fl.getFiles()[0];
 		}
 		if (sc[wallpaper] == NULL) return;
-		if (confStr["bgscale"] == "Stretch") sc[wallpaper]->softStretch(resX, resY, false, true);
-		else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(resX, resY, true, false);
-		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(resX, resY, true, true);
+		if (confStr["bgscale"] == "Stretch") sc[wallpaper]->softStretch(this->w, this->h, false, true);
+		else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(this->w, this->h, true, false);
+		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(this->w, this->h, true, true);
 	}
 
-	_bg->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
+	_bg->box((SDL_Rect){0, 0, this->w, this->h}, (RGBAColor){0, 0, 0, 255});
 	sc[wallpaper]->blit(_bg,0,0);
 }
 
 void GMenu2X::initLayout() {
 	// LINKS rect
-	linksRect = (SDL_Rect){0, 0, resX, resY};
-	sectionBarRect = (SDL_Rect){0, 0, resX, resY};
+	linksRect = (SDL_Rect){0, 0, this->w, this->h};
+	sectionBarRect = (SDL_Rect){0, 0, this->w, this->h};
 
 	if (skinConfInt["sectionBar"]) {
 		// x = 0; y = 0;
 		if (skinConfInt["sectionBar"] == SB_LEFT || skinConfInt["sectionBar"] == SB_RIGHT) {
-			sectionBarRect.x = (skinConfInt["sectionBar"] == SB_RIGHT)*(resX - skinConfInt["sectionBarSize"]);
+			sectionBarRect.x = (skinConfInt["sectionBar"] == SB_RIGHT) * (this->w - skinConfInt["sectionBarSize"]);
 			sectionBarRect.w = skinConfInt["sectionBarSize"];
-			linksRect.w = resX - skinConfInt["sectionBarSize"];
+			linksRect.w = this->w - skinConfInt["sectionBarSize"];
 
 			if (skinConfInt["sectionBar"] == SB_LEFT) {
 				linksRect.x = skinConfInt["sectionBarSize"];
 			}
 		} else {
-			sectionBarRect.y = (skinConfInt["sectionBar"] == SB_BOTTOM)*(resY - skinConfInt["sectionBarSize"]);
+			sectionBarRect.y = (skinConfInt["sectionBar"] == SB_BOTTOM) * (this->h - skinConfInt["sectionBarSize"]);
 			sectionBarRect.h = skinConfInt["sectionBarSize"];
-			linksRect.h = resY - skinConfInt["sectionBarSize"];
+			linksRect.h = this->h - skinConfInt["sectionBarSize"];
 
 			if (skinConfInt["sectionBar"] == SB_TOP || skinConfInt["sectionBar"] == SB_CLASSIC) {
 				linksRect.y = skinConfInt["sectionBarSize"];
@@ -851,8 +851,8 @@ void GMenu2X::initLayout() {
 		}
 	}
 
-	listRect = (SDL_Rect){0, skinConfInt["sectionBarSize"], resX, resY - skinConfInt["bottomBarHeight"] - skinConfInt["sectionBarSize"]};
-	bottomBarRect = (SDL_Rect){0, resY - skinConfInt["bottomBarHeight"], resX, skinConfInt["bottomBarHeight"]};
+	listRect = (SDL_Rect){0, skinConfInt["sectionBarSize"], this->w, this->h - skinConfInt["bottomBarHeight"] - skinConfInt["sectionBarSize"]};
+	bottomBarRect = (SDL_Rect){0, this->h - skinConfInt["bottomBarHeight"], this->w, skinConfInt["bottomBarHeight"]};
 
 	// WIP
 	linkCols = skinConfInt["linkCols"];
@@ -1365,16 +1365,15 @@ void GMenu2X::setSkin(const string &skin, bool clearSC) {
 	// prevents breaking current skin until they are updated
 	if (!skinConfInt["fontSizeTitle"] && skinConfInt["titleFontSize"] > 0) skinConfInt["fontSizeTitle"] = skinConfInt["titleFontSize"];
 
-	evalIntConf( &skinConfInt["sectionBarSize"], 40, 1, resX);
-	evalIntConf( &skinConfInt["bottomBarHeight"], 16, 1, resY);
-	evalIntConf( &skinConfInt["previewWidth"], 142, 1, resX);
-	evalIntConf( &skinConfInt["fontSize"], 12, 6, 60);
-	evalIntConf( &skinConfInt["fontSizeTitle"], 20, 6, 60);
-	evalIntConf( &skinConfInt["sectionBar"], SB_CLASSIC, 0, 5);
-	evalIntConf( &skinConfInt["linkCols"], 4, 1, 8);
-	evalIntConf( &skinConfInt["linkRows"], 4, 1, 8);
+	evalIntConf(&skinConfInt["sectionBarSize"], 40, 1, this->w);
+	evalIntConf(&skinConfInt["bottomBarHeight"], 16, 1, this->h);
+	evalIntConf(&skinConfInt["previewWidth"], 142, 1, this->w);
+	evalIntConf(&skinConfInt["fontSize"], 12, 6, 60);
+	evalIntConf(&skinConfInt["fontSizeTitle"], 20, 6, 60);
+	evalIntConf(&skinConfInt["sectionBar"], SB_CLASSIC, 0, 5);
+	evalIntConf(&skinConfInt["linkCols"], 4, 1, 8);
+	evalIntConf(&skinConfInt["linkRows"], 4, 1, 8);
 
-	// if (menu != NULL && clearSC) menu->loadIcons();
 	initFont();
 }
 
@@ -1477,8 +1476,8 @@ void GMenu2X::skinMenu() {
 		sd.addSetting(new MenuSettingInt(this, tr["Font size"], tr["Size of text font"], &skinConfInt["fontSize"], 12, 6, 60));
 		sd.addSetting(new MenuSettingInt(this, tr["Title font size"], tr["Size of title's text font"], &skinConfInt["fontSizeTitle"], 20, 6, 60));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Section bar layout"], tr["Set the layout and position of the Section Bar"], &sectionBar, &sbStr));
-		sd.addSetting(new MenuSettingInt(this, tr["Section bar size"], tr["Size of section and top bar"], &skinConfInt["sectionBarSize"], 40, 1, resX));
-		sd.addSetting(new MenuSettingInt(this, tr["Bottom bar height"], tr["Height of bottom bar"], &skinConfInt["bottomBarHeight"], 16, 1, resY));
+		sd.addSetting(new MenuSettingInt(this, tr["Section bar size"], tr["Size of section and top bar"], &skinConfInt["sectionBarSize"], 40, 1, this->w));
+		sd.addSetting(new MenuSettingInt(this, tr["Bottom bar height"], tr["Height of bottom bar"], &skinConfInt["bottomBarHeight"], 16, 1, this->h));
 		sd.addSetting(new MenuSettingInt(this, tr["Menu columns"], tr["Number of columns of links in main menu"], &skinConfInt["linkCols"], 4, 1, 8));
 		sd.addSetting(new MenuSettingInt(this, tr["Menu rows"], tr["Number of rows of links in main menu"], &skinConfInt["linkRows"], 4, 1, 8));
 		sd.addSetting(new MenuSettingBool(this, tr["Link label"], tr["Show link labels in main menu"], &skinConfInt["linkLabel"]));
@@ -2141,7 +2140,7 @@ int GMenu2X::setBacklight(int val, bool popup) {
 	}
 
 	if (val == 0) {
-		s->box((SDL_Rect){0, 0, resX, resY}, (RGBAColor){0, 0, 0, 255});
+		s->box((SDL_Rect){0, 0, this->w, this->h}, (RGBAColor){0, 0, 0, 255});
 		s->flip();
 	}
 
@@ -2183,13 +2182,13 @@ string GMenu2X::getDiskFree(const char *path) {
 }
 
 int GMenu2X::drawButton(Button *btn, int x, int y) {
-	if (y < 0) y = resY + y;
+	if (y < 0) y = this->h + y;
 	btn->setPosition(x, y);
 	btn->paint();
 }
 
 int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x, int y) {
-	if (y < 0) y = resY + y;
+	if (y < 0) y = this->h + y;
 	if (sc.skinRes("imgs/buttons/" + btn + ".png") != NULL) {
 		sc["imgs/buttons/" + btn + ".png"]->blit(s, x, y, HAlignLeft | VAlignMiddle);
 		x += 19;
@@ -2202,7 +2201,7 @@ int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x
 }
 
 int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, int x, int y) {
-	if (y < 0) y = resY + y;
+	if (y < 0) y = this->h + y;
 	if (sc.skinRes("imgs/buttons/" + btn + ".png") != NULL) {
 		if (!text.empty()) {
 			x -= font->getTextWidth(text);
@@ -2231,8 +2230,8 @@ void GMenu2X::drawScrollBar(uint32_t pagesize, uint32_t totalsize, uint32_t page
 }
 
 void GMenu2X::drawSlider(int val, int min, int max, Surface &icon, Surface &bg) {
-	SDL_Rect progress = {52, 32, resX-84, 8};
-	SDL_Rect box = {20, 20, resX-40, 32};
+	SDL_Rect progress = {52, 32, this->w - 84, 8};
+	SDL_Rect box = {20, 20, this->w - 40, 32};
 
 	val = constrain(val, min, max);
 

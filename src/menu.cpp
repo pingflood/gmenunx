@@ -169,10 +169,10 @@ const string Menu::selSectionName() {
 
 int Menu::sectionNumItems() {
 	if (gmenu2x->skinConfInt["sectionBar"] == SB_LEFT || gmenu2x->skinConfInt["sectionBar"] == SB_RIGHT)
-		return (gmenu2x->resY - 40) / gmenu2x->skinConfInt["sectionBarSize"];
+		return (gmenu2x->h - 40) / gmenu2x->skinConfInt["sectionBarSize"];
 	else if (gmenu2x->skinConfInt["sectionBar"] == SB_TOP || gmenu2x->skinConfInt["sectionBar"] == SB_BOTTOM)
-		return (gmenu2x->resX - 40) / gmenu2x->skinConfInt["sectionBarSize"];
-	return (gmenu2x->resX / gmenu2x->skinConfInt["sectionBarSize"]) - 1;
+		return (gmenu2x->w - 40) / gmenu2x->skinConfInt["sectionBarSize"];
+	return (gmenu2x->w / gmenu2x->skinConfInt["sectionBarSize"]) - 1;
 }
 
 void Menu::setSectionIndex(int i) {

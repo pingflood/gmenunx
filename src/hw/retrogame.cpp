@@ -194,15 +194,14 @@ private:
 		struct fb_var_screeninfo vinfo;
 		int fbdev = open("/dev/fb0", O_RDWR);
 		if (fbdev >= 0 && ioctl(fbdev, FBIOGET_VSCREENINFO, &vinfo) >= 0) {
-			resX = vinfo.width;
-			resY = vinfo.height;
+			w = vinfo.width;
+			h = vinfo.height;
 		}
 		close(fbdev);
 
-		if (resX == 320 && resY == 480) {
-			resY = 240;
-		}
-		INFO("RETROGAME Init Done!");
+		if (w == 320 && h == 480) h = 240;
+
+		INFO("RETROGAME");
 	}
 
 	void udcDialog(int udcStatus) {

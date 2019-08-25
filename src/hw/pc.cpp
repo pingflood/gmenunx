@@ -43,8 +43,8 @@ uint8_t getVolumeMode(uint8_t vol) {
 class GMenuNX : public GMenu2X {
 private:
 	void hwInit() {
-		resX = 480;
-		resY = 272;
+		w = 480;
+		h = 272;
 	}
 
 	uint16_t getBatteryLevel() {

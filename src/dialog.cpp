@@ -16,8 +16,8 @@ void Dialog::drawTopBar(Surface *s = NULL, const std::string &title, const std::
 	// Surface *bar = sc.skinRes("imgs/topbar.png");
 	// if (bar != NULL) bar->blit(s, 0, 0);
 	// else
-	s->setClipRect({0, 0, gmenu2x->resX, gmenu2x->skinConfInt["sectionBarSize"]});
-	s->box(0, 0, gmenu2x->resX, gmenu2x->skinConfInt["sectionBarSize"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
+	s->setClipRect({0, 0, gmenu2x->w, gmenu2x->skinConfInt["sectionBarSize"]});
+	s->box(0, 0, gmenu2x->w, gmenu2x->skinConfInt["sectionBarSize"], gmenu2x->skinConfColors[COLOR_TOP_BAR_BG]);
 
 	int iconOffset = 2;
 
@@ -46,7 +46,7 @@ void Dialog::drawTopBar(Surface *s = NULL, const std::string &title, const std::
 void Dialog::drawBottomBar(Surface *s) {
 	if (s == NULL) s = gmenu2x->s;
 	// Surface *bar = sc.skinRes("imgs/bottombar.png");
-	// if (bar != NULL) bar->blit(s, 0, resY-bar->raw->h);
+	// if (bar != NULL) bar->blit(s, 0, gmenu2x->h - bar->raw->h);
 	// else
 	s->box(gmenu2x->bottomBarRect, gmenu2x->skinConfColors[COLOR_BOTTOM_BAR_BG]);
 }

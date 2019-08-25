@@ -43,14 +43,14 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
 		if (w > box.w) box.w = w;
 	}
 	box.w += 23;
-	box.x = gmenu2x->resX/2 - box.w/2;
-	box.y = gmenu2x->resY/2 - box.h/2;
+	box.x = (gmenu2x->w - box.w) / 2;
+	box.y = (gmenu2x->h - box.h) / 2;
 
 	uint32_t tickStart = SDL_GetTicks();
 	while (!close) {
 		bg.blit(gmenu2x->s, 0, 0);
 
-		gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0, fadeAlpha);
+		gmenu2x->s->box(0, 0, gmenu2x->w, gmenu2x->h, 0,0,0, fadeAlpha);
 		gmenu2x->s->box(box.x, box.y, box.w, box.h, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 		gmenu2x->s->rectangle(box.x + 2, box.y + 2, box.w - 4, box.h - 4, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
 
@@ -76,9 +76,9 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
 			else if ( gmenu2x->input[DOWN] ) sel = (sel + 1 > (int)options.size() - 1) ? 0 : sel + 1;
 			else if ( gmenu2x->input[LEFT] || gmenu2x->input[PAGEUP] ) sel = 0;
 			else if ( gmenu2x->input[RIGHT] || gmenu2x->input[PAGEDOWN] ) sel = (int)options.size() - 1;
-			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) { 
+			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) {
 				options[sel].action();
-				close = true; 
+				close = true;
 			}
 		} while (!inputAction);
 	}
@@ -163,15 +163,15 @@ int MessageBox::exec() {
 	ix = (gmenu2x->sc[icon] != NULL ? 42 : 0);
 
 	box.w += ix;
-	box.x = (gmenu2x->resX - box.w) / 2 - 2;
-	box.y = (gmenu2x->resY - box.h) / 2 - 2;
+	box.x = (gmenu2x->w - box.w) / 2 - 2;
+	box.y = (gmenu2x->h - box.h) / 2 - 2;
 
 	uint32_t tickStart = SDL_GetTicks();
 	do {
 		bg.blit(gmenu2x->s, 0, 0);
 
 		// Darken background
-		gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0, fadeAlpha);
+		gmenu2x->s->box(0, 0, gmenu2x->w, gmenu2x->h, 0,0,0, fadeAlpha);
 
 		fadeAlpha = intTransition(0, bgalpha, tickStart, 200);
 
@@ -195,7 +195,7 @@ int MessageBox::exec() {
 			// draw buttons rectangle
 			gmenu2x->s->box(box.x, box.y+box.h, box.w, gmenu2x->font->getHeight(), gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 
-			int btnX = (gmenu2x->resX + box.w) / 2 - 6;
+			int btnX = (gmenu2x->w + box.w) / 2 - 6;
 			for (uint32_t i = 0; i < buttonText.size(); i++) {
 				if (!buttonText[i].empty()) {
 					buttonPosition[i].y = box.y+box.h+gmenu2x->font->getHalfHeight();

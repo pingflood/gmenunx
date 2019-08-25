@@ -129,8 +129,8 @@ private:
 		batteryHandle = open("/dev/pollux_batt", O_RDONLY);
 #endif
 
-		resX = 320;
-		resY = 240;
+		w = 320;
+		h = 240;
 
 		initServices();
 		setGamma(confInt["gamma"]);
@@ -508,7 +508,7 @@ public:
 
 // 	temp = tr["Build date: "] + __DATE__ + "\n";
 
-// 	// { stringstream ss; ss << resX << "x" << resY << "px"; ss >> buf; }
+// 	// { stringstream ss; ss << w << "x" << h << "px"; ss >> buf; }
 // 	// temp += tr["Resolution: "] + buf + "\n";
 
 // #ifdef TARGET_RETROGAME

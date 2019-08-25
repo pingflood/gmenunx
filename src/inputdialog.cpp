@@ -90,7 +90,7 @@ void InputDialog::setKeyboard(int kb) {
 		}
 	}
 
-	kbLeft = (gmenu2x->resX - kbLength * KEY_WIDTH) / 2;
+	kbLeft = (gmenu2x->w - kbLength * KEY_WIDTH) / 2;
 	kbWidth = kbLength * KEY_WIDTH + 3;
 	kbHeight = (this->kb->size()) * KEY_HEIGHT + 3;
 

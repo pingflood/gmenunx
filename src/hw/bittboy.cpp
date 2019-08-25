@@ -451,9 +451,9 @@ private:
 		} else {
 			WARNING("Could not open /dev/mem");
 		}
-		resX = 320;
-		resY = 240;
-		INFO("BITTBOY Init Done!");
+		w = 320;
+		h = 240;
+		INFO("BITTBOY");
 	}
 
 	int getBacklight() {
