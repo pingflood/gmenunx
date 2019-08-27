@@ -15,9 +15,35 @@ const int CPU_MAX = 700;
 const int CPU_MIN = 500;
 const int CPU_STEP = 5;
 
-uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
-	printf("%s:%d: %s\n", __FILE__, __LINE__, __func__);
+
+uint16_t getDevStatus() {
+	FILE *f;
+	char buf[10000];
+	if (f = fopen("/proc/bus/input/devices", "r")) {
+	// if (f = fopen("/proc/bus/input/handlers", "r")) {
+		size_t sz = fread(buf, sizeof(char), 10000, f);
+		fclose(f);
+		return sz;
+	}
 	return 0;
+}
+
+uint8_t numJoyPrev = 0;
+
+uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
+	printf("11 %s:%d: %s\n", __FILE__, __LINE__, __func__);
+
+		numJoy = getDevStatus();
+		WARNING("numJoy: %d", numJoy);
+		if (numJoyPrev != numJoy) {
+			numJoyPrev = numJoy;
+			InputManager::pushEvent(JOYSTICK_CONNECT);
+		}
+
+
+
+	return interval;
+	// return 0;
 }
 
 uint8_t getMMCStatus() {

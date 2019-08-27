@@ -58,6 +58,18 @@ uint16_t getTVOutStatus() {
 	// return false;
 }
 
+uint16_t getDevStatus() {
+	FILE *f;
+	char buf[10000];
+	if (f = fopen("/proc/bus/input/devices", "r")) {
+	// if (f = fopen("/proc/bus/input/handlers", "r")) {
+		size_t sz = fread(buf, sizeof(char), 10000, f);
+		fclose(f);
+		return sz;
+	}
+	return 0;
+}
+
 int32_t getBatteryStatus() {
 	char buf[32] = "-1";
 	FILE *f;
@@ -153,17 +165,14 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 			InputManager::pushEvent(PHONES_CONNECT);
 		}
 
-
-// SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-// SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-// SDL_JOYDEVICEADDED
-// SDL_JoystickUpdate()
-		numJoy = SDL_NumJoysticks();
+		numJoy = getDevStatus();
 		if (numJoyPrev != numJoy) {
 			numJoyPrev = numJoy;
+			SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+			SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 			InputManager::pushEvent(JOYSTICK_CONNECT);
+			return 5 * interval;
 		}
-
 
 		// volumeMode = getVolumeMode(confInt["globalVolume"]);
 		// if (volumeModePrev != volumeMode && volumeMode == VOLUME_MODE_PHONES) {

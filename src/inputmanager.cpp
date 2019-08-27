@@ -40,18 +40,15 @@ InputManager::~InputManager() {
 }
 
 void InputManager::init(const string &conffile) {
-	// initJoysticks();
-
 	if (!readConfFile(conffile))
 		ERROR("InputManager: Could not load input.conf");
 }
 
 void InputManager::initJoysticks() {
-	//SDL_JoystickEventState(SDL_IGNORE);
-	// numJoy = SDL_NumJoysticks();
-
-	INFO("%d joysticks found", numJoy);
-	for (int x = 0; x < numJoy; x++) {
+	joysticks.clear();
+	int nj = SDL_NumJoysticks();
+	INFO("%d joysticks found", nj);
+	for (int x = 0; x < nj; x++) {
 		SDL_Joystick *joy = SDL_JoystickOpen(x);
 		if (joy) {
 			INFO("Initialized joystick: '%s'", SDL_JoystickName(x));
