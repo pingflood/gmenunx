@@ -1863,10 +1863,10 @@ void GMenu2X::editLink() {
 			linkSelDir = "";
 		}
 
-		int scale_mode = 0;
-		if (linkScaleMode == "Aspect") scale_mode = 1;
-		else if (linkScaleMode == "Original") scale_mode = 2;
-		menu->selLinkApp()->setScaleMode(scale_mode);
+		int scalemode = 0;
+		if (linkScaleMode == "Aspect") scalemode = 1;
+		else if (linkScaleMode == "Original") scalemode = 2;
+		menu->selLinkApp()->setScaleMode(scalemode);
 
 		menu->selLinkApp()->setSelectorDir(linkSelDir);
 		menu->selLinkApp()->setSelectorBrowser(linkSelBrowser);

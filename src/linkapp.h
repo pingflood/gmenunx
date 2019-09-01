@@ -37,7 +37,7 @@ class InputManager;
 class LinkApp : public Link {
 private:
 	InputManager &inputMgr;
-	int iclock = 0, selectorelement = 0, scalemode; //, ivolume = 0;
+	int iclock = 0, selectorelement = 0, scalemode, _scalemode = 0; //, ivolume = 0;
 	bool selectorbrowser;
 	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, aliasfile, file; //, backdrop, backdropPath, resolution;
 

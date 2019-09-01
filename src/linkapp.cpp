@@ -53,7 +53,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	selectorfilter = "";
 	icon = iconPath = "";
 	selectorbrowser = true;
-	scalemode = 1;
+	if (gmenu2x->w/gmenu2x->h > 1.4) _scalemode = 1;
+	scalemode = _scalemode;
 	workdir = "";
 	backdrop = backdropPath = "";
 
@@ -273,7 +274,7 @@ bool LinkApp::save() {
 
 		if (selectordir != "")		f << "selectordir="		<< selectordir		<< endl;
 		if (!selectorbrowser)		f << "selectorbrowser=false"				<< endl; // selectorbrowser = true by default
-		if (scalemode != 1)			f << "scalemode="		<< scalemode		<< endl; // scalemode = 1 by default
+		if (scalemode != _scalemode)	f << "scalemode="	<< scalemode		<< endl; // scalemode = 1 by default
 		if (selectorfilter != "")	f << "selectorfilter="	<< selectorfilter	<< endl;
 		if (selectorscreens != "")	f << "selectorscreens="	<< selectorscreens	<< endl;
 		if (selectorelement > 0)	f << "selectorelement="	<< selectorelement	<< endl;
