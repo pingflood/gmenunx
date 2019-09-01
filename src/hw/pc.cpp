@@ -31,19 +31,14 @@ uint16_t getDevStatus() {
 uint8_t numJoyPrev = 0;
 
 uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
-	printf("11 %s:%d: %s\n", __FILE__, __LINE__, __func__);
+	printf("%s:%d: %s\n", __FILE__, __LINE__, __func__);
+	numJoy = getDevStatus();
+	if (numJoyPrev != numJoy) {
+		numJoyPrev = numJoy;
+		InputManager::pushEvent(JOYSTICK_CONNECT);
+	}
 
-		numJoy = getDevStatus();
-		WARNING("numJoy: %d", numJoy);
-		if (numJoyPrev != numJoy) {
-			numJoyPrev = numJoy;
-			InputManager::pushEvent(JOYSTICK_CONNECT);
-		}
-
-
-
-	return interval;
-	// return 0;
+	return 0;
 }
 
 uint8_t getMMCStatus() {

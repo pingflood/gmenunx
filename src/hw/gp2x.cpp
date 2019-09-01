@@ -46,7 +46,7 @@ private:
 
 	int batteryHandle;
 	string ip, defaultgw;
-	
+
 	bool inet, //!< Represents the configuration of the basic network services. @see readCommonIni @see usbnet @see samba @see web
 		usbnet,
 		samba,

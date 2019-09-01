@@ -644,13 +644,13 @@ void GMenu2X::main() {
 
 		if (inputCommonActions(inputAction)) continue;
 
-		if ( input[CANCEL] || input[SETTINGS] || input[MENU] || input[CONFIRM] ) {
+		if (input[CANCEL] || input[SETTINGS] || input[MENU] || input[CONFIRM]) {
 			SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
 			SDL_RemoveTimer(iconChangedTimer); iconChangedTimer = NULL;
 			icon_changed = section_changed = 0;
 		}
 
-		if ( input[CONFIRM] && menu->selLink() != NULL ) {
+		if (input[CONFIRM] && menu->selLink() != NULL) {
 			if (confInt["skinBackdrops"] & BD_DIALOG)
 				setBackground(bg, currBackdrop);
 			else
@@ -658,38 +658,38 @@ void GMenu2X::main() {
 
 			menu->selLink()->run();
 		}
-		else if ( input[CANCEL] ) continue;
-		else if ( input[SETTINGS] ) settings();
-		else if ( input[MENU]     ) contextMenu();
+		else if (input[CANCEL])		continue;
+		else if (input[SETTINGS])	settings();
+		else if (input[MENU])		contextMenu();
 
 		// LINK NAVIGATION
-		else if ( input[LEFT ] && linkCols == 1 && linkRows > 1) menu->pageUp();
-		else if ( input[RIGHT] && linkCols == 1 && linkRows > 1) menu->pageDown();
-		else if ( input[LEFT ] ) menu->linkLeft();
-		else if ( input[RIGHT] ) menu->linkRight();
-		else if ( input[UP   ] ) menu->linkUp();
-		else if ( input[DOWN ] ) menu->linkDown();
+		else if (input[LEFT]  && linkCols == 1 && linkRows > 1) menu->pageUp();
+		else if (input[RIGHT] && linkCols == 1 && linkRows > 1) menu->pageDown();
+		else if (input[LEFT])	menu->linkLeft();
+		else if (input[RIGHT])	menu->linkRight();
+		else if (input[UP])		menu->linkUp();
+		else if (input[DOWN])	menu->linkDown();
 
 		// SECTION
-		else if ( input[SECTION_PREV] ) menu->decSectionIndex();
-		else if ( input[SECTION_NEXT] ) menu->incSectionIndex();
+		else if (input[SECTION_PREV]) menu->decSectionIndex();
+		else if (input[SECTION_NEXT]) menu->incSectionIndex();
 
 		// SELLINKAPP SELECTED
 		else if (input[MANUAL] && menu->selLinkApp() != NULL && !menu->selLinkApp()->getManualPath().empty()) showManual();
 		// On Screen Help
 		// else if (input[MANUAL]) {
 		// 	s->box(10,50,300,162, skinConfColors[COLOR_MESSAGE_BOX_BG]);
-		// 	s->rectangle( 12,52,296,158, skinConfColors[COLOR_MESSAGE_BOX_BORDER] );
-		// 	int line = 60; s->write( font, tr["CONTROLS"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["A: Select"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["B: Cancel"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Y: Show manual"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["L, R: Change section"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Start: Settings"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Select: Menu"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Select+Start: Save screenshot"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Select+L: Adjust volume level"], 20, line);
-		// 	line += font->getHeight() + 5; s->write( font, tr["Select+R: Adjust backlight level"], 20, line);
+		// 	s->rectangle(12,52,296,158, skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
+		// 	int line = 60; s->write(font, tr["CONTROLS"], 20, line);
+		// 	line += font->getHeight() + 5; s->write(font, tr["A: Select"], 20, line);
+		// 	line += font->getHeight() + 5; s->write(font, tr["B: Cancel"], 20, line);
+		// 	line += font->getHeight() + 5; s->write(font, tr["Y: Show manual"], 20, line);
+		// 	line += font->getHeight() + 5; s->write(font, tr["L, R: Change section"], 20, line);
+		// 	line += font->getHeight() + 5; s->write(font, tr["Start: Settings"], 20, line);
+		// 	line += font->getHeight() + 5; s->write(font, tr["Select: Menu"], 20, line);
+		// 	line += font->getHeight() + 5; s->write(font, tr["Select+Start: Save screenshot"], 20, line);
+		// 	line += font->getHeight() + 5; s->write(font, tr["Select+L: Adjust volume level"], 20, line);
+		// 	line += font->getHeight() + 5; s->write(font, tr["Select+R: Adjust backlight level"], 20, line);
 		// 	s->flip();
 		// 	bool close = false;
 		// 	while (!close) {
@@ -700,7 +700,7 @@ void GMenu2X::main() {
 
 		if (
 			menu->selLinkApp() != NULL && !menu->selLinkApp()->getDescription().empty()
-			&& (input[LEFT ] || input[RIGHT] || input[LEFT ] || input[RIGHT] || input[UP   ] || input[DOWN ] || input[SECTION_PREV] || input[SECTION_NEXT])
+			&& (input[LEFT] || input[RIGHT] || input[LEFT] || input[RIGHT] || input[UP] || input[DOWN] || input[SECTION_PREV] || input[SECTION_NEXT])
 		) {
 			icon_changed = SDL_GetTicks();
 			SDL_RemoveTimer(iconChangedTimer); iconChangedTimer = NULL;
@@ -721,6 +721,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		while (!(input[POWER] || input[SETTINGS] || input[UDC_CONNECT])) {
 			input.update();
 		}
+
 		powerManager->doSuspend(0);
 		input[DO_NOTHING] = true;
 		return true;
@@ -730,74 +731,70 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 
 	int wasActive = 0;
 	while (input[POWER] || input[SETTINGS]) {
-		if (input[POWER]) wasActive = POWER;
-		else if (input[SETTINGS]) wasActive = SETTINGS;
+		if (input[POWER])			wasActive = POWER;
+		else if (input[SETTINGS])	wasActive = SETTINGS;
 
 		input.update();
-		if (input[POWER] || input[SETTINGS]) {
-			// HOLD POWER BUTTON
-			poweroffDialog();
-			return true;
-		} else if (wasActive == POWER) {
-			powerManager->doSuspend(1);
-			return true;
-		}
+
+		if (input[POWER] || input[SETTINGS])	poweroffDialog(); // HOLD POWER BUTTON
+		else if (wasActive == POWER)			powerManager->doSuspend(1);
+		else continue;
+		return true;
 	}
 
 	while (input[MENU]) {
 		wasActive = MENU;
+
 		input.update();
-		if (input[SETTINGS]) {
-			// SCREENSHOT
-			if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
-			MessageBox mb(this, tr["Screenshot saved"]);
-			mb.setAutoHide(1000);
-			mb.exec();
-			return true;
-		} else if (input[BACKLIGHT_HOTKEY]) {
-			setBacklight(confInt["backlight"], true);
-			return true;
-		} else if (input[VOLUME_HOTKEY]) {
-			// VOLUME / MUTE
-			setVolume(confInt["globalVolume"], true);
-			return true;
-		} else if (input[POWER]) {
-			udcDialog(UDC_CONNECT);
-			return true;
-		}
+
+		if (input[SETTINGS])				input[SCREENSHOT] = true;
+		else if (input[BACKLIGHT_HOTKEY])	input[BACKLIGHT] = true;
+		else if (input[VOLUME_HOTKEY])		input[VOLUP] = true;
+		else if (input[POWER])				input[UDC_CONNECT] = true;
+		else continue;
+		break;
 	}
 
-	if ( input[BACKLIGHT] ) {
+	if (input[SCREENSHOT]) {
+		if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
+		MessageBox mb(this, tr["Screenshot saved"]);
+		mb.setAutoHide(1000);
+		mb.exec();
+
+	} else if (input[VOLUP]) {
+		setVolume(confInt["globalVolume"], true);
+
+	} else if (input[BACKLIGHT]) {
 		setBacklight(confInt["backlight"], true);
-		return true;
-	} else if ( input[UDC_CONNECT] ) {
+
+	} else if (input[UDC_CONNECT]) {
 		powerManager->setPowerTimeout(0);
 		batteryIcon = 6;
 		udcDialog(UDC_CONNECT);
-		return true;
-	} else if ( input[UDC_REMOVE] ) {
+
+	} else if (input[UDC_REMOVE]) {
 		udcDialog(UDC_REMOVE);
 		iconInet = NULL;
 		batteryIcon = getBatteryLevel();
 		powerManager->setPowerTimeout(confInt["powerTimeout"]);
-		return true;
-	} else if ( input[TV_CONNECT] ) {
+
+	} else if (input[TV_CONNECT]) {
 		tvOutDialog();
-		return true;
-	} else if ( input[TV_REMOVE] ) {
+
+	} else if (input[TV_REMOVE]) {
 		tvOutDialog(TV_OFF);
-		return true;
-	} else if ( input[JOYSTICK_CONNECT] ) {
+
+	} else if (input[JOYSTICK_CONNECT]) {
 		input.initJoysticks();
-		return true;
-	// } else if ( input[PHONES_CONNECT] ) {
+	// } else if (input[PHONES_CONNECT]) {
 	// 	// tvOutDialog(TV_OFF);
 	// 	WARNING("volume mode changed");
 	// 	return true;
-	}
 
-	input[wasActive] = true;
-	return false;
+	} else {
+		return false;
+	}
+	return true;
 }
 
 void GMenu2X::setBackground(Surface *_bg, const string &_wallpaper) {
