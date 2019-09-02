@@ -366,7 +366,6 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	INFO("Executing '%s' (%s %s)", title.c_str(), exec.c_str(), params.c_str());
 
 	string command = cmdclean(exec);
-	// string command = exec;
 
 #if defined(OPK_SUPPORT)
 	if (file_ext(command, true) == ".opk") {
@@ -420,6 +419,7 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	gmenu2x->quit();
 
 	execle("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL, environ);
+	// execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 	//try relaunching gmenu2x

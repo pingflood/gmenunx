@@ -207,16 +207,16 @@ static void quit_all(int err) {
 }
 
 GMenu2X::~GMenu2X() {
-	writeConfig();
-
-	sc.clear();
-	s->free();
-
 	quit();
 }
 
 void GMenu2X::quit() {
 	s->flip(); s->flip(); s->flip(); // flush buffers
+
+	writeConfig();
+
+	sc.clear();
+	s->free();
 
 	delete menu;
 	delete s;
