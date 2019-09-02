@@ -4,6 +4,9 @@
 #define HW_UDC // hardware have UDC support
 #define HW_EXT_SD // hardware have external sd card support
 #define HW_SCALER // hardware have screen scaler (e.g., IPU)
+#define OPK_SUPPORT // firmware support opk
+#define IPK_SUPPORT // firmware support ipk
+
 
 /*	RetroGame Key Codes. pingflood, 2018
 	BUTTON     GMENU          SDL             NUMERIC   GPIO

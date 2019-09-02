@@ -41,8 +41,8 @@ bool case_less::operator()(const string &left, const string &right) const {
 string trim(const string &s) {
   if (s.length() == 0)
     return s;
-  int b = s.find_first_not_of(" \t\r");
-  int e = s.find_last_not_of(" \t\r");
+  int b = s.find_first_not_of(" \t\n\r");
+  int e = s.find_last_not_of(" \t\r\n");
   if (b == -1) // No non-spaces
     return "";
   return string(s, b, e - b + 1);

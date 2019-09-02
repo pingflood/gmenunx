@@ -1616,6 +1616,7 @@ void GMenu2X::explorer() {
 			TextDialog td(this, tr["Text viewer"], bd.getFile(bd.selected), "skin:icons/ebook.png");
 			td.appendFile(bd.getFilePath(bd.selected));
 			td.exec();
+#if defined(IPK_SUPPORT)
 		} else if (ext == ".ipk" && file_exists("/usr/bin/opkg")) {
 			string cmd = "opkg install --force-reinstall --force-overwrite ";
 			input.update(false);
@@ -1623,6 +1624,14 @@ void GMenu2X::explorer() {
 			TerminalDialog td(this, tr["Package installer"], "opkg install " + bd.getFileName(bd.selected), "skin:icons/configure.png");
 			td.exec(cmd + cmdclean(bd.getFilePath(bd.selected)));
 			initMenu();
+#endif
+#if defined(OPK_SUPPORT)
+		} else if (ext == ".ipk" && file_exists("/usr/bin/retrofw")) {
+			string cmd = "retrofw opk install";
+			TerminalDialog td(this, tr["Package installer"], "opk install " + bd.getFileName(bd.selected), "skin:icons/terminal.png");
+			td.exec(cmd + cmdclean(bd.getFilePath(bd.selected)));
+			initMenu();
+#endif
 		} else if (ext == ".sh") {
 			TerminalDialog td(this, tr["Terminal"], "sh" + cmdclean(bd.getFileName(bd.selected)), "skin:icons/terminal.png");
 			td.exec(bd.getFilePath(bd.selected));
@@ -1737,19 +1746,31 @@ void GMenu2X::contextMenu() {
 	vector<MenuOption> options;
 	if (menu->selLinkApp() != NULL) {
 		options.push_back((MenuOption){tr.translate("Edit $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::editLink)});
+
+		#if defined(OPK_SUPPORT) || defined(IPK_SUPPORT)
+			if (file_ext(menu->selLinkApp()->getExec(), true) == ".opk") {
+				options.push_back((MenuOption){tr.translate("Uninstall $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::opkUninstall)});
+			} else
+			if (!ipkName(menu->selLinkApp()->getExec()).empty()) {
+				options.push_back((MenuOption){tr.translate("Uninstall $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::ipkUninstall)});
+			} else
+		#endif
 		options.push_back((MenuOption){tr.translate("Delete $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::deleteLink)});
 	}
+
 	options.push_back((MenuOption){tr["Add link"], 			MakeDelegate(this, &GMenu2X::addLink)});
 	options.push_back((MenuOption){tr["Add section"],		MakeDelegate(this, &GMenu2X::addSection)});
 	options.push_back((MenuOption){tr["Rename section"],	MakeDelegate(this, &GMenu2X::renameSection)});
 	options.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
 
-	#if !defined(TARGET_PC)
-		if (file_exists("/usr/bin/retrofw"))
-	#endif
+#if defined(OPK_SUPPORT)
+#if !defined(TARGET_PC)
+	if (file_exists("/usr/bin/retrofw"))
+#endif
 	{
-		options.push_back((MenuOption){tr["Refresh OPK list"],	MakeDelegate(this, &GMenu2X::opkScanner)});
+		options.push_back((MenuOption){tr["Update OPK packages"],	MakeDelegate(this, &GMenu2X::opkScanner)});
 	}
+#endif
 	MessageBox mb(this, options);
 }
 
@@ -1980,11 +2001,57 @@ void GMenu2X::deleteSection() {
 	}
 }
 
+#if defined(OPK_SUPPORT)
 void GMenu2X::opkScanner() {
-	TerminalDialog td(this, tr["OPK scanner"], "opkscan", "skin:icons/terminal.png");
-	td.exec("retrofw opkscan");
+	TerminalDialog td(this, tr["Update OPK packages"], "opk update", "skin:icons/terminal.png");
+	td.exec("retrofw opk update");
 	initMenu();
 }
+
+void GMenu2X::opkUninstall() {
+	if (menu->selLinkApp() != NULL) {
+		MessageBox mb(this, tr.translate("Uninstall $1", menu->selLink()->getTitle().c_str(), NULL) + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+		mb.setButton(CONFIRM, tr["Yes"]);
+		mb.setButton(CANCEL,  tr["No"]);
+		if (mb.exec() == CONFIRM) {
+			unlink(menu->selLinkApp()->getExec().c_str());
+			menu->deleteSelectedLink();
+			sync();
+		}
+	}
+}
+#endif
+
+#if defined(IPK_SUPPORT)
+string GMenu2X::ipkName(const string _file) {
+	string cmd = "opkg search " + _file + " | cut -f1 -d' '";
+	char package[128];
+	FILE *fp = popen(cmd.c_str(), "r");
+	if (fp == NULL) return "";
+	cmd = (string)fgets(package, sizeof(package)-1, fp);
+	pclose(fp);
+	return trim(cmd);
+}
+
+void GMenu2X::ipkUninstall() {
+	if (menu->selLinkApp() != NULL) {
+		MessageBox mb(this, tr.translate("Uninstall $1", menu->selLink()->getTitle().c_str(), NULL) + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+		mb.setButton(CONFIRM, tr["Yes"]);
+		mb.setButton(CANCEL,  tr["No"]);
+		if (mb.exec() == CONFIRM) {
+			string package = ipkName(menu->selLinkApp()->getExec());
+			WARNING("PACKAGE: '%s'", package.c_str());
+			if (!package.empty()) {
+				TerminalDialog td(this, tr["Uninstall package"], "opkg remove " + package, "skin:icons/configure.png");
+				td.exec("opkg remove " + package);
+				initMenu();
+			};
+			menu->deleteSelectedLink();
+			sync();
+		}
+	}
+}
+#endif
 
 void GMenu2X::setInputSpeed() {
 	input.setInterval(180);

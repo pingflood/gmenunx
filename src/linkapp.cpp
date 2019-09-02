@@ -209,8 +209,10 @@ const string &LinkApp::searchIcon() {
 		iconPath = dir_name(exec) + "/" + sublinktitle;
 	else if (file_exists(execicon))
 		iconPath = execicon;
+#if defined(OPK_SUPPORT)
 	else if (file_ext(exec, true) == ".opk" && file_exists((string)getenv("HOME") + (string)"/.cache/" + sublinktitle))
 		iconPath = (string)getenv("HOME") + (string)"/.cache/" + sublinktitle;
+#endif
 	else
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
 
@@ -366,9 +368,11 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	string command = cmdclean(exec);
 	// string command = exec;
 
+#if defined(OPK_SUPPORT)
 	if (file_ext(command, true) == ".opk") {
-		command = "retrofw opkrun " + command;
+		command = "retrofw opk run " + command;
 	}
+#endif
 
 	// Check to see if permissions are desirable
 	struct stat fstat;
