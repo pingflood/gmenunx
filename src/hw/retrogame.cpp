@@ -174,7 +174,6 @@ private:
 	void hwInit() {
 		system("[ -d /home/retrofw ] && mount -o remount,async /home/retrofw");
 
-		setenv("SDL_NOMOUSE", "1", 1);
 		memdev = open("/dev/mem", O_RDWR);
 		if (memdev > 0) {
 			memregs = (uint32_t*)mmap(0, 0x20000, PROT_READ | PROT_WRITE, MAP_SHARED, memdev, 0x10000000);

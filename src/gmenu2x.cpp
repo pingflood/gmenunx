@@ -261,6 +261,7 @@ void GMenu2X::main() {
 	chdir(getExePath().c_str());
 
 	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
+	setenv("SDL_NOMOUSE", "1", 1);
 
 	initDateTime();
 
