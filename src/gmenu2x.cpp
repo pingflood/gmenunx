@@ -279,7 +279,7 @@ void GMenu2X::main() {
 
 	setSkin(confStr["skin"], true);
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
-	// Screen
+
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0) {
 		ERROR("Could not initialize SDL: %s", SDL_GetError());
 		quit();
@@ -287,22 +287,16 @@ void GMenu2X::main() {
 	}
 	SDL_ShowCursor(0);
 
+	SDL_Surface *screen = SDL_SetVideoMode(this->w, this->h, 16, SDL_HWSURFACE |
+		#ifdef SDL_TRIPLEBUF
+			SDL_TRIPLEBUF
+		#else
+			SDL_DOUBLEBUF
+		#endif
+	);
 	s = new Surface();
 
-#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	// I'm forced to use SW surfaces since with HW there are issuse with changing the clock frequency
-	SDL_Surface *dbl = SDL_SetVideoMode(this->w, this->h, 16, SDL_SWSURFACE);
-	s->enableVirtualDoubleBuffer(dbl);
-#else
-	s->screen = SDL_SetVideoMode(this->w, this->h, 16, SDL_HWSURFACE |
-	#ifdef SDL_TRIPLEBUF
-		SDL_TRIPLEBUF
-	#else
-		SDL_DOUBLEBUF
-	#endif
-	);
-	s->raw = SDL_CreateRGBSurface(SDL_SWSURFACE, this->w, this->h, 16, 0, 0, 0, 0);
-#endif
+	s->enableVirtualDoubleBuffer(screen);
 
 	currBackdrop = confStr["wallpaper"];
 	setBackground(s, currBackdrop);

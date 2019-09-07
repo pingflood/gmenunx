@@ -94,7 +94,7 @@ Surface::Surface(int w, int h, uint32_t flags) {
 	bmask = 0x00ff0000;
 	amask = 0xff000000;
 #endif
-	raw = SDL_DisplayFormat( SDL_CreateRGBSurface( flags, w, h, 16, rmask, gmask, bmask, amask ) );
+	raw = SDL_DisplayFormat( SDL_CreateRGBSurface(flags, w, h, 16, rmask, gmask, bmask, amask));
 	//SDL_SetAlpha(raw, SDL_SRCALPHA|SDL_RLEACCEL, SDL_ALPHA_OPAQUE);
 	halfW = w/2;
 	halfH = h/2;
@@ -104,12 +104,9 @@ Surface::~Surface() {
 	free();
 }
 
-void Surface::enableVirtualDoubleBuffer(SDL_Surface *surface, bool alpha) {
+void Surface::enableVirtualDoubleBuffer(SDL_Surface *surface) {
 	dblbuffer = surface;
-	if (alpha)
-		raw = SDL_DisplayFormatAlpha(dblbuffer);
-	else
-		raw = SDL_DisplayFormat(dblbuffer);
+	raw = SDL_DisplayFormat(SDL_CreateRGBSurface(SDL_SWSURFACE, dblbuffer->w, dblbuffer->h, 16, 0, 0, 0, 0));
 }
 
 void Surface::enableAlpha() {
@@ -186,11 +183,9 @@ void Surface::unlock() {
 void Surface::flip() {
 	if (dblbuffer != NULL) {
 		SDL_BlitSurface(raw, NULL, dblbuffer, NULL);
-		// SDL_SoftStretch(raw, NULL, dblbuffer, NULL);
 		SDL_Flip(dblbuffer);
 	} else {
-		SDL_BlitSurface(raw, NULL, screen, NULL);
-		SDL_Flip(screen);
+		SDL_Flip(raw);
 	}
 }
 

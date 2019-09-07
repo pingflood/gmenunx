@@ -71,7 +71,7 @@ public:
 	Surface(int w, int h, uint32_t flags = SDL_HWSURFACE|SDL_SRCALPHA);
 	~Surface();
 
-	void enableVirtualDoubleBuffer(SDL_Surface *surface, bool alpha=true);
+	void enableVirtualDoubleBuffer(SDL_Surface *surface);
 	void enableAlpha();
 
 	SDL_Surface *raw, *screen;
