@@ -208,20 +208,17 @@ static void quit_all(int err) {
 
 GMenu2X::~GMenu2X() {
 	quit();
-}
-
-void GMenu2X::quit() {
-	s->flip(); s->flip(); s->flip(); // flush buffers
-
-	writeConfig();
-
-	sc.clear();
-	s->free();
-
 	delete menu;
 	delete s;
 	delete font;
 	delete titlefont;
+}
+
+void GMenu2X::quit() {
+	writeConfig();
+	s->flip(); s->flip(); s->flip(); // flush buffers
+	sc.clear();
+	s->free();
 
 	fflush(NULL);
 	SDL_Quit();
@@ -231,9 +228,9 @@ void GMenu2X::quit() {
 int main(int /*argc*/, char * /*argv*/[]) {
 	INFO("GMenu2X starting: If you read this message in the logs, check http://mtorromeo.github.com/gmenu2x/troubleshooting.html for a solution");
 
-	signal(SIGINT, &quit_all);
-	signal(SIGSEGV,&quit_all);
-	signal(SIGTERM,&quit_all);
+	signal(SIGINT,  &quit_all);
+	signal(SIGSEGV, &quit_all);
+	signal(SIGTERM, &quit_all);
 
 	int fd = open("/dev/tty0", O_RDONLY);
 	if (fd > 0) {

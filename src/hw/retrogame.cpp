@@ -122,50 +122,26 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 		else if (val > 3600) batteryIcon = 1; // 20%
 	}
 
-	if (memdev > 0) {
-		// printf("\e[s\e[1;0f\e[1;32m\n");
-		// printf("               3          2          1          0\n");
-		// printf("              10987654 32109876 54321098 76543210\n");
-		// printbin("0", memregs[0x09600 >> 2]);
-		// printbin("1", memregs[0x09700 >> 2]);
-		// printbin("2", memregs[0x09800 >> 2]);
-		// printbin("3", memregs[0x09900 >> 2]);
-		// printbin("4", memregs[0x09a00 >> 2]);
-		// printbin("5", memregs[0x09b00 >> 2]);
-		// printbin("6", memregs[0x09c00 >> 2]);
-		// printbin("7", memregs[0x09d00 >> 2]);
-		// printbin("8", memregs[0x09e00 >> 2]);
-		// printbin("9", memregs[0x09f00 >> 2]);
-		// printbin("A", memregs[0x10000 >> 2]);
-		// printbin("B", memregs[0x10100 >> 2]);
-		// printbin("C", memregs[0x10200 >> 2]);
-		// printbin("D", memregs[0x10300 >> 2]);
-		// printbin("E", memregs[0x10400 >> 2]);
-		// printbin("F", memregs[0x10500 >> 2]);
-		// printf("\n\e[30;0m\e[K\e[u");
-
+	if (memdev > 0 && tickBattery > 2) {
 		udcStatus = getUDCStatus();
 		if (udcPrev != udcStatus) {
 			udcPrev = udcStatus;
 			InputManager::pushEvent(udcStatus);
+			return 2000;
 		}
 
 		mmcStatus = getMMCStatus();
 		if (mmcPrev != mmcStatus) {
 			mmcPrev = mmcStatus;
 			InputManager::pushEvent(mmcStatus);
-		}
-
-		tvOutStatus = getTVOutStatus();
-		if (tvOutPrev != tvOutStatus) {
-			tvOutPrev = tvOutStatus;
-			InputManager::pushEvent(tvOutStatus);
+			return 2000;
 		}
 
 		volumeMode = getVolumeMode(1);
 		if (volumeModePrev != volumeMode) {
 			volumeModePrev = volumeMode;
 			InputManager::pushEvent(PHONES_CONNECT);
+			return 2000;
 		}
 
 		numJoy = getDevStatus();
@@ -174,7 +150,14 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 			SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 			SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 			InputManager::pushEvent(JOYSTICK_CONNECT);
-			return 5 * interval;
+			return 5000;
+		}
+
+		tvOutStatus = getTVOutStatus();
+		if (tvOutPrev != tvOutStatus) {
+			tvOutPrev = tvOutStatus;
+			InputManager::pushEvent(tvOutStatus);
+			return 2000;
 		}
 
 		// volumeMode = getVolumeMode(confInt["globalVolume"]);
