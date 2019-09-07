@@ -236,9 +236,11 @@ void BrowseDialog::umountDir() {
 }
 
 void BrowseDialog::exploreHome() {
+	selected = 0;
 	directoryEnter(CARD_ROOT);
 }
 
 void BrowseDialog::exploreMedia() {
+	selected = 0;
 	directoryEnter("/media");
 }
