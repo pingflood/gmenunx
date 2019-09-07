@@ -86,14 +86,15 @@ bool BrowseDialog::exec() {
 			Surface anim = new Surface(gmenu2x->s);
 
 			if (preview.empty() || preview == "#") { // hide preview
-				while (animation > 0) {
+				 while (animation > 0) {
+					animation -= gmenu2x->skinConfInt["previewWidth"] / 8;
+					if (animation < 0) animation = 0;
+
 					anim.blit(gmenu2x->s,0,0);
 					gmenu2x->s->box(gmenu2x->w - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
 					gmenu2x->s->flip();
-					animation -= gmenu2x->skinConfInt["previewWidth"] / 8;
-					if (animation < 0) animation = 0;
 					SDL_Delay(10);
-				}
+				};
 			} else { // show preview
 				if (!gmenu2x->sc.exists(preview + "scaled")) {
 					Surface *previm = new Surface(preview);
@@ -160,7 +161,7 @@ bool BrowseDialog::exec() {
 				close = true;
 			} else if (gmenu2x->input[CANCEL] || gmenu2x->input[SETTINGS]) {
 				result = false;
-				close = preview.empty(); //true; // close only if preview is empty.
+				close = (preview.empty() || preview == "#"); // close only if preview is empty.
 				preview = "";
 			}
 
