@@ -48,8 +48,7 @@ bool BrowseDialog::exec() {
 		bool inputAction = false; int tmpButtonPos = buttonPos;
 		string curPath = getPath();
 		this->bg->blit(gmenu2x->s,0,0);
-		drawTopBar(this->bg, title, curPath, icon);
-		// drawTopBar(this->bg, title, description, icon);
+		drawTopBar(gmenu2x->s, title, curPath /*description*/, icon);
 
 		if (allowDirUp && curPath != "/") tmpButtonPos = gmenu2x->drawButton(gmenu2x->s, "x", gmenu2x->tr["Folder up"], buttonPos);
 
@@ -63,11 +62,7 @@ bool BrowseDialog::exec() {
 			if (selected >= firstElement + numRows) firstElement = selected - numRows;
 			if (selected < firstElement) firstElement = selected;
 
-			// if (curPath == "/media" && getFile(selected) != ".." && isDirectory(selected)) {
-			// 	gmenu2x->drawButton(gmenu2x->s, "select", gmenu2x->tr["Umount"], tmpButtonPos);
-			// }
-
-			//Files & Directories
+			// Files & Directories
 			iY = gmenu2x->listRect.y + 1;
 			for (i = firstElement; i < size() && i <= firstElement + numRows; i++, iY += rowHeight) {
 				if (i == selected) gmenu2x->s->box(gmenu2x->listRect.x, iY, gmenu2x->listRect.w, rowHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
@@ -213,10 +208,10 @@ void BrowseDialog::contextMenu() {
 		options.push_back((MenuOption){gmenu2x->tr["Umount"], MakeDelegate(this, &BrowseDialog::umountDir)});
 
 	if (getPath() != CARD_ROOT)
-		options.push_back((MenuOption){gmenu2x->tr["Explore"] + " " + CARD_ROOT, MakeDelegate(this, &BrowseDialog::exploreHome)});
+		options.push_back((MenuOption){gmenu2x->tr["Go to"] + " " + CARD_ROOT, MakeDelegate(this, &BrowseDialog::exploreHome)});
 
 	if (getPath() != "/media")
-		options.push_back((MenuOption){gmenu2x->tr["Explore"] + " /media", MakeDelegate(this, &BrowseDialog::exploreMedia)});
+		options.push_back((MenuOption){gmenu2x->tr["Go to"] + " /media", MakeDelegate(this, &BrowseDialog::exploreMedia)});
 
 	if (isFile(selected))
 		options.push_back((MenuOption){gmenu2x->tr["Delete"], MakeDelegate(this, &BrowseDialog::deleteFile)});
@@ -229,7 +224,7 @@ void BrowseDialog::deleteFile() {
 	mb.setButton(CONFIRM, gmenu2x->tr["Yes"]);
 	mb.setButton(CANCEL,  gmenu2x->tr["No"]);
 	if (mb.exec() == CONFIRM) {
-		WARNING("DELETE FILE");
+		WARNING("PLACEHOLDER: DELETE FILE");
 	}
 }
 
