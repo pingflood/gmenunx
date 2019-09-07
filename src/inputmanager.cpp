@@ -235,6 +235,15 @@ void InputManager::dropEvents() {
 	}
 }
 
+uint32_t pushEventEnd(uint32_t interval, void *action) {
+	SDL_Event event;
+	event.type = SDL_KEYUP;
+	event.key.state = SDL_RELEASED;
+	event.key.keysym.sym = (SDLKey)((size_t)action - UDC_CONNECT + SDLK_WORLD_0);
+	SDL_PushEvent(&event);
+	return 0;
+}
+
 void InputManager::pushEvent(int action) {
 	WARNING("EVENT START");
 	SDL_Event event;
@@ -242,22 +251,8 @@ void InputManager::pushEvent(int action) {
 	event.key.state = SDL_PRESSED;
 	event.key.keysym.sym = (SDLKey)(action - UDC_CONNECT + SDLK_WORLD_0);
 	SDL_PushEvent(&event);
-	event.type = SDL_KEYUP;
-	event.key.state = SDL_RELEASED;
-	SDL_PushEvent(&event);
-
-	// pushEventEnd(0, (void*)action);
-	// SDL_AddTimer(50, pushEventEnd, (void*)action);
+	SDL_AddTimer(30, pushEventEnd, (void*)action);
 }
-
-// uint32_t InputManager::pushEventEnd(uint32_t interval, void *action) {
-// 	SDL_Event event;
-// 	event.type = SDL_KEYUP;
-// 	event.key.state = SDL_RELEASED;
-// 	event.key.keysym.sym = (SDLKey)(int)((size_t)action - UDC_CONNECT + SDLK_WORLD_0);
-// 	SDL_PushEvent(&event);
-// 	return 0;
-// }
 
 uint32_t InputManager::checkRepeat(uint32_t interval, void *_data) {
 	RepeatEventData *data = (RepeatEventData *)_data;
