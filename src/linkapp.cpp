@@ -418,6 +418,7 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 	gmenu2x->quit();
 
+	command = "exec " + command;
 	execle("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL, environ);
 	// execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 
