@@ -165,9 +165,10 @@ void InputManager::setActionsCount(int count) {
 
 bool InputManager::update(bool wait) {
 	bool anyactions = false;
-	SDL_JoystickUpdate();
-
+	uint32_t x;
 	SDL_Event event;
+
+	SDL_JoystickUpdate();
 
 	if (wait) {
 		SDL_WaitEvent(&event);
@@ -181,26 +182,14 @@ bool InputManager::update(bool wait) {
 				anyactions = true;
 			}
 
-			#if !defined(TARGET_PC)
+			if (event.key.keysym.sym > 0)
 				keystate[event.key.keysym.sym] = false;
-			#endif
-
 		}
 	}
 
 	// WARNING("SDL_JOYBUTTONDOWN=%d SDL_JOYAXISMOTION=%d event.type: %d", SDL_JOYBUTTONDOWN, SDL_JOYAXISMOTION, event.type); // clear event queue
 	// WARNING("event.jbutton.button=%d event.jaxis.axis=%d event.jaxis.value=%d", event.jbutton.button, event.jaxis.axis, event.jaxis.value); // clear event queue
-
-	if (event.type != SDL_JOYBUTTONDOWN && event.type != SDL_JOYAXISMOTION) {
-		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_KEYUP) {
-				keystate[event.key.keysym.sym] = false;
-				// WARNING("Skipping event.type: %d", event.type); // clear event queue
-			}
-		}
-	}
-
-	for (uint32_t x = 0; x < actions.size(); x++) {
+	for (x = 0; x < actions.size(); x++) {
 		actions[x].active = isActive(x);
 		// WARNING("is active: %d %d", x, actions[x].active);
 		if (actions[x].active) {
@@ -218,6 +207,17 @@ bool InputManager::update(bool wait) {
 			}
 		}
 	}
+
+	x = 0;
+	if (event.type != SDL_JOYBUTTONDOWN && event.type != SDL_JOYAXISMOTION) {
+		while (SDL_PollEvent(&event) && x++ < 30) {
+			// if (event.type == SDL_KEYUP) {
+			keystate[event.key.keysym.sym] = false;
+			// WARNING("Skipping event.type: %d", event.type); // clear event queue
+			// }
+		}
+	}
+
 	return anyactions;
 }
 

@@ -2016,6 +2016,9 @@ void GMenu2X::opkUninstall() {
 
 #if defined(IPK_SUPPORT)
 string GMenu2X::ipkName(const string _file) {
+	if (!file_exists("/usr/bin/opkg"))
+		return "";
+
 	string cmd = "opkg search " + _file + " | cut -f1 -d' '";
 	char package[128];
 	FILE *fp = popen(cmd.c_str(), "r");
@@ -2048,7 +2051,7 @@ void GMenu2X::ipkUninstall() {
 void GMenu2X::setInputSpeed() {
 	input.setInterval(180);
 	input.setInterval(1000, SETTINGS);
-	input.setInterval(1000, MENU);
+	input.setInterval(100, MENU);
 	input.setInterval(1000, CONFIRM);
 	input.setInterval(1000, POWER);
 	input.setInterval(1000, SECTION_PREV);
