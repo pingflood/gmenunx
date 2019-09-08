@@ -156,9 +156,12 @@ const string &Menu::selSection() {
 const string Menu::selSectionName() {
 	string sectionname = sections[iSection];
 	string::size_type pos = sectionname.find(".");
-	if (pos != string::npos && pos > 0 && pos < sectionname.length()) {
-		sectionname = sectionname.substr(pos + 1, sectionname.length());
-	}
+	if (sectionname == "applications")
+		return "apps";
+	else if (sectionname == "emulators")
+		return "emus";
+	else if (pos != string::npos && pos > 0 && pos < sectionname.length())
+		return sectionname.substr(pos + 1);
 	return sectionname;
 }
 
