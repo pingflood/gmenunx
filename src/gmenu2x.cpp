@@ -2000,7 +2000,7 @@ void GMenu2X::deleteSection() {
 
 #if defined(OPK_SUPPORT)
 void GMenu2X::opkScanner() {
-	TerminalDialog td(this, tr["Update OPK packages"], "opk update", "skin:icons/terminal.png");
+	TerminalDialog td(this, tr["Update OPK links"], "opk update", "skin:icons/terminal.png");
 	td.exec("retrofw opk update");
 	initMenu();
 }
