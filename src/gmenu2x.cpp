@@ -1740,12 +1740,17 @@ void GMenu2X::contextMenu() {
 		options.push_back((MenuOption){tr["Edit"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::editLink)});
 
 		#if defined(OPK_SUPPORT) || defined(IPK_SUPPORT)
+			string package = "";
 			if (file_ext(menu->selLinkApp()->getExec(), true) == ".opk") {
-				options.push_back((MenuOption){tr["Uninstall"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::opkUninstall)});
-			} else
-			if (!ipkName(menu->selLinkApp()->getExec()).empty()) {
-				options.push_back((MenuOption){tr["Uninstall"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::ipkUninstall)});
-			} else
+				package = base_name(menu->selLinkApp()->getExec());
+				options.push_back((MenuOption){tr["Uninstall"] + " " + package.c_str(), MakeDelegate(this, &GMenu2X::opkUninstall)});
+			} else {
+				package = ipkName(menu->selLinkApp()->getFile());
+				if (!package.empty()) {
+					options.push_back((MenuOption){tr["Uninstall"] + " " + package.c_str(), MakeDelegate(this, &GMenu2X::ipkUninstall)});
+				}
+			}
+			if (package.empty())
 		#endif
 		options.push_back((MenuOption){tr["Delete"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::deleteLink)});
 	}
@@ -1760,7 +1765,7 @@ void GMenu2X::contextMenu() {
 	if (file_exists("/usr/bin/retrofw"))
 #endif
 	{
-		options.push_back((MenuOption){tr["Update OPK packages"],	MakeDelegate(this, &GMenu2X::opkScanner)});
+		options.push_back((MenuOption){tr["Update OPK links"], MakeDelegate(this, &GMenu2X::opkScanner)});
 	}
 #endif
 	MessageBox mb(this, options);
@@ -2002,7 +2007,8 @@ void GMenu2X::opkScanner() {
 
 void GMenu2X::opkUninstall() {
 	if (menu->selLinkApp() != NULL) {
-		MessageBox mb(this, tr["Uninstall"] + " " + menu->selLink()->getTitle().c_str() + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+		string package = base_name(menu->selLinkApp()->getExec());
+		MessageBox mb(this, tr["Uninstall"] + " " + package.c_str() + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
 		mb.setButton(CONFIRM, tr["Yes"]);
 		mb.setButton(CANCEL,  tr["No"]);
 		if (mb.exec() == CONFIRM) {
@@ -2030,20 +2036,19 @@ string GMenu2X::ipkName(const string _file) {
 
 void GMenu2X::ipkUninstall() {
 	if (menu->selLinkApp() != NULL) {
-		MessageBox mb(this, tr["Uninstall"] + " " + menu->selLink()->getTitle().c_str() + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
-		mb.setButton(CONFIRM, tr["Yes"]);
-		mb.setButton(CANCEL,  tr["No"]);
-		if (mb.exec() == CONFIRM) {
-			string package = ipkName(menu->selLinkApp()->getExec());
-			WARNING("PACKAGE: '%s'", package.c_str());
-			if (!package.empty()) {
-				TerminalDialog td(this, tr["Uninstall package"], "opkg remove " + package, "skin:icons/configure.png");
-				td.exec("opkg remove " + package);
-				initMenu();
-			};
-			menu->deleteSelectedLink();
-			sync();
-		}
+		string package = ipkName(menu->selLinkApp()->getFile());
+		if (!package.empty()) {
+			MessageBox mb(this, tr["Uninstall"] + " " + package.c_str() + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+			mb.setButton(CONFIRM, tr["Yes"]);
+			mb.setButton(CANCEL,  tr["No"]);
+			if (mb.exec() == CONFIRM) {
+					TerminalDialog td(this, tr["Uninstall package"], "opkg remove " + package, "skin:icons/configure.png");
+					td.exec("opkg remove " + package);
+					initMenu();
+				menu->deleteSelectedLink();
+				sync();
+			}
+		};
 	}
 }
 #endif
