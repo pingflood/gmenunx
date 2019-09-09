@@ -94,7 +94,11 @@ Surface::Surface(int w, int h, uint32_t flags) {
 	bmask = 0x00ff0000;
 	amask = 0xff000000;
 #endif
-	raw = SDL_DisplayFormat( SDL_CreateRGBSurface(flags, w, h, 16, rmask, gmask, bmask, amask));
+
+	SDL_Surface* _raw = SDL_CreateRGBSurface(flags, w, h, 16, rmask, gmask, bmask, amask);
+	raw = SDL_DisplayFormat(_raw);
+	SDL_FreeSurface(_raw);
+
 	//SDL_SetAlpha(raw, SDL_SRCALPHA|SDL_RLEACCEL, SDL_ALPHA_OPAQUE);
 	halfW = w/2;
 	halfH = h/2;
@@ -106,7 +110,10 @@ Surface::~Surface() {
 
 void Surface::enableVirtualDoubleBuffer(SDL_Surface *surface) {
 	dblbuffer = surface;
-	raw = SDL_DisplayFormat(SDL_CreateRGBSurface(SDL_SWSURFACE, dblbuffer->w, dblbuffer->h, 16, 0, 0, 0, 0));
+
+	SDL_Surface* _raw = SDL_CreateRGBSurface(SDL_SWSURFACE, dblbuffer->w, dblbuffer->h, 16, 0, 0, 0, 0);
+	raw = SDL_DisplayFormat(_raw);
+	SDL_FreeSurface(_raw);
 }
 
 void Surface::enableAlpha() {
@@ -159,7 +166,10 @@ void Surface::load(const string &img, bool alpha, const string &skin) {
 			bmask = 0x00ff0000;
 			amask = 0xff000000;
 		#endif
-		raw = SDL_DisplayFormat( SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA, 16, 16, 16, rmask, gmask, bmask, amask ) );
+
+		SDL_Surface* _raw = SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA, 16, 16, 16, rmask, gmask, bmask, amask );
+		raw = SDL_DisplayFormat(_raw);
+		SDL_FreeSurface(_raw);
 	}
 }
 
