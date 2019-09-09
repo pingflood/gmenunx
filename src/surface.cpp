@@ -470,10 +470,17 @@ void Surface::softStretch(uint16_t w, uint16_t h, bool keep_aspect, bool maximiz
 		}
 	}
 
-	Surface *thisSurface = new Surface(this);
-	Surface *outSurface = new Surface(w, h);
-	SDL_SoftStretch(thisSurface->raw, NULL, outSurface->raw, NULL);
-	raw = outSurface->raw;
+	SDL_Surface* _src = SDL_ConvertSurface(raw, raw->format, raw->flags);
+	SDL_Surface* src = SDL_DisplayFormat(_src);
+
+	SDL_FreeSurface(raw);
+	SDL_Surface* _raw = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 16, 0, 0, 0, 0);
+	raw = SDL_DisplayFormat(_raw);
+	SDL_SoftStretch(src, NULL, raw, NULL);
+
+	SDL_FreeSurface(src);
+	SDL_FreeSurface(_src);
+	SDL_FreeSurface(_raw);
 }
 
 // Changes a surface's alpha value, by altering per-pixel alpha if necessary.
