@@ -1,6 +1,7 @@
 #include "messagebox.h"
 #include "browsedialog.h"
 #include "debug.h"
+#include "utilities.h"
 using namespace std;
 extern const char *CARD_ROOT;
 
@@ -203,15 +204,21 @@ const std::string BrowseDialog::getPreview(uint32_t i) {
 void BrowseDialog::contextMenu() {
 	vector<MenuOption> options;
 
+	string ext = getExt(selected);
+	string path = getPath();
+
 	customOptions(options);
 
-	if (getPath() == "/media" && getFile(selected) != ".." && isDirectory(selected))
+	if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp")
+		options.push_back((MenuOption){gmenu2x->tr["Set as wallpaper"], MakeDelegate(this, &BrowseDialog::setWallpaper)});
+
+	if (path == "/media" && getFile(selected) != ".." && isDirectory(selected))
 		options.push_back((MenuOption){gmenu2x->tr["Umount"], MakeDelegate(this, &BrowseDialog::umountDir)});
 
-	if (getPath() != CARD_ROOT)
+	if (path != CARD_ROOT)
 		options.push_back((MenuOption){gmenu2x->tr["Go to"] + " " + CARD_ROOT, MakeDelegate(this, &BrowseDialog::exploreHome)});
 
-	if (getPath() != "/media")
+	if (path != "/media")
 		options.push_back((MenuOption){gmenu2x->tr["Go to"] + " /media", MakeDelegate(this, &BrowseDialog::exploreMedia)});
 
 	if (isFile(selected))
@@ -243,4 +250,15 @@ void BrowseDialog::exploreHome() {
 void BrowseDialog::exploreMedia() {
 	selected = 0;
 	directoryEnter("/media");
+}
+
+void BrowseDialog::setWallpaper() {
+	string src = getFilePath(selected);
+	string dst = "skins/Default/wallpapers/Wallpaper" + file_ext(src, true);
+	if (file_copy(src, dst)) {
+		gmenu2x->confStr["wallpaper"] = dst;
+		gmenu2x->writeConfig();
+		gmenu2x->setBackground(gmenu2x->bg, dst);
+		this->exec();
+	}
 }

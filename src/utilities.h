@@ -74,5 +74,6 @@ string dir_name(const string &path);
 string base_name(const string &path);
 string file_ext(const string &path, bool lowercase = false);
 string lowercase(string s);
+bool file_copy(const string &src, const string &dst);
 
 #endif

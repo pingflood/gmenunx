@@ -45,6 +45,7 @@ private:
 	void umountDir();
 	void exploreHome();
 	void exploreMedia();
+	void setWallpaper();
 
 public:
 	string title, description, icon;

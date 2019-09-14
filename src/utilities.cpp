@@ -39,13 +39,13 @@ bool case_less::operator()(const string &left, const string &right) const {
 
 // General tool to strip spaces from both ends:
 string trim(const string &s) {
-  if (s.length() == 0)
-    return s;
-  int b = s.find_first_not_of(" \t\n\r");
-  int e = s.find_last_not_of(" \t\r\n");
-  if (b == -1) // No non-spaces
-    return "";
-  return string(s, b, e - b + 1);
+	if (s.length() == 0)
+		return s;
+	int b = s.find_first_not_of(" \t\n\r");
+	int e = s.find_last_not_of(" \t\r\n");
+	if (b == -1) // No non-spaces
+		return "";
+	return string(s, b, e - b + 1);
 }
 
 void string_copy(const string &s, char **cs) {
@@ -275,4 +275,31 @@ string file_ext(const string &path, bool lowercase) {
 string lowercase(string s) {
 	transform(s.begin(), s.end(), s.begin(), ::tolower);
 	return s;
+}
+
+bool file_copy(const string &src, const string &dst) {
+	FILE *fs, *fd;
+
+	fs = fopen(src.c_str(), "r");
+	if (fs == NULL) {
+		ERROR("Cannot open source file %s\n", src.c_str());
+		return false;
+	}
+
+	fd = fopen(dst.c_str(), "w");
+	if (fd == NULL) {
+		ERROR("Cannot open destiny file %s\n", src.c_str());
+		return false;
+	}
+
+	// Read contents from file
+	int c = fgetc(fs);
+	while (c != EOF) {
+		fputc(c, fd);
+		c = fgetc(fs);
+	}
+
+	fclose(fs);
+	fclose(fd);
+	return true;
 }

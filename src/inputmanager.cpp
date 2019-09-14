@@ -177,13 +177,9 @@ bool InputManager::update(bool wait) {
 			keystate[event.key.keysym.sym] = true;
 		} else if (event.type == SDL_USEREVENT && event.user.code == DO_NOTHING) {
 			return true;
-		} else {
-			if (event.type == SDL_KEYUP) {
-				anyactions = true;
-			}
-
-			if (event.key.keysym.sym > 0)
-				keystate[event.key.keysym.sym] = false;
+		} else if (event.type == SDL_KEYUP) {
+			anyactions = true;
+			keystate[event.key.keysym.sym] = false;
 		}
 	}
 
@@ -209,12 +205,10 @@ bool InputManager::update(bool wait) {
 	}
 
 	x = 0;
-	if (event.type != SDL_JOYBUTTONDOWN && event.type != SDL_JOYAXISMOTION) {
-		while (SDL_PollEvent(&event) && x++ < 30) {
-			// if (event.type == SDL_KEYUP) {
-			keystate[event.key.keysym.sym] = false;
-			// WARNING("Skipping event.type: %d", event.type); // clear event queue
-			// }
+	while (SDL_PollEvent(&event) && x++ < 30) {
+		if (event.type == SDL_KEYUP || event.type == SDL_KEYDOWN) {
+			if (event.key.keysym.sym > 0 && event.key.keysym.sym < sizeof(keystate))
+				keystate[event.key.keysym.sym] = false;
 		}
 	}
 
