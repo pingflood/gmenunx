@@ -237,12 +237,10 @@ int main(int /*argc*/, char * /*argv*/[]) {
 		ioctl(fd, VT_UNLOCKSWITCH, 1);
 		ioctl(fd, KDSETMODE, KD_TEXT);
 		ioctl(fd, KDSKBMODE, K_XLATE);
+		close(fd);
 	}
-	close(fd);
 
 	usleep(1000);
-
-	system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi");
 
 	app = new GMenuNX();
 	DEBUG("Starting GMenuNX");
@@ -254,14 +252,14 @@ int main(int /*argc*/, char * /*argv*/[]) {
 GMenu2X *GMenu2X::instance = NULL;
 void GMenu2X::main() {
 	instance = this;
-	// load config data
+
+	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
+	setenv("SDL_NOMOUSE", "1", 1);
+
 	hwInit();
 
 	path = "";
 	chdir(getExePath().c_str());
-
-	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
-	setenv("SDL_NOMOUSE", "1", 1);
 
 	initDateTime();
 
