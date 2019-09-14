@@ -207,8 +207,7 @@ bool InputManager::update(bool wait) {
 	x = 0;
 	while (SDL_PollEvent(&event) && x++ < 30) {
 		if (event.type == SDL_KEYUP || event.type == SDL_KEYDOWN) {
-			if (event.key.keysym.sym > 0 && event.key.keysym.sym < sizeof(keystate))
-				keystate[event.key.keysym.sym] = false;
+			keystate[event.key.keysym.sym] = false;
 		}
 	}
 
