@@ -274,6 +274,7 @@ void GMenu2X::main() {
 	setScaleMode(0);
 
 	setBacklight(confInt["backlight"]);
+	setVolume(confInt["globalVolume"]);
 
 	setSkin(confStr["skin"], true);
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);

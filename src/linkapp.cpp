@@ -329,8 +329,6 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	mb.setAutoHide(-1);
 	mb.exec();
 
-	gmenu2x->setVolume(gmenu2x->confInt["globalVolume"]);
-
 	// Set correct working directory
 	string wd = getRealWorkdir();
 	if (!wd.empty())
