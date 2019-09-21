@@ -183,8 +183,8 @@ bool InputManager::update(bool wait) {
 		}
 	}
 
-	// WARNING("SDL_JOYBUTTONDOWN=%d SDL_JOYAXISMOTION=%d event.type: %d", SDL_JOYBUTTONDOWN, SDL_JOYAXISMOTION, event.type); // clear event queue
-	// WARNING("event.jbutton.button=%d event.jaxis.axis=%d event.jaxis.value=%d", event.jbutton.button, event.jaxis.axis, event.jaxis.value); // clear event queue
+	// WARNING("SDL_JOYBUTTONDOWN=%d SDL_JOYAXISMOTION=%d event.type: %d keysym.sym=%d  anyactions=%d", SDL_JOYBUTTONDOWN, SDL_JOYAXISMOTION, event.type, event.key.keysym.sym, anyactions);
+	// WARNING("event.jbutton.button=%d event.jaxis.axis=%d event.jaxis.value=%d", event.jbutton.button, event.jaxis.axis, event.jaxis.value);
 	for (x = 0; x < actions.size(); x++) {
 		actions[x].active = isActive(x);
 		// WARNING("is active: %d %d", x, actions[x].active);

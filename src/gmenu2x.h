@@ -141,8 +141,7 @@ private:
 	virtual void udcDialog(int udcStatus = -1) { };
 	virtual void tvOutDialog(int16_t mode = -1) { };
 	virtual void hwInit() { };
-	virtual void hwDeinit() {};
-	virtual int getBacklight() { return -1; };
+	virtual void hwDeinit() { };
 
 public:
 
@@ -233,6 +232,7 @@ public:
 	virtual void ledOn() { };
 	virtual void ledOff() { };
 	virtual int setVolume(int val, bool popup = false);
+	virtual int getBacklight() { return -1; };
 	virtual int setBacklight(int val, bool popup = false);
 	virtual string hwPreLinkLaunch() { return ""; };
 };

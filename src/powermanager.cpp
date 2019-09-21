@@ -1,5 +1,4 @@
 #include "powermanager.h"
-#include "messagebox.h"
 
 PowerManager *PowerManager::instance = NULL;
 
@@ -48,13 +47,10 @@ void PowerManager::resetPowerTimer() {
 
 uint32_t PowerManager::doSuspend(uint32_t interval, void *param) {
 	if (interval > 0) {
-		MessageBox mb(PowerManager::instance->gmenu2x, PowerManager::instance->gmenu2x->tr["Suspend"]);
-		mb.setAutoHide(500);
-		mb.exec();
-
-		PowerManager::instance->gmenu2x->setBacklight(0);
+		PowerManager::instance->gmenu2x->setBacklight(-1);
 		PowerManager::instance->resetPowerTimer();
-		PowerManager::instance->suspendActive = true;
+		if (PowerManager::instance->gmenu2x->getBacklight() <= 1)
+			PowerManager::instance->suspendActive = true;
 
 		return interval;
 	}

@@ -282,7 +282,8 @@ public:
 	}
 
 	int setBacklight(int val, bool popup = false) {
-		val = GMenu2X::setBacklight(val, popup);
+		if (val != -1)
+			val = GMenu2X::setBacklight(val, popup);
 
 		FILE *f;
 		if (f = fopen("/proc/jz/lcd_backlight", "w")) {
@@ -291,7 +292,7 @@ public:
 		}
 
 		if (f = fopen("/proc/jz/backlight_control", "w")) {
-			fprintf(f, "%d", val); // fputs(val, f);
+			fprintf(f, "%d", (val > 0)); // fputs(val, f);
 			fclose(f);
 		}
 
