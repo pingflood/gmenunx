@@ -1704,21 +1704,21 @@ void GMenu2X::poweroffDialog() {
 	writeConfig();
 	if (response == CONFIRM) {
 		MessageBox mb(this, tr["Poweroff"]);
-		mb.setAutoHide(500);
+		mb.setAutoHide(-1);
 		mb.exec();
-		setBacklight(0);
 		#if !defined(TARGET_PC)
 			system("sync; mount -o remount,ro $HOME; poweroff");
 		#endif
+		SDL_Delay(2000);
 	}
 	else if (response == SECTION_NEXT) {
 		MessageBox mb(this, tr["Rebooting"]);
-		mb.setAutoHide(500);
+		mb.setAutoHide(-1);
 		mb.exec();
-		setBacklight(0);
 		#if !defined(TARGET_PC)
 			system("sync; mount -o remount,ro $HOME; reboot");
 		#endif
+		SDL_Delay(2000);
 	}
 }
 
