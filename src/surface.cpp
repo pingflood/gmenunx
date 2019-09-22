@@ -481,11 +481,13 @@ void Surface::softStretch(uint16_t w, uint16_t h, bool keep_aspect, bool maximiz
 	}
 
 	SDL_Surface* _src = SDL_ConvertSurface(raw, raw->format, raw->flags);
-	SDL_Surface* src = SDL_DisplayFormat(_src);
+	SDL_Surface* src = SDL_DisplayFormatAlpha(_src);
 
 	SDL_FreeSurface(raw);
+
 	SDL_Surface* _raw = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 16, 0, 0, 0, 0);
-	raw = SDL_DisplayFormat(_raw);
+	raw = SDL_DisplayFormatAlpha(_raw);
+
 	SDL_SoftStretch(src, NULL, raw, NULL);
 
 	SDL_FreeSurface(src);

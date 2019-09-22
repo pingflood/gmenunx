@@ -100,8 +100,7 @@ bool BrowseDialog::exec() {
 				if (!gmenu2x->sc.exists(preview + "scaled")) {
 					Surface *previm = new Surface(preview);
 					gmenu2x->sc.add(previm, preview + "scaled");
-					if (file_ext(preview, true) != ".png")
-						gmenu2x->sc[preview + "scaled"]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
+					gmenu2x->sc[preview + "scaled"]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
 				}
 
 				do {

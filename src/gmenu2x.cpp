@@ -469,7 +469,8 @@ void GMenu2X::main() {
 					if (!sc.exists(iconfile + "icon")) {
 						Surface *icon = new Surface(iconfile);
 						sc.add(icon, iconfile + "icon");
-						if (file_ext(iconfile) == ".jpg") sc[iconfile + "icon"]->softStretch(linkWidth, linkHeight, true, true);
+						if (icon->width() > linkWidth || icon->height() > linkHeight)
+							sc[iconfile + "icon"]->softStretch(linkWidth, linkHeight, true, true);
 					}
 					Surface *icon = sc[iconfile + "icon"];
 
