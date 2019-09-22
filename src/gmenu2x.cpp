@@ -1711,7 +1711,7 @@ void GMenu2X::poweroffDialog() {
 		#if !defined(TARGET_PC)
 			system("sync; mount -o remount,ro $HOME; poweroff");
 		#endif
-		SDL_Delay(2000);
+		setBacklight(0);
 	}
 	else if (response == SECTION_NEXT) {
 		MessageBox mb(this, tr["Rebooting"]);
