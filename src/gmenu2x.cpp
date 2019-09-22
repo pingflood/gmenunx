@@ -807,7 +807,7 @@ void GMenu2X::setBackground(Surface *_bg, const string &_wallpaper) {
 	}
 
 	_bg->box((SDL_Rect){0, 0, this->w, this->h}, (RGBAColor){0, 0, 0, 255});
-	sc[wallpaper]->blit(_bg,0,0);
+	sc[wallpaper]->blit(_bg, (this->w - sc[wallpaper]->width()) / 2, (this->h - sc[wallpaper]->height()) / 2);
 }
 
 void GMenu2X::initLayout() {
