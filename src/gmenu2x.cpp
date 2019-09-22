@@ -1094,7 +1094,7 @@ void GMenu2X::readConfig() {
 	confInt["skinBackdrops"] = 0;
 	confStr["homePath"] = CARD_ROOT;
 	confInt["globalVolume"] = 60;
-	confStr["bgscale"] = "Stretch";
+	confStr["bgscale"] = "Crop";
 
 	confInt["cpuMenu"] = CPU_MENU;
 	confInt["cpuMax"] = CPU_MAX;
@@ -1168,7 +1168,7 @@ void GMenu2X::writeConfig() {
 				(curr->first == "lang" && curr->second.empty()) ||
 				(curr->first == "lang" && curr->second.empty()) ||
 				(curr->first == "bgscale" && curr->second.empty()) ||
-				(curr->first == "bgscale" && curr->second == "Stretch") ||
+				(curr->first == "bgscale" && curr->second == "Crop") ||
 
 				curr->first.empty() || curr->second.empty()
 			) continue;
