@@ -22,15 +22,23 @@ void Dialog::drawTopBar(Surface *s = NULL, const std::string &title, const std::
 	int iconOffset = 2;
 
 	if (!icon.empty() && gmenu2x->skinConfInt["showDialogIcon"]) { // drawTitleIcon
-		Surface *i = NULL;
-
-		i = gmenu2x->sc[icon];
-		if (i == NULL) i = gmenu2x->sc.skinRes(icon);
-		if (i == NULL) i = gmenu2x->sc.skinRes("icons/generic.png");
-
 		iconOffset = gmenu2x->skinConfInt["sectionBarSize"];
+
+		if (!gmenu2x->sc.exists(icon + "icon")) {
+			Surface *_icon = new Surface(icon);
+			gmenu2x->sc.add(_icon, icon + "icon");
+			if (_icon->width() > iconOffset - 8 || _icon->height() > iconOffset - 8)
+				gmenu2x->sc[icon + "icon"]->softStretch(iconOffset - 8, iconOffset - 8, true, false);
+		}
+		Surface *_icon = gmenu2x->sc[icon + "icon"];
+
+		// Surface *i = NULL;
+		// i = gmenu2x->sc[icon];
+		// if (i == NULL) i = gmenu2x->sc.skinRes(icon);
+		// if (i == NULL) i = gmenu2x->sc.skinRes("icons/generic.png");
+
 		gmenu2x->s->setClipRect({4, 4, iconOffset - 8, iconOffset - 8});
-		i->blit(s, {4, 4, iconOffset - 8, iconOffset - 8}, HAlignCenter | VAlignMiddle);
+		_icon->blit(s, {4, 4, iconOffset - 8, iconOffset - 8}, HAlignCenter | VAlignMiddle);
 		gmenu2x->s->clearClipRect();
 	}
 
