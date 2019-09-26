@@ -48,7 +48,8 @@ public:
 	void debug();
 
 	Surface *add(Surface *s, const std::string &path);
-	Surface *add(const std::string &path, bool alpha=true);
+	// Surface *add(const std::string &path, bool alpha=true);
+	Surface *add(std::string path, std::string key="");
 	Surface *addSkinRes(const std::string &path, bool alpha=true);
 	void     del(const std::string &path);
 	void     clear();
