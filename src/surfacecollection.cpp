@@ -26,9 +26,8 @@
 using std::endl;
 using std::string;
 
-SurfaceCollection::SurfaceCollection(bool defaultAlpha, const string &skin) {
-	this->defaultAlpha = defaultAlpha;
-	setSkin(skin);
+SurfaceCollection::SurfaceCollection() {
+	setSkin("Default");
 }
 
 SurfaceCollection::~SurfaceCollection() {}
@@ -38,17 +37,20 @@ void SurfaceCollection::setSkin(const string &skin) {
 }
 
 string SurfaceCollection::getSkinFilePath(const string &file) {
-	if (file_exists("skins/"+skin+"/"+file))
-		return "skins/"+skin+"/"+file;
-	else if (file_exists("skins/Default/"+file))
-		return "skins/Default/"+file;
+	string ret = "skins/" + skin + "/" + file;
+	if (file_exists(ret))
+		return ret;
+
+	ret = "skins/Default/" + file;
+	if (file_exists(ret))
+		return ret;
 
 	return "";
 }
 
 void SurfaceCollection::debug() {
 	SurfaceHash::iterator end = surfaces.end();
-	for(SurfaceHash::iterator curr = surfaces.begin(); curr != end; curr++){
+	for(SurfaceHash::iterator curr = surfaces.begin(); curr != end; curr++) {
 		DEBUG("key: %i", curr->first.c_str());
 	}
 }
@@ -90,7 +92,7 @@ Surface *SurfaceCollection::addSkinRes(const string &path, bool alpha) {
 		return NULL;
 
 	DEBUG("Adding skin surface: '%s'", path.c_str());
-	Surface *s = new Surface(skinpath,alpha);
+	Surface *s = new Surface(skinpath, true);
 	if (s != NULL)
 		surfaces[path] = s;
 	return s;
@@ -120,7 +122,7 @@ void SurfaceCollection::move(const string &from, const string &to) {
 Surface *SurfaceCollection::operator[](const string &key) {
 	SurfaceHash::iterator i = surfaces.find(key);
 	if (i == surfaces.end())
-		return add(key, defaultAlpha);
+		return add(key);
 
 	return i->second;
 }
@@ -129,7 +131,7 @@ Surface *SurfaceCollection::skinRes(const string &key) {
 	if (key.empty()) return NULL;
 	SurfaceHash::iterator i = surfaces.find(key);
 	if (i == surfaces.end())
-		return addSkinRes(key, defaultAlpha);
+		return addSkinRes(key);
 
 	return i->second;
 }
