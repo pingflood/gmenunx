@@ -330,7 +330,6 @@ void GMenu2X::main() {
 		menu->selLinkApp()->selector(lastSelectorElement, lastSelectorDir);
 	}
 
-	bool quit = false;
 	int i = 0, x = 0, y = 0, ix = 0, iy = 0, sx = 0, sy = 0;
 	const int iconPadding = 4;
 
@@ -372,7 +371,7 @@ void GMenu2X::main() {
 			*iconBGon = sc.skinRes("imgs/iconbg_on.png")
 	;
 
-	while (!quit) {
+	while (true) {
 		// Background
 		if (confInt["skinBackdrops"] & BD_MENU){
 			if (menu->selLink() != NULL && !menu->selLink()->getBackdropPath().empty()) {
