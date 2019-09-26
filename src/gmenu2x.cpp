@@ -440,15 +440,17 @@ void GMenu2X::main() {
 		if (linkCols == 1 && linkRows > 1) { // LIST
 			ix = linksRect.x;
 			for (y = 0; y < linkRows && i < menu->sectionLinks()->size(); y++, i++) {
-				// Surface icon(sc[menu->sectionLinks()->at(i)->getIconPath()]);
-				// icon.softStretch(linkWidth, linkHeight, true, false);
-
 				iy = linksRect.y + y * linkHeight;
 
 				if (i == (uint32_t)menu->selLinkIndex())
 					s->box(ix, iy, linksRect.w, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 
-				sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix, iy, 36, linkHeight}, HAlignCenter | VAlignMiddle);
+				Surface *icon = sc[menu->sectionLinks()->at(i)->getIconPath()];
+				if (icon == NULL) icon = sc["skin:icons/generic.png"];
+				if (icon->width() > 32 || icon->height() > linkHeight - 4)
+					icon->softStretch(32, linkHeight - 4, true, true);
+
+				icon->blit(s, {ix + 2, iy + 2, 32, linkHeight - 4}, HAlignCenter | VAlignMiddle);
 				s->write(titlefont, tr[menu->sectionLinks()->at(i)->getTitle()], ix + linkSpacing + 36, iy + titlefont->getHeight()/2, VAlignMiddle);
 				s->write(font, tr[menu->sectionLinks()->at(i)->getDescription()], ix + linkSpacing + 36, iy + linkHeight - linkSpacing/2, VAlignBottom);
 			}
@@ -458,14 +460,10 @@ void GMenu2X::main() {
 					ix = linksRect.x + x * linkWidth  + (x + 1) * linkSpacing;
 					iy = linksRect.y + y * linkHeight + (y + 1) * linkSpacing;
 
-					string iconfile = menu->sectionLinks()->at(i)->getIconPath();
-					if (!sc.exists(iconfile + "icon")) {
-						Surface *icon = new Surface(iconfile);
-						sc.add(icon, iconfile + "icon");
-						if (icon->width() > linkWidth || icon->height() > linkHeight)
-							sc[iconfile + "icon"]->softStretch(linkWidth, linkHeight, true, true);
-					}
-					Surface *icon = sc[iconfile + "icon"];
+					Surface *icon = sc[menu->sectionLinks()->at(i)->getIconPath()];
+					if (icon == NULL) icon = sc["skin:icons/generic.png"];
+					if (icon->width() > linkWidth || icon->height() > linkHeight)
+						icon->softStretch(linkWidth, linkHeight, true, true);
 
 					if (i == (uint32_t)menu->selLinkIndex()) {
 						if (iconBGon != NULL && icon->width() <= iconBGon->width() && icon->height() <= iconBGon->height())

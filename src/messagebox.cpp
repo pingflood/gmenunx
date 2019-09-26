@@ -180,6 +180,10 @@ int MessageBox::exec() {
 		// icon+text
 		if (gmenu2x->sc[icon] != NULL) {
 			gmenu2x->s->setClipRect({box.x + 8, box.y + 8, 32, 32});
+
+			if (gmenu2x->sc[icon]->width() > 32 || gmenu2x->sc[icon]->height() > 32)
+				gmenu2x->sc[icon]->softStretch(32, 32, true, false);
+
 			gmenu2x->sc[icon]->blit(gmenu2x->s, box.x + 24, box.y + 24, HAlignCenter | VAlignMiddle);
 			gmenu2x->s->clearClipRect();
 		}
