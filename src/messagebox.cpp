@@ -128,11 +128,11 @@ void MessageBox::setButton(int action, const string &btn) {
 	buttonText[action] = btn;
 }
 
-void MessageBox::setAutoHide(int autohide) {
+void MessageBox::setAutoHide(uint32_t autohide) {
 	this->autohide = autohide;
 }
 
-void MessageBox::setBgAlpha(bool bgalpha) {
+void MessageBox::setBgAlpha(uint32_t bgalpha) {
 	this->bgalpha = bgalpha;
 }
 
@@ -209,9 +209,8 @@ int MessageBox::exec() {
 	} while (fadeAlpha < bgalpha);
 
 	if (this->autohide) {
-		// gmenu2x->s->flip();
-		if (this->autohide > 0) SDL_Delay(this->autohide);
-		gmenu2x->powerManager->resetSuspendTimer(); // prevent immediate suspend
+		SDL_Delay(this->autohide);
+		// gmenu2x->powerManager->resetSuspendTimer(); // prevent immediate suspend
 		return -1;
 	}
 

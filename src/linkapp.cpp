@@ -326,7 +326,7 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 
 void LinkApp::launch(const string &selectedFile, string dir) {
 	MessageBox mb(gmenu2x, gmenu2x->tr["Launching"] + " " + this->getTitle().c_str(), this->getIconPath());
-	mb.setAutoHide(-1);
+	mb.setAutoHide(1);
 	mb.exec();
 
 	// Set correct working directory

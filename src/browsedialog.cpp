@@ -55,7 +55,7 @@ bool BrowseDialog::exec() {
 
 		if (!size()) {
 			MessageBox mb(gmenu2x, gmenu2x->tr["This directory is empty"]);
-			mb.setAutoHide(-1);
+			mb.setAutoHide(1);
 			mb.setBgAlpha(0);
 			mb.exec();
 		} else {
@@ -178,7 +178,7 @@ bool BrowseDialog::exec() {
 
 void BrowseDialog::directoryEnter(const string &path) {
 	MessageBox mb(gmenu2x, gmenu2x->tr["Loading"]);
-	mb.setAutoHide(-1);
+	mb.setAutoHide(1);
 	mb.setBgAlpha(0);
 	mb.exec(3e3);
 

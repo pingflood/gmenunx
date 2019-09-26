@@ -37,7 +37,7 @@ enum {
 class MessageBox {
 private:
 	string text, icon;
-	int autohide, bgalpha;
+	uint32_t autohide, bgalpha;
 	GMenu2X *gmenu2x;
 	vector<string> button;
 	vector<string> buttonText;
@@ -49,8 +49,8 @@ public:
 	~MessageBox();
 
 	void setButton(int action, const string &btn);
-	void setAutoHide(int delay);
-	void setBgAlpha(bool bgalpha);
+	void setAutoHide(uint32_t delay);
+	void setBgAlpha(uint32_t bgalpha);
 	int exec();
 	void exec(uint32_t timeOut);
 	void clearTimer();

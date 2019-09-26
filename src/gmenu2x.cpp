@@ -303,7 +303,7 @@ void GMenu2X::main() {
 	bg = new Surface(s);
 
 	MessageBox mb(this, tr["Loading"]);
-	mb.setAutoHide(-1);
+	mb.setAutoHide(1);
 	mb.setBgAlpha(0);
 	mb.exec();
 
@@ -439,12 +439,7 @@ void GMenu2X::main() {
 
 		i = menu->firstDispRow() * linkCols;
 
-		if (!menu->sectionLinks()->size()) {
-			MessageBox mb(this, tr["This section is empty"]);
-			mb.setAutoHide(-1);
-			mb.setBgAlpha(0);
-			mb.exec();
-		} else if (linkCols == 1 && linkRows > 1) { // LIST
+		if (linkCols == 1 && linkRows > 1) { // LIST
 			ix = linksRect.x;
 			for (y = 0; y < linkRows && i < menu->sectionLinks()->size(); y++, i++) {
 				// Surface icon(sc[menu->sectionLinks()->at(i)->getIconPath()]);
@@ -614,6 +609,13 @@ void GMenu2X::main() {
 					iconTrayShift++;
 				}
 			}
+		}
+
+		if (!menu->sectionLinks()->size()) {
+			MessageBox mb(this, tr["This section is empty"]);
+			mb.setAutoHide(1);
+			mb.setBgAlpha(0);
+			mb.exec();
 		}
 
 		if (!powerManager->suspendActive && !input.combo()) s->flip();
@@ -1706,7 +1708,7 @@ void GMenu2X::poweroffDialog() {
 	writeConfig();
 	if (response == CONFIRM) {
 		MessageBox mb(this, tr["Poweroff"]);
-		mb.setAutoHide(-1);
+		mb.setAutoHide(1);
 		mb.exec();
 		#if !defined(TARGET_PC)
 			system("sync; mount -o remount,ro $HOME; poweroff");
@@ -1715,7 +1717,7 @@ void GMenu2X::poweroffDialog() {
 	}
 	else if (response == SECTION_NEXT) {
 		MessageBox mb(this, tr["Rebooting"]);
-		mb.setAutoHide(-1);
+		mb.setAutoHide(1);
 		mb.exec();
 		#if !defined(TARGET_PC)
 			system("sync; mount -o remount,ro $HOME; reboot");
