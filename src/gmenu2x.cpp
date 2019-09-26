@@ -217,7 +217,6 @@ GMenu2X::~GMenu2X() {
 void GMenu2X::quit() {
 	writeConfig();
 	s->flip(); s->flip(); s->flip(); // flush buffers
-	sc.clear();
 	s->free();
 
 	fflush(NULL);
