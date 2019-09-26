@@ -29,16 +29,10 @@ Link::Link(GMenu2X *gmenu2x_, LinkAction action)
 	iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
 	backdrop = "";
 	padding = 4;
-
-	updateSurfaces();
 }
 
 void Link::run() {
 	this->action();
-}
-
-void Link::updateSurfaces() {
-	iconSurface = gmenu2x->sc[getIconPath()];
 }
 
 const string &Link::getTitle() {
@@ -74,7 +68,6 @@ void Link::setIcon(const string &icon) {
 		this->iconPath = "";
 
 	edited = true;
-	updateSurfaces();
 }
 
 void Link::setBackdrop(const string &backdrop) {
@@ -108,5 +101,4 @@ void Link::setIconPath(const string &icon) {
 		iconPath = icon;
 	else
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
-	updateSurfaces();
 }

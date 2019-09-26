@@ -48,16 +48,13 @@ private:
 protected:
 	GMenu2X *gmenu2x;
 	bool edited;
-	string title, description, icon, iconPath, backdrop, backdropPath;
-
-	Surface *iconSurface;
+	string exec, title, description, icon, iconPath, backdrop, backdropPath;
 
 public:
 	// linkaction
 	Link(GMenu2X *gmenu2x, LinkAction action);
 
 	virtual ~Link() {};
-	void updateSurfaces();
 
 	const string &getTitle();
 	void setTitle(const string &title);
