@@ -282,8 +282,13 @@ public:
 	}
 
 	int setBacklight(int val, bool popup = false) {
-		if (val != -1)
+		if (val < 1 && getUDCStatus() != UDC_REMOVE) {
+			val = 0; // suspend only if not charging
+		}
+
+		if (val >= 0) {
 			val = GMenu2X::setBacklight(val, popup);
+		}
 
 		FILE *f;
 		if (f = fopen("/proc/jz/lcd_backlight", "w")) {
