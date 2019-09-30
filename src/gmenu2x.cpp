@@ -1389,6 +1389,9 @@ void GMenu2X::skinMenu() {
 	int sbPrev = skinConfInt["sectionBar"];
 	string sectionBar = sbStr[skinConfInt["sectionBar"]];
 
+	int linkColsPrev = skinConfInt["linkCols"];
+	int linkRowsPrev = skinConfInt["linkRows"];
+
 	vector<string> bgScale;
 	bgScale.push_back("Original");
 	bgScale.push_back("Crop");
@@ -1489,9 +1492,14 @@ void GMenu2X::skinMenu() {
 	writeSkinConfig();
 	writeConfig();
 
-	if (bdPrev != confInt["skinBackdrops"] || initSkin != confStr["skin"] || bgScalePrev != confStr["bgscale"]) restartDialog();
-	if (sbPrev != skinConfInt["sectionBar"]) initMenu();
-	initLayout();
+	if (
+		bdPrev != confInt["skinBackdrops"] ||
+		initSkin != confStr["skin"] ||
+		bgScalePrev != confStr["bgscale"] ||
+		linkColsPrev != skinConfInt["linkCols"] ||
+		linkRowsPrev != skinConfInt["linkRows"] ||
+		sbPrev != skinConfInt["sectionBar"]
+	) restartDialog();
 }
 
 void GMenu2X::skinColors() {
