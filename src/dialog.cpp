@@ -30,7 +30,7 @@ void Dialog::drawTopBar(Surface *s = NULL, const std::string &title, const std::
 		if (i == NULL) i = gmenu2x->sc.skinRes("icons/generic.png");
 
 		if (i->width() > iconOffset - 8 || i->height() > iconOffset - 8)
-			gmenu2x->sc[icon + "dialog"]->softStretch(iconOffset - 8, iconOffset - 8, true, false);
+			i->softStretch(iconOffset - 8, iconOffset - 8, true, false);
 
 		gmenu2x->s->setClipRect({4, 4, iconOffset - 8, iconOffset - 8});
 		i->blit(s, {4, 4, iconOffset - 8, iconOffset - 8}, HAlignCenter | VAlignMiddle);
