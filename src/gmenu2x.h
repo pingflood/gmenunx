@@ -179,7 +179,7 @@ public:
 	void quit();
 	void main();
 	void settings();
-	void restartDialog(bool showDialog = false);
+	void reinit(bool showDialog = false);
 	void poweroffDialog();
 	void resetSettings();
 	void cpuSettings();

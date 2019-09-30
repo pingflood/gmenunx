@@ -959,7 +959,7 @@ void GMenu2X::settings() {
 			powerManager->setPowerTimeout(0);
 			powerManager->setSuspendTimeout(0);
 			setDateTime(newDateTime.c_str());
-			restartDialog();
+			reinit();
 		}
 	}
 }
@@ -1023,7 +1023,7 @@ void GMenu2X::resetSettings() {
 			tmppath = path + "gmenu2x.conf";
 			unlink(tmppath.c_str());
 		}
-		restartDialog();
+		reinit();
 	}
 }
 
@@ -1499,7 +1499,7 @@ void GMenu2X::skinMenu() {
 		linkColsPrev != skinConfInt["linkCols"] ||
 		linkRowsPrev != skinConfInt["linkRows"] ||
 		sbPrev != skinConfInt["sectionBar"]
-	) restartDialog();
+	) reinit();
 }
 
 void GMenu2X::skinColors() {
@@ -1683,7 +1683,7 @@ bool GMenu2X::saveScreenshot() {
 	return x == 0;
 }
 
-void GMenu2X::restartDialog(bool showDialog) {
+void GMenu2X::reinit(bool showDialog) {
 	if (showDialog) {
 		MessageBox mb(this, tr["GMenuNX will restart to apply\nthe settings. Continue?"], "skin:icons/exit.png");
 		mb.setButton(CONFIRM, tr["Restart"]);
