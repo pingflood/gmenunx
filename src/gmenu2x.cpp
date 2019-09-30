@@ -787,9 +787,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	return true;
 }
 
-void GMenu2X::setBackground(Surface *_bg, const string &_wallpaper) {
-	string wallpaper = _wallpaper;
-	// if (sc[wallpaper] == NULL) { // search and scale background
+void GMenu2X::setBackground(Surface *bg, string wallpaper) {
 	if (!sc.exists(wallpaper)) { // search and scale background
 		if (wallpaper.empty() || sc[wallpaper] == NULL) {
 			DEBUG("Searching wallpaper");
@@ -804,8 +802,8 @@ void GMenu2X::setBackground(Surface *_bg, const string &_wallpaper) {
 		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(this->w, this->h, true, true);
 	}
 
-	_bg->box((SDL_Rect){0, 0, this->w, this->h}, (RGBAColor){0, 0, 0, 255});
-	sc[wallpaper]->blit(_bg, (this->w - sc[wallpaper]->width()) / 2, (this->h - sc[wallpaper]->height()) / 2);
+	bg->box((SDL_Rect){0, 0, this->w, this->h}, (RGBAColor){0, 0, 0, 255});
+	sc[wallpaper]->blit(bg, (this->w - sc[wallpaper]->width()) / 2, (this->h - sc[wallpaper]->height()) / 2);
 }
 
 void GMenu2X::initLayout() {
@@ -2021,15 +2019,15 @@ void GMenu2X::opkUninstall() {
 #endif
 
 #if defined(IPK_SUPPORT)
-string GMenu2X::ipkName(const string _file) {
+string GMenu2X::ipkName(string cmd) {
 	if (!file_exists("/usr/bin/opkg"))
 		return "";
 
-	string cmd = "opkg search " + _file + " | cut -f1 -d' '";
 	char package[128];
+	cmd = "opkg search " + cmd + " | cut -f1 -d' '";
 	FILE *fp = popen(cmd.c_str(), "r");
 	if (fp == NULL) return "";
-	cmd = (string)fgets(package, sizeof(package)-1, fp);
+	cmd = (string)fgets(package, sizeof(package) - 1, fp);
 	pclose(fp);
 	return trim(cmd);
 }

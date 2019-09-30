@@ -65,9 +65,10 @@ Surface *SurfaceCollection::add(Surface *s, const string &path) {
 	return s;
 }
 
-Surface *SurfaceCollection::add(const string &path, bool alpha) {
+Surface *SurfaceCollection::add(string path, string key) {
 	if (path.empty()) return NULL;
-	if (exists(path)) return surfaces[path]; //del(path);
+	if (key.empty()) key = path;
+	if (exists(key)) return surfaces[key]; //del(path);
 
 	string filePath = path;
 	if (filePath.substr(0,5)=="skin:") {

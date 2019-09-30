@@ -135,7 +135,7 @@ private:
 
 	void opkUninstall();
 	void opkScanner();
-	string ipkName(const string _file);
+	string ipkName(string cmd);
 	void ipkUninstall();
 
 	virtual void udcDialog(int udcStatus = -1) { };
@@ -214,7 +214,7 @@ public:
 	void renameSection();
 	void deleteSection();
 
-	void setBackground(Surface *_bg, const string &_wallpaper);
+	void setBackground(Surface *bg, string wallpaper);
 
 	int drawButton(Button *btn, int x = 5, int y = -8);
 	int drawButton(Surface *s, const string &btn, const string &text = "", int x = 5, int y = -8);
