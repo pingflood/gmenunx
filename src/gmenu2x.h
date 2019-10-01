@@ -192,7 +192,8 @@ public:
 
 	bool inputCommonActions(bool &inputAction);
 
-	// unsigned int TVOut = 0;
+	void cls(Surface *s = NULL, bool flip = true);
+
 	void about();
 	void viewLog();
 	void contextMenu();

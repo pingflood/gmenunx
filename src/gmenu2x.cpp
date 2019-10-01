@@ -787,6 +787,18 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	return true;
 }
 
+void GMenu2X::cls(Surface *s, bool flip) {
+	if (s == NULL) {
+		s = this->s;
+	}
+
+	s->box((SDL_Rect){0, 0, s->width(), s->height()}, (RGBAColor){0, 0, 0, 255});
+
+	if (flip) {
+		s->flip();
+	}
+}
+
 void GMenu2X::setBackground(Surface *bg, string wallpaper) {
 	if (!sc.exists(wallpaper)) { // search and scale background
 		if (wallpaper.empty() || sc[wallpaper] == NULL) {
@@ -802,7 +814,7 @@ void GMenu2X::setBackground(Surface *bg, string wallpaper) {
 		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(this->w, this->h, true, true);
 	}
 
-	bg->box((SDL_Rect){0, 0, this->w, this->h}, (RGBAColor){0, 0, 0, 255});
+	cls(bg, false);
 	sc[wallpaper]->blit(bg, (this->w - sc[wallpaper]->width()) / 2, (this->h - sc[wallpaper]->height()) / 2);
 }
 
@@ -2207,11 +2219,6 @@ int GMenu2X::setBacklight(int val, bool popup) {
 		confInt["backlight"] = val;
 		writeConfig();
 	}
-
-	// if (val == 0) {
-	// 	s->box((SDL_Rect){0, 0, this->w, this->h}, (RGBAColor){0, 0, 0, 255});
-	// 	s->flip();
-	// }
 
 	return val;
 }
