@@ -27,21 +27,25 @@
 
 using namespace std;
 
+extern uint8_t numJoy; // number of connected joysticks
+
+enum InputManagerMappingTypes {
+	MAPPING_TYPE_BUTTON,
+	MAPPING_TYPE_AXIS,
+	MAPPING_TYPE_KEYPRESS
+};
+
+static SDL_TimerID timer;
+
 uint8_t *keystate = SDL_GetKeyState(NULL);
 
-InputManager::InputManager()
-	: wakeUpTimer(NULL) {
+InputManager::InputManager() {
 }
 
 InputManager::~InputManager() {
 	for (uint32_t x = 0; x < joysticks.size(); x++)
 		if (SDL_JoystickOpened(x))
 			SDL_JoystickClose(joysticks[x]);
-}
-
-void InputManager::init(const string &conffile) {
-	if (!readConfFile(conffile))
-		ERROR("InputManager: Could not load input.conf");
 }
 
 void InputManager::initJoysticks() {
@@ -58,18 +62,19 @@ void InputManager::initJoysticks() {
 	}
 }
 
-bool InputManager::readConfFile(const string &conffile) {
+void InputManager::init(const string &conffile) {
 	setActionsCount(NUM_ACTIONS);
+	SDL_EnableKeyRepeat(0, 0);
 
 	if (!file_exists(conffile)) {
-		// ERROR("File not found: %s", conffile.c_str());
-		return false;
+		ERROR("File not found: %s", conffile.c_str());
+		return;
 	}
 
 	ifstream inf(conffile.c_str(), ios_base::in);
 	if (!inf.is_open()) {
 		ERROR("Could not open %s", conffile.c_str());
-		return false;
+		return;
 	}
 
 	int action, linenum = 0;
@@ -79,7 +84,7 @@ bool InputManager::readConfFile(const string &conffile) {
 
 	for (uint32_t x = UDC_CONNECT; x < NUM_ACTIONS; x++) {
 		InputMap map;
-		map.type = InputManager::MAPPING_TYPE_KEYPRESS;
+		map.type = MAPPING_TYPE_KEYPRESS;
 		map.value = x - UDC_CONNECT + SDLK_WORLD_0;
 		actions[x].maplist.push_back(map);
 	}
@@ -120,7 +125,7 @@ bool InputManager::readConfFile(const string &conffile) {
 		if (values.size() >= 2) {
 			if (values[0] == "joystickbutton" && values.size() == 3) {
 				InputMap map;
-				map.type = InputManager::MAPPING_TYPE_BUTTON;
+				map.type = MAPPING_TYPE_BUTTON;
 				map.num = atoi(values[1].c_str());
 				map.value = atoi(values[2].c_str());
 				map.treshold = 0;
@@ -128,14 +133,14 @@ bool InputManager::readConfFile(const string &conffile) {
 				// INFO("ADDING: joystickbutton %d  %d ", map.num, map.value);
 			} else if (values[0] == "joystickaxis" && values.size() == 4) {
 				InputMap map;
-				map.type = InputManager::MAPPING_TYPE_AXIS;
+				map.type = MAPPING_TYPE_AXIS;
 				map.num = atoi(values[1].c_str());
 				map.value = atoi(values[2].c_str());
 				map.treshold = atoi(values[3].c_str());
 				actions[action].maplist.push_back(map);
 			} else if (values[0] == "keyboard") {
 				InputMap map;
-				map.type = InputManager::MAPPING_TYPE_KEYPRESS;
+				map.type = MAPPING_TYPE_KEYPRESS;
 				map.value = atoi(values[1].c_str());
 				actions[action].maplist.push_back(map);
 			} else {
@@ -149,7 +154,6 @@ bool InputManager::readConfFile(const string &conffile) {
 		}
 	}
 	inf.close();
-	return true;
 }
 
 void InputManager::setActionsCount(int count) {
@@ -158,7 +162,6 @@ void InputManager::setActionsCount(int count) {
 		InputManagerAction action;
 		action.active = false;
 		action.interval = 0;
-		action.timer = NULL;
 		actions.push_back(action);
 	}
 }
@@ -172,35 +175,30 @@ bool InputManager::update(bool wait) {
 
 	if (wait) {
 		SDL_WaitEvent(&event);
-		if (event.type == SDL_KEYDOWN) {
-			anyactions = true;
-			keystate[event.key.keysym.sym] = true;
-		} else if (event.type == SDL_USEREVENT && event.user.code == DO_NOTHING) {
-			return true;
-		} else if (event.type == SDL_KEYUP) {
-			anyactions = true;
-			keystate[event.key.keysym.sym] = false;
-		}
+	} else {
+		SDL_PollEvent(&event);
+	}
+
+	if (event.type == SDL_KEYDOWN) {
+		anyactions = true;
+		keystate[event.key.keysym.sym] = true;
+	} else if (event.type == SDL_KEYUP) {
+		anyactions = true;
+		keystate[event.key.keysym.sym] = false;
 	}
 
 	// WARNING("SDL_JOYBUTTONDOWN=%d SDL_JOYAXISMOTION=%d event.type: %d keysym.sym=%d  anyactions=%d", SDL_JOYBUTTONDOWN, SDL_JOYAXISMOTION, event.type, event.key.keysym.sym, anyactions);
 	// WARNING("event.jbutton.button=%d event.jaxis.axis=%d event.jaxis.value=%d", event.jbutton.button, event.jaxis.axis, event.jaxis.value);
+	SDL_RemoveTimer(timer); timer = NULL;
+
 	for (x = 0; x < actions.size(); x++) {
-		actions[x].active = isActive(x);
 		// WARNING("is active: %d %d", x, actions[x].active);
+		actions[x].active = isActive(x);
 		if (actions[x].active) {
 			memcpy(input_combo, input_combo + 1, sizeof(input_combo) - 1); // eegg
 			input_combo[sizeof(input_combo) - 1] = x; // eegg
-			if (actions[x].timer == NULL) {
-				SDL_RemoveTimer(actions[x].timer); actions[x].timer = NULL;
-				actions[x].timer = SDL_AddTimer(actions[x].interval, wakeUp, (void*)true);
-			}
+			timer = SDL_AddTimer(actions[x].interval, wakeUp, (void*)false);
 			anyactions = true;
-		} else {
-			if (actions[x].timer != NULL) {
-				SDL_RemoveTimer(actions[x].timer);
-				actions[x].timer = NULL;
-			}
 		}
 	}
 
@@ -219,12 +217,9 @@ bool InputManager::combo() { // eegg
 }
 
 void InputManager::dropEvents() {
+	SDL_RemoveTimer(timer);
 	for (uint32_t x = 0; x < actions.size(); x++) {
 		actions[x].active = false;
-		if (actions[x].timer != NULL) {
-			SDL_RemoveTimer(actions[x].timer);
-			actions[x].timer = NULL;
-		}
 	}
 }
 
@@ -247,48 +242,6 @@ void InputManager::pushEvent(int action) {
 	SDL_AddTimer(30, pushEventEnd, (void*)action);
 }
 
-uint32_t InputManager::checkRepeat(uint32_t interval, void *_data) {
-	RepeatEventData *data = (RepeatEventData *)_data;
-	InputManager *im = (class InputManager*)data->im;
-	SDL_JoystickUpdate();
-	if (im->isActive(data->action)) {
-		SDL_PushEvent( im->fakeEventForAction(data->action) );
-		return interval;
-	} else {
-		im->actions[data->action].timer = NULL;
-		return 0;
-	}
-}
-
-SDL_Event *InputManager::fakeEventForAction(int action) {
-	MappingList mapList = actions[action].maplist;
-	// Take the first mapping. We only need one of them.
-	InputMap map = *mapList.begin();
-
-	SDL_Event *event = new SDL_Event();
-	switch (map.type) {
-		case InputManager::MAPPING_TYPE_BUTTON:
-			event->type = SDL_JOYBUTTONDOWN;
-			event->jbutton.type = SDL_JOYBUTTONDOWN;
-			event->jbutton.which = map.num;
-			event->jbutton.button = map.value;
-			event->jbutton.state = SDL_PRESSED;
-		break;
-		case InputManager::MAPPING_TYPE_AXIS:
-			event->type = SDL_JOYAXISMOTION;
-			event->jaxis.type = SDL_JOYAXISMOTION;
-			event->jaxis.which = map.num;
-			event->jaxis.axis = map.value;
-			event->jaxis.value = map.treshold;
-		break;
-		case InputManager::MAPPING_TYPE_KEYPRESS:
-			event->type = SDL_KEYDOWN;
-			event->key.keysym.sym = (SDLKey)map.value;
-		break;
-	}
-	return event;
-}
-
 int InputManager::count() {
 	return actions.size();
 }
@@ -301,31 +254,14 @@ void InputManager::setInterval(int ms, int action) {
 		actions[action].interval = ms;
 }
 
-void InputManager::setWakeUpInterval(int ms) {
-	return; // temp
-	if (wakeUpTimer != NULL)
-		SDL_RemoveTimer(wakeUpTimer);
-
-	if (ms > 0)
-		wakeUpTimer = SDL_AddTimer(ms, wakeUp, (void*)true);
-}
-
 uint32_t InputManager::wakeUp(uint32_t interval, void *repeat) {
-	SDL_Event *event = new SDL_Event();
-	event->type = SDL_WAKEUPEVENT;
-	SDL_PushEvent( event );
+	SDL_Event event;
+	event.type = SDL_USEREVENT;
+	event.user.code = WAKE_UP;
+	SDL_PushEvent(&event);
 	if ((bool*) repeat) return interval;
 	return 0;
 }
-
-uint32_t InputManager::doNothing(uint32_t interval, void *repeat) {
-	SDL_Event event;
-	event.type = SDL_USEREVENT;
-	event.user.code = DO_NOTHING;
-	SDL_PushEvent(&event);
-	return 0;
-}
-
 
 bool &InputManager::operator[](int action) {
 	// if (action<0 || (uint32_t)action>=actions.size()) return false;
@@ -336,25 +272,20 @@ bool InputManager::isActive(int action) {
 	MappingList mapList = actions[action].maplist;
 	for (MappingList::const_iterator it = mapList.begin(); it != mapList.end(); ++it) {
 		InputMap map = *it;
-		// WARNING("map.type: %d   joysticks.size(): %d ", map.type, joysticks.size());
-
 		switch (map.type) {
-			case InputManager::MAPPING_TYPE_BUTTON:
-				// WARNING("map.num: %d   joysticks.size(): %d  %d", map.num, joysticks.size(), SDL_JoystickGetButton(joysticks[map.num], map.value));
-				// if (map.num < joysticks.size() && SDL_JoystickGetButton(joysticks[map.num], map.value))
-					// return true;
+			case MAPPING_TYPE_BUTTON:
 				for (int j = 0; j < joysticks.size(); j++) {
 					if (SDL_JoystickGetButton(joysticks[j], map.value)) return true;
 				}
 				break;
-			case InputManager::MAPPING_TYPE_AXIS:
+			case MAPPING_TYPE_AXIS:
 				if (map.num < joysticks.size()) {
 					int axyspos = SDL_JoystickGetAxis(joysticks[map.num], map.value);
 					if (map.treshold < 0 && axyspos < map.treshold) return true;
 					if (map.treshold > 0 && axyspos > map.treshold) return true;
 				}
 				break;
-			case InputManager::MAPPING_TYPE_KEYPRESS:
+			case MAPPING_TYPE_KEYPRESS:
 				if (keystate[map.value]) return true;
 				break;
 		}

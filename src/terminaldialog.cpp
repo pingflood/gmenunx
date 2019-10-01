@@ -100,7 +100,7 @@ void TerminalDialog::exec(const string &_cmd) {
 					system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi");
 					system("sync &");
 				}
-				InputManager::pushEvent(NUM_ACTIONS);
+				InputManager::wakeUp(0, (void*)false);
 				split(text, rawText, "\r\n");
 				if (text.size() >= rowsPerPage) firstRow = text.size() - rowsPerPage;
 			}
