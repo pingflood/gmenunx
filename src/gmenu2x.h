@@ -173,7 +173,7 @@ public:
 	Touchscreen ts;
 	Menu *menu;
 	bool f200 = true; //gp2x type // touchscreen
-	uint32_t section_changed = 0, icon_changed = 0;
+	uint32_t section_changed = 0, icon_changed = 0, button_hold = 0;
 
 	~GMenu2X();
 	void quit();
