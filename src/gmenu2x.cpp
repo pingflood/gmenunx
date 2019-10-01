@@ -1178,6 +1178,7 @@ void GMenu2X::writeConfig() {
 				// defaults
 				(curr->first == "homePath" && curr->second == CARD_ROOT) ||
 				(curr->first == "skin" && curr->second == "Default") ||
+				(curr->first == "skinFont" && curr->second == "Custom") ||
 				(curr->first == "usbMode" && curr->second.empty()) ||
 				(curr->first == "lang" && curr->second.empty()) ||
 				(curr->first == "lang" && curr->second.empty()) ||
