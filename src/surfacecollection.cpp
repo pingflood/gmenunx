@@ -59,16 +59,18 @@ bool SurfaceCollection::exists(const string &path) {
 	return surfaces.find(path) != surfaces.end();
 }
 
-Surface *SurfaceCollection::add(Surface *s, const string &path) {
-	if (exists(path)) del(path);
-	surfaces[path] = s;
+Surface *SurfaceCollection::add(Surface *s, const string &key) {
+	if (exists(key)) return surfaces[key]; //del(key);
+	surfaces[key] = s;
 	return s;
 }
 
 Surface *SurfaceCollection::add(string path, string key) {
 	if (path.empty()) return NULL;
 	if (key.empty()) key = path;
-	if (exists(key)) return surfaces[key]; //del(path);
+	if (exists(key)) return surfaces[key]; //del(key);
+
+	Surface *s;
 
 	string filePath = path;
 	if (filePath.substr(0,5)=="skin:") {
@@ -77,14 +79,12 @@ Surface *SurfaceCollection::add(string path, string key) {
 			return NULL;
 	} else if (!file_exists(filePath)) return NULL;
 
-	DEBUG("Adding surface: '%s'", path.c_str());
-	Surface *s = new Surface(filePath,alpha);
 	if (s != NULL)
-		surfaces[path] = s;
+		surfaces[key] = s;
 	return s;
 }
 
-Surface *SurfaceCollection::addSkinRes(const string &path, bool alpha) {
+Surface *SurfaceCollection::addSkinRes(const string &path) {
 	if (path.empty()) return NULL;
 	if (exists(path)) return surfaces[path]; // del(path);
 
@@ -121,18 +121,11 @@ void SurfaceCollection::move(const string &from, const string &to) {
 }
 
 Surface *SurfaceCollection::operator[](const string &key) {
-	SurfaceHash::iterator i = surfaces.find(key);
-	if (i == surfaces.end())
-		return add(key);
-
-	return i->second;
+	if (exists(key)) return surfaces[key];
+	return add(key);
 }
 
 Surface *SurfaceCollection::skinRes(const string &key) {
-	if (key.empty()) return NULL;
-	SurfaceHash::iterator i = surfaces.find(key);
-	if (i == surfaces.end())
-		return addSkinRes(key);
-
-	return i->second;
+	if (exists(key)) return surfaces[key];
+	return addSkinRes(key);
 }
