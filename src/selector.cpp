@@ -158,7 +158,7 @@ void Selector::customOptions(vector<MenuOption> &options) {
 void Selector::addFavourite() {
 	string favicon = getPreview(selected);
 	if (favicon.empty()) favicon = this->icon;
-	gmenu2x->menu->addLink(link->getExec(), "favourites", getFileName(selected), description, favicon, link->getParams() + " " + cmdclean(getFilePath(selected)));
+	gmenu2x->menu->addLink(link->getExec(), "favourites", getFileName(selected), link->getDescription(), favicon, link->getParams() + " " + cmdclean(getFilePath(selected)));
 	MessageBox mb(gmenu2x, gmenu2x->tr["Added to home screen"], favicon);
 	// mb.setAutoHide(500);
 	mb.exec();
