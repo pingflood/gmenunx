@@ -1193,6 +1193,7 @@ void GMenu2X::writeConfig() {
 				// defaults
 				(curr->first == "homePath" && curr->second == CARD_ROOT) ||
 				(curr->first == "skin" && curr->second == "Default") ||
+				(curr->first == "previewMode" && curr->second == "Miniature") ||
 				(curr->first == "skinFont" && curr->second == "Custom") ||
 				(curr->first == "usbMode" && curr->second.empty()) ||
 				(curr->first == "lang" && curr->second.empty()) ||
@@ -1446,6 +1447,10 @@ void GMenu2X::skinMenu() {
 	skinFont.push_back("Default");
 	string skinFontPrev = confStr["skinFont"];
 
+	vector<string> previewMode;
+	previewMode.push_back("Miniature");
+	previewMode.push_back("Backdrop");
+
 	vector<string> wallpapers;
 	string wpPath = confStr["wallpaper"];
 	confStr["tmp_wallpaper"] = "";
@@ -1490,7 +1495,8 @@ void GMenu2X::skinMenu() {
 		sd.allowCancel = false;
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenuNX"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &confStr["tmp_wallpaper"], &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
-		sd.addSetting(new MenuSettingMultiString(this, tr["Background scale"], tr["How to scale wallpaper and backdrops"], &confStr["bgscale"], &bgScale));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Preview mode"], tr["How to show image preview and game art"], &confStr["previewMode"], &previewMode));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Background"], tr["How to scale wallpaper, backdrops and game art"], &confStr["bgscale"], &bgScale));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin colors"], tr["Customize skin colors"], &tmp, &wpLabel, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::skinColors)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &skinBackdrops, &bdStr));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Font face"], tr["Override the skin font face"], &confStr["skinFont"], &skinFont, MakeDelegate(this, &GMenu2X::onChangeSkin)));

@@ -29,6 +29,7 @@ bool BrowseDialog::exec() {
 	if (path.empty() || !dir_exists(path))
 		directoryEnter(gmenu2x->confStr["homePath"]);
 
+	string preview = getPreview(selected);
 
 	while (loop) {
 		if (selected >= size()) selected = 0;
@@ -36,7 +37,6 @@ bool BrowseDialog::exec() {
 		bool inputAction = false;
 		string curPath = getPath();
 
-	string preview = getPreview(selected);
 		buttons.clear();
 		buttons.push_back({"select", gmenu2x->tr["Menu"]});
 		buttons.push_back({"b", gmenu2x->tr["Cancel"]});
@@ -91,39 +91,41 @@ bool BrowseDialog::exec() {
 				gmenu2x->s->write(gmenu2x->font, getFileName(i), gmenu2x->listRect.x + 21, iY + rowHeight/2, VAlignMiddle);
 			}
 
-			Surface anim = new Surface(gmenu2x->s);
+			if (gmenu2x->confStr["previewMode"] != "Backdrop") {
+				Surface anim = new Surface(gmenu2x->s);
+				if (preview.empty() || preview == "#") { // hide preview
+					 while (animation > 0) {
+						animation -= gmenu2x->skinConfInt["previewWidth"] / 8;
 
-			if (preview.empty() || preview == "#") { // hide preview
-				 while (animation > 0) {
-					animation -= gmenu2x->skinConfInt["previewWidth"] / 8;
-					if (animation < 0) animation = 0;
+						if (animation < 0)
+							animation = 0;
 
-					anim.blit(gmenu2x->s,0,0);
-					gmenu2x->s->box(gmenu2x->w - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
-					gmenu2x->s->flip();
-					SDL_Delay(10);
-				};
-			} else { // show preview
-				if (!gmenu2x->sc.exists(preview + "scaled")) {
-					Surface *previm = new Surface(preview);
-					gmenu2x->sc.add(previm, preview + "scaled");
-					gmenu2x->sc[preview + "scaled"]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
+						anim.blit(gmenu2x->s,0,0);
+						gmenu2x->s->box(gmenu2x->w - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
+						gmenu2x->s->flip();
+						SDL_Delay(10);
+					};
+				} else { // show preview
+					if (!gmenu2x->sc.exists(preview + "scaled")) {
+						Surface *previm = new Surface(preview);
+						gmenu2x->sc.add(previm, preview + "scaled");
+						gmenu2x->sc[preview + "scaled"]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
+					}
+
+					do {
+						animation += gmenu2x->skinConfInt["previewWidth"] / 8;
+
+						if (animation > gmenu2x->skinConfInt["previewWidth"])
+							animation = gmenu2x->skinConfInt["previewWidth"];
+
+						anim.blit(gmenu2x->s,0,0);
+						gmenu2x->s->box(gmenu2x->w - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
+						gmenu2x->sc[preview + "scaled"]->blit(gmenu2x->s, {gmenu2x->w - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->h);
+						gmenu2x->s->flip();
+						SDL_Delay(10);
+					} while (animation < gmenu2x->skinConfInt["previewWidth"]);
 				}
-
-				do {
-					animation += gmenu2x->skinConfInt["previewWidth"] / 8;
-
-					if (animation > gmenu2x->skinConfInt["previewWidth"])
-						animation = gmenu2x->skinConfInt["previewWidth"];
-
-					anim.blit(gmenu2x->s,0,0);
-					gmenu2x->s->box(gmenu2x->w - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
-					gmenu2x->sc[preview + "scaled"]->blit(gmenu2x->s, {gmenu2x->w - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->h);
-					gmenu2x->s->flip();
-					SDL_Delay(10);
-				} while (animation < gmenu2x->skinConfInt["previewWidth"]);
 			}
-
 			gmenu2x->drawScrollBar(numRows, size(), firstElement, gmenu2x->listRect);
 			gmenu2x->s->flip();
 		}
