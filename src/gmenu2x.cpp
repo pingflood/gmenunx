@@ -1693,13 +1693,13 @@ void GMenu2X::explorer() {
 #endif
 #if defined(OPK_SUPPORT)
 		} else if (ext == ".opk" && file_exists("/usr/bin/retrofw")) {
-			string cmd = "retrofw opk install";
+			string cmd = "retrofw opk install ";
 			TerminalDialog td(this, tr["Package installer"], "opk install " + bd.getFileName(bd.selected), "skin:icons/terminal.png");
 			td.exec(cmd + cmdclean(bd.getFilePath(bd.selected)));
 			initMenu();
 #endif
 		} else if (ext == ".sh") {
-			TerminalDialog td(this, tr["Terminal"], "sh" + cmdclean(bd.getFileName(bd.selected)), "skin:icons/terminal.png");
+			TerminalDialog td(this, tr["Terminal"], "sh " + cmdclean(bd.getFileName(bd.selected)), "skin:icons/terminal.png");
 			td.exec(bd.getFilePath(bd.selected));
 		} else if (ext == ".zip" && file_exists("/usr/bin/unzip") && (bd.getFile(bd.selected).rfind("gmenu2x-skin-", 0) == 0) || (bd.getFile(bd.selected).rfind("gmenunx-skin-", 0) == 0)) {
 			TerminalDialog td(this, tr["Skin installer"], bd.getFileName(bd.selected), "skin:icons/skin.png");
