@@ -2100,14 +2100,19 @@ void GMenu2X::opkUninstall() {
 string GMenu2X::ipkName(string cmd) {
 	if (!file_exists("/usr/bin/opkg"))
 		return "";
-
-	char package[128];
-	cmd = "opkg search " + cmd + " | cut -f1 -d' '";
+	char package[128] = {0,0,0,0,0,0,0,0};
+	cmd = "opkg search \"*" + base_name(cmd) + "\" | cut -f1 -d' '";
 	FILE *fp = popen(cmd.c_str(), "r");
-	if (fp == NULL) return "";
-	cmd = (string)fgets(package, sizeof(package) - 1, fp);
+	if (fp == NULL)
+		return "";
+
+	fgets(package, sizeof(package) - 1, fp);
 	pclose(fp);
-	return trim(cmd);
+
+	if (package == NULL)
+		return "";
+
+	return trim((string)package);
 }
 
 void GMenu2X::ipkUninstall() {
