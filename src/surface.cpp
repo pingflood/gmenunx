@@ -143,25 +143,22 @@ SDL_PixelFormat *Surface::format() {
 		return raw->format;
 }
 
-void Surface::load(const string &img, bool alpha, const string &skin) {
+void Surface::load(const string &img, bool alpha, string skin) {
 	free();
 
-	string skinpath;
 	if (!skin.empty() && !img.empty() && img[0]!='/') {
-		skinpath = "skins/"+skin+"/"+img;
-		if (!file_exists(skinpath))
-			skinpath = "skins/Default/"+img;
+		skin = "skins/" + skin + "/" + img;
+		if (!file_exists(skin))
+			skin = "skins/Default/" + img;
 	} else {
-		skinpath = img;
+		skin = img;
 	}
 
-	raw = IMG_Load(skinpath.c_str());
-	if (raw != NULL) {
-		if (alpha)
-			enableAlpha();
-	} else {
+	raw = IMG_Load(skin.c_str());
+	if (raw == NULL) {
 		ERROR("Couldn't load surface '%s'", img.c_str());
 		uint32_t rmask, gmask, bmask, amask;
+
 		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 			rmask = 0xff000000;
 			gmask = 0x00ff0000;
