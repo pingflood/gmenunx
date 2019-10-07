@@ -321,7 +321,7 @@ void GMenu2X::main() {
 
 	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
-	button_hold = section_changed = icon_changed = SDL_GetTicks();
+	section_changed = icon_changed = SDL_GetTicks();
 	SDL_TimerID sectionChangedTimer = SDL_AddTimer(2000, input.wakeUp, (void*)false);
 	SDL_TimerID iconChangedTimer = SDL_AddTimer(1000, input.wakeUp, (void*)false);
 
@@ -723,16 +723,23 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 
 	if (inputAction) powerManager->resetSuspendTimer();
 
+	uint32_t button_hold = SDL_GetTicks();
+
 	int wasActive = 0;
 	while (input[POWER] || input[SETTINGS]) {
-		if (input[POWER])			wasActive = POWER;
-		else if (input[SETTINGS])	wasActive = SETTINGS;
+		if (input[POWER])
+			wasActive = POWER;
+		else if (input[SETTINGS])
+			wasActive = SETTINGS;
 
 		input.update();
 
-		if ((input[POWER] || input[SETTINGS]) && SDL_GetTicks() - button_hold > 1000)	poweroffDialog(); // HOLD POWER BUTTON
-		else if (wasActive == POWER)			powerManager->doSuspend(1);
-		else continue;
+		if ((input[POWER] || input[SETTINGS]) && SDL_GetTicks() - button_hold > 1000)
+			poweroffDialog(); // HOLD POWER BUTTON
+		// else if (wasActive == POWER)
+		// 	powerManager->doSuspend(1);
+		else
+			continue;
 		return true;
 	}
 
@@ -741,17 +748,25 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 
 		input.update();
 
-		if (input[SETTINGS])				input[SCREENSHOT] = true;
-		else if (input[BACKLIGHT_HOTKEY])	input[BACKLIGHT] = true;
-		else if (input[VOLUME_HOTKEY])		input[VOLUP] = true;
-		else if (input[POWER])				input[UDC_CONNECT] = true;
-		else continue;
+		if (input[SETTINGS])
+			input[SCREENSHOT] = true;
+		else if (input[BACKLIGHT_HOTKEY])
+			input[BACKLIGHT] = true;
+		else if (input[VOLUME_HOTKEY])
+			input[VOLUP] = true;
+		else if (input[POWER])
+			input[UDC_CONNECT] = true;
+		else
+			continue;
 		break;
 	}
 
-	button_hold = SDL_GetTicks();
+	input[wasActive] = true;
 
-	if (input[SCREENSHOT]) {
+	if (input[POWER])
+		powerManager->doSuspend(1);
+
+	else if (input[SCREENSHOT]) {
 		if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
 		MessageBox mb(this, tr["Screenshot saved"]);
 		mb.setAutoHide(1000);
