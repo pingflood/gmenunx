@@ -2357,6 +2357,9 @@ void GMenu2X::drawScrollBar(uint32_t pagesize, uint32_t totalsize, uint32_t page
 	uint32_t bs = (scrollRect.h - 3) * pagesize / totalsize;
 	// bar y position
 	uint32_t by = (scrollRect.h - 3) * pagepos / totalsize;
+
+	if (bs < 8) bs = 8;
+
 	by = scrollRect.y + 3 + by;
 	if (by + bs > scrollRect.y + scrollRect.h - 4)
 		by = scrollRect.y + scrollRect.h - 4 - bs;
