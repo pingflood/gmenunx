@@ -25,29 +25,26 @@
 using namespace std;
 
 WallpaperDialog::WallpaperDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
-	: Dialog(gmenu2x) {
-	this->title = title;
-	this->description = description;
-	this->icon = icon;
+	: Dialog(gmenu2x, title, description, icon) {
 }
 
 bool WallpaperDialog::exec()
 {
-	bool close = false, result = true, inputAction = false;
+	bool loop = true, result = true, inputAction = false;
 
 	uint32_t i, iY, firstElement = 0;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
 	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
 	int32_t selected = 0;
-	string skin;
-
-	FileLister fl("skins/" + gmenu2x->confStr["skin"] + "/wallpapers");
-	fl.setFilter(".png,.jpg,.jpeg,.bmp");
 	vector<string> wallpapers;
-	if (dir_exists("skins/" + gmenu2x->confStr["skin"] + "/wallpapers")) {
-		fl.browse();
-		wallpapers = fl.getFiles();
-	}
+	string skin = "skins/" + gmenu2x->confStr["skin"] + "/wallpapers";
+
+	FileLister fl;
+	fl.setFilter(".png,.jpg,.jpeg,.bmp");
+
+	fl.setPath(skin, true);
+	wallpapers = fl.getFiles();
+
 	if (gmenu2x->confStr["skin"] != "Default") {
 		fl.setPath("skins/Default/wallpapers", true);
 		for (uint32_t i = 0; i < fl.getFiles().size(); i++)
@@ -57,25 +54,25 @@ bool WallpaperDialog::exec()
 	wallpaper = base_name(gmenu2x->confStr["tmp_wallpaper"]);
 
 	for (uint32_t i = 0; i < wallpapers.size(); i++) {
-		if (wallpaper == wallpapers[i]) selected = i;
+		if (wallpaper == wallpapers[i]) {
+			selected = i;
+			break;
+		}
 	}
 
-	// DEBUG("Wallpapers: %i", wallpapers.size());
-	while (!close) {
-		// Wallpaper
+	buttons.push_back({"select", gmenu2x->tr["Menu"]});
+	buttons.push_back({"b", gmenu2x->tr["Cancel"]});
+	buttons.push_back({"a", gmenu2x->tr["Select"]});
+
+	while (loop) {
 		if (selected < wallpapers.size() - fl.getFiles().size())
 			skin = gmenu2x->confStr["skin"];
 		else
 			skin = "Default";
 
-		gmenu2x->setBackground(gmenu2x->s, "skins/" + skin + "/wallpapers/" + wallpapers[selected]);
+		gmenu2x->setBackground(this->bg, "skins/" + skin + "/wallpapers/" + wallpapers[selected]);
 
-		drawTopBar(gmenu2x->s, title, description, icon);
-		drawBottomBar(gmenu2x->s);
-		gmenu2x->s->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-
-		gmenu2x->drawButton(gmenu2x->s, "a", gmenu2x->tr["Select"],
-		gmenu2x->drawButton(gmenu2x->s, "b", gmenu2x->tr["Cancel"],5));
+		drawDialog(gmenu2x->s);
 
 		// Selection
 		if (selected >= firstElement + numRows) firstElement = selected - numRows;
@@ -109,10 +106,10 @@ bool WallpaperDialog::exec()
 				selected += numRows;
 				if (selected >= wallpapers.size()) selected = wallpapers.size() - 1;
 			} else if ( gmenu2x->input[MENU] || gmenu2x->input[CANCEL] ) {
-				close = true;
+				loop = false;
 				result = false;
 			} else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) {
-				close = true;
+				loop = false;
 				if (wallpapers.size() > 0) {
 					if (selected < wallpapers.size() - fl.getFiles().size())
 						wallpaper = "skins/" + gmenu2x->confStr["skin"] + "/wallpapers/" + wallpapers[selected];

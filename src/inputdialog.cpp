@@ -28,7 +28,7 @@ using namespace fastdelegate;
 InputDialog::InputDialog(GMenu2X *gmenu2x,
 		/*Touchscreen &ts_, */ const string &text,
 		const string &startvalue, const string &title, const string &icon)
-	: Dialog(gmenu2x) /*, ts(ts_)*/
+	: gmenu2x(gmenu2x) /*Dialog(gmenu2x) /*, ts(ts_)*/
 {
 	if (title == "") {
 		this->title = text;
@@ -101,7 +101,7 @@ void InputDialog::setKeyboard(int kb) {
 }
 
 bool InputDialog::exec() {
-	bg = new Surface(gmenu2x->s);
+	Surface *bg = new Surface(gmenu2x->s);
 
 	SDL_Rect box = {gmenu2x->listRect.x + 2, 0, gmenu2x->listRect.w - 4, gmenu2x->font->getHeight() + 4};
 	box.y = kbRect.y - box.h;
@@ -110,26 +110,23 @@ bool InputDialog::exec() {
 	bool caretOn = true;
 
 	uint32_t action;
-	close = false;
-	ok = true;
 
-	this->bg->box(gmenu2x->bottomBarRect, (RGBAColor){0,0,0,255});
+	bg->box(gmenu2x->bottomBarRect, (RGBAColor){0,0,0,255});
 
-	drawBottomBar(this->bg);
-	gmenu2x->drawButton(this->bg, "r", gmenu2x->tr["Space"],
-	gmenu2x->drawButton(this->bg, "l", gmenu2x->tr["Backspace"],
-	gmenu2x->drawButton(this->bg, "y", gmenu2x->tr["Shift"],
-	gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Save"]
+	gmenu2x->s->box(gmenu2x->bottomBarRect, gmenu2x->skinConfColors[COLOR_BOTTOM_BAR_BG]);
+
+	gmenu2x->drawButton(bg, "r", gmenu2x->tr["Space"],
+	gmenu2x->drawButton(bg, "l", gmenu2x->tr["Backspace"],
+	gmenu2x->drawButton(bg, "y", gmenu2x->tr["Shift"],
+	gmenu2x->drawButton(bg, "start", gmenu2x->tr["Save"]
 	))));
 
-	// this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-
 	SDL_TimerID wakeUpTimer = NULL;
-	while (!close) {
+	while (loop) {
 		SDL_RemoveTimer(wakeUpTimer);
 		wakeUpTimer = SDL_AddTimer(500, gmenu2x->input.wakeUp, (void*)false);
 
-		this->bg->blit(gmenu2x->s,0,0);
+		bg->blit(gmenu2x->s,0,0);
 
 		gmenu2x->s->box(gmenu2x->listRect.x, box.y - 2, gmenu2x->listRect.w, box.h + 2, (RGBAColor){0,0,0,220});
 		gmenu2x->s->box(box, (RGBAColor){0x33,0x33,0x33,220});
@@ -167,11 +164,11 @@ bool InputDialog::exec() {
 		switch (action) {
 			case ID_ACTION_SAVE:
 				ok = true;
-				close = true;
+				loop = false;
 				break;
 			case ID_ACTION_CLOSE:
 				ok = false;
-				close = true;
+				loop = false;
 				break;
 			case ID_ACTION_UP:
 				selRow--;
@@ -218,7 +215,7 @@ void InputDialog::space() {
 void InputDialog::confirm() {
 	if (selRow == (int)kb->size()) {
 		if (selCol == 0) ok = false;
-		close = true;
+		loop = false;
 	} else {
 		bool utf8;
 		int xc=0;

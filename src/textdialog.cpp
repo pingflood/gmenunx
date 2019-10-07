@@ -28,7 +28,7 @@ using namespace std;
 #include <sstream>
 
 TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop)
-	: Dialog(gmenu2x), title(title), description(description), icon(icon), backdrop(backdrop)
+	: Dialog(gmenu2x, title, description, icon), backdrop(backdrop)
 {}
 
 void TextDialog::preProcess() {
@@ -101,23 +101,19 @@ void TextDialog::exec() {
 
 	preProcess();
 
-	bool close = false, inputAction = false;
+	bool inputAction = false;
 	int32_t firstCol = 0, lineWidth = 0;
 	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 
-	if (gmenu2x->sc.skinRes(icon) == NULL)
-		icon = "icons/ebook.png";
+	if (gmenu2x->sc.skinRes(this->icon) == NULL)
+		this->icon = "icons/ebook.png";
 
-	drawTopBar(this->bg, title, description, icon);
-	drawBottomBar(this->bg);
+	buttons.push_back({"dpad", gmenu2x->tr["Scroll"]});
+	buttons.push_back({"b", gmenu2x->tr["Exit"]});
 
-	gmenu2x->drawButton(this->bg, "dpad", gmenu2x->tr["Scroll"],
-	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
-	5));
+	drawDialog(this->bg);
 
-	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-
-	while (!close) {
+	while (true) {
 		this->bg->blit(gmenu2x->s,0,0);
 		lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
 		gmenu2x->s->flip();
@@ -142,7 +138,7 @@ void TextDialog::exec() {
 				else
 					firstRow = max(0, text.size() - rowsPerPage);
 			}
-			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
+			else if (gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL]) return;
 		} while (!inputAction);
 	}
 }

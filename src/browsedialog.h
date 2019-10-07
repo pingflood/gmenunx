@@ -36,7 +36,7 @@ protected:
 	virtual void onChangeDir() {};
 
 private:
-	bool close = false, result, ts_pressed;
+	bool result = false, ts_pressed;
 	virtual const std::string getPreview(uint32_t i = 0);
 	vector<int> browse_history;
 
@@ -48,7 +48,6 @@ private:
 	void setWallpaper();
 
 public:
-	string title, description, icon;
 	BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon = "icons/explorer.png");
 	virtual ~BrowseDialog() {};
 	bool allowSelectDirectory = false, allowEnterDirectory = true;

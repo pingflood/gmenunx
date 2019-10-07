@@ -24,13 +24,10 @@
 #include "powermanager.h"
 #include "debug.h"
 
-// #include <fstream>
-// #include <sstream>
-
 using namespace std;
 
 TerminalDialog::TerminalDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop)
-	: Dialog(gmenu2x), title(title), description(description), icon(icon), backdrop(backdrop)
+	: Dialog(gmenu2x, title, description, icon), backdrop(backdrop)
 {}
 
 int TerminalDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t firstRow, uint32_t rowsPerPage) {
@@ -56,23 +53,17 @@ int TerminalDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t fi
 
 void TerminalDialog::exec(const string &_cmd) {
 	string cmd;
-	bool close = false, inputAction = false;
+	bool inputAction = false;
 	int32_t firstCol = 0, lineWidth = 0;
 	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 
-	if (gmenu2x->sc.skinRes(icon) == NULL)
-		icon = "icons/terminal.png";
+	if (gmenu2x->sc.skinRes(this->icon) == NULL)
+		this->icon = "icons/terminal.png";
 
-	drawTopBar(this->bg, title, description, icon);
-	drawBottomBar(this->bg);
+	buttons.push_back({"dpad", gmenu2x->tr["Scroll"]});
+	buttons.push_back({"b", gmenu2x->tr["Exit"]});
 
-	gmenu2x->drawButton(this->bg, "dpad", gmenu2x->tr["Scroll"],
-	gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Exit"],
-	5));
-
-	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
-
-	this->bg->blit(gmenu2x->s,0,0);
+	drawDialog(this->bg);
 
 	gmenu2x->s->flip();
 
@@ -88,47 +79,45 @@ void TerminalDialog::exec(const string &_cmd) {
 
 	gmenu2x->powerManager->clearTimer();
 
-	while (!close) {
-		do {
-			if (pipe) {
-				if (!feof(pipe) && fgets(buffer, 128, pipe) != NULL) {
-					rawText += buffer;
-				} else {
-					pclose(pipe);
-					pipe = NULL;
-					rawText += "\r\n----\r\nDone.";
-					system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi");
-					system("sync &");
-				}
-				InputManager::wakeUp(0, (void*)false);
-				split(text, rawText, "\r\n");
-				if (text.size() >= rowsPerPage) firstRow = text.size() - rowsPerPage;
+	while (true) {
+		if (pipe) {
+			if (!feof(pipe) && fgets(buffer, 128, pipe) != NULL) {
+				rawText += buffer;
+			} else {
+				pclose(pipe);
+				pipe = NULL;
+				rawText += "\r\n----\r\nDone.";
+				system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi");
+				system("sync &");
 			}
+			InputManager::wakeUp(0, (void*)false);
+			split(text, rawText, "\r\n");
+			if (text.size() >= rowsPerPage) firstRow = text.size() - rowsPerPage;
+		}
 
-			this->bg->blit(gmenu2x->s,0,0);
-			lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
-			gmenu2x->s->flip();
+		this->bg->blit(gmenu2x->s,0,0);
+		lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
+		gmenu2x->s->flip();
 
-			inputAction = gmenu2x->input.update();
+		inputAction = gmenu2x->input.update();
 
-			if ( gmenu2x->input[UP] && firstRow > 0 ) firstRow--;
-			else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < text.size() ) firstRow++;
-			else if ( gmenu2x->input[RIGHT] && firstCol > -1 * (lineWidth - gmenu2x->listRect.w) - 10) firstCol -= 30;
-			else if ( gmenu2x->input[LEFT]  && firstCol < 0) firstCol += 30;
-			else if ( gmenu2x->input[PAGEUP] || (gmenu2x->input[LEFT] && firstCol == 0)) {
-				if (firstRow >= rowsPerPage - 1)
-					firstRow -= rowsPerPage - 1;
-				else
-					firstRow = 0;
-			}
-			else if ( gmenu2x->input[PAGEDOWN] || (gmenu2x->input[RIGHT] && firstCol == 0)) {
-				if (firstRow + rowsPerPage * 2 - 1 < text.size())
-					firstRow += rowsPerPage - 1;
-				else
-					firstRow = max(0,text.size()-rowsPerPage);
-			}
-			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL] ) close = true;
-		} while (!inputAction);
+		if (gmenu2x->input[UP] && firstRow > 0) firstRow--;
+		else if (gmenu2x->input[DOWN] && firstRow + rowsPerPage < text.size()) firstRow++;
+		else if (gmenu2x->input[RIGHT] && firstCol > -1 * (lineWidth - gmenu2x->listRect.w) - 10) firstCol -= 30;
+		else if (gmenu2x->input[LEFT]  && firstCol < 0) firstCol += 30;
+		else if (gmenu2x->input[PAGEUP] || (gmenu2x->input[LEFT] && firstCol == 0)) {
+			if (firstRow >= rowsPerPage - 1)
+				firstRow -= rowsPerPage - 1;
+			else
+				firstRow = 0;
+		}
+		else if (gmenu2x->input[PAGEDOWN] || (gmenu2x->input[RIGHT] && firstCol == 0)) {
+			if (firstRow + rowsPerPage * 2 - 1 < text.size())
+				firstRow += rowsPerPage - 1;
+			else
+				firstRow = max(0,text.size()-rowsPerPage);
+		}
+		else if (gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL]) break;
 	}
 	pclose(pipe);
 }

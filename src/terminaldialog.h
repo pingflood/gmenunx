@@ -31,7 +31,7 @@ using std::vector;
 class TerminalDialog : protected Dialog {
 protected:
 	vector<string> text;
-	string title, description, icon, backdrop, rawText = "";
+	string backdrop, rawText = "";
 
 	void preProcess();
 	int drawText(vector<string> *text, int32_t firstCol, uint32_t firstRow, uint32_t rowsPerPage);

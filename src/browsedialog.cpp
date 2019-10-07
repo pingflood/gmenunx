@@ -6,7 +6,7 @@ using namespace std;
 extern const char *CARD_ROOT;
 
 BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
-: Dialog(gmenu2x), title(title), description(description), icon(icon) {
+	: Dialog(gmenu2x, title, description, icon) {
 	directoryEnter(gmenu2x->confStr["homePath"]);
 }
 
@@ -19,39 +19,46 @@ bool BrowseDialog::exec() {
 	Surface *iconSd = gmenu2x->sc.skinRes("imgs/sd.png");
 	Surface *iconCur;
 
-	close = false;
-
 	uint32_t i, iY, firstElement = 0, padding = 6;
 	int32_t animation = 0;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
-	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
+	bool loop = true;
+	uint32_t numRows = (gmenu2x->listRect.h - 2) / rowHeight - 1;
 
 	string path = getPath();
 	if (path.empty() || !dir_exists(path))
 		directoryEnter(gmenu2x->confStr["homePath"]);
 
-	drawBottomBar(this->bg);
-	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
-	int buttonPos = gmenu2x->drawButton(this->bg, "select", gmenu2x->tr["Menu"], 5);
-	buttonPos = gmenu2x->drawButton(this->bg, "b", gmenu2x->tr["Cancel"], buttonPos);
-	if (selected >= size()) selected = 0;
+	while (loop) {
+		if (selected >= size()) selected = 0;
 
-	if (!showFiles && allowSelectDirectory) {
-		buttonPos = gmenu2x->drawButton(this->bg, "start", gmenu2x->tr["Select"], buttonPos);
-	} else if ((allowEnterDirectory && isDirectory(selected)) || !isDirectory(selected)) {
-		buttonPos = gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"], buttonPos);
-	}
+		bool inputAction = false;
+		string curPath = getPath();
 
 	string preview = getPreview(selected);
+		buttons.clear();
+		buttons.push_back({"select", gmenu2x->tr["Menu"]});
+		buttons.push_back({"b", gmenu2x->tr["Cancel"]});
 
-	while (!close) {
-		bool inputAction = false; int tmpButtonPos = buttonPos;
-		string curPath = getPath();
-		this->bg->blit(gmenu2x->s,0,0);
-		drawTopBar(gmenu2x->s, title, curPath /*description*/, icon);
+		if (!showFiles && allowSelectDirectory)
+			buttons.push_back({"start", gmenu2x->tr["Select"]});
+		else if ((allowEnterDirectory && isDirectory(selected)) || !isDirectory(selected))
+			buttons.push_back({"a", gmenu2x->tr["Select"]});
 
-		if (allowDirUp && curPath != "/") tmpButtonPos = gmenu2x->drawButton(gmenu2x->s, "x", gmenu2x->tr["Folder up"], buttonPos);
+		if (showDirectories && allowDirUp && curPath != "/")
+			buttons.push_back({"x", gmenu2x->tr["Folder up"]});
+
+		if (gmenu2x->confStr["previewMode"] == "Backdrop") {
+			if (!(preview.empty() || preview == "#"))
+				gmenu2x->setBackground(this->bg, preview);
+			else
+				gmenu2x->bg->blit(this->bg,0,0);
+		}
+
+		this->description = curPath;
+
+		drawDialog(gmenu2x->s);
 
 		if (!size()) {
 			MessageBox mb(gmenu2x, gmenu2x->tr["This directory is empty"]);
@@ -154,14 +161,14 @@ bool BrowseDialog::exec() {
 					directoryEnter(getFilePath(browse_history.back()));
 				} else {
 					result = true;
-					close = true;
+					loop = false;
 				}
 			} else if (gmenu2x->input[SETTINGS] && allowSelectDirectory) {
 				result = true;
-				close = true;
+				loop = false;
 			} else if (gmenu2x->input[CANCEL] || gmenu2x->input[SETTINGS]) {
 				result = false;
-				close = (preview.empty() || preview == "#"); // close only if preview is empty.
+				loop = (gmenu2x->confStr["previewMode"] != "Backdrop") && !(preview.empty() || preview == "#"); // close only if preview is empty.
 				preview = "";
 			}
 

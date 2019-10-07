@@ -1,18 +1,18 @@
-#include <string>
-
 #include "dialog.h"
 #include "gmenu2x.h"
+#include "debug.h"
 
-Dialog::Dialog(GMenu2X *gmenu2x) : gmenu2x(gmenu2x) {
+Dialog::Dialog(GMenu2X *gmenu2x, const std::string &title, const std::string &description, const std::string &icon) : gmenu2x(gmenu2x), title(title), description(description), icon(icon) {
 	bg = new Surface(gmenu2x->bg);
+
+	buttons.clear();
 }
 
 Dialog::~Dialog() {
 	delete bg;
 }
 
-void Dialog::drawTopBar(Surface *s = NULL, const std::string &title, const std::string &description, const std::string &icon) {
-	if (s == NULL) s = gmenu2x->s;
+void Dialog::drawTopBar(Surface *s, const std::string &title, const std::string &description, const std::string &icon) {
 	// Surface *bar = sc.skinRes("imgs/topbar.png");
 	// if (bar != NULL) bar->blit(s, 0, 0);
 	// else
@@ -30,7 +30,7 @@ void Dialog::drawTopBar(Surface *s = NULL, const std::string &title, const std::
 		if (i == NULL) i = gmenu2x->sc.skinRes("icons/generic.png");
 
 		if (i->width() > iconOffset - 8 || i->height() > iconOffset - 8)
-			i->softStretch(iconOffset - 8, iconOffset - 8, true, false);
+			i->softStretch(iconOffset - 8, iconOffset - 8, true, true);
 
 		gmenu2x->s->setClipRect({4, 4, iconOffset - 8, iconOffset - 8});
 		i->blit(s, {4, 4, iconOffset - 8, iconOffset - 8}, HAlignCenter | VAlignMiddle);
@@ -46,10 +46,35 @@ void Dialog::drawTopBar(Surface *s = NULL, const std::string &title, const std::
 	s->clearClipRect();
 }
 
-void Dialog::drawBottomBar(Surface *s) {
-	if (s == NULL) s = gmenu2x->s;
+void Dialog::drawBottomBar(Surface *s, buttons_t buttons) {
 	// Surface *bar = sc.skinRes("imgs/bottombar.png");
 	// if (bar != NULL) bar->blit(s, 0, gmenu2x->h - bar->raw->h);
 	// else
 	s->box(gmenu2x->bottomBarRect, gmenu2x->skinConfColors[COLOR_BOTTOM_BAR_BG]);
+
+	int x = gmenu2x->bottomBarRect.x + 5, y = gmenu2x->bottomBarRect.y + gmenu2x->bottomBarRect.h / 2;
+
+	for (const auto &itr: buttons) {
+		Surface *btn = gmenu2x->sc.skinRes("imgs/buttons/" + itr[0] + ".png");
+		string txt = itr[1];
+		if (btn != NULL) {
+			btn->blit(s, x, y, HAlignLeft | VAlignMiddle);
+			x += btn->width() + 4;
+		}
+		if (!txt.empty()) {
+			s->write(gmenu2x->font, txt, x, y, VAlignMiddle, gmenu2x->skinConfColors[COLOR_FONT_ALT], gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+			x += gmenu2x->font->getTextWidth(txt);
+		}
+		x += 6;
+	}
+}
+
+
+void Dialog::drawDialog(Surface *s, bool top, bool bottom) {
+	if (s == NULL) s = gmenu2x->s;
+
+	this->bg->blit(s, 0, 0);
+
+	if (top) drawTopBar(s, title, description, icon);
+	if (bottom) drawBottomBar(s, buttons);
 }
