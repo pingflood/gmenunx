@@ -92,21 +92,25 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	buttonText.resize(19);
 	button.resize(19);
 	buttonPosition.resize(19);
+
+	bool anyaction = false;
 	for (uint32_t x = 0; x < buttonText.size(); x++) {
 		buttonText[x] = "";
 		button[x] = "";
 		buttonPosition[x].h = gmenu2x->font->getHeight();
+		anyaction = true;
 	}
 
-	// Default enabled button
-	buttonText[CONFIRM] = "OK";
+	if (!anyaction)
+		// Default enabled button
+		buttonText[CONFIRM] = "OK";
 
 	// Default labels
 	button[UP] = "up";
 	button[DOWN] = "down";
 	button[LEFT] = "left";
 	button[RIGHT] = "right";
-	button[MODIFIER] = "a";
+	button[MODIFIER] = "x";
 	button[CONFIRM] = "a";
 	button[CANCEL] = "b";
 	button[MANUAL] = "y";
