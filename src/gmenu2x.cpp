@@ -2198,12 +2198,9 @@ int GMenu2X::getVolume() {
 int GMenu2X::setVolume(int val, bool popup) {
 	int volumeStep = 10;
 
-	if (val < 0) val = 100;
-	else if (val > 100) val = 0;
+	val = constrain(val, 0, 100);
 
 	if (popup) {
-		bool close = false;
-
 		Surface bg(s);
 
 		Surface *iconVolume[3] = {
@@ -2213,23 +2210,26 @@ int GMenu2X::setVolume(int val, bool popup) {
 		};
 
 		powerManager->clearTimer();
-		SDL_TimerID wakeUpTimer = NULL;
-		while (!close) {
-			SDL_RemoveTimer(wakeUpTimer); wakeUpTimer = NULL;
-			wakeUpTimer = SDL_AddTimer(3000, input.wakeUp, (void*)false);
-
+		while (true) {
 			drawSlider(val, 0, 100, *iconVolume[getVolumeMode(val)], bg);
 
-			close = !input.update();
+			input.update();
 
-			if (input[SETTINGS] || input[CONFIRM] || input[CANCEL]) close = true;
-			if ( input[LEFT] || input[DEC] )		val = max(0, val - volumeStep);
-			else if ( input[RIGHT] || input[INC] )	val = min(100, val + volumeStep);
-			else if ( input[SECTION_PREV] )	{
-													val += volumeStep;
-													if (val > 100) val = 0;
+			if (input[SETTINGS] || input[CONFIRM] || input[CANCEL]) {
+				break;
+			} else if (input[LEFT] || input[DEC]) {
+				val = max(0, val - volumeStep);
+			} else if (input[RIGHT] || input[INC]) {
+				val = min(100, val + volumeStep);
+			} else if (input[SECTION_PREV]) {
+				val += volumeStep;
+				if (val > 100) val = 0;
 			}
 		}
+
+		bg.blit(s, 0, 0);
+		s->flip();
+
 		powerManager->resetSuspendTimer();
 		confInt["globalVolume"] = val;
 		writeConfig();
