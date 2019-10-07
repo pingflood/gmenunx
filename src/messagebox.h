@@ -37,7 +37,7 @@ enum {
 class MessageBox {
 private:
 	string text, icon;
-	uint32_t autohide, bgalpha;
+	uint32_t autohide = 0, bgalpha = 200;
 	GMenu2X *gmenu2x;
 	vector<string> button;
 	vector<string> buttonText;

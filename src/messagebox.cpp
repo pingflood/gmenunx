@@ -24,7 +24,7 @@
 using namespace std;
 
 MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
-	bool close = false, inputAction = false;
+	bool loop = true, inputAction = false;
 	int sel = 0;
 	uint32_t i, fadeAlpha = 0, h = gmenu2x->font->getHeight(), h2 = gmenu2x->font->getHalfHeight();
 	SDL_Rect box;
@@ -43,7 +43,7 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
 	box.y = (gmenu2x->h - box.h) / 2;
 
 	uint32_t tickStart = SDL_GetTicks();
-	while (!close) {
+	while (loop) {
 		bg.blit(gmenu2x->s, 0, 0);
 
 		gmenu2x->s->box(0, 0, gmenu2x->w, gmenu2x->h, 0,0,0, fadeAlpha);
@@ -67,14 +67,14 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
 
 			if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-			if ( gmenu2x->input[MENU] || gmenu2x->input[CANCEL]) close = true;
+			if ( gmenu2x->input[MENU] || gmenu2x->input[CANCEL]) loop = false;
 			else if ( gmenu2x->input[UP] ) sel = (sel - 1 < 0) ? (int)options.size() - 1 : sel - 1 ;
 			else if ( gmenu2x->input[DOWN] ) sel = (sel + 1 > (int)options.size() - 1) ? 0 : sel + 1;
 			else if ( gmenu2x->input[LEFT] || gmenu2x->input[PAGEUP] ) sel = 0;
 			else if ( gmenu2x->input[RIGHT] || gmenu2x->input[PAGEDOWN] ) sel = (int)options.size() - 1;
 			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) {
 				options[sel].action();
-				close = true;
+				loop = false;
 			}
 		} while (!inputAction);
 	}
@@ -82,13 +82,8 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
 	gmenu2x->powerManager->resetSuspendTimer();
 }
 
-MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon) {
-	this->gmenu2x = gmenu2x;
-	this->text = text;
-	this->icon = icon;
-	this->autohide = 0;
-	this->bgalpha = 200;
-
+MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
+: gmenu2x(gmenu2x), text(text), icon(icon) {
 	buttonText.resize(19);
 	button.resize(19);
 	buttonPosition.resize(19);
