@@ -147,8 +147,10 @@ int MessageBox::exec() {
 	Surface bg(gmenu2x->s);
 	gmenu2x->powerManager->clearTimer();
 
+	Surface *icn = gmenu2x->sc.add(icon, icon + "mb");
+
 	box.h = gmenu2x->font->getTextHeight(text) * gmenu2x->font->getHeight() + gmenu2x->font->getHeight();
-	if (gmenu2x->sc[icon] != NULL && box.h < 40) box.h = 48;
+	if (icn != NULL && box.h < 40) box.h = 48;
 
 	box.w = gmenu2x->font->getTextWidth(text) + 24;
 
@@ -160,7 +162,7 @@ int MessageBox::exec() {
 
 	if (ix > box.w) box.w = ix;
 
-	ix = (gmenu2x->sc[icon] != NULL ? 42 : 0);
+	ix = (icn != NULL ? 42 : 0);
 
 	box.w += ix;
 	box.x = (gmenu2x->w - box.w) / 2 - 2;
@@ -182,13 +184,13 @@ int MessageBox::exec() {
 		gmenu2x->s->rectangle(box.x + 2, box.y + 2, box.w - 4, box.h - 4, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
 
 		// icon+text
-		if (gmenu2x->sc[icon] != NULL) {
+		if (icn != NULL) {
 			gmenu2x->s->setClipRect({box.x + 8, box.y + 8, 32, 32});
 
-			if (gmenu2x->sc[icon]->width() > 32 || gmenu2x->sc[icon]->height() > 32)
-				gmenu2x->sc[icon]->softStretch(32, 32, true, false);
+			if (icn->width() > 32 || icn->height() > 32)
+				icn->softStretch(32, 32, true, true);
 
-			gmenu2x->sc[icon]->blit(gmenu2x->s, box.x + 24, box.y + 24, HAlignCenter | VAlignMiddle);
+			icn->blit(gmenu2x->s, box.x + 24, box.y + 24, HAlignCenter | VAlignMiddle);
 			gmenu2x->s->clearClipRect();
 		}
 
