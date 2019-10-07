@@ -469,21 +469,20 @@ bool Surface::blit(Surface *destination, SDL_Rect destrect, const uint8_t align,
 	return SDL_BlitSurface(raw, &srcrect, destination->raw, &destrect);
 }
 
-void Surface::softStretch(uint16_t w, uint16_t h, bool keep_aspect, bool maximize) {
-// const SDL_VideoInfo* info = SDL_GetVideoInfo();   //<-- calls SDL_GetVideoInfo();
-// WARNING("VIDEO RESOLUTION: %dx%d", info->current_w, info->current_h);
-	// if (!maximize && raw->w <= x && raw->h <= y) return;
-	if (keep_aspect && !maximize) {
-		if (w < h) {
-			h = w * raw->h / raw->w;
+void Surface::softStretch(uint16_t w, uint16_t h, bool keep_aspect, bool crop) {
+	if (keep_aspect) {
+		if (crop) {
+			if (raw->w > raw->h) {
+				w = h * raw->w / raw->h;
+			} else {
+				h = w * raw->h / raw->w;
+			}
 		} else {
-			w = h * raw->w / raw->h;
-		}
-	} else if (keep_aspect && maximize) {
-		if (w < h) {
-			w = h * raw->w / raw->h;
-		} else {
-			h = w * raw->h / raw->w;
+			if (raw->w > raw->h) {
+				h = w * raw->h / raw->w;
+			} else {
+				w = h * raw->w / raw->h;
+			}
 		}
 	}
 
