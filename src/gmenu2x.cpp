@@ -1823,7 +1823,7 @@ void GMenu2X::contextMenu() {
 			} else {
 				package = ipkName(menu->selLinkApp()->getFile());
 				if (!package.empty()) {
-					options.push_back((MenuOption){tr["Uninstall"] + " " + package.c_str(), MakeDelegate(this, &GMenu2X::ipkUninstall)});
+					options.push_back((MenuOption){tr["Uninstall"] + " " + package.c_str() + ".ipk", MakeDelegate(this, &GMenu2X::ipkUninstall)});
 				}
 			}
 			if (package.empty())
