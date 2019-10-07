@@ -1025,9 +1025,9 @@ void GMenu2X::resetSettings() {
 
 	if (sd.exec() && sd.edited() && sd.save) {
 		MessageBox mb(this, tr["Changes will be applied to ALL\napps and GMenuNX. Are you sure?"], "skin:icons/exit.png");
-		mb.setButton(CONFIRM, tr["Cancel"]);
-		mb.setButton(SECTION_NEXT,  tr["Confirm"]);
-		if (mb.exec() != SECTION_NEXT) return;
+		mb.setButton(CANCEL, tr["Cancel"]);
+		mb.setButton(MANUAL,  tr["Confirm"]);
+		if (mb.exec() != MANUAL) return;
 
 		for (uint32_t s = 0; s < menu->getSections().size(); s++) {
 			for (uint32_t l = 0; l < menu->sectionLinks(s)->size(); l++) {
@@ -2003,14 +2003,14 @@ void GMenu2X::editLink() {
 void GMenu2X::deleteLink() {
 	if (menu->selLinkApp() != NULL) {
 		MessageBox mb(this, tr["Delete"] + " " + menu->selLink()->getTitle().c_str() + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
-		mb.setButton(CONFIRM, tr["Yes"]);
+		mb.setButton(MANUAL, tr["Yes"]);
 		mb.setButton(CANCEL,  tr["No"]);
-		if (mb.exec() == CONFIRM) {
-			ledOn();
-			menu->deleteSelectedLink();
-			sync();
-			ledOff();
-		}
+		if (mb.exec() != MANUAL) return;
+
+		ledOn();
+		menu->deleteSelectedLink();
+		sync();
+		ledOff();
 	}
 }
 
@@ -2061,17 +2061,16 @@ void GMenu2X::renameSection() {
 }
 
 void GMenu2X::deleteSection() {
-	MessageBox mb(this, tr["Are you sure?"]);
-	mb.setButton(CONFIRM, tr["Yes"]);
+	MessageBox mb(this, tr["Delete section"] + " '" +  menu->selSectionName() + "'\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->getSectionIcon(menu->selSectionIndex()));
+	mb.setButton(MANUAL, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
-	if (mb.exec() == CONFIRM) {
-		ledOn();
-		if (rmtree(path+"sections/"+menu->selSection())) {
-			menu->deleteSelectedSection();
-			sync();
-		}
-		ledOff();
+	if (mb.exec() != MANUAL) return;
+	ledOn();
+	if (rmtree(path + "sections/" + menu->selSection())) {
+		menu->deleteSelectedSection();
+		sync();
 	}
+	ledOff();
 }
 
 #if defined(OPK_SUPPORT)
@@ -2084,14 +2083,15 @@ void GMenu2X::opkScanner() {
 void GMenu2X::opkUninstall() {
 	if (menu->selLinkApp() != NULL) {
 		string package = base_name(menu->selLinkApp()->getExec());
-		MessageBox mb(this, tr["Uninstall"] + " " + package.c_str() + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
-		mb.setButton(CONFIRM, tr["Yes"]);
+		MessageBox mb(this, tr["Uninstall"] + " " + package.c_str() + "\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+		mb.setButton(MANUAL, tr["Yes"]);
 		mb.setButton(CANCEL,  tr["No"]);
-		if (mb.exec() == CONFIRM) {
-			unlink(menu->selLinkApp()->getExec().c_str());
-			menu->deleteSelectedLink();
-			sync();
-		}
+		if (mb.exec() != MANUAL) return;
+
+		package = menu->selLinkApp()->getExec();
+		menu->deleteSelectedLink();
+		unlink(package.c_str());
+		sync();
 	}
 }
 #endif
@@ -2114,16 +2114,16 @@ void GMenu2X::ipkUninstall() {
 	if (menu->selLinkApp() != NULL) {
 		string package = ipkName(menu->selLinkApp()->getFile());
 		if (!package.empty()) {
-			MessageBox mb(this, tr["Uninstall"] + " " + package.c_str() + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
-			mb.setButton(CONFIRM, tr["Yes"]);
+			MessageBox mb(this, tr["Uninstall"] + " " + package.c_str() + ".ipk\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+			mb.setButton(MANUAL, tr["Yes"]);
 			mb.setButton(CANCEL,  tr["No"]);
-			if (mb.exec() == CONFIRM) {
-					TerminalDialog td(this, tr["Uninstall package"], "opkg remove " + package, "skin:icons/configure.png");
-					td.exec("opkg remove " + package);
-					initMenu();
-				menu->deleteSelectedLink();
-				sync();
-			}
+			if (mb.exec() != MANUAL) return;
+
+			TerminalDialog td(this, tr["Uninstall package"], "opkg remove " + package, "skin:icons/configure.png");
+			td.exec("opkg remove " + package);
+			initMenu();
+			menu->deleteSelectedLink();
+			sync();
 		};
 	}
 }
