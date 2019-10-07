@@ -146,7 +146,7 @@ bool BrowseDialog::exec() {
 				if (selected >= this->size()) selected = this->size() - 1;
 			} else if (gmenu2x->input[MENU]) {
 				contextMenu();
-			} else if (allowDirUp && (gmenu2x->input[MODIFIER] || (gmenu2x->input[CONFIRM] && getFile(selected) == ".."))) { /*Directory Up */
+			} else if (showDirectories && allowDirUp && (gmenu2x->input[MODIFIER] || (gmenu2x->input[CONFIRM] && getFile(selected) == ".."))) { /*Directory Up */
 				selected = 0;
 				preview = "";
 				if (browse_history.size() > 0) {
