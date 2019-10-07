@@ -63,7 +63,7 @@ clean:
 	make -C src/libopk clean
 	rm -rf $(OBJDIR) *.gcda *.gcno $(APPNAME) $(APPNAME)-debug /tmp/.gmenu-ipk/ dist/$(TARGET)/root/home/retrofw/apps/gmenu2x/
 
-dist: dir shared
+dist: dir libopk shared
 	install -m755 -D $(APPNAME) $(DISTDIR)/gmenu2x
 	install -m644 assets/$(TARGET)/input.conf $(DISTDIR)
 	install -m755 -d $(DISTDIR)/sections
