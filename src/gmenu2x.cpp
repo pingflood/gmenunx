@@ -2323,8 +2323,9 @@ int GMenu2X::drawButton(Button *btn, int x, int y) {
 
 int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x, int y) {
 	if (y < 0) y = this->h + y;
-	if (sc.skinRes("imgs/buttons/" + btn + ".png") != NULL) {
-		sc["imgs/buttons/" + btn + ".png"]->blit(s, x, y, HAlignLeft | VAlignMiddle);
+	Surface *icon = sc.skinRes("imgs/buttons/" + btn + ".png");
+	if (icon != NULL) {
+		icon->blit(s, x, y, HAlignLeft | VAlignMiddle);
 		x += 19;
 		if (!text.empty()) {
 			s->write(font, text, x, y, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
@@ -2336,13 +2337,14 @@ int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x
 
 int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, int x, int y) {
 	if (y < 0) y = this->h + y;
-	if (sc.skinRes("imgs/buttons/" + btn + ".png") != NULL) {
+	Surface *icon = sc.skinRes("imgs/buttons/" + btn + ".png");
+	if (icon != NULL) {
 		if (!text.empty()) {
 			x -= font->getTextWidth(text);
 			s->write(font, text, x, y, HAlignLeft | VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 		}
 		x -= 19;
-		sc["imgs/buttons/" + btn + ".png"]->blit(s, x, y, HAlignLeft | VAlignMiddle);
+		icon->blit(s, x, y, HAlignLeft | VAlignMiddle);
 	}
 	return x - 6;
 }
