@@ -1124,6 +1124,7 @@ void GMenu2X::readConfig() {
 	confStr["homePath"] = CARD_ROOT;
 	confInt["globalVolume"] = 60;
 	confStr["bgscale"] = "Crop";
+	confStr["skinFont"] = "Custom";
 
 	confInt["cpuMenu"] = CPU_MENU;
 	confInt["cpuMax"] = CPU_MAX;
