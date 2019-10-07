@@ -2239,15 +2239,9 @@ int GMenu2X::setVolume(int val, bool popup) {
 }
 
 int GMenu2X::setBacklight(int val, bool popup) {
-	int backlightStep = 10;
-
-	if (val <= 6 - backlightStep) val = 100;
-	else if (val < 0) val = 5;
-	else if (val > 100 + backlightStep - 1) val = backlightStep;
-	else if (val > 100) val = 100;
-
 	if (popup) {
-		bool close = false;
+		int backlightStep = 10;
+		val = constrain(val, 5, 100);
 
 		Surface bg(s);
 
@@ -2260,24 +2254,32 @@ int GMenu2X::setBacklight(int val, bool popup) {
 			sc.skinRes("imgs/brightness.png")
 		};
 
-		SDL_TimerID wakeUpTimer = NULL;
-		while (!close) {
-			SDL_RemoveTimer(wakeUpTimer); wakeUpTimer = NULL;
-			wakeUpTimer = SDL_AddTimer(3000, input.wakeUp, (void*)false);
-
-			if ( input[LEFT] || input[DEC] )		val = setBacklight(max(5, val - backlightStep), false);
-			else if ( input[RIGHT] || input[INC] )	val = setBacklight(min(100, val + backlightStep), false);
-			else if ( input[SECTION_NEXT] )			val = setBacklight(val + backlightStep, false);
-			else if ( input[BACKLIGHT] )			{ SDL_Delay(50); val = getBacklight(); }
-
-			int brightnessIcon = val/20;
+		powerManager->clearTimer();
+		while (true) {
+			int brightnessIcon = val / 20;
 			if (brightnessIcon > 4 || iconBrightness[brightnessIcon] == NULL) brightnessIcon = 5;
 
 			drawSlider(val, 0, 100, *iconBrightness[brightnessIcon], bg);
 
-			if ( input[SETTINGS] || input[CONFIRM] || input[CANCEL] ) close = true;
-			else close = !input.update();
+			input.update();
+
+			if (input[SETTINGS] || input[CONFIRM] || input[CANCEL]) {
+				break;
+			} else if (input[LEFT] || input[DEC]) {
+				val = setBacklight(max(5, val - backlightStep), false);
+			} else if (input[RIGHT] || input[INC]) {
+				val = setBacklight(min(100, val + backlightStep), false);
+			} else if (input[SECTION_NEXT]) {
+				val = setBacklight(val + backlightStep, false);
+			} else if (input[BACKLIGHT]) {
+				SDL_Delay(50);
+				val = getBacklight();
+			}
 		}
+
+		bg.blit(s, 0, 0);
+		s->flip();
+
 		powerManager->resetSuspendTimer();
 		confInt["backlight"] = val;
 		writeConfig();
