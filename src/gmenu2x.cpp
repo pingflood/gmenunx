@@ -2160,12 +2160,12 @@ void GMenu2X::ipkUninstall() {
 
 void GMenu2X::setInputSpeed() {
 	input.setInterval(180);
-	input.setInterval(1000, SETTINGS);
-	input.setInterval(100, MENU);
-	input.setInterval(1000, CONFIRM);
-	input.setInterval(1000, POWER);
-	input.setInterval(1000, SECTION_PREV);
-	input.setInterval(1000, SECTION_NEXT);
+	// input.setInterval(1000, SETTINGS);
+	// input.setInterval(100, MENU);
+	// input.setInterval(1000, CONFIRM);
+	// input.setInterval(1000, POWER);
+	// input.setInterval(1000, SECTION_PREV);
+	// input.setInterval(1000, SECTION_NEXT);
 	// input.setInterval(30,  VOLDOWN);
 	// input.setInterval(30,  VOLUP);
 	// input.setInterval(300, CANCEL);

@@ -161,7 +161,7 @@ void InputManager::setActionsCount(int count) {
 	for (int x = 0; x < count; x++) {
 		InputManagerAction action;
 		action.active = false;
-		action.interval = 0;
+		action.interval = 180;
 		actions.push_back(action);
 	}
 }
@@ -180,26 +180,31 @@ bool InputManager::update(bool wait) {
 	}
 
 	if (event.type == SDL_KEYDOWN) {
-		anyactions = true;
 		keystate[event.key.keysym.sym] = true;
 	} else if (event.type == SDL_KEYUP) {
 		anyactions = true;
 		keystate[event.key.keysym.sym] = false;
+	} else if (event.type == SDL_USEREVENT && event.user.code == WAKE_UP) {
+		anyactions = true;
 	}
 
-	// WARNING("SDL_JOYBUTTONDOWN=%d SDL_JOYAXISMOTION=%d event.type: %d keysym.sym=%d  anyactions=%d", SDL_JOYBUTTONDOWN, SDL_JOYAXISMOTION, event.type, event.key.keysym.sym, anyactions);
+	// WARNING("SDL_JOYBUTTONDOWN=%d SDL_JOYAXISMOION=%d event.type: %d keysym.sym=%d  anyactions=%d", SDL_JOYBUTTONDOWN, SDL_JOYAXISMOTION, event.type, event.key.keysym.sym, anyactions);
 	// WARNING("event.jbutton.button=%d event.jaxis.axis=%d event.jaxis.value=%d", event.jbutton.button, event.jaxis.axis, event.jaxis.value);
-	SDL_RemoveTimer(timer); timer = NULL;
 
+	dropEvents();
+
+	int active = -1;
 	for (x = 0; x < actions.size(); x++) {
-		// WARNING("is active: %d %d", x, actions[x].active);
 		actions[x].active = isActive(x);
 		if (actions[x].active) {
-			memcpy(input_combo, input_combo + 1, sizeof(input_combo) - 1); // eegg
-			input_combo[sizeof(input_combo) - 1] = x; // eegg
-			timer = SDL_AddTimer(actions[x].interval, wakeUp, (void*)false);
+			memcpy(input_combo, input_combo + 1, sizeof(input_combo) - 1); input_combo[sizeof(input_combo) - 1] = x; // eegg
 			anyactions = true;
+			active = x;
 		}
+	}
+
+	if (active >= 0) {
+		timer = SDL_AddTimer(actions[active].interval, wakeUp, (void*)false);
 	}
 
 	x = 0;
@@ -217,7 +222,7 @@ bool InputManager::combo() { // eegg
 }
 
 void InputManager::dropEvents() {
-	SDL_RemoveTimer(timer);
+	SDL_RemoveTimer(timer); timer = NULL;
 	for (uint32_t x = 0; x < actions.size(); x++) {
 		actions[x].active = false;
 	}
@@ -239,7 +244,7 @@ void InputManager::pushEvent(int action) {
 	event.key.state = SDL_PRESSED;
 	event.key.keysym.sym = (SDLKey)(action - UDC_CONNECT + SDLK_WORLD_0);
 	SDL_PushEvent(&event);
-	SDL_AddTimer(30, pushEventEnd, (void*)action);
+	SDL_AddTimer(50, pushEventEnd, (void*)action);
 }
 
 int InputManager::count() {
