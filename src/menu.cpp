@@ -448,21 +448,24 @@ int Menu::getSectionIndex(const string &name) {
 }
 
 const string Menu::getSectionIcon(int i) {
+	if (i < 0) i = iSection;
+	string sectionIcon = gmenu2x->sc.getSkinFilePath("sections/" + sections[i] + ".png");
 	string mainsectionIcon = "";
 	string subsectionIcon = "";
-	string::size_type pos = sections[i].rfind(".");
-	if (pos != string::npos) subsectionIcon = sections[i].substr(pos, sections[i].length());
-
-	pos = sections[i].find(".");
+	string::size_type pos = sections[i].find(".");
 	if (pos != string::npos) mainsectionIcon = sections[i].substr(0, pos);
 
-	string sectionIcon = gmenu2x->sc.getSkinFilePath("icons/section.png");
+	pos = sections[i].rfind(".");
+	if (pos != string::npos) subsectionIcon = sections[i].substr(pos);
 
-	if (!gmenu2x->sc.getSkinFilePath("sections/" + sections[i] + ".png").empty())
-		sectionIcon = gmenu2x->sc.getSkinFilePath("sections/" + sections[i] + ".png");
-	else if (!gmenu2x->sc.getSkinFilePath("sections/" + subsectionIcon + ".png").empty())
-		sectionIcon = gmenu2x->sc.getSkinFilePath("sections/" + subsectionIcon + ".png");
-	else if (!gmenu2x->sc.getSkinFilePath("sections/" + mainsectionIcon + ".png").empty())
-		sectionIcon = gmenu2x->sc.getSkinFilePath("sections/" + mainsectionIcon + ".png");
-	return sectionIcon;
+	mainsectionIcon = gmenu2x->sc.getSkinFilePath("sections/" + mainsectionIcon + ".png");
+	subsectionIcon = gmenu2x->sc.getSkinFilePath("sections/" + subsectionIcon + ".png");
+
+	if (!sectionIcon.empty())
+		return sectionIcon;
+	else if (!subsectionIcon.empty())
+		return subsectionIcon;
+	else if (!mainsectionIcon.empty())
+		return mainsectionIcon;
+	return gmenu2x->sc.getSkinFilePath("icons/section.png");
 }
