@@ -409,8 +409,6 @@ void GMenu2X::main() {
 
 			if (skinConfInt["sectionBar"] == SB_CLASSIC) {
 				ix = (this->w - skinConfInt["sectionBarSize"] * min(menu->sectionNumItems(), menu->getSections().size())) / 2;
-				sx += ix; sy = y;
-				s->box(sx, sy, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
 			}
 
 			for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
@@ -420,7 +418,7 @@ void GMenu2X::main() {
 					x = (i - menu->firstDispSection()) * skinConfInt["sectionBarSize"] + ix;
 				}
 
-				if (skinConfInt["sectionBar"] != SB_CLASSIC && menu->selSectionIndex() == (int)i) {
+				if (menu->selSectionIndex() == (int)i) {
 					sx = x; sy = y;
 					s->box(sx, sy, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
 				}
