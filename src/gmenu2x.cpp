@@ -991,21 +991,17 @@ void GMenu2X::settings() {
 		setBacklight(confInt["backlight"], false);
 		writeConfig();
 
-		powerManager->resetSuspendTimer();
-		powerManager->setSuspendTimeout(confInt["backlightTimeout"]);
-		powerManager->setPowerTimeout(confInt["powerTimeout"]);
-
 		#if defined(TARGET_GP2X)
 			if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
 		#endif
 
 		if (prevDateTime != newDateTime) {
-			powerManager->setPowerTimeout(0);
-			powerManager->setSuspendTimeout(0);
 			setDateTime(newDateTime.c_str());
 			reinit();
 		}
 	}
+	powerManager->setSuspendTimeout(confInt["backlightTimeout"]);
+	powerManager->setPowerTimeout(confInt["powerTimeout"]);
 }
 
 void GMenu2X::resetSettings() {
