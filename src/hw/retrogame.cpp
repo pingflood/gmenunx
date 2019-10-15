@@ -306,7 +306,7 @@ public:
 
 	void setScaleMode(unsigned int mode) {
 		FILE *f;
-		if (f = fopen("/proc/jz/ipu_ratio", "w")) {
+		if (f = fopen("/proc/jz/ipu", "w")) {
 			fprintf(f, "%d", mode); // fputs(val, f);
 			fclose(f);
 		}

@@ -1914,7 +1914,7 @@ void GMenu2X::editLink() {
 
 	#if defined(HW_SCALER)
 		#if !defined(TARGET_PC) && defined(HW_SCALER)
-			if (file_exists("/proc/jz/ipu_ratio"))
+			if (file_exists("/proc/jz/ipu"))
 		#endif
 		{
 			sd.addSetting(new MenuSettingMultiString(this, tr["Scale Mode"],		tr["Hardware scaling mode"], &linkScaleMode, &scaleMode));
