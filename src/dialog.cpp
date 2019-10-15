@@ -55,7 +55,15 @@ void Dialog::drawBottomBar(Surface *s, buttons_t buttons) {
 	int x = gmenu2x->bottomBarRect.x + 5, y = gmenu2x->bottomBarRect.y + gmenu2x->bottomBarRect.h / 2;
 
 	for (const auto &itr: buttons) {
-		Surface *btn = gmenu2x->sc.skinRes("imgs/buttons/" + itr[0] + ".png");
+		Surface *btn;
+		string path = itr[0];
+		if (path.substr(0, 5) == "skin:") {
+			path = path.substr(5);
+			btn = gmenu2x->sc.skinRes(path);
+		} else {
+			btn = gmenu2x->sc.skinRes("imgs/buttons/" + path + ".png");
+		}
+
 		string txt = itr[1];
 		if (btn != NULL) {
 			btn->blit(s, x, y, HAlignLeft | VAlignMiddle);
