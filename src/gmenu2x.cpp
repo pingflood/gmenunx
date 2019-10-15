@@ -2048,7 +2048,7 @@ void GMenu2X::addSection() {
 }
 
 void GMenu2X::renameSection() {
-	InputDialog id(this, /*ts,*/ tr["Insert a new name for this section"], menu->selSection(), tr["Rename section"], menu->getSectionIcon(menu->selSectionIndex()));
+	InputDialog id(this, /*ts,*/ tr["Insert a new name for this section"], menu->selSection(), tr["Rename section"], menu->getSectionIcon());
 	if (id.exec()) {
 		// only if a section with the same name does not exist & !samename
 		if (menu->selSection() != id.getInput() && find(menu->getSections().begin(),menu->getSections().end(), id.getInput()) == menu->getSections().end()) {
@@ -2078,7 +2078,7 @@ void GMenu2X::renameSection() {
 }
 
 void GMenu2X::deleteSection() {
-	MessageBox mb(this, tr["Delete section"] + " '" +  menu->selSectionName() + "'\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->getSectionIcon(menu->selSectionIndex()));
+	MessageBox mb(this, tr["Delete section"] + " '" +  menu->selSectionName() + "'\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->getSectionIcon());
 	mb.setButton(MANUAL, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() != MANUAL) return;
