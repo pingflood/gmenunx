@@ -1740,24 +1740,33 @@ void GMenu2X::explorer() {
 	confStr["explorerLastDir"] = bd.getPath();
 }
 
-bool GMenu2X::saveScreenshot() {
-	ledOn();
+string exclusive_filename(string path, string ext) {
 	uint32_t x = 0;
+	string fname = path + ext;
+	while (file_exists(fname)) {
+		stringstream ss;
+		ss << x;
+		ss >> fname;
+		fname = path + fname + ext;
+		x++;
+	}
+	return fname;
+}
+
+
+bool GMenu2X::saveScreenshot() {
 	string fname;
 
 	mkdir("screenshots/", 0777);
 
-	do {
-		x++;
-		stringstream ss;
-		ss << x;
-		ss >> fname;
-		fname = "screenshots/screen" + fname + ".bmp";
-	} while (file_exists(fname));
-	x = SDL_SaveBMP(s->raw, fname.c_str());
-	sync();
-	ledOff();
-	return x == 0;
+	if (file_exists("/usr/bin/fbgrab")) {
+		fname = exclusive_filename("screenshots/screen", ".png");
+		fname = "/usr/bin/fbgrab " + fname + "; sync";
+		return system(fname.c_str()) == 0;
+	}
+
+	fname = exclusive_filename("screenshots/screen", ".bmp");
+	return SDL_SaveBMP(s->raw, fname.c_str()) == 0;
 }
 
 void GMenu2X::reinit(bool showDialog) {
