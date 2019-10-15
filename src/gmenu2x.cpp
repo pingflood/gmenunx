@@ -958,7 +958,7 @@ void GMenu2X::settings() {
 	string prevDateTime = getDateTime();
 	string newDateTime = prevDateTime;
 	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &newDateTime));
-	sd.addSetting(new MenuSettingDir(this, tr["Home path"],	tr["Set as home for launched links"], &confStr["homePath"]));
+	// sd.addSetting(new MenuSettingDir(this, tr["Home path"],	tr["Set as home for launched links"], &confStr["homePath"]));
 
 #if defined(HW_UDC)
 	vector<string> usbMode;
@@ -1004,6 +1004,7 @@ void GMenu2X::resetSettings() {
 	bool	reset_gmenu = true,
 			reset_skin = true,
 			reset_icon = false,
+			reset_homedir = false,
 			reset_manual = false,
 			reset_parameter = false,
 			reset_backdrop = false,
@@ -1019,6 +1020,7 @@ void GMenu2X::resetSettings() {
 	sd.addSetting(new MenuSettingBool(this, tr["Default skin"], tr["Reset Default skin settings back to default"], &reset_skin));
 	sd.addSetting(new MenuSettingBool(this, tr["Icons"], tr["Reset link's icon back to default"], &reset_icon));
 	sd.addSetting(new MenuSettingBool(this, tr["Manuals"], tr["Unset link's manual"], &reset_manual));
+	sd.addSetting(new MenuSettingBool(this, tr["Home directory"], tr["Unset link's home directory"], &reset_homedir));
 	sd.addSetting(new MenuSettingBool(this, tr["Parameters"], tr["Unset link's additional parameters"], &reset_parameter));
 	sd.addSetting(new MenuSettingBool(this, tr["Backdrops"], tr["Unset link's backdrops"], &reset_backdrop));
 	sd.addSetting(new MenuSettingBool(this, tr["Filters"], tr["Unset link's selector file filters"], &reset_filter));
@@ -1041,6 +1043,7 @@ void GMenu2X::resetSettings() {
 				if (!islink) continue;
 				if (reset_cpu)			menu->selLinkApp()->setCPU();
 				if (reset_icon)			menu->selLinkApp()->setIcon("");
+				if (reset_homedir)		menu->selLinkApp()->setHomeDir("");
 				if (reset_manual)		menu->selLinkApp()->setManual("");
 				if (reset_parameter) 	menu->selLinkApp()->setParams("");
 				if (reset_filter) 		menu->selLinkApp()->setSelectorFilter("");
@@ -1901,6 +1904,7 @@ void GMenu2X::editLink() {
 	string dialogTitle = tr["Edit"] + " " + linkTitle;
 	string dialogIcon = menu->selLinkApp()->getIconPath();
 	string linkDir = dir_name(linkExec);
+	string linkHomeDir = menu->selLinkApp()->getHomeDir();
 
 	vector<string> scaleMode;
 	// scaleMode.push_back("Crop");
@@ -1917,6 +1921,7 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingImage(			this, tr["Icon"],			tr["Select a custom icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", linkExec, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMenu"], confInt["cpuMax"], CPU_STEP));
 	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
+	sd.addSetting(new MenuSettingDir(			this, tr["Home Path"],		tr["Set directory as $HOME for this link"], &linkHomeDir, CARD_ROOT, dialogTitle, dialogIcon));
 
 	#if defined(HW_SCALER)
 		#if !defined(TARGET_PC) && defined(HW_SCALER)
@@ -1960,6 +1965,7 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setManual(linkManual);
 		menu->selLinkApp()->setParams(linkParams);
 		menu->selLinkApp()->setSelectorFilter(linkSelFilter);
+		if (linkHomeDir != CARD_ROOT) menu->selLinkApp()->setHomeDir(linkHomeDir);
 
 		if (useSelector) {
 			if (linkSelDir.empty()) linkSelDir = confStr["homePath"];

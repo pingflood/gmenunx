@@ -68,7 +68,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* file):
 		else if (name == "description") description = value;
 		else if (name == "icon") setIcon(value);
 		else if (name == "params") params = value;
-		else if (name == "workdir") workdir = value;
+		else if (name == "home") homedir = value;
 		else if (name == "manual") setManual(value);
 		else if (name == "clock") setCPU(atoi(value.c_str()));
 
@@ -240,8 +240,8 @@ bool LinkApp::targetExists() {
 	return true; //For displaying elements during testing on pc
 #endif
 	string target = exec;
-	if (!exec.empty() && exec[0] != '/' && !workdir.empty())
-		target = workdir + "/" + exec;
+	if (!exec.empty() && exec[0] != '/' && !homedir.empty())
+		target = homedir + "/" + exec;
 
 	return file_exists(target);
 }
@@ -256,7 +256,7 @@ bool LinkApp::save() {
 		if (icon != "")				f << "icon="			<< icon				<< endl;
 		if (exec != "")				f << "exec="			<< exec				<< endl;
 		if (params != "")			f << "params="			<< params			<< endl;
-		if (workdir != "")			f << "workdir="			<< workdir			<< endl;
+		if (homedir != "")			f << "home="			<< homedir			<< endl;
 		if (manual != "")			f << "manual="			<< manual			<< endl;
 		if (iclock != 0)			f << "clock="			<< iclock			<< endl;
 
@@ -324,9 +324,7 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	mb.exec();
 
 	// Set correct working directory
-	string wd = getRealWorkdir();
-	if (!wd.empty())
-		chdir(wd.c_str());
+	chdir(dir_name(exec).c_str());
 
 	if (!selectedFile.empty()) {
 		string selectedFileExtension;
@@ -397,21 +395,17 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 	if (gmenu2x->confInt["outputLogs"]) command += " &> " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 
-	if (!gmenu2x->confStr["homePath"].empty() && dir_exists(gmenu2x->confStr["homePath"])) {
-		params = "HOME=" + gmenu2x->confStr["homePath"];
-		// populate environ
-		environ[0] = (char*)params.c_str();
-		environ[1] = (char*)"PATH=/bin:/sbin:/usr/bin:/usr/sbin",
-		environ[2] = (char*)"TERM=vt100",
-		environ[3] = (char*)"SDL_NOMOUSE=1",
-		environ[4] = NULL;
-	}
-
 	command = "exec " + command;
 
+	params = this->getHomeDir();
+	if (!params.empty() && dir_exists(params)) {
+		command = "HOME=" + params + " " + command;
+	}
+
 	gmenu2x->quit();
-	execle("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL, environ);
-	// execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
+
+	// execle("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL, environ);
+	execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 	//try relaunching gmenu2x
@@ -437,26 +431,12 @@ void LinkApp::setParams(const string &params) {
 	edited = true;
 }
 
-const string &LinkApp::getWorkdir() {
-	return workdir;
+const string &LinkApp::getHomeDir() {
+	return homedir;
 }
 
-const string LinkApp::getRealWorkdir() {
-	string wd = workdir;
-	if (wd.empty()) {
-		if (exec[0] != '/') {
-			wd = gmenu2x->getExePath();
-		} else {
-			string::size_type pos = exec.rfind("/");
-			if (pos != string::npos)
-				wd = exec.substr(0,pos);
-		}
-	}
-	return wd;
-}
-
-void LinkApp::setWorkdir(const string &workdir) {
-	this->workdir = workdir;
+void LinkApp::setHomeDir(const string &homedir) {
+	this->homedir = homedir;
 	edited = true;
 }
 
