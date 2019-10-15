@@ -88,7 +88,7 @@ using namespace fastdelegate;
 enum vol_mode_t {
 	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
 };
-uint16_t mmcPrev = MMC_REMOVE, mmcStatus;
+uint16_t mmcPrev, mmcStatus;
 uint16_t udcPrev = UDC_REMOVE, udcStatus;
 uint16_t tvOutPrev = TV_REMOVE, tvOutStatus;
 uint16_t volumeModePrev, volumeMode;
@@ -323,7 +323,7 @@ void GMenu2X::main() {
 	initMenu();
 
 	tvOutStatus = getTVOutStatus();
-	mmcStatus = getMMCStatus();
+	mmcPrev = mmcStatus = getMMCStatus();
 	udcStatus = getUDCStatus();
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
 

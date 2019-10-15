@@ -35,7 +35,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* file):
 	Link(gmenu2x, MakeDelegate(this, &LinkApp::run)),
 	inputMgr(inputMgr)
 {
-	manual = manualPath = "";
 	this->file = file;
 	setCPU(gmenu2x->confInt["cpuMenu"]);
 
@@ -49,14 +48,9 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* file):
 	// useGinge = false;
 #endif
 
-	selectordir = "";
-	selectorfilter = "";
-	icon = iconPath = "";
 	selectorbrowser = true;
 	if (gmenu2x->w/gmenu2x->h > 1.4) _scalemode = 1;
 	scalemode = _scalemode;
-	workdir = "";
-	backdrop = backdropPath = "";
 
 	string line;
 	ifstream infile(file, ios_base::in);

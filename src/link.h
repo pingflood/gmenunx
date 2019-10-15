@@ -48,7 +48,13 @@ private:
 protected:
 	GMenu2X *gmenu2x;
 	bool edited;
-	string exec, title, description, icon, iconPath, backdrop, backdropPath;
+	string	exec = "",
+			title = "",
+			description = "",
+			icon = "",
+			iconPath = "",
+			backdrop = "",
+			backdropPath = "";
 
 public:
 	// linkaction

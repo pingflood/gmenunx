@@ -39,7 +39,15 @@ private:
 	InputManager &inputMgr;
 	int iclock = 0, selectorelement = 0, scalemode, _scalemode = 0; //, ivolume = 0;
 	bool selectorbrowser;
-	string params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, aliasfile, file; //, backdrop, backdropPath, resolution;
+	string	params = "",
+			homedir = "",
+			manual = "",
+			manualPath = "",
+			selectordir = "",
+			selectorfilter = "",
+			selectorscreens = "",
+			aliasfile = "",
+			file = "";
 
 public:
 	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* file);
@@ -47,9 +55,8 @@ public:
 	void setExec(const string &exec);
 	const string &getParams();
 	void setParams(const string &params);
-	const string &getWorkdir();
-	const string getRealWorkdir();
-	void setWorkdir(const string &workdir);
+	const string &getHomeDir();
+	void setHomeDir(const string &homedir);
 	const string &getManual();
 	const string &getManualPath() { return manualPath; }
 	void setManual(const string &manual);
