@@ -167,17 +167,9 @@ void syncDateTime(time_t t) {
 #endif
 }
 
-const string getDateTime() {
-	char buf[80];
-	time_t now = time(0);
-	struct tm tstruct = *localtime(&now);
-	strftime(buf, sizeof(buf), "%F %R", &tstruct);
-	return buf;
-}
-
 void initDateTime() {
 	time_t now = time(0);
-	uint32_t t = __BUILDTIME__;
+	const uint32_t t = __BUILDTIME__;
 
 	if (now < t) {
 		syncDateTime(t);
@@ -205,6 +197,19 @@ void setDateTime(const char* timestamp) {
 	syncDateTime(t);
 }
 
+const string getDateTime() {
+#if !defined(TARGET_PC)
+	system("hwclock --hctosys");
+#endif
+
+	char buf[80];
+	time_t now = time(0);
+	struct tm tstruct = *localtime(&now);
+	strftime(buf, sizeof(buf), "%F %R", &tstruct);
+	return buf;
+}
+
+
 static void quit_all(int err) {
 	delete app;
 	exit(err);
@@ -219,7 +224,12 @@ GMenu2X::~GMenu2X() {
 }
 
 void GMenu2X::quit() {
+	powerManager->clearTimer();
+
+	getDateTime(); // update sw clock
+
 	writeConfig();
+
 	s->flip(); s->flip(); s->flip(); // flush buffers
 	s->free();
 
@@ -931,7 +941,8 @@ void GMenu2X::initMenu() {
 }
 
 void GMenu2X::settings() {
-//G
+	powerManager->clearTimer();
+
 	// int prevgamma = confInt["gamma"];
 	FileLister fl_tr("translations");
 	fl_tr.browse();
