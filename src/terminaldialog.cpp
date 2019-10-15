@@ -38,7 +38,7 @@ int TerminalDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t fi
 		int y = gmenu2x->listRect.y + (i - firstRow) * gmenu2x->font->getHeight();
 		mx = max(mx, gmenu2x->font->getTextWidth(text->at(i)));
 
-		if (text->at(i)=="----") { //draw a line
+		if (text->at(i)=="----") { // draw a line
 			gmenu2x->s->box(5, y, gmenu2x->w - 10, 1, 255, 255, 255, 130);
 			gmenu2x->s->box(5, y + 1, gmenu2x->w - 10, 1, 0, 0, 0, 130);
 		} else {
@@ -60,8 +60,7 @@ void TerminalDialog::exec(const string &_cmd) {
 	if (gmenu2x->sc.skinRes(this->icon) == NULL)
 		this->icon = "icons/terminal.png";
 
-	buttons.push_back({"dpad", gmenu2x->tr["Scroll"]});
-	buttons.push_back({"b", gmenu2x->tr["Exit"]});
+	buttons.push_back({"skin:imgs/manual.png", gmenu2x->tr["Running.. Please wait.."]});
 
 	drawDialog(this->bg);
 
@@ -79,24 +78,37 @@ void TerminalDialog::exec(const string &_cmd) {
 
 	gmenu2x->powerManager->clearTimer();
 
-	while (true) {
-		if (pipe) {
-			if (!feof(pipe) && fgets(buffer, 128, pipe) != NULL) {
-				rawText += buffer;
-			} else {
-				pclose(pipe);
-				pipe = NULL;
-				rawText += "\r\n----\r\nDone.";
-				system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi");
-				system("sync &");
-			}
-			InputManager::wakeUp(0, (void*)false);
-			split(text, rawText, "\r\n");
-			if (text.size() >= rowsPerPage) firstRow = text.size() - rowsPerPage;
-		}
+	while (!feof(pipe) && fgets(buffer, 128, pipe) != NULL) {
+		rawText += buffer;
+
+		split(text, rawText, "\r\n");
+		if (text.size() >= rowsPerPage) firstRow = text.size() - rowsPerPage;
 
 		this->bg->blit(gmenu2x->s,0,0);
 		lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
+		gmenu2x->s->flip();
+	}
+
+	pclose(pipe);
+	pipe = NULL;
+
+	text.push_back("----");
+	text.push_back("Done.");
+	if (text.size() >= rowsPerPage) firstRow = text.size() - rowsPerPage;
+
+	system("sync &");
+
+	buttons.clear();
+	buttons.push_back({"dpad", gmenu2x->tr["Scroll"]});
+	buttons.push_back({"b", gmenu2x->tr["Exit"]});
+
+	while (true) {
+		this->bg->blit(gmenu2x->s,0,0);
+
+		lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
+
+		drawDialog(this->bg);
+
 		gmenu2x->s->flip();
 
 		inputAction = gmenu2x->input.update();
@@ -117,7 +129,9 @@ void TerminalDialog::exec(const string &_cmd) {
 			else
 				firstRow = max(0,text.size()-rowsPerPage);
 		}
-		else if (gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL]) break;
+		else if (gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL]) {
+			gmenu2x->powerManager->resetSuspendTimer();
+			return;
+		}
 	}
-	pclose(pipe);
 }
