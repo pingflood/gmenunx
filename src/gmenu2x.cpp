@@ -297,7 +297,7 @@ void GMenu2X::main() {
 		quit();
 		return;
 	}
-	SDL_ShowCursor(0);
+	SDL_ShowCursor(SDL_DISABLE);
 
 	SDL_Surface *screen = SDL_SetVideoMode(this->w, this->h, 16, SDL_HWSURFACE |
 		#ifdef SDL_TRIPLEBUF
