@@ -258,7 +258,7 @@ private:
 	int getBacklight() {
 		char buf[32] = "-1";
 		FILE *f;
-		if (f = fopen("/proc/jz/lcd_backlight", "r")) {
+		if (f = fopen("/proc/jz/backlight", "r")) {
 			fgets(buf, sizeof(buf), f);
 			fclose(f);
 		}
@@ -291,13 +291,9 @@ public:
 		}
 
 		FILE *f;
-		if (f = fopen("/proc/jz/lcd_backlight", "w")) {
+		if (f = fopen("/proc/jz/backlight", "w")) {
 			fprintf(f, "%d", val); // fputs(val, f);
-			fclose(f);
-		}
-
-		if (f = fopen("/proc/jz/backlight_control", "w")) {
-			fprintf(f, "%d", (val > 0)); // fputs(val, f);
+			if (val < 1) fprintf(f, "-"); // disable backlight button
 			fclose(f);
 		}
 
