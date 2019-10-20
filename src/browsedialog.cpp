@@ -236,11 +236,13 @@ void BrowseDialog::contextMenu() {
 }
 
 void BrowseDialog::deleteFile() {
-	MessageBox mb(gmenu2x, gmenu2x->tr["Delete"] + " " + getFileName(selected).c_str() + "\n" + gmenu2x->tr["Are you sure?"]);
-	mb.setButton(CONFIRM, gmenu2x->tr["Yes"]);
+	MessageBox mb(gmenu2x, gmenu2x->tr["Delete"] + " '" +  getFile(selected) + "'\n" + gmenu2x->tr["THIS CAN'T BE UNDONE"] + "\n" + gmenu2x->tr["Are you sure?"], "explorer.png");
+	mb.setButton(MANUAL, gmenu2x->tr["Yes"]);
 	mb.setButton(CANCEL,  gmenu2x->tr["No"]);
-	if (mb.exec() == CONFIRM) {
-		WARNING("PLACEHOLDER: DELETE FILE");
+	if (mb.exec() != MANUAL) return;
+	if (!unlink(getFilePath(selected).c_str())) {
+		directoryEnter(getPath()); // refresh
+		sync();
 	}
 }
 
