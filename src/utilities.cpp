@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 //for browsing the filesystem
-#include <unistd.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <math.h>
