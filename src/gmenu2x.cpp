@@ -65,6 +65,7 @@
 #include "wallpaperdialog.h"
 #include "textdialog.h"
 #include "terminaldialog.h"
+#include "opkscannerdialog.h"
 #include "menusettingint.h"
 #include "menusettingbool.h"
 #include "menusettingrgba.h"
@@ -1840,13 +1841,13 @@ void GMenu2X::contextMenu() {
 	if (menu->selLinkApp() != NULL) {
 		options.push_back((MenuOption){tr["Edit"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::editLink)});
 
-		#if defined(OPK_SUPPORT) || defined(IPK_SUPPORT)
-			string package = "";
 		string package = "";
+		#if defined(OPK_SUPPORT)
 			if (file_ext(menu->selLinkApp()->getExec(), true) == ".opk") {
 				package = base_name(menu->selLinkApp()->getExec());
 				options.push_back((MenuOption){tr["Uninstall"] + " " + package.c_str(), MakeDelegate(this, &GMenu2X::opkUninstall)});
-			} else {
+			} else
+		#endif
 		#if defined(IPK_SUPPORT)
 			{
 				package = ipkName(menu->selLinkApp()->getFile());
@@ -1865,11 +1866,8 @@ void GMenu2X::contextMenu() {
 	options.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
 
 #if defined(OPK_SUPPORT)
-#if !defined(TARGET_PC)
-	if (file_exists("/usr/bin/retrofw"))
+	options.push_back((MenuOption){tr["Update OPK links"], MakeDelegate(this, &GMenu2X::opkScanner)});
 #endif
-	{
-		options.push_back((MenuOption){tr["Update OPKs"], MakeDelegate(this, &GMenu2X::opkScanner)});
 #if defined(IPK_SUPPORT)
 	if (file_exists("/usr/bin/opkg")) {
 		options.push_back((MenuOption){tr["Install IPK"], MakeDelegate(this, &GMenu2X::ipkInstall)});
@@ -1930,13 +1928,17 @@ void GMenu2X::editLink() {
 	string linkScaleMode = scaleMode[menu->selLinkApp()->getScaleMode()];
 
 	SettingsDialog sd(this, ts, dialogTitle, dialogIcon);
-	sd.addSetting(new MenuSettingFile(			this, tr["Executable"],		tr["Application this link points to"], &linkExec, ".dge,.gpu,.gpe,.sh,.bin,.opk,.elf,", linkExec, dialogTitle, dialogIcon));
-	sd.addSetting(new MenuSettingString(		this, tr["Title"],			tr["Link title"], &linkTitle, dialogTitle, dialogIcon));
-	sd.addSetting(new MenuSettingString(		this, tr["Description"],	tr["Link description"], &linkDescription, dialogTitle, dialogIcon));
-	sd.addSetting(new MenuSettingMultiString(	this, tr["Section"],		tr["The section this link belongs to"], &newSection, &menu->getSections()));
+
+	// sd.addSetting(new MenuSettingFile(			this, tr["Executable"],		tr["Application this link points to"], &linkExec, ".dge,.gpu,.gpe,.sh,.bin,.opk,.elf,", linkExec, dialogTitle, dialogIcon));
+	if (!menu->selLinkApp()->isOPK()) {
+		sd.addSetting(new MenuSettingString(		this, tr["Title"],			tr["Link title"], &linkTitle, dialogTitle, dialogIcon));
+		sd.addSetting(new MenuSettingString(		this, tr["Description"],	tr["Link description"], &linkDescription, dialogTitle, dialogIcon));
+		sd.addSetting(new MenuSettingMultiString(	this, tr["Section"],		tr["The section this link belongs to"], &newSection, &menu->getSections()));
+		sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
+	}
+
 	sd.addSetting(new MenuSettingImage(			this, tr["Icon"],			tr["Select a custom icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", linkExec, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMenu"], confInt["cpuMax"], CPU_STEP));
-	sd.addSetting(new MenuSettingString(		this, tr["Parameters"],		tr["Command line arguments to pass to the application"], &linkParams, dialogTitle, dialogIcon));
 	// sd.addSetting(new MenuSettingDir(			this, tr["Home Path"],		tr["Set directory as $HOME for this link"], &linkHomeDir, CARD_ROOT, dialogTitle, dialogIcon));
 
 	#if defined(HW_SCALER)
@@ -2110,24 +2112,31 @@ void GMenu2X::deleteSection() {
 
 #if defined(OPK_SUPPORT)
 void GMenu2X::opkScanner() {
-	TerminalDialog td(this, tr["Update OPK links"], "opk update", "skin:icons/terminal.png");
-	td.exec("retrofw opk update");
+	OPKScannerDialog od(this, tr["Update OPK links"], "Scanning OPK packages", "skin:icons/configure.png");
+	od.exec();
 	initMenu();
 }
 
 void GMenu2X::opkUninstall() {
-	if (menu->selLinkApp() != NULL) {
-		string package = base_name(menu->selLinkApp()->getExec());
-		MessageBox mb(this, tr["Uninstall"] + " " + package.c_str() + "\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
-		mb.setButton(MANUAL, tr["Yes"]);
-		mb.setButton(CANCEL,  tr["No"]);
-		if (mb.exec() != MANUAL) return;
+	if (menu->selLinkApp() == NULL) return;
 
-		package = menu->selLinkApp()->getExec();
-		menu->deleteSelectedLink();
-		unlink(package.c_str());
-		sync();
+	string package = base_name(menu->selLinkApp()->getExec());
+	MessageBox mb(this, tr["Uninstall"] + " " + package + "\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+	mb.setButton(MODIFIER, tr["Uninstall"]);
+	mb.setButton(MANUAL, tr["Delete link"]);
+	mb.setButton(CANCEL,  tr["No"]);
+	switch (mb.exec()) {
+		case MANUAL:
+			package = menu->selLinkApp()->getExec();
+			menu->deleteSelectedLink();
+		case MODIFIER:
+			unlink(package.c_str());
+			break;
+		default:
+			return;
+
 	}
+	sync();
 }
 #endif
 

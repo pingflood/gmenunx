@@ -1,9 +1,6 @@
-TARGET=pc
+PLATFORM=pc
 
 BUILDTIME	:=$(shell date +%s)
-
-# CHAINPREFIX := /opt/mipsel-linux-uclibc
-# CROSS_COMPILE := $(CHAINPREFIX)/usr/bin/mipsel-linux-
 
 CC			:= $(CROSS_COMPILE)gcc
 CXX			:= $(CROSS_COMPILE)g++
@@ -13,16 +10,15 @@ SYSROOT     := $(shell $(CC) --print-sysroot)
 SDL_CFLAGS  := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
 SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
 
-CFLAGS = $(SDL_CFLAGS) -DTARGET_PC -DTARGET=$(TARGET) -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=4 -Wundef -Wno-deprecated -Wno-unknown-pragmas -Wno-format -pg -O0 -g -ggdb -Wno-narrowing
+CFLAGS = -DTARGET_PC -DPLATFORM=\"$(PLATFORM)\" $(SDL_CFLAGS) -DOPK_SUPPORT -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=4 -Wundef -Wno-deprecated -Wno-unknown-pragmas -Wno-format -pg -O0 -g -ggdb -Wno-narrowing
 CFLAGS += -Isrc/libopk src/libopk/libopk.a
-# CXXFLAGS = $(CFLAGS)
+
 LDFLAGS = -Wl,-Bstatic -Lsrc/libopk -l:libopk.a -Wl,-Bdynamic -lz
 LDFLAGS += $(SDL_LIBS) -lSDL_image -lSDL_ttf
- #-ljpeg -lpng12 -lz -lfreetype  -lSDL_gfx -L/usr/lib
 
-OBJDIR = /tmp/gmenu2x/$(TARGET)
-DISTDIR = dist/$(TARGET)/gmenu2x
-APPNAME = dist/$(TARGET)/gmenu2x
+OBJDIR = /tmp/gmenu2x/$(PLATFORM)
+DISTDIR = dist/$(PLATFORM)/gmenu2x
+APPNAME = dist/$(PLATFORM)/gmenu2x
 
 SOURCES := $(wildcard src/*.cpp)
 OBJS := $(patsubst src/%.cpp, $(OBJDIR)/src/%.o, $(SOURCES))
@@ -38,7 +34,7 @@ $(OBJDIR)/src/%.o: src/%.cpp src/%.h
 all: dir libopk shared
 
 dir:
-	@mkdir -p $(OBJDIR)/src dist/$(TARGET)
+	@mkdir -p $(OBJDIR)/src dist/$(PLATFORM)
 
 libopk:
 	make -C src/libopk

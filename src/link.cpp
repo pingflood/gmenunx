@@ -26,7 +26,7 @@ Link::Link(GMenu2X *gmenu2x_, LinkAction action)
 {
 	this->action = action;
 	edited = false;
-	iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
+	iconPath = "";
 	backdrop = "";
 	padding = 4;
 }

@@ -92,6 +92,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* file):
 	}
 	infile.close();
 
+	is_opk = (file_ext(exec, true) == ".opk");
+
 	if (iconPath.empty()) searchIcon();
 	if (manualPath.empty()) searchManual();
 	if (backdropPath.empty()) searchBackdrop();
@@ -187,28 +189,32 @@ const string &LinkApp::searchIcon() {
 
 	linktitle += ".png";
 
-	if (!gmenu2x->sc.getSkinFilePath("icons/" + sublinktitle).empty())
+	if (!gmenu2x->sc.getSkinFilePath("icons/" + sublinktitle).empty()) {
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + sublinktitle);
-
-	else if (!gmenu2x->sc.getSkinFilePath("icons/" + linktitle).empty())
+	} else
+	if (!gmenu2x->sc.getSkinFilePath("icons/" + linktitle).empty()) {
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + linktitle);
-
-	else if (!gmenu2x->sc.getSkinFilePath("icons/" + exectitle).empty())
+	} else
+	if (!gmenu2x->sc.getSkinFilePath("icons/" + exectitle).empty()) {
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + exectitle);
-
-	else if (!gmenu2x->sc.getSkinFilePath("icons/" + dirtitle).empty())
+	} else
+	if (!gmenu2x->sc.getSkinFilePath("icons/" + dirtitle).empty()) {
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/" + dirtitle);
-
-	else if (file_exists(dir_name(exec) + "/" + sublinktitle))
+	} else
+	if (file_exists(dir_name(exec) + "/" + sublinktitle)) {
 		iconPath = dir_name(exec) + "/" + sublinktitle;
-	else if (file_exists(execicon))
+	} else
+	if (file_exists(execicon)) {
 		iconPath = execicon;
+	} else
 #if defined(OPK_SUPPORT)
-	else if (file_ext(exec, true) == ".opk")
+	if (isOPK()) {
 		iconPath = exec + "#" + icon;
+	} else
 #endif
-	else
+	{
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
+	}
 
 	return iconPath;
 }
@@ -323,8 +329,8 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	mb.setAutoHide(1);
 	mb.exec();
 
-	// Set correct working directory
-	chdir(dir_name(exec).c_str());
+	string command = cmdclean(exec);
+
 
 	if (!selectedFile.empty()) {
 		string selectedFileExtension;
@@ -354,13 +360,17 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 	INFO("Executing '%s' (%s %s)", title.c_str(), exec.c_str(), params.c_str());
 
-	string command = cmdclean(exec);
-
 #if defined(OPK_SUPPORT)
-	if (file_ext(command, true) == ".opk") {
-		command = "retrofw opk run " + command;
-	}
+	if (isOPK()) {
+		string opk_mount = "mkdir -p /tmp/.opk; umount -fl /tmp/.opk &> /dev/null; mount -o loop " + command + " /tmp/.opk; cd /tmp/.opk";
+		system(opk_mount.c_str());
+		chdir("/tmp/.opk");
+
+		command = "/tmp/.opk/" + params;
+		params = "";
+	} else
 #endif
+	chdir(dir_name(exec).c_str()); // Set correct working directory
 
 	// Check to see if permissions are desirable
 	struct stat fstat;

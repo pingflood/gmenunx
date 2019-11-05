@@ -1,6 +1,6 @@
 CHAINPREFIX=/opt/gcw0-toolchain
 
-TARGET=gcw0
+PLATFORM=gcw0
 DEBUG=0
 
 ifeq ($(DEBUG),0)
@@ -15,13 +15,13 @@ SYSROOT     := $(CHAINPREFIX)/usr/mipsel-buildroot-linux-uclibc/sysroot
 SDL_CFLAGS  := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
 SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
 
-CFLAGS = -ggdb -DTARGET_GCW0 -DTARGET=$(TARGET) -DLOG_LEVEL=3 -g3 $(SDL_CFLAGS) -I$(CHAINPREFIX)/usr/include/ -I$(SYSROOT)/usr/include/  -I$(SYSROOT)/usr/include/SDL/  
+CFLAGS = -DTARGET_GCW0 -DPLATFORM=\"$(PLATFORM)\" -DLOG_LEVEL=3 -ggdb -g3 $(SDL_CFLAGS) -I$(CHAINPREFIX)/usr/include/ -I$(SYSROOT)/usr/include/  -I$(SYSROOT)/usr/include/SDL/
 CXXFLAGS = $(CFLAGS)
 LDFLAGS = $(SDL_LIBS) -lfreetype -lSDL_image -lSDL_ttf -lSDL_gfx -lSDL -lpthread
 
-OBJDIR = objs/$(TARGET)
-DISTDIR = dist/$(TARGET)/gmenu2x
-APPNAME = $(OBJDIR)/gmenu2x
+OBJDIR = /tmp/gmenu2x/$(PLATFORM)
+DISTDIR = dist/$(PLATFORM)/gmenu2x
+APPNAME = dist/$(PLATFORM)/gmenu2x
 
 SOURCES := $(wildcard src/*.cpp)
 OBJS := $(patsubst src/%.cpp, $(OBJDIR)/src/%.o, $(SOURCES))
@@ -38,7 +38,7 @@ dir:
 debug: $(OBJS)
 	@echo "Linking gmenu2x-debug..."
 	$(CXX) -o $(APPNAME)-debug $(LDFLAGS) $(OBJS)
-	 # $(LDFLAGS) 
+	 # $(LDFLAGS)
 
 shared: debug
 	$(STRIP) $(APPNAME)-debug -o $(APPNAME)
@@ -49,7 +49,7 @@ clean:
 dist: dir shared
 	install -m755 -D $(APPNAME) $(DISTDIR)/gmenu2x
 ifeq ($(DEBUG),0)
-	install -m644 assets/$(TARGET)/input.conf $(DISTDIR)
+	install -m644 assets/$(PLATFORM)/input.conf $(DISTDIR)
 else
 	install -m644 assets/pc/input.conf $(DISTDIR)
 endif
@@ -58,14 +58,14 @@ endif
 	install -m644 -D COPYING $(DISTDIR)/COPYING
 	install -m644 -D ChangeLog $(DISTDIR)/ChangeLog
 	cp -RH assets/skins assets/translations $(DISTDIR)
-	cp -RH assets/$(TARGET)/BlackJeans.png $(DISTDIR)/skins/Default/wallpapers
-	cp -RH assets/$(TARGET)/skin.conf $(DISTDIR)/skins/Default
-	cp -RH assets/$(TARGET)/font.ttf $(DISTDIR)/skins/Default
-	# cp -RH assets/$(TARGET)/gmenu2x.conf $(DISTDIR)
-	cp -RH assets/$(TARGET)/icons/* $(DISTDIR)/skins/Default/icons/
-	# cp -RH assets/$(TARGET)/emulators/* $(DISTDIR)/sections/emulators/
-	# cp -RH assets/$(TARGET)/games/* $(DISTDIR)/sections/games/
-	# cp -RH assets/$(TARGET)/applications/* $(DISTDIR)/sections/applications/
+	cp -RH assets/$(PLATFORM)/BlackJeans.png $(DISTDIR)/skins/Default/wallpapers
+	cp -RH assets/$(PLATFORM)/skin.conf $(DISTDIR)/skins/Default
+	cp -RH assets/$(PLATFORM)/font.ttf $(DISTDIR)/skins/Default
+	# cp -RH assets/$(PLATFORM)/gmenu2x.conf $(DISTDIR)
+	cp -RH assets/$(PLATFORM)/icons/* $(DISTDIR)/skins/Default/icons/
+	# cp -RH assets/$(PLATFORM)/emulators/* $(DISTDIR)/sections/emulators/
+	# cp -RH assets/$(PLATFORM)/games/* $(DISTDIR)/sections/games/
+	# cp -RH assets/$(PLATFORM)/applications/* $(DISTDIR)/sections/applications/
 	cd $(DISTDIR)/ && zip -r ../GMenuNext.zip .
 
 -include $(patsubst src/%.cpp, $(OBJDIR)/src/%.d, $(SOURCES))
