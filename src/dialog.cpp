@@ -85,4 +85,5 @@ void Dialog::drawDialog(Surface *s, bool top, bool bottom) {
 
 	if (top) drawTopBar(s, title, description, icon);
 	if (bottom) drawBottomBar(s, buttons);
+	s->box(gmenu2x->linksRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 }
