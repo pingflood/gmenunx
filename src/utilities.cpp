@@ -257,10 +257,18 @@ string dir_name(const string &path) {
 	return real_path("/" + path.substr(0, p));
 }
 
-string base_name(const string &path) {
+string base_name(string path, bool strip_extension) {
 	string::size_type p = path.rfind("/");
 	if (p == path.size() - 1) p = path.rfind("/", p - 1);
-	return path.substr(p + 1, path.length());
+
+	path = path.substr(p + 1);
+
+	if (strip_extension) {
+		p = path.rfind('.');
+		path = path.substr(0, p);
+	}
+
+	return path;
 }
 
 string file_ext(const string &path, bool lowercase) {

@@ -72,7 +72,7 @@ int intTransition(int from, int to, int32_t tickStart, int32_t duration = 500, i
 string exec(const char* cmd);
 string real_path(const string &path);
 string dir_name(const string &path);
-string base_name(const string &path);
+string base_name(string path, bool strip_extension = false);
 string file_ext(const string &path, bool lowercase = false);
 string lowercase(string s);
 bool file_copy(const string &src, const string &dst);
