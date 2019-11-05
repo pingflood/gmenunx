@@ -91,9 +91,7 @@ void Menu::readLinks() {
 				continue;
 			}
 
-			if (file_exists(filepath)) {
-				linkfiles.push_back(filepath);
-			}
+			linkfiles.push_back(filepath);
 		}
 
 		sort(linkfiles.begin(), linkfiles.end(), case_less());
