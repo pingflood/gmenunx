@@ -221,36 +221,18 @@ bool Menu::addActionLink(uint32_t section, const string &title, fastdelegate::Fa
 	return true;
 }
 
-bool Menu::addLink(string exec, string section, string title, string description, string icon, string params) {
-	if (section.empty()) {
-		section = selSection();
-	} else if (find(sections.begin(), sections.end(), section) == sections.end()) {
-		// section directory doesn't exists
-		if (!addSection(section))
-			return false;
-	}
-
+bool Menu::addLink(string exec) {
+	string section = selSection();
 	string path = dir_name(exec);
-	string file = base_name(exec);
-
-	if (title.empty()) {
-		title = file;
-		// strip the extension from the filename
-		string::size_type pos = title.rfind(".");
-		if (pos != string::npos && pos > 0) {
-			title = title.substr(0, pos);
-		}
-	}
-
+	string title = base_name(exec, true);
 	string linkpath = "sections/" + section + "/" + title;
-	if (section != "favourites") {
-		int x = 2;
-		while (file_exists(linkpath)) {
-			stringstream ss;
-			linkpath = ""; ss << x; ss >> linkpath;
-			linkpath = "sections/" + section + "/" + title + linkpath;
-			x++;
-		}
+
+	int x = 2;
+	while (file_exists(linkpath)) {
+		stringstream ss;
+		linkpath = ""; ss << x; ss >> linkpath;
+		linkpath = "sections/" + section + "/" + title + linkpath;
+		x++;
 	}
 
 	// Reduce title length to fit the link width
@@ -266,17 +248,6 @@ bool Menu::addLink(string exec, string section, string title, string description
 	if (f.is_open()) {
 		f << "title=" << title << endl;
 		f << "exec=" << exec << endl;
-
-		INFO("ICON: '%s'", icon.c_str());
-
-		if (!icon.empty() && file_exists(icon))
-			f << "icon=" << icon << endl;
-
-		if (!params.empty())
-			f << "params=" << params << endl;
-
-		if (!description.empty())
-			f << "description=" << description << endl;
 
 		string selectoraliases = path + "/aliases.txt";
 		if (file_exists(selectoraliases))

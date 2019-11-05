@@ -151,15 +151,29 @@ const std::string Selector::getParams(uint32_t i) {
 
 void Selector::customOptions(vector<MenuOption> &options) {
 	if (isFile(selected)) {
-		options.push_back((MenuOption){gmenu2x->tr["Add to home screen"], MakeDelegate(this, &Selector::addFavourite)});
+		options.push_back((MenuOption){gmenu2x->tr["Add to Favourites"], MakeDelegate(this, &Selector::addFavourite)});
 	}
 }
 
 void Selector::addFavourite() {
 	string favicon = getPreview(selected);
 	if (favicon.empty()) favicon = this->icon;
-	gmenu2x->menu->addLink(link->getExec(), "favourites", getFileName(selected), link->getDescription(), favicon, link->getParams() + " " + cmdclean(getFilePath(selected)));
-	MessageBox mb(gmenu2x, gmenu2x->tr["Added to home screen"], favicon);
-	// mb.setAutoHide(500);
+
+	gmenu2x->menu->addSection("favourites");
+	string title = base_name(getFileName(selected), true);
+	string linkpath = "sections/favourites/" + title + ".lnk";
+
+	LinkApp *fav = new LinkApp(gmenu2x, gmenu2x->input, linkpath.c_str());
+
+	fav->setExec(link->getExec());
+	fav->setTitle(title);
+	fav->setDescription(link->getDescription());
+	fav->setIcon(favicon);
+	fav->setParams(link->getParams() + " " + cmdclean(getFilePath(selected)));
+	fav->save();
+	gmenu2x->initMenu();
+
+	MessageBox mb(gmenu2x, gmenu2x->tr["Link created"], favicon);
+	mb.setAutoHide(1000);
 	mb.exec();
 }
