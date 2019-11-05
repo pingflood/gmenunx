@@ -27,35 +27,11 @@
 using namespace std;
 
 TerminalDialog::TerminalDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop)
-	: Dialog(gmenu2x, title, description, icon), backdrop(backdrop)
+	: TextDialog(gmenu2x, title, description, icon, backdrop)
 {}
 
-int TerminalDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t firstRow, uint32_t rowsPerPage) {
-	gmenu2x->s->setClipRect(gmenu2x->listRect);
-	int mx = 0;
-
-	for (uint32_t i = firstRow; i < firstRow + rowsPerPage && i < text->size(); i++) {
-		int y = gmenu2x->listRect.y + (i - firstRow) * gmenu2x->font->getHeight();
-		mx = max(mx, gmenu2x->font->getTextWidth(text->at(i)));
-
-		if (text->at(i)=="----") { // draw a line
-			gmenu2x->s->box(5, y, gmenu2x->w - 10, 1, 255, 255, 255, 130);
-			gmenu2x->s->box(5, y + 1, gmenu2x->w - 10, 1, 0, 0, 0, 130);
-		} else {
-			gmenu2x->font->write(gmenu2x->s, text->at(i), 5 + firstCol, y);
-		}
-	}
-
-	gmenu2x->s->clearClipRect();
-	gmenu2x->drawScrollBar(rowsPerPage, text->size(), firstRow, gmenu2x->listRect);
-	return mx;
-}
-
-void TerminalDialog::exec(const string &_cmd) {
-	string cmd;
-	bool inputAction = false;
-	int32_t firstCol = 0, lineWidth = 0;
-	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
+void TerminalDialog::exec(string cmd) {
+	rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 
 	if (gmenu2x->sc.skinRes(this->icon) == NULL)
 		this->icon = "icons/terminal.png";
@@ -67,9 +43,9 @@ void TerminalDialog::exec(const string &_cmd) {
 	gmenu2x->s->flip();
 
 	if (file_exists("/usr/bin/script"))
-		cmd = "/usr/bin/script -q -c " + cmdclean(_cmd) + " /dev/null 2>&1";
+		cmd = "/usr/bin/script -q -c " + cmdclean(cmd) + " /dev/null 2>&1";
 	else
-		cmd = "/bin/sh -c " + cmdclean(_cmd) + " 2>&1";
+		cmd = "/bin/sh -c " + cmdclean(cmd) + " 2>&1";
 
 	FILE* pipe = popen(cmd.c_str(), "r");
 
@@ -80,20 +56,15 @@ void TerminalDialog::exec(const string &_cmd) {
 
 	while (!feof(pipe) && fgets(buffer, 128, pipe) != NULL) {
 		rawText += buffer;
-
 		split(text, rawText, "\r\n");
-		if (text.size() >= rowsPerPage) firstRow = text.size() - rowsPerPage;
-
-		this->bg->blit(gmenu2x->s,0,0);
-		lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
-		gmenu2x->s->flip();
+		lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
 	}
 
 	pclose(pipe);
 	pipe = NULL;
 
 	text.push_back("----");
-	text.push_back("Done.");
+	text.push_back(gmenu2x->tr["Done"]);
 	if (text.size() >= rowsPerPage) firstRow = text.size() - rowsPerPage;
 
 	system("sync &");
@@ -103,13 +74,7 @@ void TerminalDialog::exec(const string &_cmd) {
 	buttons.push_back({"b", gmenu2x->tr["Exit"]});
 
 	while (true) {
-		this->bg->blit(gmenu2x->s,0,0);
-
 		lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
-
-		drawDialog(this->bg);
-
-		gmenu2x->s->flip();
 
 		inputAction = gmenu2x->input.update();
 

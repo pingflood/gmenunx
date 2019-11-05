@@ -23,22 +23,15 @@
 
 #include <string>
 #include "gmenu2x.h"
-#include "dialog.h"
+#include "textdialog.h"
 
 using std::string;
 using std::vector;
 
-class TerminalDialog : protected Dialog {
-protected:
-	vector<string> text;
-	string backdrop, rawText = "";
-
-	void preProcess();
-	int drawText(vector<string> *text, int32_t firstCol, uint32_t firstRow, uint32_t rowsPerPage);
-
+class TerminalDialog : protected TextDialog {
 public:
 	TerminalDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop = "");
-	void exec(const string &_cmd);
+	void exec(string cmd);
 };
 
 #endif /*TERMINALDIALOG_H_*/

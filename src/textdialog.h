@@ -33,8 +33,11 @@ protected:
 	vector<string> text;
 	string backdrop, rawText = "";
 
+	int32_t firstCol = 0, lineWidth = 0, firstRow = 0;
+	uint32_t rowsPerPage = 0;
+
 	void preProcess();
-	int  drawText(vector<string> *text, int32_t firstCol, uint32_t firstRow, uint32_t rowsPerPage);
+	int drawText(vector<string> *text, int32_t firstCol, int32_t firstRow, uint32_t rowsPerPage);
 
 public:
 	TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop = "");
@@ -42,7 +45,7 @@ public:
 	void appendText(const string &text);
 	void appendFile(const string &file);
 
-	void exec();
+	virtual void exec();
 };
 
 #endif /*TEXTDIALOG_H_*/

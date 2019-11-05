@@ -75,17 +75,23 @@ void TextDialog::preProcess() {
 	}
 }
 
-int TextDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t firstRow, uint32_t rowsPerPage) {
+int TextDialog::drawText(vector<string> *text, int32_t firstCol, int32_t firstRow, uint32_t rowsPerPage) {
+	this->bg->blit(gmenu2x->s,0,0);
+
 	gmenu2x->s->setClipRect(gmenu2x->listRect);
 	int mx = 0;
 
+	if (firstRow < 0 && text->size() >= rowsPerPage) firstRow = text->size() - rowsPerPage;
+
+	int fh = gmenu2x->font->getHeight();
+
 	for (uint32_t i = firstRow; i < firstRow + rowsPerPage && i < text->size(); i++) {
-		int y = gmenu2x->listRect.y + (i - firstRow) * gmenu2x->font->getHeight();
+		int y = gmenu2x->listRect.y + (i - firstRow) * fh;
 		mx = max(mx, gmenu2x->font->getTextWidth(text->at(i)));
 
-		if (text->at(i)=="----") { //draw a line
-			gmenu2x->s->box(5, y, gmenu2x->w - 10, 1, 255, 255, 255, 130);
-			gmenu2x->s->box(5, y + 1, gmenu2x->w - 10, 1, 0, 0, 0, 130);
+		if (text->at(i) == "----") { // draw a line
+			gmenu2x->s->box(5, y - 1 + fh / 2, gmenu2x->w - 10, 1, 255, 255, 255, 130);
+			gmenu2x->s->box(5, y + fh / 2, gmenu2x->w - 10, 1, 0, 0, 0, 130);
 		} else {
 			gmenu2x->font->write(gmenu2x->s, text->at(i), 5 + firstCol, y);
 		}
@@ -93,6 +99,9 @@ int TextDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t firstR
 
 	gmenu2x->s->clearClipRect();
 	gmenu2x->drawScrollBar(rowsPerPage, text->size(), firstRow, gmenu2x->listRect);
+
+	gmenu2x->s->flip();
+
 	return mx;
 }
 
@@ -102,8 +111,7 @@ void TextDialog::exec() {
 	preProcess();
 
 	bool inputAction = false;
-	int32_t firstCol = 0, lineWidth = 0;
-	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
+	rowsPerPage = gmenu2x->listRect.h / gmenu2x->font->getHeight();
 
 	if (gmenu2x->sc.skinRes(this->icon) == NULL)
 		this->icon = "icons/ebook.png";
@@ -114,9 +122,7 @@ void TextDialog::exec() {
 	drawDialog(this->bg);
 
 	while (true) {
-		this->bg->blit(gmenu2x->s,0,0);
 		lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
-		gmenu2x->s->flip();
 
 		do {
 			inputAction = gmenu2x->input.update();
