@@ -282,6 +282,9 @@ bool Menu::addSection(const string &sectionName) {
 		links.push_back(ll);
 		return true;
 	}
+	string tmpfile = sectiondir + "/.section";
+	FILE *fp = fopen(tmpfile.c_str(), "wb+");
+	if (fp) fclose(fp);
 	return false;
 }
 
