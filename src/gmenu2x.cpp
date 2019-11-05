@@ -1842,17 +1842,20 @@ void GMenu2X::contextMenu() {
 
 		#if defined(OPK_SUPPORT) || defined(IPK_SUPPORT)
 			string package = "";
+		string package = "";
 			if (file_ext(menu->selLinkApp()->getExec(), true) == ".opk") {
 				package = base_name(menu->selLinkApp()->getExec());
 				options.push_back((MenuOption){tr["Uninstall"] + " " + package.c_str(), MakeDelegate(this, &GMenu2X::opkUninstall)});
 			} else {
+		#if defined(IPK_SUPPORT)
+			{
 				package = ipkName(menu->selLinkApp()->getFile());
 				if (!package.empty()) {
 					options.push_back((MenuOption){tr["Uninstall"] + " " + package.c_str() + ".ipk", MakeDelegate(this, &GMenu2X::ipkUninstall)});
 				}
 			}
-			if (package.empty())
 		#endif
+		if (package.empty())
 		options.push_back((MenuOption){tr["Delete"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::deleteLink)});
 	}
 
@@ -1867,8 +1870,12 @@ void GMenu2X::contextMenu() {
 #endif
 	{
 		options.push_back((MenuOption){tr["Update OPKs"], MakeDelegate(this, &GMenu2X::opkScanner)});
+#if defined(IPK_SUPPORT)
+	if (file_exists("/usr/bin/opkg")) {
+		options.push_back((MenuOption){tr["Install IPK"], MakeDelegate(this, &GMenu2X::ipkInstall)});
 	}
 #endif
+
 	MessageBox mb(this, options);
 }
 
@@ -2144,21 +2151,40 @@ string GMenu2X::ipkName(string cmd) {
 }
 
 void GMenu2X::ipkUninstall() {
-	if (menu->selLinkApp() != NULL) {
-		string package = ipkName(menu->selLinkApp()->getFile());
-		if (!package.empty()) {
-			MessageBox mb(this, tr["Uninstall"] + " " + package.c_str() + ".ipk\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
-			mb.setButton(MANUAL, tr["Yes"]);
-			mb.setButton(CANCEL,  tr["No"]);
-			if (mb.exec() != MANUAL) return;
-
-			TerminalDialog td(this, tr["Uninstall package"], "opkg remove " + package, "skin:icons/configure.png");
-			td.exec("opkg remove " + package);
-			initMenu();
-			menu->deleteSelectedLink();
-			sync();
-		};
+	if (menu->selLinkApp() == NULL) return;
+	string package = ipkName(menu->selLinkApp()->getFile());
+	if (!package.empty()) {
+		MessageBox mb(this, tr["Uninstall"] + " " + package + ".ipk\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+		mb.setButton(MODIFIER, tr["Uninstall"]);
+		mb.setButton(MANUAL, tr["Delete link"]);
+		mb.setButton(CANCEL,  tr["No"]);
+		switch (mb.exec()) {
+			case MODIFIER: {
+				TerminalDialog td(this, tr["Uninstall package"], "opkg remove " + package, "skin:icons/configure.png");
+				td.exec("opkg remove " + package);
+				initMenu();
+			}
+			case MANUAL:
+				menu->deleteSelectedLink();
+				break;
+			default:
+				return;
+		}
+		sync();
 	}
+}
+
+void GMenu2X::ipkInstall() {
+	BrowseDialog bd(this, tr["Install IPK"], tr["Select IPK package to install"]);
+	bd.showDirectories = true;
+	bd.showFiles = true;
+	bd.setFilter(".ipk");
+	bd.exec();
+	string cmd = "opkg install --force-reinstall --force-overwrite ";
+	TerminalDialog td(this, tr["Package installer"], "opkg install " + bd.getFileName(bd.selected), "skin:icons/configure.png");
+	td.exec(cmd + cmdclean(bd.getFilePath(bd.selected)));
+	system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi; sync;");
+	initMenu();
 }
 #endif
 
