@@ -1941,14 +1941,9 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingInt(			this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMenu"], confInt["cpuMax"], CPU_STEP));
 	// sd.addSetting(new MenuSettingDir(			this, tr["Home Path"],		tr["Set directory as $HOME for this link"], &linkHomeDir, CARD_ROOT, dialogTitle, dialogIcon));
 
-	#if defined(HW_SCALER)
-		#if !defined(TARGET_PC) && defined(HW_SCALER)
-			if (file_exists("/proc/jz/ipu"))
-		#endif
-		{
-			sd.addSetting(new MenuSettingMultiString(this, tr["Scale Mode"],		tr["Hardware scaling mode"], &linkScaleMode, &scaleMode));
-		}
-	#endif
+#if defined(HW_SCALER)
+	sd.addSetting(new MenuSettingMultiString(this, tr["Scale Mode"],		tr["Hardware scaling mode"], &linkScaleMode, &scaleMode));
+#endif
 
 	if (confInt["saveSelection"]) {
 		sd.addSetting(new MenuSettingBool(		this, tr["File Selector"],	tr["Use file browser selector"], &useSelector));
