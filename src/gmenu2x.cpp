@@ -738,12 +738,18 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 
 		input.update();
 
-		if ((input[POWER] || input[SETTINGS]) && SDL_GetTicks() - button_hold > 1000)
-			poweroffDialog(); // HOLD POWER BUTTON
-		// else if (wasActive == POWER)
-		// 	powerManager->doSuspend(1);
-		else
+		if (SDL_GetTicks() - button_hold > 1000) {
+			if (input[POWER]) {
+				powerManager->doSuspend(1);
+				continue;
+			} else if (input[SETTINGS]) {
+				wasActive = POWER;
+				break;
+			}
+		} else {
 			continue;
+		}
+
 		return true;
 	}
 
@@ -767,10 +773,10 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 
 	input[wasActive] = true;
 
-	if (input[POWER])
-		powerManager->doSuspend(1);
+	if (input[POWER]) {
+		poweroffDialog();
 
-	else if (input[SCREENSHOT]) {
+	} else if (input[SCREENSHOT]) {
 		if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
 		MessageBox mb(this, tr["Screenshot saved"]);
 		mb.setAutoHide(1000);
