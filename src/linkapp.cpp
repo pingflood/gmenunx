@@ -111,9 +111,7 @@ const string &LinkApp::searchManual() {
 	string dname = dir_name(exec) + "/";
 
 	string dirtitle = dname + base_name(dir_name(exec)) + ".man.txt";
-	string linktitle = base_name(file);
-	pos = linktitle.rfind(".");
-	if (pos != string::npos) linktitle = linktitle.substr(0, pos);
+	string linktitle = base_name(file, true);
 	linktitle = dname + linktitle + ".man.txt";
 
 	if (file_exists(linktitle))
