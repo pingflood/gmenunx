@@ -2030,7 +2030,7 @@ void GMenu2X::editLink() {
 
 void GMenu2X::deleteLink() {
 	if (menu->selLinkApp() != NULL) {
-		MessageBox mb(this, tr["Delete"] + " " + menu->selLink()->getTitle().c_str() + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+		MessageBox mb(this, tr["Delete"] + " " + menu->selLink()->getTitle().c_str() + "\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
 		mb.setButton(MANUAL, tr["Yes"]);
 		mb.setButton(CANCEL,  tr["No"]);
 		if (mb.exec() != MANUAL) return;
