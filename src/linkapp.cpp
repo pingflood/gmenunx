@@ -395,9 +395,9 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 	if (gmenu2x->confInt["outputLogs"]) command += " &> " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 
-	command = "exec " + command;
+	// params = this->getHomeDir();
+	params = gmenu2x->confStr["homePath"];
 
-	params = this->getHomeDir();
 	if (!params.empty() && dir_exists(params)) {
 		command = "HOME=" + params + " " + command;
 	}
