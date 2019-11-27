@@ -401,7 +401,11 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 	command = gmenu2x->hwPreLinkLaunch() + command;
 
-	if (gmenu2x->confInt["outputLogs"]) command += " &> " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
+	if (gmenu2x->confInt["outputLogs"]) {
+		params = "echo " + cmdclean(command) + " > " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
+		system(params.c_str());
+		command += " 2>&1 | tee -a " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
+	}
 
 	// params = this->getHomeDir();
 	params = gmenu2x->confStr["homePath"];
