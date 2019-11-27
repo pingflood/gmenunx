@@ -284,6 +284,10 @@ void Surface::write(FontHelper *font, const string &text, int x, int y, const ui
 	font->write(this, text, x, y, align, fgColor, bgColor);
 }
 
+void Surface::write(FontHelper *font, const string &text, SDL_Rect &wrapRect, const uint8_t align) {
+	font->write(this, text, wrapRect, align);
+}
+
 void Surface::operator = (SDL_Surface *s) {
 	raw = SDL_DisplayFormat(s);
 	halfW = raw->w/2;

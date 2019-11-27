@@ -30,8 +30,9 @@ public:
 	bool utf8Code(uint8_t c);
 
 	void write(Surface *surface, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor);
-	void write(Surface *surface, const string& text, int x, int y, const uint8_t align = HAlignLeft | VAlignTop);
-	void write(Surface *surface, const string& text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor);
+	void write(Surface *surface, const string &text, int x, int y, const uint8_t align = HAlignLeft | VAlignTop);
+	void write(Surface *surface, const string &text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor);
+	void write(Surface *surface, const string &text, SDL_Rect &wrapRect, const uint8_t align = HAlignLeft | VAlignTop);
 
 	void write(Surface *surface, vector<string> *text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor);
 	void write(Surface *surface, vector<string> *text, int x, int y, const uint8_t align = HAlignLeft | VAlignTop);
@@ -40,7 +41,7 @@ public:
 	uint32_t getTextWidth(const string &text);
 	int getTextHeight(const string &text);
 	uint32_t getTextWidth(vector<string> *text);
-	
+
 	uint32_t getHeight() { return height; };
 	uint32_t getHalfHeight() { return halfHeight; };
 

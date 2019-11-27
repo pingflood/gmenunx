@@ -1,6 +1,7 @@
 #include "fonthelper.h"
 #include "utilities.h"
 #include "debug.h"
+#include <sstream>
 
 FontHelper::FontHelper(const string &fontName, int fontSize, RGBAColor textColor, RGBAColor outlineColor)
 	: fontName(fontName),
@@ -141,6 +142,32 @@ void FontHelper::write(Surface* surface, const string &text, int x, int y, const
 
 void FontHelper::write(Surface *surface, const string &text, int x, int y, const uint8_t align) {
 	write(surface, text, x, y, align, textColor, outlineColor);
+}
+
+void FontHelper::write(Surface *surface, const string &text, SDL_Rect &wrapRect, const uint8_t align) {
+	string textwrap = "";
+	if (getTextWidth(text) > wrapRect.w) {
+		string line = "";
+		std::istringstream iss(text);
+		do {
+			string subs;
+			iss >> subs;
+			line += subs + " ";
+
+			if (getTextWidth(line) > wrapRect.w) {
+				textwrap += "\n";
+				line = "";
+			} else {
+				textwrap += " ";
+			}
+			textwrap += subs;
+		} while (iss);
+
+		textwrap = trim(textwrap);
+	} else {
+		textwrap = trim(text);
+	}
+	write(surface, textwrap, wrapRect.x, wrapRect.y, align, textColor, outlineColor);
 }
 
 void FontHelper::write(Surface *surface, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor) {

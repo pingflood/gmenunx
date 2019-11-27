@@ -487,7 +487,14 @@ void GMenu2X::main() {
 
 					icon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 
-					if (skinConfInt["linkLabel"]) s->write(font, tr[menu->sectionLinks()->at(i)->getTitle()], ix + 2 + linkWidth/2, iy + (linkHeight + min(linkHeight, icon->height()))/2, HAlignCenter | VAlignMiddle);
+					if (skinConfInt["linkLabel"]) {
+						SDL_Rect labelRect;
+						labelRect.x = ix + 2 + linkWidth/2;
+						labelRect.y = iy + (linkHeight + min(linkHeight, icon->height()))/2;
+						labelRect.w = linkWidth - iconPadding;
+						labelRect.h = linkHeight - iconPadding;
+						s->write(font, tr[menu->sectionLinks()->at(i)->getTitle()], labelRect, HAlignCenter | VAlignMiddle);
+					}
 				}
 			}
 		}

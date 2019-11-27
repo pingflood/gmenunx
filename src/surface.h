@@ -98,6 +98,7 @@ public:
 	bool blit(Surface *destination, int x, int y, const uint8_t align = HAlignLeft | VAlignTop, uint8_t alpha = -1);
 	bool blit(Surface *destination, SDL_Rect destrect, const uint8_t align = HAlignLeft | VAlignTop, uint8_t alpha = -1);
 
+	void write(FontHelper *font, const string &text, SDL_Rect &wrapRect, const uint8_t align = HAlignLeft | VAlignTop);
 	void write(FontHelper *font, const string &text, int x, int y, const uint8_t align = HAlignLeft | VAlignTop);
 	void write(FontHelper *font, const string &text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor);
 
