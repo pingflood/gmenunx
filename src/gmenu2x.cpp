@@ -2221,22 +2221,6 @@ void GMenu2X::setInputSpeed() {
 	// input.setInterval(200, BACKLIGHT);
 }
 
-
-int GMenu2X::getVolume() {
-	int vol = -1;
-	uint32_t soundDev = open("/dev/mixer", O_RDONLY);
-
-	if (soundDev) {
-		ioctl(soundDev, SOUND_MIXER_READ, &vol);
-		close(soundDev);
-		if (vol != -1) {
-			// just return one channel , not both channels, they're hopefully the same anyways
-			return vol & 0xFF;
-		}
-	}
-	return vol;
-}
-
 int GMenu2X::setVolume(int val, bool popup) {
 	int volumeStep = 10;
 
