@@ -64,6 +64,10 @@ void Link::setIcon(const string &icon) {
 		this->iconPath = gmenu2x->sc.getSkinFilePath(icon.substr(5, string::npos));
 	else if (file_exists(icon))
 		this->iconPath = icon;
+#if defined(OPK_SUPPORT)
+	else if (icon.find("#") != std::string::npos)
+		this->iconPath = icon;
+#endif
 	else
 		this->iconPath = "";
 
