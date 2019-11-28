@@ -2131,15 +2131,14 @@ void GMenu2X::opkUninstall() {
 	mb.setButton(MANUAL, tr["Delete link"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	switch (mb.exec()) {
-		case MANUAL:
-			package = menu->selLinkApp()->getExec();
-			menu->deleteSelectedLink();
 		case MODIFIER:
+			package = menu->selLinkApp()->getExec();
 			unlink(package.c_str());
+		case MANUAL:
+			menu->deleteSelectedLink();
 			break;
 		default:
 			return;
-
 	}
 	sync();
 }
