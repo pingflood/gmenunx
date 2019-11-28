@@ -366,15 +366,18 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 #if defined(OPK_SUPPORT)
 	if (isOPK()) {
-		string opk_mount = "mkdir -p /tmp/.opk; umount -fl /tmp/.opk &> /dev/null; mount -o loop " + command + " /tmp/.opk; cd /tmp/.opk";
+		string opk_mount = "umount -fl /mnt &> /dev/null; mount -o loop " + command + " /mnt";
 		system(opk_mount.c_str());
-		chdir("/tmp/.opk");
+		chdir("/mnt"); // Set correct working directory
 
-		command = "/tmp/.opk/" + params;
+		command = "/mnt/" + params;
 		params = "";
-	} else
+	}
+	else
 #endif
-	chdir(dir_name(exec).c_str()); // Set correct working directory
+	{
+		chdir(dir_name(exec).c_str()); // Set correct working directory
+	}
 
 	// Check to see if permissions are desirable
 	struct stat fstat;
