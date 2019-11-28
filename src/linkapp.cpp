@@ -94,6 +94,13 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* file):
 
 	is_opk = (file_ext(exec, true) == ".opk");
 
+	if ((char)exec.find("\%f") >= 0 || (char)params.find("\%f") >= 0) {
+		if (this->getSelectorDir().empty()) {
+			setSelectorDir(gmenu2x->confStr["homePath"]);
+		}
+		selectorbrowser = true;
+	}
+
 	if (iconPath.empty()) searchIcon();
 	if (manualPath.empty()) searchManual();
 	if (backdropPath.empty()) searchBackdrop();
@@ -329,7 +336,6 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 	string command = cmdclean(exec);
 
-
 	if (!selectedFile.empty()) {
 		string selectedFileExtension;
 		string selectedFileName;
@@ -350,7 +356,7 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 			params = strreplace(params, "[selFullPath]", cmdclean(dir + "/" + selectedFile));
 			params = strreplace(params, "[selPath]", cmdclean(dir));
 			params = strreplace(params, "[selFile]", cmdclean(selectedFileName));
-			params = strreplace(params, "\%f", cmdclean(selectedFileName));
+			params = strreplace(params, "\%f", cmdclean(dir + "/" + selectedFile));
 			params = strreplace(params, "[selExt]", cmdclean(selectedFileExtension));
 			if (params == origParams) params += " " + cmdclean(dir + "/" + selectedFile);
 		}
