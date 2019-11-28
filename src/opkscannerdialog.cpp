@@ -66,11 +66,11 @@ void OPKScannerDialog::opkInstall(const string &path) {
 
 		pos = linkname.rfind('.');
 		platform = linkname.substr(pos + 1);
-
+		linkname = linkname.substr(0, pos);
 		linkname = pkgname + "." + linkname + ".lnk";
 
 		if (!(platform == PLATFORM || platform == "all")) {
-			text.push_back(pkgname + ": " + gmenu2x->tr["Unsupported platform"] + " '" + platform + "'");
+			text.push_back("  * " + gmenu2x->tr["Unsupported platform"] + " '" + platform + "'");
 			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
 
 			ERROR("%s: Unsupported platform '%s'", pkgname.c_str(), platform.c_str());
@@ -147,11 +147,11 @@ void OPKScannerDialog::opkInstall(const string &path) {
 		LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkpath.c_str());
 
 		if (!path.empty()) link->setExec(path);
-		if (!params.empty()) link->setParams(path);
+		if (!params.empty()) link->setParams(params);
 		if (!title.empty()) link->setTitle(title);
 		if (!description.empty()) link->setDescription(description);
 		if (!manual.empty()) link->setManual(manual);
-		if (!selectordir.empty()) link->setSelectorDir(selectordir);
+		if (!selectordir.empty() && link->getSelectorDir().empty()) link->setSelectorDir(selectordir);
 		if (!selectorfilter.empty()) link->setSelectorFilter(selectorfilter);
 		if (!aliasfile.empty()) link->setAliasFile(aliasfile);
 		if (!icon.empty()) link->setIcon(icon);
