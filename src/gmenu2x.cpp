@@ -2192,12 +2192,13 @@ void GMenu2X::ipkInstall() {
 	bd.showDirectories = true;
 	bd.showFiles = true;
 	bd.setFilter(".ipk");
-	bd.exec();
-	string cmd = "opkg install --force-reinstall --force-overwrite ";
-	TerminalDialog td(this, tr["Package installer"], "opkg install " + bd.getFileName(bd.selected), "skin:icons/configure.png");
-	td.exec(cmd + cmdclean(bd.getFilePath(bd.selected)));
-	system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi; sync;");
-	initMenu();
+	if (bd.exec()) {
+		string cmd = "opkg install --force-reinstall --force-overwrite ";
+		TerminalDialog td(this, tr["Package installer"], "opkg install " + bd.getFileName(bd.selected), "skin:icons/configure.png");
+		td.exec(cmd + cmdclean(bd.getFilePath(bd.selected)));
+		system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi; sync;");
+		initMenu();
+	}
 }
 #endif
 
