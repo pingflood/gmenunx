@@ -55,7 +55,11 @@ uint8_t getTVOutStatus() {
 	return TV_REMOVE;
 }
 
-int32_t getBatteryStatus() {
+int16_t getBatteryLevel() {
+	return 0;
+}
+
+uint8_t getBatteryStatus(int32_t val, int32_t min, int32_t max) {
 	return 6;
 }
 

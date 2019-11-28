@@ -96,14 +96,16 @@ uint16_t batteryIcon = 3;
 uint8_t numJoy = 0; // number of connected joysticks
 
 #if defined(TARGET_RETROGAME)
-	#include "hw/retrogame.cpp"
+	#include "platform/retrogame.cpp"
+#elif defined(TARGET_GCW0)
+	#include "platform/gcw0.cpp"
 #elif defined(TARGET_BITTBOY)
-	#include "hw/bittboy.cpp"
+	#include "platform/bittboy.cpp"
 #elif defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	#include "hw/gp2x.cpp"
+	#include "platform/gp2x.cpp"
 	string fwType = "";
 #else //if defined(TARGET_PC)
-	#include "hw/pc.cpp"
+	#include "platform/pc.cpp"
 #endif
 
 #if defined(OPK_SUPPORT)

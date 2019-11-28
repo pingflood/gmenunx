@@ -62,35 +62,43 @@ uint16_t getTVOutStatus() {
 }
 
 uint16_t getDevStatus() {
-	FILE *f;
 	char buf[10000];
-	if (f = fopen("/proc/bus/input/devices", "r")) {
+	if (FILE *f = fopen("/proc/bus/input/devices", "r")) {
 	// if (f = fopen("/proc/bus/input/handlers", "r")) {
-		size_t sz = fread(buf, sizeof(char), 10000, f);
+		size_t val = fread(buf, sizeof(char), 10000, f);
 		fclose(f);
-		return sz;
+		return val;
 	}
 	return 0;
 }
 
-int32_t getBatteryStatus() {
-	char buf[32] = "-1";
-	FILE *f;
-	if (f = fopen("/proc/jz/battery", "r")) {
-		fgets(buf, sizeof(buf), f);
+int32_t getBatteryLevel() {
+	int val = -1;
+	if (FILE *f = fopen("/proc/jz/battery", "r")) {
+		fscanf(f, "%i", &val);
 		fclose(f);
 	}
-	return atol(buf);
+	return val;
+}
+
+uint8_t getBatteryStatus(int32_t val, int32_t min, int32_t max) {
+	// int32_t val = getBatteryStatus();
+	if ((val > 10000) || (val < 0)) return 6;
+	else if (val > 4000) return 5; // 100%
+	else if (val > 3900) return 4; // 80%
+	else if (val > 3800) return 3; // 60%
+	else if (val > 3730) return 2; // 40%
+	else if (val > 3600) return 1; // 20%
+	return 0; // 0% :(
 }
 
 uint16_t getTVOut() {
-	char buf[32] = "0";
-	FILE *f;
-	if (f = fopen("/proc/jz/tvout", "r")) {
-		fgets(buf, sizeof(buf), f);
+	int val = 0;
+	if (FILE *f = fopen("/proc/jz/tvout", "r")) {
+		fscanf(f, "%i", &val);
 		fclose(f);
 	}
-	return atoi(buf);
+	return val;
 }
 
 uint16_t getVolumeMode(uint8_t vol) {
@@ -112,14 +120,7 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 	tickBattery++;
 	if (tickBattery > 30) { // update battery level every 30 hwChecks
 		tickBattery = 0;
-		batteryIcon = 0; // 0% :(
-		int32_t val = getBatteryStatus();
-		if ((val > 10000) || (val < 0)) batteryIcon = 6;
-		else if (val > 4000) batteryIcon = 5; // 100%
-		else if (val > 3900) batteryIcon = 4; // 80%
-		else if (val > 3800) batteryIcon = 3; // 60%
-		else if (val > 3730) batteryIcon = 2; // 40%
-		else if (val > 3600) batteryIcon = 1; // 20%
+		batteryIcon = getBatteryStatus(getBatteryLevel(), 0, 0);
 	}
 
 	if (memdev > 0 && tickBattery > 2) {
@@ -256,16 +257,30 @@ private:
 	}
 
 	int getBacklight() {
-		char buf[32] = "-1";
-		FILE *f;
-		if (f = fopen("/proc/jz/backlight", "r")) {
-			fgets(buf, sizeof(buf), f);
+		int val = -1;
+		if (FILE *f = fopen("/proc/jz/backlight", "r")) {
+			fscanf(f, "%i", &val);
 			fclose(f);
 		}
-		return atoi(buf);
+		return val;
 	}
 
 public:
+	int getVolume() {
+		int vol = -1;
+		uint32_t soundDev = open("/dev/mixer", O_RDONLY);
+
+		if (soundDev) {
+			ioctl(soundDev, SOUND_MIXER_READ, &vol);
+			close(soundDev);
+			if (vol != -1) {
+				// just return one channel , not both channels, they're hopefully the same anyways
+				return vol & 0xFF;
+			}
+		}
+		return vol;
+	}
+
 	int setVolume(int val, bool popup = false) {
 		val = GMenu2X::setVolume(val, popup);
 
@@ -282,18 +297,17 @@ public:
 	}
 
 	int setBacklight(int val, bool popup = false) {
-		if (val < 1 && getUDCStatus() != UDC_REMOVE) {
-			val = 0; // suspend only if not charging
-		}
-
-		if (val >= 0) {
+		if (val < 1 && getUDCStatus() != UDC_REMOVE /* && !getTVOut() */) {
+			val = 0; // suspend only if not charging and TV out is not enabled
+		} else if (popup) {
 			val = GMenu2X::setBacklight(val, popup);
 		}
 
-		FILE *f;
-		if (f = fopen("/proc/jz/backlight", "w")) {
+		if (FILE *f = fopen("/proc/jz/backlight", "w")) {
+			if (val == 0) {
+				fprintf(f, "-"); // disable backlight button
+			}
 			fprintf(f, "%d", val); // fputs(val, f);
-			if (val < 1) fprintf(f, "-"); // disable backlight button
 			fclose(f);
 		}
 
@@ -301,33 +315,30 @@ public:
 	}
 
 	void setScaleMode(unsigned int mode) {
-		FILE *f;
-		if (f = fopen("/proc/jz/ipu", "w")) {
+		/* Scaling Modes:
+			0: stretch
+			1: aspect
+			2: original (fallback to aspect when downscale is needed)
+			3: 4:3
+		*/
+		if (FILE *f = fopen("/proc/jz/ipu", "w")) {
 			fprintf(f, "%d", mode); // fputs(val, f);
 			fclose(f);
 		}
 	}
 
 	void setTVOut(unsigned int mode) {
-		FILE *f;
-		if (f = fopen("/proc/jz/tvout", "w")) {
+		if (FILE *f = fopen("/proc/jz/tvout", "w")) {
 			fprintf(f, "%d", mode); // fputs(val, f);
 			fclose(f);
 		}
 	}
 
-	uint16_t getBatteryLevel() {
-		int32_t val = getBatteryStatus();
-		if ((val > 10000) || (val < 0)) return 6;
-		else if (val > 4000) return 5; // 100%
-		else if (val > 3900) return 4; // 80%
-		else if (val > 3800) return 3; // 60%
-		else if (val > 3730) return 2; // 40%
-		else if (val > 3600) return 1; // 20%
-		return 0; // 0% :(
-	}
-
 	void setCPU(uint32_t mhz) {
+		if (getTVOut()) {
+			WARNING("Can't overclock when TV out is enabled.");
+			return;
+		}
 		mhz = constrain(mhz, confInt["cpuMenu"], confInt["cpuMax"]);
 		if (memdev > 0) {
 			DEBUG("Setting clock to %d", mhz);

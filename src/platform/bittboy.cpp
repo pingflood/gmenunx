@@ -420,14 +420,36 @@ uint8_t getTVOutStatus() {
 	return TV_REMOVE;
 }
 
-int32_t getBatteryStatus() {
-	char buf[32] = "-1";
-	FILE *f = fopen("/sys/devices/platform/soc/1c23400.battery/power_supply/miyoo-battery/voltage_now", "r");
-	if (f) {
-		fgets(buf, sizeof(buf), f);
+int32_t getBatteryLevel() {
+	int val = -1;
+	if (FILE *f = fopen("/sys/devices/platform/soc/1c23400.battery/power_supply/miyoo-battery/voltage_now", "r")) {
+		fscanf(f, "%i", &val);
 		fclose(f);
 	}
 	return atol(buf);
+}
+
+uint8_t getBatteryStatus(int32_t val, int32_t min, int32_t max) {
+	if (val = -1) return 6; // charging
+
+	bool needWriteConfig = false;
+
+	// if (val > max) {
+	// 	needWriteConfig = true;
+	// 	max = confInt["maxBattery"] = val;
+	// }
+	// if (val < min) {
+	// 	needWriteConfig = true;
+	// 	min = confInt["minBattery"] = val;
+	// }
+
+	// if (needWriteConfig)
+	// 	writeConfig();
+
+	if (max == min)
+		return 3;
+
+	return 5 - 5 * (max - val) / (max - min);
 }
 
 uint8_t getVolumeMode(uint8_t vol) {
