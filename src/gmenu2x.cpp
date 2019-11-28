@@ -1875,13 +1875,13 @@ void GMenu2X::contextMenu() {
 	options.push_back((MenuOption){tr["Rename section"],	MakeDelegate(this, &GMenu2X::renameSection)});
 	options.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
 
-#if defined(OPK_SUPPORT)
-	options.push_back((MenuOption){tr["Update OPK links"], MakeDelegate(this, &GMenu2X::opkScanner)});
-#endif
 #if defined(IPK_SUPPORT)
 	if (file_exists("/usr/bin/opkg")) {
 		options.push_back((MenuOption){tr["Install IPK"], MakeDelegate(this, &GMenu2X::ipkInstall)});
 	}
+#endif
+#if defined(OPK_SUPPORT)
+	options.push_back((MenuOption){tr["Update OPK links"], MakeDelegate(this, &GMenu2X::opkScanner)});
 #endif
 
 	MessageBox mb(this, options);
