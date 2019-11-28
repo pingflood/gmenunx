@@ -1,78 +1,67 @@
-CHAINPREFIX=/opt/gcw0-toolchain
-
 PLATFORM=gcw0
-DEBUG=0
 
-ifeq ($(DEBUG),0)
-  CROSS_COMPILE=$(CHAINPREFIX)/usr/bin/mipsel-linux-
-endif
+BUILDTIME	:= $(shell date +%s)
 
-CC = $(CROSS_COMPILE)gcc
-CXX = $(CROSS_COMPILE)g++
-STRIP = $(CROSS_COMPILE)strip
+CHAINPREFIX := /opt/gcw0-toolchain
+CROSS_COMPILE := $(CHAINPREFIX)/usr/bin/mipsel-linux-
 
-SYSROOT     := $(CHAINPREFIX)/usr/mipsel-buildroot-linux-uclibc/sysroot
+CC			:= $(CROSS_COMPILE)gcc
+CXX			:= $(CROSS_COMPILE)g++
+STRIP		:= $(CROSS_COMPILE)strip
+
+SYSROOT     := $(shell $(CC) --print-sysroot)
 SDL_CFLAGS  := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
 SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
 
-CFLAGS = -DTARGET_GCW0 -DPLATFORM=\"$(PLATFORM)\" -DLOG_LEVEL=3 -ggdb -g3 $(SDL_CFLAGS) -I$(CHAINPREFIX)/usr/include/ -I$(SYSROOT)/usr/include/  -I$(SYSROOT)/usr/include/SDL/
-CXXFLAGS = $(CFLAGS)
-LDFLAGS = $(SDL_LIBS) -lfreetype -lSDL_image -lSDL_ttf -lSDL_gfx -lSDL -lpthread
+CFLAGS = -DTARGET_GCW0 -DPLATFORM=\"$(PLATFORM)\" $(SDL_CFLAGS) -ggdb -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=3 -g3 -mhard-float -mips32r2 -mno-mips16
+CFLAGS += -std=c++11 -fdata-sections -ffunction-sections -fno-exceptions -fno-math-errno -fno-threadsafe-statics -Os -Wno-narrowing
+CFLAGS += -Isrc/libopk
+
+LDFLAGS = -Wl,-Bstatic -Lsrc/libopk -l:libopk.a -Wl,-Bdynamic -lz
+LDFLAGS += $(SDL_LIBS) -lSDL_image -lSDL_ttf
+LDFLAGS +=-Wl,--as-needed -Wl,--gc-sections
+
+export CROSS_COMPILE
 
 OBJDIR = /tmp/gmenu2x/$(PLATFORM)
-DISTDIR = dist/$(PLATFORM)/gmenu2x
+DISTDIR = dist/$(PLATFORM)
 APPNAME = dist/$(PLATFORM)/gmenu2x
 
 SOURCES := $(wildcard src/*.cpp)
 OBJS := $(patsubst src/%.cpp, $(OBJDIR)/src/%.o, $(SOURCES))
 
 # File types rules
-$(OBJDIR)/src/%.o: src/%.cpp src/%.h
+$(OBJDIR)/src/%.o: src/%.cpp src/%.h src/platform/gcw0.cpp
 	$(CXX) $(CFLAGS) -o $@ -c $<
 
-all: dir shared
+all: dir libopk shared
 
 dir:
-	@if [ ! -d $(OBJDIR)/src ]; then mkdir -p $(OBJDIR)/src; fi
+	@mkdir -p $(OBJDIR)/src dist/$(PLATFORM)
+
+libopk:
+	make -C src/libopk clean
+	make -C src/libopk
 
 debug: $(OBJS)
 	@echo "Linking gmenu2x-debug..."
-	$(CXX) -o $(APPNAME)-debug $(LDFLAGS) $(OBJS)
-	 # $(LDFLAGS)
+	$(CXX) -o $(APPNAME)-debug $(OBJS) $(LDFLAGS)
 
 shared: debug
 	$(STRIP) $(APPNAME)-debug -o $(APPNAME)
 
 clean:
-	rm -rf $(OBJDIR) $(DISTDIR) *.gcda *.gcno $(APPNAME)
+	make -C src/libopk clean
+	rm -rf $(OBJDIR) *.gcda *.gcno $(APPNAME) $(APPNAME)-debug /tmp/.gmenu-ipk/ dist/$(PLATFORM)/root/home/retrofw/apps/gmenu2x/
 
-dist: dir shared
-	install -m755 -D $(APPNAME) $(DISTDIR)/gmenu2x
-ifeq ($(DEBUG),0)
-	install -m644 assets/$(PLATFORM)/input.conf $(DISTDIR)
-else
-	install -m644 assets/pc/input.conf $(DISTDIR)
-endif
-	# install -m755 -d $(DISTDIR)/sections/applications $(DISTDIR)/sections/emulators $(DISTDIR)/sections/games $(DISTDIR)/sections/settings
+dist: dir libopk shared
 	install -m644 -D README.md $(DISTDIR)/README.txt
 	install -m644 -D COPYING $(DISTDIR)/COPYING
-	install -m644 -D ChangeLog $(DISTDIR)/ChangeLog
-	cp -RH assets/skins assets/translations $(DISTDIR)
-	cp -RH assets/$(PLATFORM)/BlackJeans.png $(DISTDIR)/skins/Default/wallpapers
-	cp -RH assets/$(PLATFORM)/skin.conf $(DISTDIR)/skins/Default
-	cp -RH assets/$(PLATFORM)/font.ttf $(DISTDIR)/skins/Default
-	# cp -RH assets/$(PLATFORM)/gmenu2x.conf $(DISTDIR)
-	cp -RH assets/$(PLATFORM)/icons/* $(DISTDIR)/skins/Default/icons/
-	# cp -RH assets/$(PLATFORM)/emulators/* $(DISTDIR)/sections/emulators/
-	# cp -RH assets/$(PLATFORM)/games/* $(DISTDIR)/sections/games/
-	# cp -RH assets/$(PLATFORM)/applications/* $(DISTDIR)/sections/applications/
-	cd $(DISTDIR)/ && zip -r ../GMenuNext.zip .
+	install -m644 -D ChangeLog.md $(DISTDIR)/ChangeLog
+	cp -RH assets/translations $(DISTDIR)
+	mkdir -p $(DISTDIR)/skins
+	cp -RH assets/skins/FontGrid $(DISTDIR)/skins/Default
+	cp -RH assets/$(PLATFORM)/input.conf $(DISTDIR)/
 
--include $(patsubst src/%.cpp, $(OBJDIR)/src/%.d, $(SOURCES))
-
-$(OBJDIR)/src/%.d: src/%.cpp
-	@if [ ! -d $(OBJDIR)/src ]; then mkdir -p $(OBJDIR)/src; fi
-	$(CXX) -M $(CXXFLAGS) $< > $@.$$$$; \
-	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
-	rm -f $@.$$$$
-
+zip: dist
+	cd $(DISTDIR)/ && zip -r ../gmenunx.$(PLATFORM).zip skins translations ChangeLog COPYING gmenu2x input.conf README.txt

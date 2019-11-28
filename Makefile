@@ -1,4 +1,4 @@
-PLATFORM=retrogame
+PLATFORM=retrofw
 
 BUILDTIME	:= $(shell date +%s)
 
@@ -13,36 +13,26 @@ SYSROOT     := $(shell $(CC) --print-sysroot)
 SDL_CFLAGS  := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
 SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
 
-CFLAGS = -DTARGET_RETROGAME -DPLATFORM=\"$(PLATFORM)\" $(SDL_CFLAGS) -ggdb -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=3 -g3 -mhard-float -mips32 -mno-mips16 # -I$(CHAINPREFIX)/usr/include/ -I$(SYSROOT)/usr/include/  -I$(SYSROOT)/usr/include/SDL/
+CFLAGS = -DTARGET_RETROGAME -DPLATFORM=\"$(PLATFORM)\" $(SDL_CFLAGS) -ggdb -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=3 -g3 -mhard-float -mips32 -mno-mips16
 CFLAGS += -std=c++11 -fdata-sections -ffunction-sections -fno-exceptions -fno-math-errno -fno-threadsafe-statics -Os -Wno-narrowing
-CFLAGS += -Isrc/libopk src/libopk/libopk.a
-# CXXFLAGS = $(CFLAGS)
+CFLAGS += -Isrc/libopk
+
 LDFLAGS = -Wl,-Bstatic -Lsrc/libopk -l:libopk.a -Wl,-Bdynamic -lz
 LDFLAGS += $(SDL_LIBS) -lSDL_image -lSDL_ttf
 LDFLAGS +=-Wl,--as-needed -Wl,--gc-sections
- # -lSDL -lSDL_gfx  -lfreetype
 
 export CROSS_COMPILE
 
 OBJDIR = /tmp/gmenu2x/$(PLATFORM)
-DISTDIR = dist/$(PLATFORM)/root/home/retrofw/apps/gmenu2x
+DISTDIR = dist/$(PLATFORM)
 APPNAME = dist/$(PLATFORM)/gmenu2x
 
 SOURCES := $(wildcard src/*.cpp)
 OBJS := $(patsubst src/%.cpp, $(OBJDIR)/src/%.o, $(SOURCES))
 
 # File types rules
-$(OBJDIR)/src/%.o: src/%.cpp src/%.h src/hw/retrogame.cpp
+$(OBJDIR)/src/%.o: src/%.cpp src/%.h src/platform/retrogame.cpp
 	$(CXX) $(CFLAGS) -o $@ -c $<
-
--include $(patsubst src/%.cpp, $(OBJDIR)/src/%.d, $(SOURCES))
-
-# $(OBJDIR)/src/%.d: src/%.cpp
-# 	echo OBJDIR2
-# 	@if [ ! -d $(OBJDIR)/src ]; then mkdir -p $(OBJDIR)/src; fi
-# 	$(CXX) -M $(CXXFLAGS) $< > $@.$$$$; \
-# 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
-# 	rm -f $@.$$$$
 
 all: dir libopk shared
 
@@ -50,6 +40,7 @@ dir:
 	@mkdir -p $(OBJDIR)/src dist/$(PLATFORM)
 
 libopk:
+	make -C src/libopk clean
 	make -C src/libopk
 
 debug: $(OBJS)
@@ -64,21 +55,16 @@ clean:
 	rm -rf $(OBJDIR) *.gcda *.gcno $(APPNAME) $(APPNAME)-debug /tmp/.gmenu-ipk/ dist/$(PLATFORM)/root/home/retrofw/apps/gmenu2x/
 
 dist: dir libopk shared
-	install -m755 -D $(APPNAME) $(DISTDIR)/gmenu2x
-	install -m644 assets/$(PLATFORM)/input.conf $(DISTDIR)
-	install -m755 -d $(DISTDIR)/sections
-	install -m644 -D README.md $(DISTDIR)/README.txt
-	# install -m644 -D COPYING $(DISTDIR)/COPYING
-	install -m644 -D ChangeLog.md $(DISTDIR)/ChangeLog
 	install -m644 -D about.txt $(DISTDIR)/about.txt
+	install -m644 -D README.md $(DISTDIR)/README.txt
+	install -m644 -D COPYING $(DISTDIR)/COPYING
+	install -m644 -D ChangeLog.md $(DISTDIR)/ChangeLog
 	cp -RH assets/translations $(DISTDIR)
-	mkdir -p $(DISTDIR)/skins/Default
-	cp -RH assets/skins/RetroFW/* $(DISTDIR)/skins/Default/
-# 	cp -RH assets/$(PLATFORM)/BlackJeans.png assets/$(PLATFORM)/RetroFW.png assets/$(PLATFORM)/planet.jpg $(DISTDIR)/skins/Default/wallpapers
-	touch $(DISTDIR)/skins/Default/skin.conf $(DISTDIR)/gmenu2x.conf
-	# cp -RH assets/$(PLATFORM)/skin.conf $(DISTDIR)/skins/Default
-	# cp -RH assets/$(PLATFORM)/gmenu2x.conf $(DISTDIR)
-# 	cp -RH assets/$(PLATFORM)/font.ttf $(DISTDIR)/skins/Default
+	mkdir -p $(DISTDIR)/skins
+	cp -RH assets/skins/RetroFW $(DISTDIR)/skins/Default
+	cp -RH assets/skins/Default/font.ttf $(DISTDIR)/skins/Default
+	cp -RH assets/$(PLATFORM)/input.conf $(DISTDIR)/
+	echo "wallpaper=\"skins/Default/wallpapers/RetroFW.png\"" > $(DISTDIR)/gmenu2x.conf
 
 ipk: dist
 	rm -rf /tmp/.gmenu-ipk/; mkdir -p /tmp/.gmenu-ipk/
@@ -93,4 +79,4 @@ ipk: dist
 	ar r dist/$(PLATFORM)/gmenunx.ipk /tmp/.gmenu-ipk/control.tar.gz /tmp/.gmenu-ipk/data.tar.gz /tmp/.gmenu-ipk/debian-binary
 
 zip: dist
-	cd $(DISTDIR)/.. && zip -FSr ../../../../gmenunx.zip gmenu2x
+	cd $(DISTDIR)/ && zip -r ../gmenunx.$(PLATFORM).zip skins translations ChangeLog COPYING gmenu2x input.conf gmenu2x.conf about.txt

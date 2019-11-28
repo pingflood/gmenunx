@@ -11,13 +11,13 @@ SDL_CFLAGS  := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
 SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
 
 CFLAGS = -DTARGET_PC -DPLATFORM=\"$(PLATFORM)\" $(SDL_CFLAGS) -DOPK_SUPPORT -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=4 -Wundef -Wno-deprecated -Wno-unknown-pragmas -Wno-format -pg -O0 -g -ggdb -Wno-narrowing
-CFLAGS += -Isrc/libopk src/libopk/libopk.a
+CFLAGS += -Isrc/libopk
 
 LDFLAGS = -Wl,-Bstatic -Lsrc/libopk -l:libopk.a -Wl,-Bdynamic -lz
 LDFLAGS += $(SDL_LIBS) -lSDL_image -lSDL_ttf
 
 OBJDIR = /tmp/gmenu2x/$(PLATFORM)
-DISTDIR = dist/$(PLATFORM)/gmenu2x
+DISTDIR = dist/$(PLATFORM)
 APPNAME = dist/$(PLATFORM)/gmenu2x
 
 SOURCES := $(wildcard src/*.cpp)
@@ -26,7 +26,7 @@ OBJS := $(patsubst src/%.cpp, $(OBJDIR)/src/%.o, $(SOURCES))
 export CROSS_COMPILE
 
 # File types rules
-$(OBJDIR)/src/%.o: src/%.cpp src/%.h
+$(OBJDIR)/src/%.o: src/%.cpp src/%.h src/platform/pc.cpp
 	$(CXX) $(CFLAGS) -o $@ -c $<
 
 -include $(patsubst src/%.cpp, $(OBJDIR)/src/%.d, $(SOURCES))
@@ -37,6 +37,7 @@ dir:
 	@mkdir -p $(OBJDIR)/src dist/$(PLATFORM)
 
 libopk:
+	make -C src/libopk clean
 	make -C src/libopk
 
 debug: $(OBJS)
@@ -49,3 +50,14 @@ shared: debug
 clean:
 	make -C src/libopk clean
 	rm -rf $(OBJDIR) $(DISTDIR) *.gcda *.gcno $(APPNAME) $(APPNAME)-debug
+
+dist: dir libopk shared
+	install -m644 -D README.md $(DISTDIR)/README.txt
+	install -m644 -D COPYING $(DISTDIR)/COPYING
+	install -m644 -D ChangeLog.md $(DISTDIR)/ChangeLog
+	cp -RH assets/translations $(DISTDIR)
+	cp -RH assets/skins $(DISTDIR)/
+	cp -RH assets/$(PLATFORM)/input.conf $(DISTDIR)/
+
+zip: dist
+	cd $(DISTDIR)/ && zip -r ../gmenunx.$(PLATFORM).zip skins translations ChangeLog COPYING gmenu2x input.conf README.txt
