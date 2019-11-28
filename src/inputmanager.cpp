@@ -35,7 +35,7 @@ enum InputManagerMappingTypes {
 	MAPPING_TYPE_KEYPRESS
 };
 
-static SDL_TimerID timer;
+static SDL_TimerID timer = NULL;
 
 uint8_t *keystate = SDL_GetKeyState(NULL);
 
@@ -110,11 +110,11 @@ void InputManager::init(const string &conffile) {
 		else if (name == "pageup")       action = PAGEUP;
 		else if (name == "pagedown")     action = PAGEDOWN;
 		else if (name == "settings")     action = SETTINGS;
-		else if (name == "menu")         action = MENU;
 		else if (name == "volup")        action = VOLUP;
 		else if (name == "voldown")      action = VOLDOWN;
 		else if (name == "backlight")    action = BACKLIGHT;
 		else if (name == "power")        action = POWER;
+		else if (name == "menu")         action = MENU;
 		else if (name == "speaker") {}
 		else {
 			ERROR("%s:%d Unknown action '%s'.", conffile.c_str(), linenum, name.c_str());

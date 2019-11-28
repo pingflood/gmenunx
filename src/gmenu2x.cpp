@@ -768,16 +768,17 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 
 		input.update();
 
-		if (input[SETTINGS])
-			input[SCREENSHOT] = true;
-		else if (input[BACKLIGHT_HOTKEY])
-			input[BACKLIGHT] = true;
-		else if (input[VOLUME_HOTKEY])
-			input[VOLUP] = true;
-		else if (input[POWER])
-			input[UDC_CONNECT] = true;
-		else
+		if (input[SETTINGS]) {
+			wasActive = SCREENSHOT;
+		} else if (input[BACKLIGHT_HOTKEY]) {
+			wasActive = BACKLIGHT;
+		} else if (input[VOLUME_HOTKEY]) {
+			wasActive = VOLUP;
+		} else if (input[POWER]) {
+			wasActive = UDC_CONNECT;
+		} else {
 			continue;
+		}
 		break;
 	}
 
@@ -792,7 +793,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		mb.setAutoHide(1000);
 		mb.exec();
 
-	} else if (input[VOLUP]) {
+	} else if (input[VOLUP] || input[VOLDOWN]) {
 		setVolume(confInt["globalVolume"], true);
 
 	} else if (input[BACKLIGHT]) {
@@ -2284,9 +2285,9 @@ int GMenu2X::setVolume(int val, bool popup) {
 
 			if (input[SETTINGS] || input[CONFIRM] || input[CANCEL]) {
 				break;
-			} else if (input[LEFT] || input[DEC]) {
+			} else if (input[LEFT] || input[DEC] || input[VOLDOWN]) {
 				val = max(0, val - volumeStep);
-			} else if (input[RIGHT] || input[INC]) {
+			} else if (input[RIGHT] || input[INC] || input[VOLUP]) {
 				val = min(100, val + volumeStep);
 			} else if (input[SECTION_PREV]) {
 				val += volumeStep;
