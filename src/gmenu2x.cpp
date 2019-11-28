@@ -1051,7 +1051,7 @@ void GMenu2X::resetSettings() {
 	if (sd.exec() && sd.edited() && sd.save) {
 		MessageBox mb(this, tr["Changes will be applied to ALL\napps and GMenuNX. Are you sure?"], "skin:icons/exit.png");
 		mb.setButton(CANCEL, tr["Cancel"]);
-		mb.setButton(MANUAL,  tr["Confirm"]);
+		mb.setButton(MANUAL,  tr["Yes"]);
 		if (mb.exec() != MANUAL) return;
 
 		for (uint32_t s = 0; s < menu->getSections().size(); s++) {
@@ -1623,9 +1623,9 @@ void GMenu2X::viewLog() {
 	td.exec();
 
 	MessageBox mb(this, tr["Do you want to delete the log file?"], "skin:icons/ebook.png");
-	mb.setButton(CONFIRM, tr["Yes"]);
+	mb.setButton(MANUAL, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
-	if (mb.exec() == CONFIRM) {
+	if (mb.exec() == MANUAL) {
 		ledOn();
 		unlink(logfile.c_str());
 		sync();
