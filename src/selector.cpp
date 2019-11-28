@@ -157,11 +157,11 @@ void Selector::customOptions(vector<MenuOption> &options) {
 
 void Selector::addFavourite() {
 	string favicon = getPreview(selected);
-	if (favicon.empty()) favicon = this->icon;
+	if (favicon.empty() || favicon == "#") favicon = this->icon;
 
 	gmenu2x->menu->addSection("favourites");
 	string title = base_name(getFileName(selected), true);
-	string linkpath = "sections/favourites/" + title + ".lnk";
+	string linkpath = "sections/favourites/" + title + "." + base_name(link->getExec(), true) + ".lnk";
 
 	LinkApp *fav = new LinkApp(gmenu2x, gmenu2x->input, linkpath.c_str());
 
@@ -169,8 +169,18 @@ void Selector::addFavourite() {
 	fav->setTitle(title);
 	fav->setDescription(link->getDescription());
 	fav->setIcon(favicon);
-	fav->setParams(link->getParams() + " " + cmdclean(getFilePath(selected)));
+
+	string selFullPath = cmdclean(getFilePath(selected));
+	string params = link->getParams();
+	if (params.find("\%f") != std::string::npos)
+		params = strreplace(params, "\%f", selFullPath);
+	else
+		params = link->getParams() + " " + selFullPath;
+
+	fav->setParams(params);
+
 	fav->save();
+
 	gmenu2x->initMenu();
 
 	MessageBox mb(gmenu2x, gmenu2x->tr["Link created"], favicon);
