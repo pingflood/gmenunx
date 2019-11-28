@@ -165,7 +165,7 @@ void syncDateTime(time_t t) {
 #if !defined(TARGET_PC)
 	struct timeval tv = { t, 0 };
 	settimeofday(&tv, NULL);
-	system("hwclock --systohc");
+	system("hwclock --systohc &");
 #endif
 }
 
@@ -201,7 +201,7 @@ void setDateTime(const char* timestamp) {
 
 const string getDateTime() {
 #if !defined(TARGET_PC)
-	system("hwclock --hctosys");
+	system("hwclock --hctosys &");
 #endif
 
 	char buf[80];
