@@ -173,25 +173,32 @@ bool InputManager::update(bool wait) {
 
 	SDL_JoystickUpdate();
 
-	if (wait) {
-		SDL_WaitEvent(&event);
-	} else {
-		SDL_PollEvent(&event);
-	}
-
-	if (event.type == SDL_KEYDOWN) {
-		keystate[event.key.keysym.sym] = true;
-	} else if (event.type == SDL_KEYUP) {
-		anyactions = true;
-		keystate[event.key.keysym.sym] = false;
-	} else if (event.type == SDL_USEREVENT && event.user.code == WAKE_UP) {
-		anyactions = true;
-	}
-
-	// WARNING("SDL_JOYBUTTONDOWN=%d SDL_JOYAXISMOION=%d event.type: %d keysym.sym=%d  anyactions=%d", SDL_JOYBUTTONDOWN, SDL_JOYAXISMOTION, event.type, event.key.keysym.sym, anyactions);
-	// WARNING("event.jbutton.button=%d event.jaxis.axis=%d event.jaxis.value=%d", event.jbutton.button, event.jaxis.axis, event.jaxis.value);
+	if (wait) SDL_WaitEvent(&event);
+	else if (!SDL_PollEvent(&event)) return false;
 
 	dropEvents();
+
+	x = event.key.keysym.sym;
+	if (!x) x = event.key.keysym.scancode;
+
+	switch (event.type) {
+		case SDL_KEYDOWN:
+			keystate[x] = true;
+			break;
+		case SDL_KEYUP:
+			anyactions = true;
+			keystate[x] = false;
+			break;
+		case SDL_USEREVENT:
+			if (event.user.code == WAKE_UP)
+				anyactions = true;
+			break;
+		case SDL_JOYAXISMOTION:
+		case SDL_JOYHATMOTION:
+			if (timer)
+				return false;
+			break;
+	}
 
 	int active = -1;
 	for (x = 0; x < actions.size(); x++) {
@@ -204,6 +211,7 @@ bool InputManager::update(bool wait) {
 	}
 
 	if (active >= 0) {
+		SDL_RemoveTimer(timer);
 		timer = SDL_AddTimer(actions[active].interval, wakeUp, (void*)false);
 	}
 
@@ -222,7 +230,6 @@ bool InputManager::combo() { // eegg
 }
 
 void InputManager::dropEvents() {
-	SDL_RemoveTimer(timer); timer = NULL;
 	for (uint32_t x = 0; x < actions.size(); x++) {
 		actions[x].active = false;
 	}
@@ -260,11 +267,12 @@ void InputManager::setInterval(int ms, int action) {
 }
 
 uint32_t InputManager::wakeUp(uint32_t interval, void *repeat) {
+	SDL_RemoveTimer(timer); timer = NULL;
 	SDL_Event event;
 	event.type = SDL_USEREVENT;
 	event.user.code = WAKE_UP;
 	SDL_PushEvent(&event);
-	if ((bool*) repeat) return interval;
+	// if ((bool*) repeat) return interval;
 	return 0;
 }
 
