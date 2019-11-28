@@ -358,7 +358,7 @@ void GMenu2X::main() {
 		sc.skinRes("imgs/brightness.png"),
 	};
 
-	batteryIcon = getBatteryLevel();
+	batteryIcon = getBatteryStatus(getBatteryLevel(), confInt["minBattery"], confInt["maxBattery"]);
 
 	Surface *iconBattery[7] = {
 		sc.skinRes("imgs/battery/0.png"),
@@ -807,7 +807,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	} else if (input[UDC_REMOVE]) {
 		udcDialog(UDC_REMOVE);
 		iconInet = NULL;
-		batteryIcon = getBatteryLevel();
+		batteryIcon = getBatteryStatus(getBatteryLevel(), confInt["minBattery"], confInt["maxBattery"]);
 		powerManager->setPowerTimeout(confInt["powerTimeout"]);
 
 	} else if (input[TV_CONNECT]) {
@@ -2221,32 +2221,6 @@ void GMenu2X::setInputSpeed() {
 	// input.setInterval(200, BACKLIGHT);
 }
 
-uint16_t GMenu2X::getBatteryLevel() {
-	int32_t val = getBatteryStatus();
-
-	val = constrain(val, 0, 5000);
-
-	bool needWriteConfig = false;
-	int32_t max = confInt["maxBattery"];
-	int32_t min = confInt["minBattery"];
-
-	if (val > max) {
-		needWriteConfig = true;
-		max = confInt["maxBattery"] = val;
-	}
-	if (val < min) {
-		needWriteConfig = true;
-		min = confInt["minBattery"] = val;
-	}
-
-	if (needWriteConfig)
-		writeConfig();
-
-	if (max == min)
-		return 0;
-
-	return 5 - 5 * (max - val) / (max - min);
-}
 
 int GMenu2X::getVolume() {
 	int vol = -1;
