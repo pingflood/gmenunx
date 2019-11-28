@@ -40,6 +40,8 @@ Menu::Menu(GMenu2X *gmenu2x) {
 	DIR *dirp;
 	struct dirent *dptr;
 
+	mkdir("sections", 0777);
+
 	if ((dirp = opendir("sections")) == NULL) return;
 
 	while ((dptr = readdir(dirp))) {
