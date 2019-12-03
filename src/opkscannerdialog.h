@@ -32,6 +32,7 @@ class GMenu2X;
 
 class OPKScannerDialog : protected TextDialog {
 public:
+	string opkpath = "";
 	void opkInstall(const string &path);
 	void opkScan(string opkdir);
 	OPKScannerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop = "");

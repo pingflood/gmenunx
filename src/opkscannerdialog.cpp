@@ -66,17 +66,18 @@ void OPKScannerDialog::opkInstall(const string &path) {
 
 		pos = linkname.rfind('.');
 		platform = linkname.substr(pos + 1);
-		linkname = linkname.substr(0, pos);
-		linkname = pkgname + "." + linkname + ".lnk";
 
 		if (!(platform == PLATFORM || platform == "all")) {
-			text.push_back("  * " + gmenu2x->tr["Unsupported platform"] + " '" + platform + "'");
+			text.push_back(" - " + linkname + ": " + gmenu2x->tr["Unsupported platform"]);
 			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
 
 			ERROR("%s: Unsupported platform '%s'", pkgname.c_str(), platform.c_str());
 #if !defined(TARGET_PC) // pc debug
 			continue;
 #endif
+		} else {
+			text.push_back(" + " + linkname + ": " + gmenu2x->tr["OK"]);
+			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
 		}
 
 		const char *key, *val;
@@ -142,7 +143,9 @@ void OPKScannerDialog::opkInstall(const string &path) {
 
 		gmenu2x->menu->addSection(section);
 
-		string linkpath = "sections/" + section + "/" + linkname;
+		string linkpath = linkname.substr(0, pos);
+		linkpath = pkgname + "." + linkpath + ".lnk";
+		linkpath = "sections/" + section + "/" + linkpath;
 
 		LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkpath.c_str());
 
@@ -175,13 +178,13 @@ void OPKScannerDialog::opkScan(string opkdir) {
 		if (dptr->d_type != DT_REG || dptr->d_name[0] == '.')
 			continue;
 
-		string filepath = opkdir + "/" + dptr->d_name;
-		if (file_ext(filepath, true) == ".opk") {
+		opkpath = opkdir + "/" + dptr->d_name;
+		if (file_ext(opkpath, true) == ".opk") {
 
 			text.push_back(gmenu2x->tr["Installing"] + " " + (string)dptr->d_name);
 			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
 
-			opkInstall(filepath);
+			opkInstall(opkpath);
 		}
 	}
 	closedir(dirp);
@@ -202,36 +205,17 @@ void OPKScannerDialog::exec() {
 
 	gmenu2x->s->flip();
 
-	DIR *dirp0, *dirp1;
-	struct dirent *dptr0, *dptr1;
-
-	string subdir(CARD_ROOT);
-
-	// scan HOME
-	if ((dirp1 = opendir(subdir.c_str())) != NULL)
-	while ((dptr1 = readdir(dirp1))) {
-		if (dptr1->d_type != DT_DIR || dptr1->d_name[0] == '.')
-			continue;
-
-		string dname = subdir + "/" + dptr1->d_name;
-
-		text.push_back(gmenu2x->tr["Scanning"] + " " + dname);
+	if (!opkpath.empty()) {
+		text.push_back(gmenu2x->tr["Installing"] + " " + base_name(opkpath));
 		lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
+		opkInstall(opkpath);
+	} else {
+		DIR *dirp0, *dirp1;
+		struct dirent *dptr0, *dptr1;
 
-		opkScan(dname);
-	}
-	closedir(dirp1);
+		string subdir(CARD_ROOT);
 
-	// scan MEDIA
-	string opkdir = "/media";
-
-	if ((dirp0 = opendir(opkdir.c_str())) != NULL)
-	while ((dptr0 = readdir(dirp0))) {
-		if (dptr0->d_type != DT_DIR || dptr0->d_name[0] == '.')
-			continue;
-
-		subdir = opkdir + "/" + dptr0->d_name;
-
+		// scan HOME
 		if ((dirp1 = opendir(subdir.c_str())) != NULL)
 		while ((dptr1 = readdir(dirp1))) {
 			if (dptr1->d_type != DT_DIR || dptr1->d_name[0] == '.')
@@ -245,9 +229,33 @@ void OPKScannerDialog::exec() {
 			opkScan(dname);
 		}
 		closedir(dirp1);
-	}
-	closedir(dirp0);
 
+		// scan MEDIA
+		string opkdir = "/media";
+
+		if ((dirp0 = opendir(opkdir.c_str())) != NULL)
+		while ((dptr0 = readdir(dirp0))) {
+			if (dptr0->d_type != DT_DIR || dptr0->d_name[0] == '.')
+				continue;
+
+			subdir = opkdir + "/" + dptr0->d_name;
+
+			if ((dirp1 = opendir(subdir.c_str())) != NULL)
+			while ((dptr1 = readdir(dirp1))) {
+				if (dptr1->d_type != DT_DIR || dptr1->d_name[0] == '.')
+					continue;
+
+				string dname = subdir + "/" + dptr1->d_name;
+
+				text.push_back(gmenu2x->tr["Scanning"] + " " + dname);
+				lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
+
+				opkScan(dname);
+			}
+			closedir(dirp1);
+		}
+		closedir(dirp0);
+	}
 	system("sync &");
 
 	text.push_back("----");
