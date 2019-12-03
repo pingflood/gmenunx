@@ -1596,7 +1596,7 @@ void GMenu2X::skinColors() {
 
 void GMenu2X::about() {
 	vector<string> text;
-	string temp = "", buf;
+	// string temp = "", buf;
 
 	// temp = tr["Build date: "] + __DATE__ + "\n";
 
@@ -1607,9 +1607,9 @@ void GMenu2X::about() {
 
 	// temp += "----\n";
 
-	TextDialog td(this, "GMenuNX", tr["Info about GMenuNX"], "skin:icons/about.png");
+	TextDialog td(this, "GMenuNX", tr["Build date: "] + __DATE__, "skin:icons/about.png");
 
-	td.appendText(temp);
+	// td.appendText(temp);
 	td.appendFile("about.txt");
 	td.exec();
 }
