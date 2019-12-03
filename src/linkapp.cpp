@@ -214,7 +214,11 @@ const string &LinkApp::searchIcon() {
 	} else
 #if defined(OPK_SUPPORT)
 	if (isOPK()) {
-		iconPath = exec + "#" + icon;
+		if (!gmenu2x->sc.getSkinFilePath("icons/" + icon).empty()) {
+			iconPath = gmenu2x->sc.getSkinFilePath("icons/" + icon);
+		} else {
+			iconPath = exec + "#" + icon;
+		}
 	} else
 #endif
 	{
