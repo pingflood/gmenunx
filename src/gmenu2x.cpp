@@ -857,8 +857,8 @@ void GMenu2X::setBackground(Surface *bg, string wallpaper) {
 		}
 		if (sc[wallpaper] == NULL) return;
 		if (confStr["bgscale"] == "Stretch") sc[wallpaper]->softStretch(this->w, this->h, false, true);
-		else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(this->w, this->h, true, false);
-		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(this->w, this->h, true, true);
+		else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(this->w, this->h, true, true);
+		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(this->w, this->h, true, false);
 	}
 
 	cls(bg, false);
