@@ -131,11 +131,13 @@ private:
 	void showManual();
 	void umountSdDialog();
 
+	void opkInstall(string path);
 	void opkUninstall();
 	void opkScanner();
 	string ipkName(string cmd);
+	void ipkInstall(string path);
 	void ipkUninstall();
-	void ipkInstall();
+	void installPackage();
 
 	virtual void udcDialog(int udcStatus = -1) { };
 	virtual void tvOutDialog(int16_t mode = -1) { };

@@ -1710,20 +1710,11 @@ void GMenu2X::explorer() {
 			td.exec();
 #if defined(IPK_SUPPORT)
 		} else if (ext == ".ipk" && file_exists("/usr/bin/opkg")) {
-			string cmd = "opkg install --force-reinstall --force-overwrite ";
-			input.update(false);
-			if (input[MANUAL]) cmd += "--force-downgrade ";
-			TerminalDialog td(this, tr["Package installer"], "opkg install " + bd.getFileName(bd.selected), "skin:icons/configure.png");
-			td.exec(cmd + cmdclean(bd.getFilePath(bd.selected)));
-			system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi; sync;");
-			initMenu();
+			ipkInstall(bd.getFilePath(bd.selected));
 #endif
 #if defined(OPK_SUPPORT)
-		} else if (ext == ".opk" && file_exists("/usr/bin/retrofw")) {
-			string cmd = "retrofw opk install ";
-			TerminalDialog td(this, tr["Package installer"], "opk install " + bd.getFileName(bd.selected), "skin:icons/terminal.png");
-			td.exec(cmd + cmdclean(bd.getFilePath(bd.selected)));
-			initMenu();
+		} else if (ext == ".opk") {
+			opkInstall(bd.getFilePath(bd.selected));
 #endif
 		} else if (ext == ".sh") {
 			TerminalDialog td(this, tr["Terminal"], "sh " + cmdclean(bd.getFileName(bd.selected)), "skin:icons/terminal.png");
@@ -1875,13 +1866,9 @@ void GMenu2X::contextMenu() {
 	options.push_back((MenuOption){tr["Rename section"],	MakeDelegate(this, &GMenu2X::renameSection)});
 	options.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
 
-#if defined(IPK_SUPPORT)
-	if (file_exists("/usr/bin/opkg")) {
-		options.push_back((MenuOption){tr["Install IPK"], MakeDelegate(this, &GMenu2X::ipkInstall)});
-	}
-#endif
 #if defined(OPK_SUPPORT)
-	options.push_back((MenuOption){tr["Update OPK links"], MakeDelegate(this, &GMenu2X::opkScanner)});
+	options.push_back((MenuOption){tr["Install package"],	MakeDelegate(this, &GMenu2X::installPackage)});
+	options.push_back((MenuOption){tr["Update OPK links"],	MakeDelegate(this, &GMenu2X::opkScanner)});
 #endif
 
 	MessageBox mb(this, options);
@@ -2124,6 +2111,13 @@ void GMenu2X::opkScanner() {
 	initMenu();
 }
 
+void GMenu2X::opkInstall(string path) {
+	OPKScannerDialog od(this, tr["Package installer"], tr["Installing"] + " " + base_name(path), "skin:icons/configure.png");
+	od.opkpath = path;
+	od.exec();
+	initMenu();
+}
+
 void GMenu2X::opkUninstall() {
 	if (menu->selLinkApp() == NULL) return;
 
@@ -2165,6 +2159,16 @@ string GMenu2X::ipkName(string cmd) {
 	return trim((string)package);
 }
 
+void GMenu2X::ipkInstall(string path) {
+	string cmd = "opkg install --force-reinstall --force-overwrite ";
+	input.update(false);
+	if (input[MANUAL]) cmd += "--force-downgrade ";
+	TerminalDialog td(this, tr["Package installer"], "opkg install " + base_name(path), "skin:icons/configure.png");
+	td.exec(cmd + cmdclean(path));
+	system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi; sync;");
+	initMenu();
+}
+
 void GMenu2X::ipkUninstall() {
 	if (menu->selLinkApp() == NULL) return;
 	string package = ipkName(menu->selLinkApp()->getFile());
@@ -2178,6 +2182,7 @@ void GMenu2X::ipkUninstall() {
 				TerminalDialog td(this, tr["Uninstall package"], "opkg remove " + package, "skin:icons/configure.png");
 				td.exec("opkg remove " + package);
 				initMenu();
+				break;
 			}
 			case MANUAL:
 				menu->deleteSelectedLink();
@@ -2188,21 +2193,33 @@ void GMenu2X::ipkUninstall() {
 		sync();
 	}
 }
+#endif
 
-void GMenu2X::ipkInstall() {
-	BrowseDialog bd(this, tr["Install IPK"], tr["Select IPK package to install"]);
+void GMenu2X::installPackage() {
+	BrowseDialog bd(this, tr["Install package"], tr["Select package to install"]);
 	bd.showDirectories = true;
 	bd.showFiles = true;
-	bd.setFilter(".ipk");
+	bd.setFilter(".ipk,.opk");
 	if (bd.exec()) {
-		string cmd = "opkg install --force-reinstall --force-overwrite ";
-		TerminalDialog td(this, tr["Package installer"], "opkg install " + bd.getFileName(bd.selected), "skin:icons/configure.png");
-		td.exec(cmd + cmdclean(bd.getFilePath(bd.selected)));
-		system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi; sync;");
-		initMenu();
+		string ext = bd.getExt(bd.selected);
+
+#if defined(IPK_SUPPORT)
+		if (ext == ".ipk" && file_exists("/usr/bin/opkg")) {
+			ipkInstall(bd.getFilePath(bd.selected));
+		} else
+#endif
+#if defined(OPK_SUPPORT)
+		if (ext == ".opk") {
+			opkInstall(bd.getFilePath(bd.selected));
+		} else
+#endif
+		{
+			MessageBox mb(this, tr["Package type unsupported in this system"]);
+			mb.setAutoHide(1000);
+			mb.exec();
+		}
 	}
 }
-#endif
 
 void GMenu2X::setInputSpeed() {
 	input.setInterval(180);
