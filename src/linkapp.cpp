@@ -49,7 +49,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* file):
 #endif
 
 	selectorbrowser = true;
-	if (gmenu2x->w/gmenu2x->h > 1.4) _scalemode = 1;
+	if (((float)(gmenu2x->w)/gmenu2x->h) != (4.0f/3.0f)) _scalemode = 3; // 4:3 by default
 	scalemode = _scalemode;
 
 	string line;
