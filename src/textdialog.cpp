@@ -82,6 +82,7 @@ int TextDialog::drawText(vector<string> *text, int32_t firstCol, int32_t firstRo
 	int mx = 0;
 
 	if (firstRow < 0 && text->size() >= rowsPerPage) firstRow = text->size() - rowsPerPage;
+	if (firstRow < 0) firstRow = 0;
 
 	int fh = gmenu2x->font->getHeight();
 

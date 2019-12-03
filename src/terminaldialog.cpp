@@ -73,6 +73,9 @@ void TerminalDialog::exec(string cmd) {
 	buttons.push_back({"dpad", gmenu2x->tr["Scroll"]});
 	buttons.push_back({"b", gmenu2x->tr["Exit"]});
 
+	gmenu2x->bg->blit(this->bg,0,0);
+	drawDialog(this->bg);
+
 	while (true) {
 		lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
 
