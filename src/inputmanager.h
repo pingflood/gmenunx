@@ -85,9 +85,9 @@ public:
 	InputManager();
 	~InputManager();
 	void init(const string &conffile);
-	void initJoysticks();
+	void initJoysticks(bool reinit = false);
 
-	bool update(bool wait=true);
+	bool update(bool wait = true);
 	bool combo();
 	void dropEvents();
 	static void pushEvent(int action);

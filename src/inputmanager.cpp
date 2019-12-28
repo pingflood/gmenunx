@@ -48,7 +48,12 @@ InputManager::~InputManager() {
 			SDL_JoystickClose(joysticks[x]);
 }
 
-void InputManager::initJoysticks() {
+void InputManager::initJoysticks(bool reinit) {
+	if (reinit) {
+		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+	}
+
 	joysticks.clear();
 	int nj = SDL_NumJoysticks();
 	INFO("%d joysticks found", nj);

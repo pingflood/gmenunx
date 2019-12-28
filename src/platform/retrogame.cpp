@@ -145,13 +145,13 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 			return 2000;
 		}
 
-		numJoy = getDevStatus();
-		if (numJoyPrev != numJoy) {
-			numJoyPrev = numJoy;
-			SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-			SDL_InitSubSystem(SDL_INIT_JOYSTICK);
-			InputManager::pushEvent(JOYSTICK_CONNECT);
-			return 5000;
+		if (RETROARCADE == true) {
+			numJoy = getDevStatus();
+			if (numJoyPrev != numJoy) {
+				numJoyPrev = numJoy;
+				InputManager::pushEvent(JOYSTICK_CONNECT);
+				return 3000;
+			}
 		}
 
 		tvOutStatus = getTVOutStatus();
