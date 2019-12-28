@@ -96,7 +96,17 @@ const string &Link::searchIcon() {
 }
 
 const string &Link::getIconPath() {
+#if defined(OPK_SUPPORT)
+	string::size_type pos = iconPath.find('#');
+	if (isOPK() && pos != iconPath.npos) {
+		string icon = iconPath.substr(pos + 1);
+		if (!gmenu2x->sc.getSkinFilePath("icons/" + icon).empty()) {
+			iconPath = gmenu2x->sc.getSkinFilePath("icons/" + icon);
+		}
+	} else
+#endif
 	if (iconPath.empty()) searchIcon();
+
 	return iconPath;
 }
 

@@ -47,7 +47,7 @@ private:
 
 protected:
 	GMenu2X *gmenu2x;
-	bool edited;
+	bool edited, is_opk = false;
 	string	exec = "",
 			title = "",
 			description = "",
@@ -75,6 +75,7 @@ public:
 	void setBackdrop(const string &backdrop);
 	const string &getBackdrop() { return backdrop; }
 	const string &getBackdropPath() { return backdropPath; }
+	bool isOPK() { return is_opk; }
 
 	virtual void run();
 };

@@ -137,7 +137,7 @@ void OPKScannerDialog::opkInstall(const string &path) {
 				}
 			} else
 			if (!strncmp(key, "Icon", lkey)) {
-				icon = (string)buf + ".png";
+				icon = path + "#" + (string)buf + ".png";
 			}
 		}
 

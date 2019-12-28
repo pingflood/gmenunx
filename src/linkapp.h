@@ -38,7 +38,7 @@ class LinkApp : public Link {
 private:
 	InputManager &inputMgr;
 	int iclock = 0, selectorelement = 0, scalemode, _scalemode = 0; //, ivolume = 0;
-	bool selectorbrowser, is_opk = false;
+	bool selectorbrowser;
 	string	params = "",
 			homedir = "",
 			manual = "",
@@ -83,7 +83,6 @@ public:
 	bool targetExists();
 	void renameFile(const string &name);
 	const string &getFile() { return file; }
-	bool isOPK() { return is_opk; }
 
 #if defined(TARGET_GP2X)
 	// int volume();
