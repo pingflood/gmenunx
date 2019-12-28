@@ -36,7 +36,7 @@ class InputManager;
 */
 class LinkApp : public Link {
 private:
-	InputManager &inputMgr;
+	InputManager &input;
 	int iclock = 0, selectorelement = 0, scalemode, _scalemode = 0; //, ivolume = 0;
 	bool selectorbrowser;
 	string	params = "",
@@ -50,7 +50,7 @@ private:
 			file = "";
 
 public:
-	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* file);
+	LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file);
 	const string &getExec();
 	void setExec(const string &exec);
 	const string &getParams();

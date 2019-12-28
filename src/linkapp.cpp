@@ -31,9 +31,9 @@ using namespace std;
 
 extern char** environ;
 
-LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* file):
+LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file):
 	Link(gmenu2x, MakeDelegate(this, &LinkApp::run)),
-	inputMgr(inputMgr)
+	input(input)
 {
 	this->file = file;
 	setCPU(gmenu2x->confInt["cpuMenu"]);
