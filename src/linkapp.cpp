@@ -298,11 +298,21 @@ bool LinkApp::save() {
 }
 
 void LinkApp::run() {
-	if (selectordir != "") {
-		selector();
-	} else {
-		launch();
+	uint32_t start = SDL_GetTicks();
+	while (gmenu2x->input[CONFIRM]) {
+		gmenu2x->input.update();
+		if (SDL_GetTicks() - start > 1400) {
+			// hold press -> inverted
+			if (selectordir != "")
+				return launch();
+			return selector();
+		}
 	}
+
+	// quick press -> normal
+	if (selectordir != "")
+		return selector();
+	return launch();
 }
 
 void LinkApp::selector(int startSelection, const string &selectorDir) {
