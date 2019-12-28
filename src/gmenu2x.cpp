@@ -1721,8 +1721,14 @@ void GMenu2X::explorer() {
 			TerminalDialog td(this, tr["Terminal"], "sh " + cmdclean(bd.getFileName(bd.selected)), "skin:icons/terminal.png");
 			td.exec(bd.getFilePath(bd.selected));
 		} else if (ext == ".zip" && file_exists("/usr/bin/unzip") && (bd.getFile(bd.selected).rfind("gmenu2x-skin-", 0) == 0) || (bd.getFile(bd.selected).rfind("gmenunx-skin-", 0) == 0)) {
-			TerminalDialog td(this, tr["Skin installer"], bd.getFileName(bd.selected), "skin:icons/skin.png");
-			td.exec("rm -rf /tmp/skins; mkdir -p /tmp/skins; unzip -o " + cmdclean(bd.getFilePath(bd.selected)) + " -d /tmp/skins; cp -rf /tmp/skins/ " + getExePath() + "/skins 2> /dev/null; rm -rf /tmp/skins; sync");
+			string path = bd.getFilePath(bd.selected);
+			string skinname = base_name(path, true).substr(13); // strip gmenu2x-skin- and .zip
+			if (skinname.size() > 1) {
+				TerminalDialog td(this, tr["Skin installer"], tr["Installing skin"] + " " + skinname, "skin:icons/skin.png");
+				string cmd = "rm -rf \"skins/" + skinname + "/\"; mkdir -p \"skins/" + skinname + "/\"; unzip \"" + path + "\" -d \"skins/" + skinname + "/\"; if [ `ls \"skins/" + skinname + "\" | wc -l` == 1 ]; then subdir=`ls \"skins/" + skinname + "\"`; mv \"skins/" + skinname + "\"/$subdir/* \"skins/" + skinname + "/\"; rmdir \"skins/" + skinname + "\"/$subdir; fi; sync";
+				td.exec(cmd);
+				setSkin(skinname, false);
+			}
 		} else if (ext == ".zip" && file_exists("/usr/bin/unzip")) {
 			TerminalDialog td(this, tr["Zip content"], bd.getFileName(bd.selected), "skin:icons/terminal.png");
 			td.exec("unzip -l " + cmdclean(bd.getFilePath(bd.selected)));
