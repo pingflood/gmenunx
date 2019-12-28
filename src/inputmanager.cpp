@@ -161,7 +161,7 @@ void InputManager::setActionsCount(int count) {
 	for (int x = 0; x < count; x++) {
 		InputManagerAction action;
 		action.active = false;
-		action.interval = 180;
+		action.interval = 150;
 		actions.push_back(action);
 	}
 }
@@ -188,6 +188,7 @@ bool InputManager::update(bool wait) {
 		case SDL_KEYUP:
 			anyactions = true;
 			keystate[x] = false;
+			SDL_RemoveTimer(timer); timer = NULL;
 			break;
 		case SDL_USEREVENT:
 			if (event.user.code == WAKE_UP)

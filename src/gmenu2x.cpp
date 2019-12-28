@@ -2222,21 +2222,22 @@ void GMenu2X::installPackage() {
 }
 
 void GMenu2X::setInputSpeed() {
-	input.setInterval(180);
+	input.setInterval(150);
+	input.setInterval(300, SECTION_PREV);
+	input.setInterval(300, SECTION_NEXT);
+	input.setInterval(300, CONFIRM);
+	input.setInterval(300, CANCEL);
+	input.setInterval(300, MANUAL);
+	input.setInterval(300, MODIFIER);
+	input.setInterval(300, PAGEUP);
+	input.setInterval(300, PAGEDOWN);
 	// input.setInterval(1000, SETTINGS);
 	// input.setInterval(100, MENU);
-	// input.setInterval(1000, CONFIRM);
 	// input.setInterval(1000, POWER);
-	// input.setInterval(1000, SECTION_PREV);
-	// input.setInterval(1000, SECTION_NEXT);
 	// input.setInterval(30,  VOLDOWN);
 	// input.setInterval(30,  VOLUP);
-	// input.setInterval(300, CANCEL);
-	// input.setInterval(300, MANUAL);
 	// input.setInterval(100, INC);
 	// input.setInterval(100, DEC);
-	// input.setInterval(500, PAGEUP);
-	// input.setInterval(500, PAGEDOWN);
 	// input.setInterval(200, BACKLIGHT);
 }
 
