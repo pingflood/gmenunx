@@ -171,7 +171,7 @@ void Surface::load(const string &img, bool alpha, string skin) {
 			amask = 0xff000000;
 		#endif
 
-		SDL_Surface* _raw = SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA, 16, 16, 16, rmask, gmask, bmask, amask );
+		SDL_Surface* _raw = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, 16, 16, 16, rmask, gmask, bmask, amask);
 		raw = SDL_DisplayFormat(_raw);
 		SDL_FreeSurface(_raw);
 	}
@@ -473,21 +473,16 @@ bool Surface::blit(Surface *destination, SDL_Rect destrect, const uint8_t align,
 	return SDL_BlitSurface(raw, &srcrect, destination->raw, &destrect);
 }
 
-void Surface::softStretch(uint16_t w, uint16_t h, bool keep_aspect, bool crop) {
-	if (keep_aspect) {
-		if (crop) {
-			if (raw->w > raw->h) {
-				w = h * raw->w / raw->h;
-			} else {
-				h = w * raw->h / raw->w;
-			}
-		} else {
-			if (raw->w > raw->h) {
-				h = w * raw->h / raw->w;
-			} else {
-				w = h * raw->w / raw->h;
-			}
-		}
+void Surface::softStretch(uint16_t w, uint16_t h, uint8_t scale_mode) {
+	float src_r = (float)raw->w / raw->h;
+	float dst_r = (float)w / h;
+
+	if (scale_mode & SScaleMax) {
+		if (dst_r >= src_r) h = w / src_r;
+		if (dst_r <= src_r) w = h * src_r;
+	} else if (scale_mode & SScaleFit) {
+		if (dst_r >= src_r) w = h * src_r;
+		if (dst_r <= src_r) h = w / src_r;
 	}
 
 	SDL_Surface* _src = SDL_ConvertSurface(raw, raw->format, raw->flags);

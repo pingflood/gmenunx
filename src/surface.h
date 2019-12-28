@@ -27,12 +27,16 @@
 using std::string;
 using std::istream;
 
-const int	HAlignLeft		= 1,
-			HAlignRight		= 2,
-			HAlignCenter	= 4,
-			VAlignTop		= 8,
-			VAlignBottom	= 16,
-			VAlignMiddle	= 32;
+const uint8_t	HAlignLeft		= 1,
+				HAlignRight		= 2,
+				HAlignCenter	= 4,
+				VAlignTop		= 8,
+				VAlignBottom	= 16,
+				VAlignMiddle	= 32;
+
+const uint8_t	SScaleStretch	= 0,
+				SScaleMax		= 1,
+				SScaleFit		= 2;
 
 class FontHelper;
 
@@ -130,7 +134,7 @@ public:
 	void operator = (SDL_Surface*);
 	void operator = (Surface*);
 
-	void softStretch(uint16_t w, uint16_t h, bool keep_aspect = false, bool crop = true);
+	void softStretch(uint16_t w, uint16_t h, uint8_t scale_mode = SScaleStretch);
 	void setAlpha(uint8_t alpha);
 
 	int width() { return raw->w; }

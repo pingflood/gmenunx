@@ -101,7 +101,7 @@ bool BrowseDialog::exec() {
 							animation = 0;
 
 						anim.blit(gmenu2x->s,0,0);
-						gmenu2x->s->box(gmenu2x->w - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
+						gmenu2x->s->box(gmenu2x->w - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"] + 2 * padding, gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
 						gmenu2x->s->flip();
 						SDL_Delay(10);
 					};
@@ -109,21 +109,24 @@ bool BrowseDialog::exec() {
 					if (!gmenu2x->sc.exists(preview + "scaled")) {
 						Surface *previm = new Surface(preview);
 						gmenu2x->sc.add(previm, preview + "scaled");
-						gmenu2x->sc[preview + "scaled"]->softStretch(gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding, true, false);
+
+						if (gmenu2x->confStr["bgscale"] == "Stretch") gmenu2x->sc[preview + "scaled"]->softStretch(gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h - 2 * padding, SScaleStretch);
+						else if (gmenu2x->confStr["bgscale"] == "Crop") gmenu2x->sc[preview + "scaled"]->softStretch(gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h - 2 * padding, SScaleMax);
+						else if (gmenu2x->confStr["bgscale"] == "Aspect") gmenu2x->sc[preview + "scaled"]->softStretch(gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h - 2 * padding, SScaleFit);
 					}
 
 					do {
 						animation += gmenu2x->skinConfInt["previewWidth"] / 8;
 
-						if (animation > gmenu2x->skinConfInt["previewWidth"])
-							animation = gmenu2x->skinConfInt["previewWidth"];
+						if (animation > gmenu2x->skinConfInt["previewWidth"] + 2 * padding)
+							animation = gmenu2x->skinConfInt["previewWidth"] + 2 * padding;
 
 						anim.blit(gmenu2x->s,0,0);
-						gmenu2x->s->box(gmenu2x->w - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
-						gmenu2x->sc[preview + "scaled"]->blit(gmenu2x->s, {gmenu2x->w - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"] - 2 * padding, gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->h);
+						gmenu2x->s->box(gmenu2x->w - animation, gmenu2x->listRect.y, gmenu2x->skinConfInt["previewWidth"] + 2 * padding, gmenu2x->listRect.h, gmenu2x->skinConfColors[COLOR_PREVIEW_BG]);
+						gmenu2x->sc[preview + "scaled"]->blit(gmenu2x->s, {gmenu2x->w - animation + padding, gmenu2x->listRect.y + padding, gmenu2x->skinConfInt["previewWidth"], gmenu2x->listRect.h - 2 * padding}, HAlignCenter | VAlignMiddle, gmenu2x->h);
 						gmenu2x->s->flip();
 						SDL_Delay(10);
-					} while (animation < gmenu2x->skinConfInt["previewWidth"]);
+					} while (animation < gmenu2x->skinConfInt["previewWidth"] + 2 * padding);
 				}
 			}
 			gmenu2x->drawScrollBar(numRows, size(), firstElement, gmenu2x->listRect);

@@ -183,7 +183,7 @@ int MessageBox::exec() {
 			gmenu2x->s->setClipRect({box.x + 8, box.y + 8, 32, 32});
 
 			if (icn->width() > 32 || icn->height() > 32)
-				icn->softStretch(32, 32, true, true);
+				icn->softStretch(32, 32, SScaleFit);
 
 			icn->blit(gmenu2x->s, box.x + 24, box.y + 24, HAlignCenter | VAlignMiddle);
 			gmenu2x->s->clearClipRect();

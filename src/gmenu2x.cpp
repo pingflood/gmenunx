@@ -461,7 +461,7 @@ void GMenu2X::main() {
 				Surface *icon = sc[menu->sectionLinks()->at(i)->getIconPath()];
 				if (icon == NULL) icon = sc["skin:icons/generic.png"];
 				if (icon->width() > 32 || icon->height() > linkHeight - 4)
-					icon->softStretch(32, linkHeight - 4, true, true);
+					icon->softStretch(32, linkHeight - 4, SScaleFit);
 
 				icon->blit(s, {ix + 2, iy + 2, 32, linkHeight - 4}, HAlignCenter | VAlignMiddle);
 				s->write(titlefont, tr[menu->sectionLinks()->at(i)->getTitle()], ix + linkSpacing + 36, iy + titlefont->getHeight()/2, VAlignMiddle);
@@ -476,7 +476,7 @@ void GMenu2X::main() {
 					Surface *icon = sc[menu->sectionLinks()->at(i)->getIconPath()];
 					if (icon == NULL) icon = sc["skin:icons/generic.png"];
 					if (icon->width() > linkWidth || icon->height() > linkHeight)
-						icon->softStretch(linkWidth, linkHeight, true, true);
+						icon->softStretch(linkWidth, linkHeight, SScaleFit);
 
 					if (i == (uint32_t)menu->selLinkIndex()) {
 						if (iconBGon != NULL && icon->width() <= iconBGon->width() && icon->height() <= iconBGon->height())
@@ -857,9 +857,9 @@ void GMenu2X::setBackground(Surface *bg, string wallpaper) {
 			wallpaper = "skins/Default/wallpapers/" + fl.getFiles()[0];
 		}
 		if (sc[wallpaper] == NULL) return;
-		if (confStr["bgscale"] == "Stretch") sc[wallpaper]->softStretch(this->w, this->h, false, true);
-		else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(this->w, this->h, true, true);
-		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(this->w, this->h, true, false);
+		if (confStr["bgscale"] == "Stretch") sc[wallpaper]->softStretch(this->w, this->h, SScaleStretch);
+		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(this->w, this->h, SScaleMax);
+		else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(this->w, this->h, SScaleFit);
 	}
 
 	cls(bg, false);
@@ -1523,8 +1523,8 @@ void GMenu2X::skinMenu() {
 		sd.allowCancel = false;
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenuNX"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &confStr["tmp_wallpaper"], &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Art scaling"], tr["How to scale game art, wallpaper and backdrops"], &confStr["bgscale"], &bgScale));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Preview mode"], tr["How to show image preview and game art"], &confStr["previewMode"], &previewMode));
-		sd.addSetting(new MenuSettingMultiString(this, tr["Background"], tr["How to scale wallpaper, backdrops and game art"], &confStr["bgscale"], &bgScale));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin colors"], tr["Customize skin colors"], &tmp, &wpLabel, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::skinColors)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &skinBackdrops, &bdStr));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Font face"], tr["Override the skin font face"], &confStr["skinFont"], &skinFont, MakeDelegate(this, &GMenu2X::onChangeSkin)));
