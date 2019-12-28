@@ -140,12 +140,26 @@ bool BrowseDialog::exec() {
 			} else if (gmenu2x->input[DOWN]) {
 				selected += 1;
 				if (selected >= this->size()) selected = 0;
-			} else if (gmenu2x->input[PAGEUP] || gmenu2x->input[LEFT]) {
+			} else if (gmenu2x->input[LEFT]) {
 				selected -= numRows;
 				if (selected < 0) selected = 0;
-			} else if (gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT]) {
+			} else if (gmenu2x->input[RIGHT]) {
 				selected += numRows;
 				if (selected >= this->size()) selected = this->size() - 1;
+			} else if (gmenu2x->input[PAGEDOWN]) {
+				string cur = getFileName(selected);
+				while ((selected < this->size() - 1) && selected++) {
+					string sel = getFileName(selected);
+					if (cur.at(0) != sel.at(0))
+						break;
+				}
+			} else if (gmenu2x->input[PAGEUP]) {
+				string cur = getFileName(selected);
+				while (selected > 0 && selected--) {
+					string sel = getFileName(selected);
+					if (cur.at(0) != sel.at(0))
+						break;
+				}
 			} else if (gmenu2x->input[MENU]) {
 				contextMenu();
 			} else if (showDirectories && allowDirUp && (gmenu2x->input[MODIFIER] || (gmenu2x->input[CONFIRM] && getFile(selected) == ".."))) { /*Directory Up */
