@@ -358,9 +358,10 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 		} else {
 			string origParams = params;
 			params = strreplace(params, "[selFullPath]", cmdclean(dir + "/" + selectedFile));
+			params = strreplace(params, "\%f", cmdclean(dir + "/" + selectedFile));
 			params = strreplace(params, "[selPath]", cmdclean(dir));
 			params = strreplace(params, "[selFile]", cmdclean(selectedFileName));
-			params = strreplace(params, "\%f", cmdclean(dir + "/" + selectedFile));
+			params = strreplace(params, "[selFileNoExt]", base_name(cmdclean(selectedFileName), true));
 			params = strreplace(params, "[selExt]", cmdclean(selectedFileExtension));
 			if (params == origParams) params += " " + cmdclean(dir + "/" + selectedFile);
 		}
