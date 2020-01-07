@@ -26,6 +26,7 @@
 #include "linkapp.h"
 #include <dirent.h>
 #include <libopk.h>
+#include "filelister.h"
 
 using namespace std;
 extern const char *CARD_ROOT;
@@ -167,27 +168,18 @@ void OPKScannerDialog::opkInstall(const string &path) {
 }
 
 void OPKScannerDialog::opkScan(string opkdir) {
-	DIR *dirp;
-	struct dirent *dptr;
+	FileLister fl;
+	fl.showDirectories = false;
+	fl.showFiles = true;
+	fl.setFilter(".opk");
+	fl.setPath(opkdir);
+	fl.browse();
 
-	opkdir = real_path(opkdir);
-
-	if ((dirp = opendir(opkdir.c_str())) == NULL) return;
-
-	while ((dptr = readdir(dirp))) {
-		if (dptr->d_type != DT_REG || dptr->d_name[0] == '.')
-			continue;
-
-		opkpath = opkdir + "/" + dptr->d_name;
-		if (file_ext(opkpath, true) == ".opk") {
-
-			text.push_back(gmenu2x->tr["Installing"] + " " + (string)dptr->d_name);
-			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
-
-			opkInstall(opkpath);
-		}
+	for (uint32_t i = 0; i < fl.size(); i++) {
+		text.push_back(gmenu2x->tr["Installing"] + " " + fl.getFilePath(i));
+		lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
+		opkInstall(fl.getFilePath(i));
 	}
-	closedir(dirp);
 }
 
 void OPKScannerDialog::exec() {
@@ -210,52 +202,38 @@ void OPKScannerDialog::exec() {
 		lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
 		opkInstall(opkpath);
 	} else {
-		DIR *dirp0, *dirp1;
-		struct dirent *dptr0, *dptr1;
+		FileLister fl;
+		fl.showDirectories = true;
+		fl.showFiles = false;
+		fl.allowDirUp = false;
+		fl.setPath(CARD_ROOT);
+		fl.browse();
 
-		string subdir(CARD_ROOT);
-
-		// scan HOME
-		if ((dirp1 = opendir(subdir.c_str())) != NULL)
-		while ((dptr1 = readdir(dirp1))) {
-			if (dptr1->d_type != DT_DIR || dptr1->d_name[0] == '.')
-				continue;
-
-			string dname = subdir + "/" + dptr1->d_name;
-
-			text.push_back(gmenu2x->tr["Scanning"] + " " + dname);
+		for (uint32_t i = 0; i < fl.size(); i++) {
+			text.push_back(gmenu2x->tr["Scanning"] + " " + fl.getFilePath(i));
 			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
-
-			opkScan(dname);
+			opkScan(fl.getFilePath(i));
 		}
-		closedir(dirp1);
 
-		// scan MEDIA
-		string opkdir = "/media";
+		fl.setPath("/media");
+		fl.browse();
 
-		if ((dirp0 = opendir(opkdir.c_str())) != NULL)
-		while ((dptr0 = readdir(dirp0))) {
-			if (dptr0->d_type != DT_DIR || dptr0->d_name[0] == '.')
-				continue;
+		for (uint32_t i = 0; i < fl.size(); i++) {
+			FileLister flsub;
+			flsub.showDirectories = true;
+			flsub.showFiles = false;
+			flsub.allowDirUp = false;
+			flsub.setPath(fl.getFilePath(i));
+			flsub.browse();
 
-			subdir = opkdir + "/" + dptr0->d_name;
-
-			if ((dirp1 = opendir(subdir.c_str())) != NULL)
-			while ((dptr1 = readdir(dirp1))) {
-				if (dptr1->d_type != DT_DIR || dptr1->d_name[0] == '.')
-					continue;
-
-				string dname = subdir + "/" + dptr1->d_name;
-
-				text.push_back(gmenu2x->tr["Scanning"] + " " + dname);
+			for (uint32_t j = 0; j < flsub.size(); j++) {
+				text.push_back(gmenu2x->tr["Scanning"] + " " + flsub.getFilePath(j));
 				lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
-
-				opkScan(dname);
+				opkScan(flsub.getFilePath(j));
 			}
-			closedir(dirp1);
 		}
-		closedir(dirp0);
 	}
+
 	system("sync &");
 
 	text.push_back("----");
