@@ -2272,14 +2272,13 @@ int GMenu2X::setVolume(int val, bool popup) {
 
 			if (input[SETTINGS] || input[CONFIRM] || input[CANCEL]) {
 				break;
-			} else if (input[LEFT] || input[DEC] || input[VOLDOWN]) {
+			} else if (input[LEFT] || input[DEC] || input[VOLDOWN] || input[SECTION_PREV]) {
 				val = max(0, val - volumeStep);
-			} else if (input[RIGHT] || input[INC] || input[VOLUP]) {
+			} else if (input[RIGHT] || input[INC] || input[VOLUP] || input[SECTION_NEXT]) {
 				val = min(100, val + volumeStep);
-			} else if (input[SECTION_PREV]) {
-				val += volumeStep;
-				if (val > 100) val = 0;
 			}
+
+			val = constrain(val, 0, 100);
 		}
 
 		bg.blit(s, 0, 0);
@@ -2320,16 +2319,16 @@ int GMenu2X::setBacklight(int val, bool popup) {
 
 			if (input[SETTINGS] || input[CONFIRM] || input[CANCEL]) {
 				break;
-			} else if (input[LEFT] || input[DEC]) {
+			} else if (input[LEFT] || input[DEC] || input[SECTION_PREV]) {
 				val = setBacklight(max(5, val - backlightStep), false);
-			} else if (input[RIGHT] || input[INC]) {
+			} else if (input[RIGHT] || input[INC] || input[SECTION_NEXT]) {
 				val = setBacklight(min(100, val + backlightStep), false);
-			} else if (input[SECTION_NEXT]) {
-				val = setBacklight(val + backlightStep, false);
 			} else if (input[BACKLIGHT]) {
 				SDL_Delay(50);
 				val = getBacklight();
 			}
+
+			val = constrain(val, 5, 100);
 		}
 
 		bg.blit(s, 0, 0);
