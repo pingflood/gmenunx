@@ -25,7 +25,6 @@ bool BrowseDialog::exec() {
 	bool loop = true;
 	uint32_t numRows = (gmenu2x->listRect.h - 2) / rowHeight - 1;
 
-	string path = getPath();
 	if (path.empty() || !dir_exists(path))
 		setPath(gmenu2x->confStr["homePath"]);
 
@@ -37,7 +36,6 @@ bool BrowseDialog::exec() {
 		if (selected >= size()) selected = 0;
 
 		bool inputAction = false;
-		string curPath = getPath();
 
 		buttons.clear();
 		buttons.push_back({"select", gmenu2x->tr["Menu"]});
@@ -48,7 +46,7 @@ bool BrowseDialog::exec() {
 		else if ((allowEnterDirectory && isDirectory(selected)) || !isDirectory(selected))
 			buttons.push_back({"a", gmenu2x->tr["Select"]});
 
-		if (showDirectories && allowDirUp && curPath != "/")
+		if (showDirectories && allowDirUp && path != "/")
 			buttons.push_back({"x", gmenu2x->tr["Folder up"]});
 
 		if (gmenu2x->confStr["previewMode"] == "Backdrop") {
@@ -58,7 +56,7 @@ bool BrowseDialog::exec() {
 				gmenu2x->bg->blit(this->bg,0,0);
 		}
 
-		this->description = curPath;
+		this->description = path;
 
 		drawDialog(gmenu2x->s);
 
@@ -82,7 +80,7 @@ bool BrowseDialog::exec() {
 				if (isDirectory(i)) {
 					if (getFile(i) == "..")
 						iconCur = iconGoUp;
-					else if ((curPath == "/" && getFileName(i) == "media") || curPath == "/media")
+					else if ((path == "/" && getFileName(i) == "media") || path == "/media")
 						iconCur = iconSd;
 					else
 						iconCur = iconFolder;
@@ -174,7 +172,7 @@ bool BrowseDialog::exec() {
 					selected = browse_history.back();
 					browse_history.pop_back();
 				}
-				directoryEnter(getPath() + "/..");
+				directoryEnter(path + "/..");
 			} else if (gmenu2x->input[CONFIRM]) {
 				if (allowEnterDirectory && isDirectory(selected)) {
 					browse_history.push_back(selected);
@@ -232,7 +230,6 @@ void BrowseDialog::contextMenu() {
 	vector<MenuOption> options;
 
 	string ext = getExt(selected);
-	string path = getPath();
 
 	customOptions(options);
 
@@ -260,7 +257,7 @@ void BrowseDialog::deleteFile() {
 	mb.setButton(CANCEL,  gmenu2x->tr["No"]);
 	if (mb.exec() != MANUAL) return;
 	if (!unlink(getFilePath(selected).c_str())) {
-		directoryEnter(getPath()); // refresh
+		directoryEnter(path); // refresh
 		sync();
 	}
 }
@@ -268,7 +265,7 @@ void BrowseDialog::deleteFile() {
 void BrowseDialog::umountDir() {
 	string umount = "sync; umount -fl " + getFilePath(selected) + " && rm -r " + getFilePath(selected);
 	system(umount.c_str());
-	directoryEnter(getPath()); // refresh
+	directoryEnter(path); // refresh
 }
 
 void BrowseDialog::exploreHome() {

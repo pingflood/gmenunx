@@ -40,7 +40,6 @@ const std::string Selector::getPreview(uint32_t i) {
 	string fpath = getFilePath(i);
 
 	if (previews[fpath].empty()) {
-		string path = getPath();
 		string screendir = link->getSelectorScreens();
 		string noext, realdir;
 		previews[fpath] = "#"; // dummy path

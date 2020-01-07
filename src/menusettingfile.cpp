@@ -46,11 +46,10 @@ void MenuSettingFile::edit() {
 	_value = dir_name(_value);
 
 	BrowseDialog bd(gmenu2x, dialogTitle, description, dialogIcon);
-	bd.setFilter(filter);
 	bd.setPath(_value);
 	bd.showDirectories = true;
 	bd.showFiles = true;
-
+	bd.setFilter(filter);
 	if (bd.exec())
 		setValue(bd.getFilePath(bd.selected));
 }
