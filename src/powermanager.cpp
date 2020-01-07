@@ -47,7 +47,7 @@ void PowerManager::resetPowerTimer() {
 
 uint32_t PowerManager::doSuspend(uint32_t interval, void *param) {
 	if (interval > 0) {
-		PowerManager::instance->gmenu2x->setBacklight(-1);
+		PowerManager::instance->gmenu2x->setBacklight(0);
 		PowerManager::instance->resetPowerTimer();
 		if (PowerManager::instance->gmenu2x->getBacklight() < 1) {
 			PowerManager::instance->gmenu2x->cls();
