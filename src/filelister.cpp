@@ -45,7 +45,6 @@ void FileLister::browse() {
 		vector<string> vfilter;
 		split(vfilter, getFilter(), ",");
 
-		string filepath, file;
 		struct stat st;
 		struct dirent **dptr;
 
@@ -57,18 +56,24 @@ void FileLister::browse() {
 		}
 
 		while (++i < n) {
-			file = dptr[i]->d_name;
-			if (file[0] == '.') continue;
-			filepath = path + "/" + file;
-			int statRet = stat(filepath.c_str(), &st);
-			if (statRet == -1) {
-				ERROR("Stat failed on '%s': '%s'", filepath.c_str(), strerror(errno));
-				continue;
-			}
-			if (find(excludes.begin(), excludes.end(), file) != excludes.end())
+			string file = dptr[i]->d_name;
+			if (file[0] == '.' || (find(excludes.begin(), excludes.end(), file) != excludes.end()))
 				continue;
 
-			if (S_ISDIR(st.st_mode)) {
+			if (!((dptr[i]->d_type & DT_REG) || (dptr[i]->d_type & DT_DIR))) {
+				string filepath = path + "/" + file;
+				if (stat(filepath.c_str(), &st) == -1) {
+					ERROR("Stat failed on '%s': '%s'", filepath.c_str(), strerror(errno));
+					continue;
+				}
+				if (S_ISDIR(st.st_mode)) {
+					dptr[i]->d_type |= DT_DIR;
+				} else {
+					dptr[i]->d_type |= DT_REG;
+				}
+			}
+
+			if (dptr[i]->d_type & DT_DIR) {
 				if (showDirectories) directories.push_back(file); // warning: do not merge the _if_
 			} else if (showFiles) {
 				for (vector<string>::iterator it = vfilter.begin(); it != vfilter.end(); ++it) {
