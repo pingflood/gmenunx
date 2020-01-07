@@ -7,7 +7,7 @@ extern const char *CARD_ROOT;
 
 BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
 	: Dialog(gmenu2x, title, description, icon) {
-	directoryEnter(gmenu2x->confStr["homePath"]);
+	setPath(gmenu2x->confStr["homePath"]);
 }
 
 bool BrowseDialog::exec() {
@@ -27,7 +27,9 @@ bool BrowseDialog::exec() {
 
 	string path = getPath();
 	if (path.empty() || !dir_exists(path))
-		directoryEnter(gmenu2x->confStr["homePath"]);
+		setPath(gmenu2x->confStr["homePath"]);
+
+	directoryEnter(path);
 
 	string preview = getPreview(selected);
 

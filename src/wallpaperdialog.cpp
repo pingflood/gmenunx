@@ -42,11 +42,13 @@ bool WallpaperDialog::exec()
 	FileLister fl;
 	fl.setFilter(".png,.jpg,.jpeg,.bmp");
 
-	fl.setPath(skin, true);
+	fl.setPath(skin);
+	fl.browse();
 	wallpapers = fl.getFiles();
 
 	if (gmenu2x->confStr["skin"] != "Default") {
-		fl.setPath("skins/Default/wallpapers", true);
+		fl.setPath("skins/Default/wallpapers");
+		fl.browse();
 		for (uint32_t i = 0; i < fl.getFiles().size(); i++)
 			wallpapers.push_back(fl.getFiles()[i]);
 	}

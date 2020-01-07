@@ -47,8 +47,8 @@ public:
 	const string getExt(uint32_t i = 0);
 	const string getFilePath(uint32_t i = 0);
 	const string &getPath();
-	void setPath(const string &path, bool doBrowse=true);
 	const string &getFilter();
+	void setPath(const string &path);
 	void setFilter(const string &filter);
 	const vector<string> &getDirectories() { return directories; }
 	const vector<string> &getFiles() { return files; }

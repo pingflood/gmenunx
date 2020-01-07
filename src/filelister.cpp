@@ -32,7 +32,7 @@ using namespace std;
 
 FileLister::FileLister(const string &startPath, bool showDirectories, bool showFiles)
 	: showDirectories(showDirectories), showFiles(showFiles) {
-	setPath(startPath, false);
+	setPath(startPath);
 }
 
 void FileLister::browse() {
@@ -90,10 +90,8 @@ void FileLister::browse() {
 const string &FileLister::getPath() {
 	return path;
 }
-void FileLister::setPath(const string &path, bool doBrowse) {
+void FileLister::setPath(const string &path) {
 	this->path = real_path(path);
-	if (doBrowse) browse();
-}
 const string &FileLister::getFilter() {
 	return filter;
 }
