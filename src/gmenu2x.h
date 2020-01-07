@@ -224,10 +224,8 @@ public:
 	int drawButtonRight(Surface *s, const string &btn, const string &text = "", int x = 5, int y = -8);
 	void drawScrollBar(uint32_t pagesize, uint32_t totalsize, uint32_t pagepos, SDL_Rect scrollRect);
 
-	/*!
-	Reads the current battery state and returns a number representing it's level of charge
-	@return A number representing battery charge. 0 means fully discharged. 5 means fully charged. 6 represents a gp2x using AC power.
-	*/
+	static uint32_t timerFlip(uint32_t interval, void *param = NULL);
+
 	virtual void setScaleMode(unsigned int mode) { };
 	virtual void setTVOut(unsigned int mode) { };
 	virtual void setCPU(uint32_t mhz) { };

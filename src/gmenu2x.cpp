@@ -2444,3 +2444,8 @@ void GMenu2X::drawSlider(int val, int min, int max, Surface &icon, Surface &bg) 
 	s->box(progress.x + 1, progress.y + 1, val * (progress.w - 3) / max + 1, progress.h - 2, skinConfColors[COLOR_MESSAGE_BOX_SELECTION]);
 	s->flip();
 }
+
+uint32_t GMenu2X::timerFlip(uint32_t interval, void *param) {
+	instance->s->flip();
+	return 0;
+};
