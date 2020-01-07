@@ -1150,7 +1150,7 @@ void GMenu2X::readConfig() {
 	confInt["skinBackdrops"] = 0;
 	confStr["homePath"] = CARD_ROOT;
 	confInt["globalVolume"] = 60;
-	confStr["bgscale"] = RETROARCADE ? "Crop" : "Aspect";
+	confStr["bgscale"] = "Crop";
 	confStr["skinFont"] = "Custom";
 
 	confInt["cpuMenu"] = CPU_MENU;
@@ -1524,7 +1524,7 @@ void GMenu2X::skinMenu() {
 		sd.allowCancel = false;
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin"], tr["Set the skin used by GMenuNX"], &confStr["skin"], &fl_sk.getDirectories(), MakeDelegate(this, &GMenu2X::onChangeSkin)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Wallpaper"], tr["Select an image to use as a wallpaper"], &confStr["tmp_wallpaper"], &wallpapers, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::changeWallpaper)));
-		sd.addSetting(new MenuSettingMultiString(this, tr["Art scaling"], tr["How to scale game art, wallpaper and backdrops"], &confStr["bgscale"], &bgScale));
+		sd.addSetting(new MenuSettingMultiString(this, tr["Background"], tr["How to scale wallpaper, backdrops and game art"], &confStr["bgscale"], &bgScale));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Preview mode"], tr["How to show image preview and game art"], &confStr["previewMode"], &previewMode));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin colors"], tr["Customize skin colors"], &tmp, &wpLabel, MakeDelegate(this, &GMenu2X::onChangeSkin), MakeDelegate(this, &GMenu2X::skinColors)));
 		sd.addSetting(new MenuSettingMultiString(this, tr["Skin backdrops"], tr["Automatic load backdrops from skin pack"], &skinBackdrops, &bdStr));
