@@ -2,6 +2,7 @@
 #include "browsedialog.h"
 #include "debug.h"
 #include "utilities.h"
+#include "powermanager.h"
 using namespace std;
 extern const char *CARD_ROOT;
 
@@ -201,15 +202,22 @@ bool BrowseDialog::exec() {
 }
 
 void BrowseDialog::directoryEnter(const string &path) {
-	MessageBox mb(gmenu2x, gmenu2x->tr["Loading"]);
-	mb.setAutoHide(1);
-	mb.setBgAlpha(0);
-	mb.exec(3e3);
+	gmenu2x->powerManager->clearTimer();
+
+	this->description = path;
+	buttons.clear();
+	buttons.push_back({"skin:imgs/manual.png", gmenu2x->tr["Loading.. Please wait.."]});
+
+	drawDialog(gmenu2x->s);
+
+	SDL_TimerID flipScreenTimer = SDL_AddTimer(500, GMenu2X::timerFlip, (void*)false);
 
 	setPath(path);
+	browse();
 	onChangeDir();
 
-	mb.clearTimer();
+	SDL_RemoveTimer(flipScreenTimer); flipScreenTimer = NULL;
+	gmenu2x->powerManager->resetSuspendTimer();
 }
 
 const std::string BrowseDialog::getFileName(uint32_t i) {
