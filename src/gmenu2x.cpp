@@ -94,6 +94,7 @@ uint16_t tvOutPrev = TV_REMOVE, tvOutStatus;
 uint16_t volumeModePrev, volumeMode;
 uint16_t batteryIcon = 3;
 uint8_t numJoy = 0; // number of connected joysticks
+string fwType = "";
 
 #if defined(TARGET_RETROGAME)
 	#include "platform/retrogame.cpp"
@@ -103,7 +104,6 @@ uint8_t numJoy = 0; // number of connected joysticks
 	#include "platform/bittboy.cpp"
 #elif defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
 	#include "platform/gp2x.cpp"
-	string fwType = "";
 #else //if defined(TARGET_PC)
 	#include "platform/pc.cpp"
 #endif

@@ -40,8 +40,6 @@ const int CPU_MAX = CPU_MENU * 2;
 const int CPU_MIN = CPU_MENU / 2;
 const int CPU_STEP = 6;
 
-bool RETROARCADE = false;
-
 uint16_t getMMCStatus() {
 	if (memdev > 0 && !(memregs[0x10500 >> 2] >> 0 & 0b1)) return MMC_INSERT;
 	return MMC_REMOVE;
@@ -55,7 +53,7 @@ uint16_t getUDCStatus() {
 
 uint16_t getTVOutStatus() {
 	if (memdev > 0) {
-		if (RETROARCADE && !(memregs[0x10300 >> 2] >> 6 & 0b1)) return TV_CONNECT;
+		if (fwType == "RETROARCADE" && !(memregs[0x10300 >> 2] >> 6 & 0b1)) return TV_CONNECT;
 		else if (!(memregs[0x10300 >> 2] >> 25 & 0b1)) return TV_CONNECT;
 	}
 	return TV_REMOVE;
@@ -145,7 +143,7 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 			return 2000;
 		}
 
-		if (RETROARCADE == true) {
+		if (fwType == "RETROARCADE") {
 			numJoy = getDevStatus();
 			if (numJoyPrev != numJoy) {
 				numJoyPrev = numJoy;
@@ -200,15 +198,12 @@ private:
 			char buf[7];
 			fread(buf, sizeof(char), 7, f);
 			fclose(f);
-			if (!strncmp(buf, "480x272", 7))
-				RETROARCADE = true;
+			if (!strncmp(buf, "480x272", 7)) {
+				fwType = "RETROARCADE";
+			}
 		}
 
-		if (RETROARCADE) {
-			INFO("RETROARCADE");
-		} else {
-			INFO("RETROGAME");
-		}
+		INFO("%s", fwType.c_str());
 	}
 
 	void udcDialog(int udcStatus) {
