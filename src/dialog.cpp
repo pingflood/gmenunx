@@ -6,9 +6,11 @@ Dialog::Dialog(GMenu2X *gmenu2x, const std::string &title, const std::string &de
 	bg = new Surface(gmenu2x->bg);
 
 	buttons.clear();
+	gmenu2x->input.dropEvents(); // prevent passing input away
 }
 
 Dialog::~Dialog() {
+	gmenu2x->input.dropEvents(); // prevent passing input away
 	delete bg;
 }
 

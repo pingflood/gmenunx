@@ -27,7 +27,6 @@
 
 #include <string>
 #include "gmenu2x.h"
-#include "dialog.h"
 
 using std::string;
 using std::vector;
@@ -37,7 +36,6 @@ typedef vector<string> stringlist;
 // class InputManager;
 // class Touchscreen;
 
-// class InputDialog : protected Dialog {
 class InputDialog {
 protected:
 	GMenu2X *gmenu2x;
@@ -81,6 +79,7 @@ private:
 
 public:
 	InputDialog(GMenu2X *gmenu2x, /*Touchscreen &ts,*/ const string &text, const string &startvalue="", const string &title="", const string &icon="");
+	~InputDialog();
 
 	bool exec();
 	const string &getInput() { return input; }

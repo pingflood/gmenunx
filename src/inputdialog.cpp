@@ -25,11 +25,11 @@
 using namespace std;
 using namespace fastdelegate;
 
-InputDialog::InputDialog(GMenu2X *gmenu2x,
-		/*Touchscreen &ts_, */ const string &text,
-		const string &startvalue, const string &title, const string &icon)
+InputDialog::InputDialog(GMenu2X *gmenu2x, /*Touchscreen &ts_, */ const string &text, const string &startvalue, const string &title, const string &icon)
 	: gmenu2x(gmenu2x) /*Dialog(gmenu2x) /*, ts(ts_)*/
 {
+	gmenu2x->input.dropEvents(); // prevent passing input away
+	
 	if (title == "") {
 		this->title = text;
 		this->text = "";
@@ -198,8 +198,6 @@ bool InputDialog::exec() {
 		}
 	}
 
-	gmenu2x->input.dropEvents(); // prevent passing input away
-
 	return ok;
 }
 
@@ -280,4 +278,8 @@ int InputDialog::drawVirtualKeyboard() {
 	// }
 
 	return action;
+}
+
+InputDialog::~InputDialog() {
+	gmenu2x->input.dropEvents(); // prevent passing input away
 }
