@@ -785,7 +785,8 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	input[wasActive] = true;
 
 	if (input[POWER]) {
-		poweroffDialog();
+		powerManager->doSuspend(1);
+		// poweroffDialog();
 
 	} else if (input[SCREENSHOT]) {
 		if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
