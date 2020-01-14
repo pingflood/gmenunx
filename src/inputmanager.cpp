@@ -181,6 +181,9 @@ bool InputManager::update(bool wait) {
 	if (wait) SDL_WaitEvent(&event);
 	else if (!SDL_PollEvent(&event)) return false;
 
+	if (timer && (event.type == SDL_JOYAXISMOTION || event.type == SDL_JOYHATMOTION))
+		return false;
+
 	dropEvents();
 
 	x = event.key.keysym.sym;
@@ -193,16 +196,10 @@ bool InputManager::update(bool wait) {
 		case SDL_KEYUP:
 			anyactions = true;
 			keystate[x] = false;
-			SDL_RemoveTimer(timer); timer = NULL;
 			break;
 		case SDL_USEREVENT:
 			if (event.user.code == WAKE_UP)
 				anyactions = true;
-			break;
-		case SDL_JOYAXISMOTION:
-		case SDL_JOYHATMOTION:
-			if (timer)
-				return false;
 			break;
 	}
 
@@ -236,6 +233,7 @@ bool InputManager::combo() { // eegg
 }
 
 void InputManager::dropEvents() {
+	SDL_RemoveTimer(timer); timer = NULL;
 	for (uint32_t x = 0; x < actions.size(); x++) {
 		actions[x].active = false;
 	}
