@@ -72,7 +72,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file):
 		else if (name == "manual") setManual(value);
 		else if (name == "clock") setCPU(atoi(value.c_str()));
 
-#if defined(TARGET_GP2X)
+#if defined(HW_GAMMA)
 		// else if (name == "wrapper" && value == "true") // wrapper = true;
 		// else if (name == "dontleave" && value == "true") // dontleave = true;
 		// else if (name == "volume") // setVolume(atoi(value.c_str()));

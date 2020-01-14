@@ -1970,11 +1970,13 @@ void GMenu2X::editLink() {
 		bool linkUseGinge = menu->selLinkApp()->getUseGinge();
 		string ginge_prep = getExePath() + "/ginge/ginge_prep";
 		if (file_exists(ginge_prep))
-			sd.addSetting(new MenuSettingBool(		this, tr["Use Ginge"],			tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
-	#elif defined(TARGET_GP2X)
+		sd.addSetting(new MenuSettingBool(		this, tr["Use Ginge"],			tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
+#endif
+
+	#if defined(HW_GAMMA)
 		int linkGamma = menu->selLinkApp()->gamma();
-		sd.addSetting(new MenuSettingInt(			this, tr["Gamma (default: 0)"],	tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
-	#endif
+		sd.addSetting(new MenuSettingInt(		this, tr["Gamma"],	tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
+#endif
 
 	if (sd.exec() && sd.edited() && sd.save) {
 		ledOn();
@@ -2007,11 +2009,13 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setBackdrop(linkBackdrop);
 		menu->selLinkApp()->setCPU(linkClock);
 
-		#if defined(TARGET_GP2X)
-			menu->selLinkApp()->setGamma(linkGamma);
-		#elif defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-			menu->selLinkApp()->setUseGinge(linkUseGinge);
-		#endif
+#if defined(HW_GAMMA)
+		menu->selLinkApp()->setGamma(linkGamma);
+#endif
+
+#if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+		menu->selLinkApp()->setUseGinge(linkUseGinge);
+#endif
 
 		// if section changed move file and update link->file
 		if (oldSection != newSection) {
