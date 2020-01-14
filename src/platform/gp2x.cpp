@@ -61,13 +61,13 @@ private:
 	void hwInit() {
 		setenv("SDL_NOMOUSE", "1", 1);
 
-	#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RETROGAME)
+#if defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO) || defined(TARGET_RETROFW)
 		memdev = open("/dev/mem", O_RDWR);
 		if (memdev < 0) WARNING("Could not open /dev/mem");
-	#endif
+#endif
 
 		if (memdev > 0) {
-	#if defined(TARGET_GP2X)
+#if defined(TARGET_GP2X)
 			memregs = (uint16_t*)mmap(0, 0x10000, PROT_READ|PROT_WRITE, MAP_SHARED, memdev, 0xc0000000);
 			MEM_REG = &memregs[0];
 
@@ -511,7 +511,7 @@ public:
 // 	// { stringstream ss; ss << w << "x" << h << "px"; ss >> buf; }
 // 	// temp += tr["Resolution: "] + buf + "\n";
 
-// #ifdef TARGET_RETROGAME
+// #ifdef TARGET_RETROFW
 // 	// temp += tr["CPU: "] + entryPoint() + "\n";
 // 	float battlevel = getBatteryStatus();
 // 	{ stringstream ss; ss.precision(2); ss << battlevel/1000; ss >> buf; }

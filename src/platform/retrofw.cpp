@@ -1,5 +1,5 @@
-#ifndef HW_RETROGAME_H
-#define HW_RETROGAME_H
+#ifndef HW_RETROFW_H
+#define HW_RETROFW_H
 
 // #define HW_UDC // hardware have UDC support
 // #define HW_EXT_SD // hardware have external sd card support

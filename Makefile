@@ -13,7 +13,7 @@ SYSROOT     := $(shell $(CC) --print-sysroot)
 SDL_CFLAGS  := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
 SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
 
-CFLAGS = -DTARGET_RETROGAME -DPLATFORM=\"$(PLATFORM)\" $(SDL_CFLAGS) -ggdb -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=3 -g3 -mhard-float -mips32 -mno-mips16
+CFLAGS = -DTARGET_RETROFW -DPLATFORM=\"$(PLATFORM)\" $(SDL_CFLAGS) -ggdb -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=3 -g3 -mhard-float -mips32 -mno-mips16
 CFLAGS += -std=c++11 -fdata-sections -ffunction-sections -fno-exceptions -fno-math-errno -fno-threadsafe-statics -Os -Wno-narrowing
 CFLAGS += -Isrc/libopk
 
@@ -31,7 +31,7 @@ SOURCES := $(wildcard src/*.cpp)
 OBJS := $(patsubst src/%.cpp, $(OBJDIR)/src/%.o, $(SOURCES))
 
 # File types rules
-$(OBJDIR)/src/%.o: src/%.cpp src/%.h src/platform/retrogame.cpp
+$(OBJDIR)/src/%.o: src/%.cpp src/%.h src/platform/retrofw.cpp
 	$(CXX) $(CFLAGS) -o $@ -c $<
 
 all: dir libopk shared
