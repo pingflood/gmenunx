@@ -1,9 +1,10 @@
-PLATFORM=retrofw
+PLATFORM := retrofw
 
-BUILDTIME	:= $(shell date +%s)
+BUILDTIME := $(shell date +%s)
 
 CHAINPREFIX := /opt/mipsel-linux-uclibc
 CROSS_COMPILE := $(CHAINPREFIX)/usr/bin/mipsel-linux-
+export CROSS_COMPILE
 
 CC			:= $(CROSS_COMPILE)gcc
 CXX			:= $(CROSS_COMPILE)g++
@@ -13,15 +14,16 @@ SYSROOT     := $(shell $(CC) --print-sysroot)
 SDL_CFLAGS  := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
 SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
 
-CFLAGS = -DTARGET_RETROFW -DPLATFORM=\"$(PLATFORM)\" $(SDL_CFLAGS) -ggdb -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=3 -g3 -mhard-float -mips32 -mno-mips16
-CFLAGS += -std=c++11 -fdata-sections -ffunction-sections -fno-exceptions -fno-math-errno -fno-threadsafe-statics -Os -Wno-narrowing
+CFLAGS = -DPLATFORM=\"$(PLATFORM)\" -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=3
+CFLAGS += -Os -ggdb -g3 $(SDL_CFLAGS)
+CFLAGS += -mhard-float -mips32 -mno-mips16
+CFLAGS += -std=c++11 -fdata-sections -ffunction-sections -fno-exceptions -fno-math-errno -fno-threadsafe-statics -Wno-narrowing
 CFLAGS += -Isrc/libopk
+CFLAGS += -DTARGET_RETROFW -DHW_OVERCLOCK -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT
 
-LDFLAGS = -Wl,-Bstatic -Lsrc/libopk -l:libopk.a -Wl,-Bdynamic -lz
-LDFLAGS += $(SDL_LIBS) -lSDL_image -lSDL_ttf
-LDFLAGS +=-Wl,--as-needed -Wl,--gc-sections
-
-export CROSS_COMPILE
+LDFLAGS = -Wl,-Bstatic -Lsrc/libopk -l:libopk.a
+LDFLAGS += -Wl,-Bdynamic -lz $(SDL_LIBS) -lSDL_image -lSDL_ttf
+LDFLAGS += -Wl,--as-needed -Wl,--gc-sections
 
 OBJDIR = /tmp/gmenu2x/$(PLATFORM)
 DISTDIR = dist/$(PLATFORM)
