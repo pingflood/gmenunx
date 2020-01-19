@@ -1744,24 +1744,27 @@ void GMenu2X::explorer() {
 			TerminalDialog td(this, tr["Zip content"], bd.getFileName(bd.selected), "skin:icons/terminal.png");
 			td.exec("unzip -l " + cmdclean(bd.getFilePath(bd.selected)));
 		} else {
-			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
+			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex())) {
 				writeConfig();
+			}
 
 			string command = cmdclean(bd.getFilePath(bd.selected));
-			chdir(bd.getPath().c_str());
-			quit();
-			setCPU(confInt["cpuMenu"]);
+			string params = "";
 
 			if (confInt["outputLogs"]) {
-				if (file_exists("/usr/bin/gdb")) command = "gdb -batch -ex \"run\" -ex \"bt\" --args " + command;
-				command += " 2>&1 | tee " + cmdclean(getExePath()) + "/log.txt";
+				if (file_exists("/usr/bin/gdb")) {
+					params = "-batch -ex \"run\" -ex \"bt\" --args " + command;
+					command = "gdb";
+				}
+				params += " 2>&1 | tee " + cmdclean(getExePath()) + "/log.txt";
 			}
-			execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
-			// if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
-			// try relaunching gmenu2x
-			// WARNING("Error executing selected application, re-launching gmenu2x");
-			chdir(getExePath().c_str());
-			execlp("./gmenu2x", "./gmenu2x", NULL);
+
+			LinkApp *link = new LinkApp(this, this->input, "explorer.lnk~");
+			link->setExec(command);
+			link->setParams(params);
+			link->setIcon("skin:icons/terminal.png");
+			link->setTitle(bd.getFile(bd.selected));
+			link->launch();
 			return;
 		}
 	}
