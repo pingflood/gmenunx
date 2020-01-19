@@ -745,30 +745,30 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	uint32_t button_hold = SDL_GetTicks();
 
 	int wasActive = 0;
-	while (input[POWER] || input[SETTINGS]) {
-		if (input[POWER])
-			wasActive = POWER;
-		else if (input[SETTINGS])
-			wasActive = SETTINGS;
+
+	while (input[POWER]) { // POWER HOLD
+		wasActive = POWER;
 
 		input.update();
 
 		if (SDL_GetTicks() - button_hold > 1000) {
-			if (input[POWER]) {
-				powerManager->doSuspend(1);
-				continue;
-			} else if (input[SETTINGS]) {
-				wasActive = POWER;
-				break;
-			}
-		} else {
-			continue;
+			wasActive = 0;
+			powerManager->doSuspend(1);
 		}
-
-		return true;
 	}
 
-	while (input[MENU]) {
+	while (input[SETTINGS]) { // SETTINGS HOLD
+		wasActive = SETTINGS;
+
+		input.update();
+
+		if (SDL_GetTicks() - button_hold > 1000) {
+			wasActive = 0;
+			poweroffDialog();
+		}
+	}
+
+	while (input[MENU]) { // MENU HOLD
 		wasActive = MENU;
 
 		input.update();
@@ -790,8 +790,8 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	input[wasActive] = true;
 
 	if (input[POWER]) {
-		powerManager->doSuspend(1);
-		// poweroffDialog();
+		// powerManager->doSuspend(1);
+		poweroffDialog();
 
 	} else if (input[SCREENSHOT]) {
 		if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
