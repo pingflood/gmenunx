@@ -139,6 +139,19 @@ public:
 			close(fd);
 		}
 	}
+
+	void setScaleMode(unsigned int mode) {
+		if (FILE *f = fopen("/sys/devices/platform/jz-lcd.0/keep_aspect_ratio", "w")) {
+			fprintf(f, "%d", (mode == 1));
+			fclose(f);
+		}
+
+		if (FILE *f = fopen("/sys/devices/platform/jz-lcd.0/integer_scaling", "w")) {
+			fprintf(f, "%d", (mode == 2));
+			fclose(f);
+		}
+	}
+
 	int setBacklight(int val, bool popup = false) {
 		if (val < 1 && getUDCStatus() != UDC_REMOVE) {
 			val = 0; // suspend only if not charging

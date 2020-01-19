@@ -81,8 +81,8 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file):
 		else if (name == "gamma") setGamma(atoi(value.c_str()));
 #endif
 		else if (name == "selectordir") setSelectorDir(value);
-		else if (name == "selectorbrowser" && value == "false") selectorbrowser = false;
-		else if (name == "scalemode") scalemode = atoi(value.c_str());
+		else if (name == "selectorbrowser" && value == "false") setSelectorBrowser(false);
+		else if (name == "scalemode") setScaleMode(atoi(value.c_str()));
 		else if (name == "selectorfilter") setSelectorFilter(value);
 		else if (name == "selectorscreens") setSelectorScreens(value);
 		else if (name == "selectoraliases") setAliasFile(value);
@@ -283,7 +283,7 @@ bool LinkApp::save() {
 
 		if (selectordir != "")		f << "selectordir="		<< selectordir		<< endl;
 		if (!selectorbrowser)		f << "selectorbrowser=false"				<< endl; // selectorbrowser = true by default
-		if (scalemode != _scalemode)	f << "scalemode="	<< scalemode		<< endl; // scalemode = 1 by default
+		if (scalemode != _scalemode)	f << "scalemode="	<< scalemode		<< endl; // scalemode = 0 by default
 		if (selectorfilter != "")	f << "selectorfilter="	<< selectorfilter	<< endl;
 		if (selectorscreens != "")	f << "selectorscreens="	<< selectorscreens	<< endl;
 		if (selectorelement > 0)	f << "selectorelement="	<< selectorelement	<< endl;
@@ -510,8 +510,6 @@ void LinkApp::setSelectorBrowser(bool value) {
 	edited = true;
 }
 
-int LinkApp::getScaleMode() {
-	return scalemode;
 void LinkApp::setTerminal(bool value) {
 	terminal = value;
 	edited = true;
