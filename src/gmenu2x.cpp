@@ -272,7 +272,6 @@ void GMenu2X::main() {
 
 	hwInit();
 
-	path = "";
 	chdir(getExePath().c_str());
 
 	initDateTime();
@@ -281,7 +280,7 @@ void GMenu2X::main() {
 
 	setCPU(confInt["cpuMenu"]);
 
-	input.init(path + "input.conf");
+	input.init(getExePath() + "input.conf");
 
 	setInputSpeed();
 
@@ -950,7 +949,7 @@ void GMenu2X::initMenu() {
 				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "usb.png");
 			}
 #endif
-			if (file_exists(path + "log.txt"))
+			if (file_exists(getExePath() + "log.txt"))
 				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "ebook.png");
 
 			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "about.png");
@@ -1039,8 +1038,6 @@ void GMenu2X::resetSettings() {
 			reset_boxart = false,
 			reset_cpu = false;
 
-	string tmppath = "";
-
 	SettingsDialog sd(this, ts, tr["Reset settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingBool(this, tr["GMenuNX"], tr["Reset GMenuNX settings"], &reset_gmenu));
 	sd.addSetting(new MenuSettingBool(this, tr["Default skin"], tr["Reset Default skin settings back to default"], &reset_skin));
@@ -1084,11 +1081,11 @@ void GMenu2X::resetSettings() {
 			}
 		}
 		if (reset_skin) {
-			tmppath = path + "skins/Default/skin.conf";
+			string tmppath = getExePath() + "skins/Default/skin.conf";
 			unlink(tmppath.c_str());
 		}
 		if (reset_gmenu) {
-			tmppath = path + "gmenu2x.conf";
+			string tmppath = getExePath() + "gmenu2x.conf";
 			unlink(tmppath.c_str());
 		}
 		reinit();
@@ -1151,7 +1148,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 }
 
 void GMenu2X::readConfig() {
-	string conffile = path + "gmenu2x.conf";
+	string conffile = getExePath() + "gmenu2x.conf";
 
 	// Defaults *** Sync with default values in writeConfig
 	confInt["saveSelection"] = 1;
@@ -1215,7 +1212,7 @@ void GMenu2X::writeConfig() {
 		confInt["link"] = menu->selLinkIndex();
 	}
 
-	string conffile = path + "gmenu2x.conf";
+	string conffile = getExePath() + "gmenu2x.conf";
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
@@ -1294,7 +1291,7 @@ void GMenu2X::writeConfig() {
 
 void GMenu2X::writeSkinConfig() {
 	ledOn();
-	string conffile = path + "skins/" + confStr["skin"] + "/skin.conf";
+	string conffile = getExePath() + "skins/" + confStr["skin"] + "/skin.conf";
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for (ConfStrHash::iterator curr = skinConfStr.begin(); curr != skinConfStr.end(); curr++) {
@@ -1630,11 +1627,11 @@ void GMenu2X::about() {
 }
 
 void GMenu2X::viewLog() {
-	string logfile = path + "log.txt";
+	string logfile = getExePath() + "log.txt";
 	if (!file_exists(logfile)) return;
 
 	TextDialog td(this, tr["Log Viewer"], tr["Last launched program's output"], "skin:icons/ebook.png");
-	td.appendFile(path + "log.txt");
+	td.appendFile(getExePath() + "log.txt");
 	td.exec();
 
 	MessageBox mb(this, tr["Do you want to delete the log file?"], "skin:icons/ebook.png");
@@ -2123,7 +2120,7 @@ void GMenu2X::deleteSection() {
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() != MANUAL) return;
 	ledOn();
-	if (rmtree(path + "sections/" + menu->selSection())) {
+	if (rmtree(getExePath() + "sections/" + menu->selSection())) {
 		menu->deleteSelectedSection();
 		sync();
 	}

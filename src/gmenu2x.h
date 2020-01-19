@@ -99,7 +99,7 @@ class GMenu2X {
 private:
 	static GMenu2X *instance;
 
-	string path; //!< Contains the working directory of GMenu2X
+	string path = ""; //!< Contains the working directory of GMenu2X
 	/*!
 	Retrieves the free disk space on the sd
 	@return String containing a human readable representation of the free disk space
