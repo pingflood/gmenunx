@@ -1106,17 +1106,18 @@ void GMenu2X::resetSettings() {
 // 	}
 // }
 
-void GMenu2X::readTmp() {
+bool GMenu2X::readTmp() {
 	lastSelectorElement = -1;
-	if (!file_exists("/tmp/gmenu2x.tmp")) return;
-	ifstream inf("/tmp/gmenu2x.tmp", ios_base::in);
-	if (!inf.is_open()) return;
-	string line, name, value;
+	ifstream tmp("/tmp/gmenu2x.tmp", ios_base::in);
+	if (!tmp.is_open()) return false;
 
-	while (getline(inf, line, '\n')) {
+	string line;
+
+	while (getline(tmp, line, '\n')) {
 		string::size_type pos = line.find("=");
-		name = trim(line.substr(0,pos));
-		value = trim(line.substr(pos+1,line.length()));
+		string name = trim(line.substr(0, pos));
+		string value = trim(line.substr(pos + 1));
+
 		if (name == "section") menu->setSectionIndex(atoi(value.c_str()));
 		else if (name == "link") menu->setLinkIndex(atoi(value.c_str()));
 		else if (name == "selectorelem") lastSelectorElement = atoi(value.c_str());
@@ -1130,6 +1131,7 @@ void GMenu2X::readTmp() {
 	// if (TVOut > 2) TVOut = 0;
 	inf.close();
 	unlink("/tmp/gmenu2x.tmp");
+	return true;
 }
 
 void GMenu2X::writeTmp(int selelem, const string &selectordir) {
