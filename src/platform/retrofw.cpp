@@ -83,11 +83,11 @@ int32_t getBatteryLevel() {
 uint8_t getBatteryStatus(int32_t val, int32_t min, int32_t max) {
 	// int32_t val = getBatteryStatus();
 	if ((val > 10000) || (val < 0)) return 6;
-	else if (val > 4000) return 5; // 100%
-	else if (val > 3900) return 4; // 80%
-	else if (val > 3800) return 3; // 60%
-	else if (val > 3730) return 2; // 40%
-	else if (val > 3600) return 1; // 20%
+	if (val > 4000) return 5; // 100%
+	if (val > 3900) return 4; // 80%
+	if (val > 3800) return 3; // 60%
+	if (val > 3700) return 2; // 40%
+	if (val > 3520) return 1; // 20%
 	return 0; // 0% :(
 }
 
