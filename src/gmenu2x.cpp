@@ -1821,27 +1821,31 @@ void GMenu2X::poweroffDialog() {
 #endif
 	mb.setButton(CONFIRM, tr["Poweroff"]);
 	mb.setButton(CANCEL,  tr["Cancel"]);
-	int response = mb.exec();
+	int res = mb.exec();
 	writeConfig();
-	if (response == CONFIRM) {
-		MessageBox mb(this, tr["Poweroff"]);
-		mb.setAutoHide(1);
-		mb.exec();
-		#if !defined(TARGET_PC)
-			system("sync; mount -o remount,ro $HOME; poweroff");
-		#endif
-		setVolume(0);
-		setBacklight(0);
-	}
-	else if (response == SECTION_NEXT) {
-		MessageBox mb(this, tr["Rebooting"]);
-		mb.setAutoHide(1);
-		mb.exec();
-		#if !defined(TARGET_PC)
-			system("sync; mount -o remount,ro $HOME; reboot");
-		#endif
-		setVolume(0);
-		SDL_Delay(2000);
+	switch (res) {
+		case CONFIRM: {
+			MessageBox mb(this, tr["Poweroff"]);
+			mb.setAutoHide(1);
+			mb.exec();
+			#if !defined(TARGET_PC)
+				system("sync; mount -o remount,ro $HOME; poweroff");
+			#endif
+			setVolume(0);
+			setBacklight(0);
+			break;
+		}
+		case SECTION_NEXT: {
+			MessageBox mb(this, tr["Rebooting"]);
+			mb.setAutoHide(1);
+			mb.exec();
+			#if !defined(TARGET_PC)
+				system("sync; mount -o remount,ro $HOME; reboot");
+			#endif
+			setVolume(0);
+			SDL_Delay(2000);
+			break;
+		}
 	}
 }
 
