@@ -42,12 +42,15 @@ Base class that represents a link on screen.
 */
 class Link : public Button {
 private:
-	uint32_t padding;
+	uint32_t padding = 4;
 	LinkAction action;
 
 protected:
 	GMenu2X *gmenu2x;
-	bool edited, is_opk = false;
+
+	bool	edited = false,
+			is_opk = false;
+
 	string	exec = "",
 			title = "",
 			description = "",

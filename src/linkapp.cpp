@@ -32,10 +32,8 @@ using namespace std;
 extern char** environ;
 
 LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file):
-	Link(gmenu2x, MakeDelegate(this, &LinkApp::run)),
-	input(input)
+	Link(gmenu2x, MakeDelegate(this, &LinkApp::run)), input(input), file(file)
 {
-	this->file = file;
 	setCPU(gmenu2x->confInt["cpuMenu"]);
 
 #if defined(HW_GAMMA)
@@ -48,7 +46,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file):
 	// useGinge = false;
 #endif
 
-	selectorbrowser = true;
 	if (((float)(gmenu2x->w)/gmenu2x->h) != (4.0f/3.0f)) _scalemode = 3; // 4:3 by default
 	scalemode = _scalemode;
 
@@ -105,8 +102,6 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file):
 	if (iconPath.empty()) searchIcon();
 	if (manualPath.empty()) searchManual();
 	if (backdropPath.empty()) searchBackdrop();
-
-	edited = false;
 }
 
 const string &LinkApp::searchManual() {

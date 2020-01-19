@@ -20,15 +20,9 @@
 #include "link.h"
 #include "gmenu2x.h"
 
-Link::Link(GMenu2X *gmenu2x_, LinkAction action)
-	: Button(gmenu2x_->ts, true)
-	, gmenu2x(gmenu2x_)
+Link::Link(GMenu2X *gmenu2x_, LinkAction action):
+	Button(gmenu2x_->ts, true), gmenu2x(gmenu2x_), action(action)
 {
-	this->action = action;
-	edited = false;
-	iconPath = "";
-	backdrop = "";
-	padding = 4;
 }
 
 void Link::run() {
