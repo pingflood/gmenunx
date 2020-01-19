@@ -91,10 +91,10 @@ void MenuSettingMultiString::draw(int y)
 	MenuSetting::draw(y);
 
 	int w = 0;
-	if (value() == "ON" || value() == "OFF") {
+	if (value() == "ON" || value() == "AUTO" || value() == "OFF") {
 		w = gmenu2x->font->getHeight()/2.5;
 		RGBAColor color = (RGBAColor){255, 0, 0, 255};
-		if (value() == "ON") color = (RGBAColor) {0, 255, 0, 255};
+		if (value() == "ON" || value() == "AUTO") color = (RGBAColor) {0, 255, 0, 255};
 		gmenu2x->s->box(155, y + 1, w, gmenu2x->font->getHeight() - 2, color);
 		gmenu2x->s->rectangle(155, y + 1, w, gmenu2x->font->getHeight() - 2, 0, 0, 0, 255);
 		w += 2;
