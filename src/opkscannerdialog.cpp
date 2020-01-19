@@ -68,6 +68,9 @@ void OPKScannerDialog::opkInstall(const string &path) {
 		pos = linkname.rfind('.');
 		platform = linkname.substr(pos + 1);
 
+		string linkpath = linkname.substr(0, pos);
+		linkpath = pkgname + "." + linkname + ".lnk";
+
 		if (!(platform == PLATFORM || platform == "all")) {
 			text.push_back(" - " + linkname + ": " + gmenu2x->tr["Unsupported platform"]);
 			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
@@ -148,8 +151,6 @@ void OPKScannerDialog::opkInstall(const string &path) {
 
 		gmenu2x->menu->addSection(section);
 
-		string linkpath = linkname.substr(0, pos);
-		linkpath = pkgname + "." + linkpath + ".lnk";
 		linkpath = "sections/" + section + "/" + linkpath;
 
 		LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkpath.c_str());
