@@ -236,6 +236,7 @@ public:
 	virtual int getBacklight() { return -1; };
 	virtual int setBacklight(int val, bool popup = false);
 	virtual string hwPreLinkLaunch() { return ""; };
+	virtual void setGamma(int value) { };
 };
 
 #endif

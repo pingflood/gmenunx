@@ -38,7 +38,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file):
 	this->file = file;
 	setCPU(gmenu2x->confInt["cpuMenu"]);
 
-#if defined(TARGET_GP2X)
+#if defined(HW_GAMMA)
 	//G
 	setGamma(0);
 	// wrapper = false;
@@ -239,13 +239,9 @@ void LinkApp::setCPU(int mhz) {
 	edited = true;
 }
 
-#if defined(TARGET_GP2X)
-int LinkApp::gamma() {
-	return igamma;
-}
-
+#if defined(HW_GAMMA)
 void LinkApp::setGamma(int gamma) {
-	igamma = constrain(gamma, 0, 100);
+	gamma = constrain(gamma, 0, 100);
 	edited = true;
 }
 #endif
@@ -275,11 +271,13 @@ bool LinkApp::save() {
 		if (manual != "")			f << "manual="			<< manual			<< endl;
 		if (iclock != 0)			f << "clock="			<< iclock			<< endl;
 
-#if defined(TARGET_GP2X)
+		if (clock != 0 && clock != gmenu2x->confInt["cpuLink"])
+									f << "clock="			<< clock			<< endl;
 		// if (useRamTimings)		f << "useramtimings=true"					<< endl;
 		// if (useGinge)			f << "useginge=true"						<< endl;
-		// if (ivolume > 0)			f << "volume="			<< ivolume			<< endl;
-		if (igamma != 0)			f << "gamma="			<< igamma			<< endl;
+		// if (volume > 0)			f << "volume="			<< volume			<< endl;
+#if defined(HW_GAMMA)
+		if (gamma != 0)				f << "gamma="			<< gamma			<< endl;
 #endif
 
 		if (selectordir != "")		f << "selectordir="		<< selectordir		<< endl;
@@ -418,6 +416,9 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 		// if (file_exists(ginge_prep)) command = cmdclean(ginge_prep) + " " + command;
 	// }
 	if (fwType == "open2x") gmenu2x->writeConfigOpen2x();
+#endif
+
+#if defined(HW_GAMMA)
 	if (gamma() != 0 && gamma() != gmenu2x->confInt["gamma"]) gmenu2x->setGamma(gamma());
 #endif
 

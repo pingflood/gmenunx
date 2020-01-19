@@ -1989,9 +1989,9 @@ void GMenu2X::editLink() {
 		sd.addSetting(new MenuSettingBool(		this, tr["Use Ginge"],			tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
 #endif
 
-	#if defined(HW_GAMMA)
-		int linkGamma = menu->selLinkApp()->gamma();
-		sd.addSetting(new MenuSettingInt(		this, tr["Gamma"],	tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
+#if defined(HW_GAMMA)
+	int linkGamma = menu->selLinkApp()->getGamma();
+	sd.addSetting(new MenuSettingInt(		this, tr["Gamma"],	tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
 #endif
 
 	if (sd.exec() && sd.edited() && sd.save) {

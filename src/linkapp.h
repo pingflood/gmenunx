@@ -88,16 +88,19 @@ public:
 	// int volume();
 	// const string &volumeStr();
 	// void setVolume(int vol);
-	// bool getUseRamTimings();
+	// bool getUseRamTimings() { return useRamTimings; }
 	// void setUseRamTimings(bool value);
-	// bool getUseGinge();
+	// bool getUseGinge() { return useGinge; }
 	// void setUseGinge(bool value);
 	// const string &clockStr(int maxClock);
 	// string sgamma;
-	int igamma;
-	int gamma();
-	// const string &gammaStr();
+#endif
+
+#if defined(HW_GAMMA)
+	int gamma;
+	int getGamma() { return gamma; }
 	void setGamma(int gamma);
+	// const string &gammaStr();
 	// bool &needsWrapperRef() { return wrapper; }
 	// bool &runsInBackgroundRef() { return dontleave; }
 #endif
