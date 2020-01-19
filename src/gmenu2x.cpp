@@ -327,7 +327,9 @@ void GMenu2X::main() {
 	udcStatus = getUDCStatus();
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
 
-	readTmp();
+	if (readTmp() && confInt["outputLogs"]) {
+		viewLog();
+	};
 
 	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
@@ -1634,15 +1636,24 @@ void GMenu2X::viewLog() {
 	td.appendFile(getExePath() + "log.txt");
 	td.exec();
 
-	MessageBox mb(this, tr["Do you want to delete the log file?"], "skin:icons/ebook.png");
-	mb.setButton(MANUAL, tr["Yes"]);
+	MessageBox mb(this, tr["Delete the log file?"], "skin:icons/ebook.png");
+	mb.setButton(MANUAL, tr["Delete and disable"]);
+	mb.setButton(CONFIRM, tr["Delete"]);
 	mb.setButton(CANCEL,  tr["No"]);
-	if (mb.exec() == MANUAL) {
-		ledOn();
-		unlink(logfile.c_str());
-		sync();
-		menu->deleteSelectedLink();
-		ledOff();
+	int res = mb.exec();
+
+	switch (res) {
+		case MANUAL:
+			confInt["outputLogs"] = false;
+			writeConfig();
+
+		case CONFIRM:
+			ledOn();
+			unlink(logfile.c_str());
+			sync();
+			initMenu();
+			ledOff();
+			break;
 	}
 }
 
