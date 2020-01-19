@@ -199,6 +199,7 @@ public:
 	void viewLog();
 	void contextMenu();
 	void changeWallpaper();
+	void changeSelectorDir();
 
 	bool saveScreenshot();
 	void drawSlider(int val, int min, int max, Surface &icon, Surface &bg);

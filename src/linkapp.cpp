@@ -321,7 +321,9 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 	if (bd.exec()) {
 		gmenu2x->writeTmp(bd.selected, bd.getPath());
 
-		if (gmenu2x->confInt["saveSelection"]) {
+		string s = "";
+		s += this->getSelectorDir().back();
+		if (s != "/") {
 			setSelectorDir(bd.getPath());
 			setSelectorElement(bd.selected);
 			save();

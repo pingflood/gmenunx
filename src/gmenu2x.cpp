@@ -1927,6 +1927,16 @@ void GMenu2X::addLink() {
 	}
 }
 
+void GMenu2X::changeSelectorDir() {
+	BrowseDialog bd(this, tr["Selector Path"], tr["Directory to start the selector"]);
+	bd.showDirectories = true;
+	bd.showFiles = false;
+	bd.allowSelectDirectory = true;
+	if (bd.exec() && bd.getPath() != "/") {
+		confStr["tmp_selector"] = bd.getPath() + "/";
+	}
+}
+
 void GMenu2X::editLink() {
 	if (menu->selLinkApp() == NULL) return;
 
@@ -1963,6 +1973,19 @@ void GMenu2X::editLink() {
 	if (((float)(this->w)/this->h) != (4.0f/3.0f)) scaleMode.push_back("4:3");
 	string linkScaleMode = scaleMode[menu->selLinkApp()->getScaleMode()];
 
+	vector<string> selStr;
+	selStr.push_back("OFF");
+	selStr.push_back("AUTO");
+	if (!linkSelDir.empty())
+		selStr.push_back(real_path(linkSelDir) + "/");
+
+	string s = "";
+	s += linkSelDir.back();
+
+	if (linkSelDir.empty()) confStr["tmp_selector"] = selStr[0];
+	else if (s != "/") confStr["tmp_selector"] = selStr[1];
+	else confStr["tmp_selector"] = selStr[2];
+
 	SettingsDialog sd(this, ts, dialogTitle, dialogIcon);
 
 	// sd.addSetting(new MenuSettingFile(			this, tr["Executable"],		tr["Application this link points to"], &linkExec, ".dge,.gpu,.gpe,.sh,.bin,.opk,.elf,", linkExec, dialogTitle, dialogIcon));
@@ -1982,12 +2005,7 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingMultiString(this, tr["Scale Mode"],		tr["Hardware scaling mode"], &linkScaleMode, &scaleMode));
 #endif
 
-	if (confInt["saveSelection"]) {
-		sd.addSetting(new MenuSettingBool(		this, tr["File Selector"],	tr["Use file browser selector"], &useSelector));
-	} else {
-		sd.addSetting(new MenuSettingDir(		this, tr["Selector Path"],	tr["Directory to start the selector"], &linkSelDir, linkDir, dialogTitle, dialogIcon));
-	}
-
+	sd.addSetting(new MenuSettingMultiString(	this, tr["File Selector"], tr["Use file browser selector"], &confStr["tmp_selector"], &selStr, NULL, MakeDelegate(this, &GMenu2X::changeSelectorDir)));
 	sd.addSetting(new MenuSettingBool(			this, tr["Show Folders"],	tr["Allow the selector to change directory"], &linkSelBrowser));
 	sd.addSetting(new MenuSettingString(		this, tr["File Filter"],	tr["Filter by file extension (separate with commas)"], &linkSelFilter, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingDir(			this, tr["Box Art"],		tr["Directory of the box art for the selector"], &linkSelScreens, linkDir, dialogTitle, dialogIcon));
@@ -2017,13 +2035,12 @@ void GMenu2X::editLink() {
 		menu->selLinkApp()->setManual(linkManual);
 		menu->selLinkApp()->setParams(linkParams);
 		menu->selLinkApp()->setSelectorFilter(linkSelFilter);
-		// if (linkHomeDir != CARD_ROOT) menu->selLinkApp()->setHomeDir(linkHomeDir);
+		menu->selLinkApp()->setSelectorElement(0);
 
-		if (useSelector) {
-			if (linkSelDir.empty()) linkSelDir = confStr["homePath"];
-		} else if (confInt["saveSelection"]) {
-			linkSelDir = "";
-		}
+		if (linkSelDir.empty()) linkSelDir = confStr["homePath"];
+		if (confStr["tmp_selector"] == "OFF") linkSelDir = "";
+		else if (confStr["tmp_selector"] == "AUTO") linkSelDir = real_path(linkSelDir);
+		else linkSelDir = confStr["tmp_selector"];
 
 		int scalemode = 0;
 		if (linkScaleMode == "Aspect") scalemode = 1;
@@ -2071,6 +2088,7 @@ void GMenu2X::editLink() {
 	}
 	confInt["section"] = menu->selSectionIndex();
 	confInt["link"] = menu->selLinkIndex();
+	confStr["tmp_selector"] = "";
 	initMenu();
 }
 
