@@ -124,6 +124,21 @@ private:
 	}
 
 public:
+	void enableTerminal() {
+		/* Enable the framebuffer console */
+		char c = '1';
+		int fd = open("/sys/devices/virtual/vtconsole/vtcon1/bind", O_WRONLY);
+		if (fd) {
+			write(fd, &c, 1);
+			close(fd);
+		}
+
+		fd = open("/dev/tty1", O_RDWR);
+		if (fd) {
+			ioctl(fd, VT_ACTIVATE, 1);
+			close(fd);
+		}
+	}
 	int setBacklight(int val, bool popup = false) {
 		if (val < 1 && getUDCStatus() != UDC_REMOVE) {
 			val = 0; // suspend only if not charging

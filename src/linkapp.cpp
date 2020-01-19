@@ -87,6 +87,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file):
 		else if (name == "selectorscreens") setSelectorScreens(value);
 		else if (name == "selectoraliases") setAliasFile(value);
 		else if (name == "selectorelement") setSelectorElement(atoi(value.c_str()));
+		else if ((name == "consoleapp") || (name == "terminal")) setTerminal(value == "true");
 		else if (name == "backdrop") setBackdrop(value);
 		// else WARNING("Unrecognized option: '%s'", name.c_str());
 	}
@@ -288,10 +289,12 @@ bool LinkApp::save() {
 		if (selectorelement > 0)	f << "selectorelement="	<< selectorelement	<< endl;
 		if (aliasfile != "")		f << "selectoraliases="	<< aliasfile		<< endl;
 		if (backdrop != "")			f << "backdrop="		<< backdrop			<< endl;
+		if (terminal)				f << "terminal=true"						<< endl;
 		f.close();
 		return true;
-	} else
-		ERROR("Error while opening the file '%s' for write.", file.c_str());
+	}
+
+	ERROR("Error while opening the file '%s' for write.", file.c_str());
 	return false;
 }
 
@@ -441,6 +444,8 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 	gmenu2x->quit();
 
+	if (getTerminal()) gmenu2x->enableTerminal();
+
 	// execle("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL, environ);
 	execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 
@@ -507,6 +512,9 @@ void LinkApp::setSelectorBrowser(bool value) {
 
 int LinkApp::getScaleMode() {
 	return scalemode;
+void LinkApp::setTerminal(bool value) {
+	terminal = value;
+	edited = true;
 }
 
 void LinkApp::setScaleMode(int value) {

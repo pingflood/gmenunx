@@ -94,6 +94,7 @@ void OPKScannerDialog::opkInstall(const string &path) {
 			aliasfile = "",
 			icon = "",
 			section = "applications";
+		bool terminal = false;
 
 		while (ret = opk_read_pair(opk, &key, &lkey, &val, &lval)) {
 			if (ret < 0) {
@@ -117,6 +118,9 @@ void OPKScannerDialog::opkInstall(const string &path) {
 			} else
 			if (!strncmp(key, "Comment", lkey)) {
 				description = buf;
+			} else
+			if (!strncmp(key, "Terminal", lkey)) {
+				terminal = !strcmp(buf, "true");
 			} else
 			if (!strncmp(key, "X-OD-Manual", lkey)) {
 				manual = buf;
@@ -159,6 +163,7 @@ void OPKScannerDialog::opkInstall(const string &path) {
 		if (!selectorfilter.empty()) link->setSelectorFilter(selectorfilter);
 		if (!aliasfile.empty()) link->setAliasFile(aliasfile);
 		if (!icon.empty()) link->setIcon(icon);
+		link->setTerminal(terminal);
 
 		link->save();
 	}
