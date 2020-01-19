@@ -60,15 +60,15 @@ LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file):
 		if (line[0] == '#') continue;
 
 		string::size_type position = line.find("=");
-		string name = trim(line.substr(0,position));
-		string value = trim(line.substr(position+1));
+		string name = trim(line.substr(0, position));
+		string value = trim(line.substr(position + 1));
 
-		if (name == "exec") exec = value;
-		else if (name == "title") title = value;
-		else if (name == "description") description = value;
+		if (name == "exec") setExec(value);
+		else if (name == "title") setTitle(value);
+		else if (name == "description") setDescription(value);
 		else if (name == "icon") setIcon(value);
-		else if (name == "params") params = value;
-		else if (name == "home") homedir = value;
+		else if (name == "params") setParams(value);
+		else if (name == "home") setHomeDir(value);
 		else if (name == "manual") setManual(value);
 		else if (name == "clock") setCPU(atoi(value.c_str()));
 
@@ -455,17 +455,9 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	execlp("./gmenu2x", "./gmenu2x", NULL);
 }
 
-const string &LinkApp::getExec() {
-	return exec;
-}
-
 void LinkApp::setExec(const string &exec) {
 	this->exec = exec;
 	edited = true;
-}
-
-const string &LinkApp::getParams() {
-	return params;
 }
 
 void LinkApp::setParams(const string &params) {
@@ -473,17 +465,9 @@ void LinkApp::setParams(const string &params) {
 	edited = true;
 }
 
-const string &LinkApp::getHomeDir() {
-	return homedir;
-}
-
 void LinkApp::setHomeDir(const string &homedir) {
 	this->homedir = homedir;
 	edited = true;
-}
-
-const string &LinkApp::getManual() {
-	return manual;
 }
 
 void LinkApp::setManual(const string &manual) {
@@ -491,18 +475,10 @@ void LinkApp::setManual(const string &manual) {
 	edited = true;
 }
 
-const string &LinkApp::getSelectorDir() {
-	return selectordir;
-}
-
 void LinkApp::setSelectorDir(const string &selectordir) {
 	edited = this->selectordir != selectordir;
 	this->selectordir = selectordir;
-	if (this->selectordir != "") this->selectordir = real_path(this->selectordir);
-}
-
-bool LinkApp::getSelectorBrowser() {
-	return selectorbrowser;
+	// if (this->selectordir != "") this->selectordir = real_path(this->selectordir);
 }
 
 void LinkApp::setSelectorBrowser(bool value) {
@@ -520,17 +496,9 @@ void LinkApp::setScaleMode(int value) {
 	edited = true;
 }
 
-const string &LinkApp::getSelectorFilter() {
-	return selectorfilter;
-}
-
 void LinkApp::setSelectorFilter(const string &selectorfilter) {
 	this->selectorfilter = selectorfilter;
 	edited = true;
-}
-
-const string &LinkApp::getSelectorScreens() {
-	return selectorscreens;
 }
 
 void LinkApp::setSelectorScreens(const string &selectorscreens) {
@@ -538,17 +506,9 @@ void LinkApp::setSelectorScreens(const string &selectorscreens) {
 	edited = true;
 }
 
-int LinkApp::getSelectorElement() {
-	return selectorelement;
-}
-
 void LinkApp::setSelectorElement(int i) {
 	edited = selectorelement != i;
 	selectorelement = i;
-}
-
-const string &LinkApp::getAliasFile() {
-	return aliasfile;
 }
 
 void LinkApp::setAliasFile(const string &aliasfile) {
@@ -560,19 +520,10 @@ void LinkApp::renameFile(const string &name) {
 	file = name;
 }
 
-// bool LinkApp::getUseRamTimings() {
-// 	return useRamTimings;
-// }
-
 // void LinkApp::setUseRamTimings(bool value) {
 // 	useRamTimings = value;
 // 	edited = true;
 // }
-
-// bool LinkApp::getUseGinge() {
-// 	return useGinge;
-// }
-
 // void LinkApp::setUseGinge(bool value) {
 // 	useGinge = value;
 // 	edited = true;

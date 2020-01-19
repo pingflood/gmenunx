@@ -35,26 +35,14 @@ void Link::run() {
 	this->action();
 }
 
-const string &Link::getTitle() {
-	return title;
-}
-
 void Link::setTitle(const string &title) {
 	this->title = title;
 	edited = true;
 }
 
-const string &Link::getDescription() {
-	return description;
-}
-
 void Link::setDescription(const string &description) {
 	this->description = description;
 	edited = true;
-}
-
-const string &Link::getIcon() {
-	return icon;
 }
 
 void Link::setIcon(const string &icon) {

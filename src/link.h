@@ -62,16 +62,15 @@ public:
 
 	virtual ~Link() {};
 
-	const string &getTitle();
+	const string &getTitle() { return title; }
 	void setTitle(const string &title);
-	const string &getDescription();
+	const string &getDescription() { return description; }
 	void setDescription(const string &description);
-	const string &getIcon();
+	const string &getIcon() { return icon; }
 	void setIcon(const string &icon);
 	virtual const string &searchIcon();
 	const string &getIconPath();
 	void setIconPath(const string &icon);
-
 	void setBackdrop(const string &backdrop);
 	const string &getBackdrop() { return backdrop; }
 	const string &getBackdropPath() { return backdropPath; }

@@ -37,8 +37,6 @@ class InputManager;
 class LinkApp : public Link {
 private:
 	InputManager &input;
-	int iclock = 0, selectorelement = 0, scalemode, _scalemode = 0; //, ivolume = 0;
-	bool selectorbrowser;
 	int		clock = 0,
 			selectorelement = 0,
 			scalemode,
@@ -59,37 +57,37 @@ private:
 
 public:
 	LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file);
-	const string &getExec();
+	const string &getExec() { return exec; }
 	void setExec(const string &exec);
-	const string &getParams();
+	const string &getParams() { return params; }
 	void setParams(const string &params);
-	const string &getHomeDir();
+	const string &getHomeDir() { return homedir; }
 	void setHomeDir(const string &homedir);
-	const string &getManual();
+	const string &getManual() { return manual; }
 	const string &getManualPath() { return manualPath; }
 	void setManual(const string &manual);
-	const string &getSelectorDir();
+	const string &getSelectorDir() { return selectordir; }
 	void setSelectorDir(const string &selectordir);
-	bool getSelectorBrowser();
+	bool getSelectorBrowser() { return selectorbrowser; }
 	void setSelectorBrowser(bool value);
 	bool getTerminal() { return terminal; }
 	void setTerminal(bool value);
 	int getScaleMode() { return scalemode; }
 	void setScaleMode(int value);
-	const string &getSelectorScreens();
+	const string &getSelectorScreens() { return selectorscreens; }
 	void setSelectorScreens(const string &selectorscreens);
-	const string &getSelectorFilter();
+	const string &getSelectorFilter() { return selectorfilter; }
 	void setSelectorFilter(const string &selectorfilter);
-	int getSelectorElement();
+	int getSelectorElement() { return selectorelement; }
 	void setSelectorElement(int i);
-	const string &getAliasFile();
+	const string &getAliasFile() { return aliasfile; }
 	void setAliasFile(const string &aliasfile);
-	int getCPU();
+	int getCPU() { return clock; }
 	void setCPU(int mhz = 0);
 	bool save();
 	void run();
-	void selector(int startSelection=0, const string &selectorDir = "");
-	void launch(const string &selectedFile="", string selectedDir = "");
+	void selector(int startSelection = 0, const string &selectorDir = "");
+	void launch(const string &selectedFile = "", string selectedDir = "");
 	bool targetExists();
 	void renameFile(const string &name);
 	const string &getFile() { return file; }
