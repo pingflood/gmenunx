@@ -14,10 +14,11 @@ int SOUND_MIXER_WRITE = SOUND_MIXER_WRITE_PCM;
 int32_t tickBattery = 0;
 uint8_t numJoyPrev = 0;
 
-const int CPU_MENU = 600;
-const int CPU_MAX = 700;
-const int CPU_MIN = 500;
-const int CPU_STEP = 5;
+const int CPU_MENU = 0;
+const int CPU_LINK = 0;
+const int CPU_MAX = 0;
+const int CPU_MIN = 0;
+const int CPU_STEP = 0;
 
 uint16_t getDevStatus() {
 	char buf[10000];

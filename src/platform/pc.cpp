@@ -12,7 +12,8 @@ uint8_t memdev = 0;
 int SOUND_MIXER_READ = SOUND_MIXER_READ_PCM;
 int SOUND_MIXER_WRITE = SOUND_MIXER_WRITE_PCM;
 
-const int CPU_MENU = 600;
+const int CPU_MENU = 528;
+const int CPU_LINK = 600;
 const int CPU_MAX = 700;
 const int CPU_MIN = 500;
 const int CPU_STEP = 5;
