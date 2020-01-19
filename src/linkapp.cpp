@@ -225,14 +225,9 @@ const string &LinkApp::searchIcon() {
 	return iconPath;
 }
 
-int LinkApp::getCPU() {
-	return iclock;
-}
-
 void LinkApp::setCPU(int mhz) {
-	iclock = mhz;
-	// if (iclock != 0) iclock = constrain(iclock, gmenu2x->confInt["cpuMin"], gmenu2x->confInt["cpuMax"]);
-	if (iclock != 0) iclock = constrain(iclock, gmenu2x->confInt["cpuMenu"], gmenu2x->confInt["cpuMax"]);
+	clock = mhz;
+	if (clock != 0) clock = constrain(clock, gmenu2x->confInt["cpuMin"], gmenu2x->confInt["cpuMax"]);
 	edited = true;
 }
 
@@ -266,8 +261,6 @@ bool LinkApp::save() {
 		if (params != "")			f << "params="			<< params			<< endl;
 		if (homedir != "")			f << "home="			<< homedir			<< endl;
 		if (manual != "")			f << "manual="			<< manual			<< endl;
-		if (iclock != 0)			f << "clock="			<< iclock			<< endl;
-
 		if (clock != 0 && clock != gmenu2x->confInt["cpuLink"])
 									f << "clock="			<< clock			<< endl;
 		// if (useRamTimings)		f << "useramtimings=true"					<< endl;
