@@ -338,6 +338,9 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	mb.setAutoHide(1);
 	mb.exec();
 
+	if (selectedFile.empty())
+		gmenu2x->writeTmp();
+
 	string command = cmdclean(exec);
 
 	if (!selectedFile.empty()) {
