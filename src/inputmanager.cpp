@@ -181,8 +181,10 @@ bool InputManager::update(bool wait) {
 	if (wait) SDL_WaitEvent(&event);
 	else if (!SDL_PollEvent(&event)) return false;
 
-	if (timer && (event.type == SDL_JOYAXISMOTION || event.type == SDL_JOYHATMOTION))
+	if (timer && (event.type == SDL_JOYAXISMOTION || event.type == SDL_JOYHATMOTION)) {
+		dropEvents(false);
 		return false;
+	}
 
 	dropEvents();
 
@@ -232,8 +234,11 @@ bool InputManager::combo() { // eegg
 	return !memcmp(input_combo, konami, sizeof(input_combo));
 }
 
-void InputManager::dropEvents() {
-	SDL_RemoveTimer(timer); timer = NULL;
+void InputManager::dropEvents(bool drop_timer) {
+	if (drop_timer) {
+		SDL_RemoveTimer(timer); timer = NULL;
+	}
+
 	for (uint32_t x = 0; x < actions.size(); x++) {
 		actions[x].active = false;
 	}

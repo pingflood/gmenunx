@@ -89,7 +89,7 @@ public:
 
 	bool update(bool wait = true);
 	bool combo();
-	void dropEvents();
+	void dropEvents(bool drop_timer = true);
 	static void pushEvent(int action);
 	int count();
 	void setActionsCount(int count);
