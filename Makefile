@@ -19,7 +19,7 @@ CFLAGS += -Os -ggdb -g3 $(SDL_CFLAGS)
 CFLAGS += -mhard-float -mips32 -mno-mips16
 CFLAGS += -std=c++11 -fdata-sections -ffunction-sections -fno-exceptions -fno-math-errno -fno-threadsafe-statics -Wno-narrowing
 CFLAGS += -Isrc/libopk
-CFLAGS += -DTARGET_RETROFW -DHW_OVERCLOCK -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT
+CFLAGS += -DTARGET_RETROFW -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT
 
 LDFLAGS = -Wl,-Bstatic -Lsrc/libopk -l:libopk.a
 LDFLAGS += -Wl,-Bdynamic -lz $(SDL_LIBS) -lSDL_image -lSDL_ttf

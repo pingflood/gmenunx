@@ -15,7 +15,7 @@ SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
 
 CFLAGS = -DPLATFORM=\"$(PLATFORM)\" -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=3
 CFLAGS += -Os -ggdb -g3 $(SDL_CFLAGS)
-CFLAGS += -DTARGET_BITTBOY -DHW_OVERCLOCK
+CFLAGS += -DTARGET_BITTBOY
 
 LDFLAGS = $(SDL_LIBS) -lfreetype -lSDL -lSDL_image -lSDL_ttf
 

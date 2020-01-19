@@ -575,12 +575,14 @@ void GMenu2X::main() {
 								iconManual->blit(s, bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, bottomBarRect.y + bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
 							}
 
-							// CPU indicator
-							{ stringstream ss; ss << menu->selLinkApp()->getCPU() << "MHz"; ss.get(&buf[0], sizeof(buf)); }
-							x += iconPadding + pctWidth;
-							iconCPU->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
-							x += iconWidth + iconPadding;
-							s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+							if (CPU_MAX != CPU_MIN) {
+								// CPU indicator
+								{ stringstream ss; ss << menu->selLinkApp()->getCPU() << "MHz"; ss.get(&buf[0], sizeof(buf)); }
+								x += iconPadding + pctWidth;
+								iconCPU->blit(s, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle);
+								x += iconWidth + iconPadding;
+								s->write(font, buf, x, bottomBarRect.y + bottomBarRect.h / 2, VAlignMiddle, skinConfColors[COLOR_FONT_ALT], skinConfColors[COLOR_FONT_ALT_OUTLINE]);
+							}
 						}
 					}
 				}
@@ -605,10 +607,12 @@ void GMenu2X::main() {
 							iconTrayShift++;
 						}
 
-						if (menu->selLinkApp()->getCPU() != confInt["cpuMenu"] && iconTrayShift < 2) {
-							// CPU indicator
-							iconCPU->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
-							iconTrayShift++;
+						if (CPU_MAX != CPU_MIN) {
+							if (menu->selLinkApp()->getCPU() != confInt["cpuMenu"] && iconTrayShift < 2) {
+								// CPU indicator
+								iconCPU->blit(s, sectionBarRect.x + sectionBarRect.w - 38 + iconTrayShift * 20, sectionBarRect.y + sectionBarRect.h - 18);
+								iconTrayShift++;
+							}
 						}
 					}
 				}
@@ -1048,7 +1052,10 @@ void GMenu2X::resetSettings() {
 	sd.addSetting(new MenuSettingBool(this, tr["Filters"], tr["Unset link's selector file filters"], &reset_filter));
 	sd.addSetting(new MenuSettingBool(this, tr["Directories"], tr["Unset link's selector directory"], &reset_directory));
 	sd.addSetting(new MenuSettingBool(this, tr["Box art"], tr["Unset link's selector box art path"], &reset_boxart));
-	sd.addSetting(new MenuSettingBool(this, tr["CPU speed"], tr["Reset link's custom CPU speed back to default"], &reset_cpu));
+
+	if (CPU_MAX != CPU_MIN) {
+		sd.addSetting(new MenuSettingBool(this, tr["CPU speed"], tr["Reset link's custom CPU speed back to default"], &reset_cpu));
+	}
 
 	if (sd.exec() && sd.edited() && sd.save) {
 		MessageBox mb(this, tr["Changes will be applied to ALL\napps and GMenuNX. Are you sure?"], "skin:icons/exit.png");
@@ -1157,6 +1164,7 @@ void GMenu2X::readConfig() {
 	confInt["cpuMenu"] = CPU_MENU;
 	confInt["cpuMax"] = CPU_MAX;
 	confInt["cpuMin"] = CPU_MIN;
+	confInt["cpuLink"] = CPU_LINK;
 
 	// input.update(false);
 
@@ -1244,6 +1252,10 @@ void GMenu2X::writeConfig() {
 				curr->first == "minClock" ||
 				curr->first == "menuClock" ||
 				curr->first == "TVOut" ||
+				curr->first == "cpuLink" ||
+				curr->first == "cpuMenu" ||
+				curr->first == "cpuMax" ||
+				curr->first == "cpuMin" ||
 
 				// moved to skin conf
 				curr->first == "linkCols" ||
@@ -1944,9 +1956,9 @@ void GMenu2X::editLink() {
 
 	sd.addSetting(new MenuSettingImage(			this, tr["Icon"],			tr["Select a custom icon for the link"], &linkIcon, ".png,.bmp,.jpg,.jpeg,.gif", linkExec, dialogTitle, dialogIcon));
 
-	#if defined(HW_OVERCLOCK)
-		sd.addSetting(new MenuSettingInt(		this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMenu"], confInt["cpuMax"], CPU_STEP));
-	#endif
+	if (CPU_MAX != CPU_MIN) {
+		sd.addSetting(new MenuSettingInt(		this, tr["CPU Clock"],		tr["CPU clock frequency when launching this link"], &linkClock, confInt["cpuMenu"], confInt["cpuMin"], confInt["cpuMax"], CPU_STEP));
+	}
 	// sd.addSetting(new MenuSettingDir(			this, tr["Home Path"],		tr["Set directory as $HOME for this link"], &linkHomeDir, CARD_ROOT, dialogTitle, dialogIcon));
 
 #if defined(HW_SCALER)
