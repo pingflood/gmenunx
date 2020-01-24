@@ -46,8 +46,8 @@ gmenu2x(gmenu2x) {
 	keyboard.resize(7);
 
 	keyboard[0].push_back("qwertyuiop-789");
-	keyboard[0].push_back(" asdfghjkl/456");
-	keyboard[0].push_back(" zxcvbnm,.0123");
+	keyboard[0].push_back("asdfghjkl\\/456");
+	keyboard[0].push_back("_zxcvbnm,.0123");
 
 	keyboard[1].push_back("QWERTYUIOP_-+=");
 	keyboard[1].push_back("@ASDFGHJKL'\"`");
