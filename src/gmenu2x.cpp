@@ -146,18 +146,32 @@ static const char *colorToString(enum color c) {
 
 GMenu2X *GMenu2X::instance = NULL;
 
+static void quit_all(int err) {
 	delete GMenu2X::instance;
+	exit(err);
 }
 
+int main(int /*argc*/, char * /*argv*/[]) {
+	INFO("Starting GMenuNX...");
 
+	signal(SIGINT,  &quit_all);
+	signal(SIGSEGV, &quit_all);
+	signal(SIGTERM, &quit_all);
 
+	int fd = open("/dev/tty0", O_RDONLY);
+	if (fd > 0) {
+		ioctl(fd, VT_UNLOCKSWITCH, 1);
+		ioctl(fd, KDSETMODE, KD_TEXT);
+		ioctl(fd, KDSKBMODE, K_XLATE);
+		close(fd);
+	}
 
+	usleep(1000);
 
 	GMenu2X::instance = new GMenuNX();
 	GMenu2X::instance->main();
 
-static void quit_all(int err) {
-	exit(err);
+	return 0;
 }
 
 GMenu2X::~GMenu2X() {
@@ -183,32 +197,7 @@ void GMenu2X::quit() {
 	hwDeinit();
 }
 
-int main(int /*argc*/, char * /*argv*/[]) {
-	INFO("Starting GMenuNX...");
-
-	signal(SIGINT,  &quit_all);
-	signal(SIGSEGV, &quit_all);
-	signal(SIGTERM, &quit_all);
-
-	int fd = open("/dev/tty0", O_RDONLY);
-	if (fd > 0) {
-		ioctl(fd, VT_UNLOCKSWITCH, 1);
-		ioctl(fd, KDSETMODE, KD_TEXT);
-		ioctl(fd, KDSKBMODE, K_XLATE);
-		close(fd);
-	}
-
-	usleep(1000);
-
-
-	return 0;
-}
 void GMenu2X::main() {
-	instance = this;
-
-	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
-	setenv("SDL_NOMOUSE", "1", 1);
-
 	hwInit();
 
 	chdir(exe_path().c_str());
@@ -226,6 +215,9 @@ void GMenu2X::main() {
 
 	setSkin(confStr["skin"], true);
 	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
+
+	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
+	setenv("SDL_NOMOUSE", "1", 1);
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK) < 0) {
 		ERROR("Could not initialize SDL: %s", SDL_GetError());
@@ -1380,10 +1372,6 @@ void GMenu2X::setSkin(const string &skin, bool clearSC) {
 	evalIntConf(&skinConfInt["linkRows"], 4, 1, 8);
 
 	initFont();
-}
-
-uint32_t GMenu2X::onChangeSkin() {
-	return 1;
 }
 
 void GMenu2X::skinMenu() {
