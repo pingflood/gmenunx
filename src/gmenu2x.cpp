@@ -115,8 +115,6 @@ const char *CARD_ROOT = getenv("HOME");
 #endif
 
 
-static GMenu2X *app;
-
 // Note: Keep this in sync with the enum!
 static const char *colorNames[NUM_COLORS] = {
 	"topBarBg",
@@ -146,18 +144,19 @@ static const char *colorToString(enum color c) {
 	return colorNames[c];
 }
 
-// static GMenu2X *app;
 GMenu2X *GMenu2X::instance = NULL;
 
+	delete GMenu2X::instance;
 }
 
 
 
 
 
+	GMenu2X::instance = new GMenuNX();
+	GMenu2X::instance->main();
 
 static void quit_all(int err) {
-	delete app;
 	exit(err);
 }
 
@@ -201,13 +200,9 @@ int main(int /*argc*/, char * /*argv*/[]) {
 
 	usleep(1000);
 
-	app = new GMenuNX();
-	app->main();
 
 	return 0;
 }
-
-GMenu2X *GMenu2X::instance = NULL;
 void GMenu2X::main() {
 	instance = this;
 
