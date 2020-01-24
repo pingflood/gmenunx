@@ -93,8 +93,8 @@ uint16_t udcPrev = UDC_REMOVE, udcStatus;
 uint16_t tvOutPrev = TV_REMOVE, tvOutStatus;
 uint16_t volumeModePrev, volumeMode;
 uint16_t batteryIcon = 3;
-uint8_t numJoy = 0; // number of connected joysticks
 string fwType = "";
+uint8_t numJoyPrev, numJoy; // number of connected joysticks
 
 #if defined(TARGET_RETROFW)
 	#include "platform/retrofw.h"
@@ -280,10 +280,6 @@ void GMenu2X::main() {
 
 	setCPU(confInt["cpuMenu"]);
 
-	input.init(getExePath() + "input.conf");
-
-	setInputSpeed();
-
 	setScaleMode(0);
 
 	setBacklight(confInt["backlight"]);
@@ -298,6 +294,10 @@ void GMenu2X::main() {
 		return;
 	}
 	SDL_ShowCursor(SDL_DISABLE);
+
+	input.init(exe_path() + "/input.conf");
+
+	setInputSpeed();
 
 	SDL_Surface *screen = SDL_SetVideoMode(this->w, this->h, this->bpp, SDL_HWSURFACE |
 		#ifdef SDL_TRIPLEBUF
@@ -325,6 +325,7 @@ void GMenu2X::main() {
 	tvOutStatus = getTVOutStatus();
 	mmcPrev = mmcStatus = getMMCStatus();
 	udcStatus = getUDCStatus();
+	numJoyPrev = numJoy = getDevStatus();
 	volumeModePrev = volumeMode = getVolumeMode(confInt["globalVolume"]);
 
 	if (readTmp() && confInt["outputLogs"]) {

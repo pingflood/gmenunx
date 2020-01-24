@@ -68,6 +68,7 @@ void InputManager::initJoysticks(bool reinit) {
 
 void InputManager::init(const string &conffile) {
 	setActionsCount(NUM_ACTIONS);
+	initJoysticks(false);
 	SDL_EnableKeyRepeat(0, 0);
 
 	if (!file_exists(conffile)) {
