@@ -294,10 +294,19 @@ void Menu::deleteSelectedLink() {
 void Menu::deleteSelectedSection() {
 	INFO("Deleting section '%s'", selSection().c_str());
 
-	gmenu2x->sc.del("sections/" + selSection() + ".png");
-	links.erase( links.begin() + selSectionIndex() );
-	sections.erase( sections.begin() + selSectionIndex() );
+	string iconpath = "sections/" + selSection() + ".png";
+
+	links.erase(links.begin() + selSectionIndex());
+	sections.erase(sections.begin() + selSectionIndex());
 	setSectionIndex(0); //reload sections
+
+	for (uint32_t i = 0; i < sections.size(); i++) {
+		if (iconpath == getSectionIcon(i)) {
+			return; // icon in use by another section; return here.
+		}
+	}
+
+	gmenu2x->sc.del(iconpath);
 }
 
 bool Menu::linkChangeSection(uint32_t linkIndex, uint32_t oldSectionIndex, uint32_t newSectionIndex) {
