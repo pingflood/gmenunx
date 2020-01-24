@@ -726,7 +726,10 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		poweroffDialog();
 
 	} else if (input[SCREENSHOT]) {
-		if (!saveScreenshot()) { ERROR("Can't save screenshot"); return true; }
+		if (!saveScreenshot(confStr["homePath"])) {
+			ERROR("Can't save screenshot");
+			return true;
+		}
 		MessageBox mb(this, tr["Screenshot saved"]);
 		mb.setAutoHide(1000);
 		mb.exec();

@@ -200,7 +200,7 @@ public:
 	void changeWallpaper();
 	void changeSelectorDir();
 
-	bool saveScreenshot();
+	bool saveScreenshot(string path);
 	void drawSlider(int val, int min, int max, Surface &icon, Surface &bg);
 
 	void setInputSpeed();
