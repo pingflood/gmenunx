@@ -24,12 +24,10 @@
 
 using namespace std;
 
-WallpaperDialog::WallpaperDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
-	: Dialog(gmenu2x, title, description, icon) {
-}
+WallpaperDialog::WallpaperDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon):
+Dialog(gmenu2x, title, description, icon) {}
 
-bool WallpaperDialog::exec()
-{
+bool WallpaperDialog::exec() {
 	bool loop = true, result = true, inputAction = false;
 
 	uint32_t i, iY, firstElement = 0;

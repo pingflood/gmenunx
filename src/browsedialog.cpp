@@ -6,8 +6,8 @@
 using namespace std;
 extern const char *CARD_ROOT;
 
-BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
-	: Dialog(gmenu2x, title, description, icon) {
+BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon):
+Dialog(gmenu2x, title, description, icon) {
 	setPath(gmenu2x->confStr["homePath"]);
 }
 

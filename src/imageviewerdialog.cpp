@@ -1,9 +1,8 @@
 #include "imageviewerdialog.h"
 #include "debug.h"
 
-ImageViewerDialog::ImageViewerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &path)
-: Dialog(gmenu2x, title, description, icon), path(path)
-{}
+ImageViewerDialog::ImageViewerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &path):
+Dialog(gmenu2x, title, description, icon), path(path) {}
 
 void ImageViewerDialog::exec() {
 	Surface image(path);

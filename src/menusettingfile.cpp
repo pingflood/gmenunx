@@ -24,11 +24,8 @@
 using std::string;
 using fastdelegate::MakeDelegate;
 
-MenuSettingFile::MenuSettingFile(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const string &filter, const string &startPath, const string &dialogTitle, const string &dialogIcon)
-	: MenuSettingStringBase(gmenu2x, title, description, value),
-	filter(filter), startPath(startPath),
-	dialogTitle(dialogTitle), dialogIcon(dialogIcon)
-{
+MenuSettingFile::MenuSettingFile(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const string &filter, const string &startPath, const string &dialogTitle, const string &dialogIcon):
+MenuSettingStringBase(gmenu2x, title, description, value), filter(filter), startPath(startPath), dialogTitle(dialogTitle), dialogIcon(dialogIcon) {
 	btn = new IconButton(gmenu2x, "select", gmenu2x->tr["Reset"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingFile::clear));
 	buttonBox.add(btn);

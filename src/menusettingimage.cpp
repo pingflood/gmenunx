@@ -23,8 +23,8 @@
 
 using std::string;
 
-MenuSettingImage::MenuSettingImage(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const string &filter, const string &startPath, const string &dialogTitle, const string &dialogIcon)
-	: MenuSettingFile(gmenu2x, title, description, value, filter, startPath, dialogTitle, dialogIcon) {}
+MenuSettingImage::MenuSettingImage(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const string &filter, const string &startPath, const string &dialogTitle, const string &dialogIcon):
+MenuSettingFile(gmenu2x, title, description, value, filter, startPath, dialogTitle, dialogIcon) {}
 
 void MenuSettingImage::setValue(const string &value) {
 	string skinpath(gmenu2x->getExePath() + "skins/" + gmenu2x->confStr["skin"]);

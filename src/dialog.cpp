@@ -2,7 +2,8 @@
 #include "gmenu2x.h"
 #include "debug.h"
 
-Dialog::Dialog(GMenu2X *gmenu2x, const std::string &title, const std::string &description, const std::string &icon) : gmenu2x(gmenu2x), title(title), description(description), icon(icon) {
+Dialog::Dialog(GMenu2X *gmenu2x, const std::string &title, const std::string &description, const std::string &icon):
+gmenu2x(gmenu2x), title(title), description(description), icon(icon) {
 	bg = new Surface(gmenu2x->bg);
 
 	buttons.clear();

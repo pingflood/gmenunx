@@ -26,11 +26,8 @@ extern const char *CARD_ROOT;
 using std::string;
 using fastdelegate::MakeDelegate;
 
-MenuSettingDir::MenuSettingDir(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const std::string &startPath, const std::string &dialogTitle, const std::string &dialogIcon)
-	: MenuSettingStringBase(gmenu2x, title, description, value),
-	startPath(startPath),
-	dialogTitle(dialogTitle), dialogIcon(dialogIcon)
-{
+MenuSettingDir::MenuSettingDir(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const std::string &startPath, const std::string &dialogTitle, const std::string &dialogIcon):
+MenuSettingStringBase(gmenu2x, title, description, value), startPath(startPath), dialogTitle(dialogTitle), dialogIcon(dialogIcon) {
 	if (dialogTitle.empty()) this->dialogTitle = this->title;
 	if (dialogIcon.empty()) this->dialogIcon = "icons/explorer.png";
 	if (startPath.empty()) this->startPath = CARD_ROOT;

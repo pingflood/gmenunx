@@ -23,7 +23,7 @@
 #include "menusetting.h"
 #include "surface.h"
 
-class GMenu2X;
+// class GMenu2X;
 
 class MenuSettingRGBA : public MenuSetting {
 private:

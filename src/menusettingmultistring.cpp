@@ -23,14 +23,8 @@
 #include <algorithm>
 using std::find;
 
-MenuSettingMultiString::MenuSettingMultiString(
-		GMenu2X *gmenu2x, const string &title,
-		const string &description, string *value,
-		const vector<string> *choices_,
-		msms_onchange_t onChange, msms_onselect_t onSelect)
-	: MenuSettingStringBase(gmenu2x, title, description, value), choices(choices_),
-	onChange(onChange), onSelect(onSelect)
-{
+MenuSettingMultiString::MenuSettingMultiString(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const vector<string> *choices, msms_onchange_t onChange, msms_onselect_t onSelect):
+MenuSettingStringBase(gmenu2x, title, description, value), choices(choices), onChange(onChange), onSelect(onSelect) {
 	setSel(find(choices->begin(), choices->end(), *value) - choices->begin());
 
 	if (choices->size() > 1) {
@@ -74,8 +68,7 @@ void MenuSettingMultiString::decSel() {
 	setSel(selected - 1);
 }
 
-void MenuSettingMultiString::setSel(int sel)
-{
+void MenuSettingMultiString::setSel(int sel) {
 	if (sel < 0) {
 		sel = choices->size()-1;
 	} else if (sel >= (int)choices->size()) {
@@ -86,8 +79,7 @@ void MenuSettingMultiString::setSel(int sel)
 	setValue((*choices)[sel]);
 }
 
-void MenuSettingMultiString::draw(int y)
-{
+void MenuSettingMultiString::draw(int y) {
 	MenuSetting::draw(y);
 
 	int w = 0;

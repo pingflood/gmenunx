@@ -26,8 +26,8 @@ using std::string;
 using std::stringstream;
 using fastdelegate::MakeDelegate;
 
-MenuSettingRGBA::MenuSettingRGBA(GMenu2X *gmenu2x, const string &title, const string &description, RGBAColor *value)
-	: MenuSetting(gmenu2x, title, description) {
+MenuSettingRGBA::MenuSettingRGBA(GMenu2X *gmenu2x, const string &title, const string &description, RGBAColor *value):
+MenuSetting(gmenu2x, title, description) {
 	selPart = 0;
 	_value = value;
 	originalValue = *value;

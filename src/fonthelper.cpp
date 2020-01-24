@@ -3,11 +3,8 @@
 #include "debug.h"
 #include <sstream>
 
-FontHelper::FontHelper(const string &fontName, int fontSize, RGBAColor textColor, RGBAColor outlineColor)
-	: fontName(fontName),
-	  fontSize(fontSize),
-	  textColor(textColor),
-	  outlineColor(outlineColor) {
+FontHelper::FontHelper(const string &fontName, int fontSize, RGBAColor textColor, RGBAColor outlineColor):
+fontName(fontName), fontSize(fontSize), textColor(textColor), outlineColor(outlineColor) {
 	loadFont(fontName, fontSize);
 }
 

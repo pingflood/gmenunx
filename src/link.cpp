@@ -20,10 +20,8 @@
 #include "link.h"
 #include "gmenu2x.h"
 
-Link::Link(GMenu2X *gmenu2x_, LinkAction action):
-	Button(gmenu2x_->ts, true), gmenu2x(gmenu2x_), action(action)
-{
-}
+Link::Link(GMenu2X *gmenu2x, LinkAction action):
+Button(gmenu2x->ts, true), gmenu2x(gmenu2x), action(action) {}
 
 void Link::run() {
 	this->action();

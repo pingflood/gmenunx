@@ -27,15 +27,9 @@ using std::string;
 using std::stringstream;
 using fastdelegate::MakeDelegate;
 
-MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &title, const string &description, int *value, int def, int min, int max, int delta)
-	: MenuSetting(gmenu2x, title, description) {
-
-	_value = value;
+MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &title, const string &description, int *value, int def, int min, int max, int delta):
+MenuSetting(gmenu2x, title, description), _value(value), def(def), min(min), max(max), delta(delta) {
 	originalValue = *value;
-	this->def = def;
-	this->min = min;
-	this->max = max;
-	this->delta = delta;
 	setValue(evalIntConf(value, def, min, max));
 
 	//Delegates

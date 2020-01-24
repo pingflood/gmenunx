@@ -49,12 +49,7 @@ private:
 	msms_onselect_t onSelect; // variable to store function pointer type
 
 public:
-	MenuSettingMultiString(
-			GMenu2X *gmenu2x, const std::string &title,
-			const std::string &description, std::string *value,
-			const std::vector<std::string> *choices,
-			msms_onchange_t onChange = 0, msms_onselect_t onSelect = 0
-			);
+	MenuSettingMultiString(GMenu2X *gmenu2x, const std::string &title, const std::string &description, std::string *value, const std::vector<std::string> *choices, msms_onchange_t onChange = 0, msms_onselect_t onSelect = 0);
 
 	uint32_t voidAction() { return 0; };
 

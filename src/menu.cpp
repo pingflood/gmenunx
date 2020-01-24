@@ -33,8 +33,8 @@
 
 using namespace std;
 
-Menu::Menu(GMenu2X *gmenu2x) {
-	this->gmenu2x = gmenu2x;
+Menu::Menu(GMenu2X *gmenu2x):
+gmenu2x(gmenu2x) {
 	iFirstDispSection = 0;
 
 	DIR *dirp;
@@ -42,10 +42,15 @@ Menu::Menu(GMenu2X *gmenu2x) {
 
 	mkdir("sections", 0777);
 
-	if ((dirp = opendir("sections")) == NULL) return;
+	if ((dirp = opendir("sections")) == NULL) {
+		return;
+	}
 
 	while ((dptr = readdir(dirp))) {
-		if (dptr->d_name[0] == '.') continue;
+		if (dptr->d_name[0] == '.') {
+			continue;
+		}
+
 		string filepath = (string)"sections/" + dptr->d_name;
 		if (dir_exists(filepath)) {
 			sections.push_back((string)dptr->d_name);
@@ -296,7 +301,7 @@ void Menu::deleteSelectedLink() {
 	INFO("Deleting link '%s'", selLink()->getTitle().c_str());
 
 	if (selLinkApp() != NULL) unlink(selLinkApp()->getFile().c_str());
-	sectionLinks()->erase( sectionLinks()->begin() + selLinkIndex() );
+	sectionLinks()->erase(sectionLinks()->begin() + selLinkIndex());
 	setLinkIndex(selLinkIndex());
 
 	bool icon_used = false;

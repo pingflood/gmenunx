@@ -31,10 +31,8 @@ using namespace std;
 
 extern char** environ;
 
-LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file):
-	Link(gmenu2x, MakeDelegate(this, &LinkApp::run)), input(input), file(file)
-{
-	// this->file = file;
+LinkApp::LinkApp(GMenu2X *gmenu2x, const char* file):
+Link(gmenu2x, MakeDelegate(this, &LinkApp::run)), file(file) {
 	setCPU(gmenu2x->confInt["cpuLink"]);
 
 #if defined(HW_GAMMA)

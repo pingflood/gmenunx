@@ -13,8 +13,6 @@
 using std::vector;
 using std::string;
 
-class Surface;
-
 class FontHelper {
 private:
 

@@ -39,8 +39,7 @@ static SDL_TimerID timer = NULL;
 
 uint8_t *keystate = SDL_GetKeyState(NULL);
 
-InputManager::InputManager() {
-}
+InputManager::InputManager() {}
 
 InputManager::~InputManager() {
 	for (uint32_t x = 0; x < joysticks.size(); x++)

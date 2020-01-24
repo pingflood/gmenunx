@@ -56,8 +56,6 @@ private:
 		ID_ACTION_KB_CHANGE
 	};
 
-	// InputManager &inputMgr;
-	// Touchscreen &ts;
 	int selRow, selCol;
 	bool loop = true, ok = true;
 	string title, text, icon;
@@ -78,7 +76,7 @@ private:
 	void setKeyboard(int);
 
 public:
-	InputDialog(GMenu2X *gmenu2x, /*Touchscreen &ts,*/ const string &text, const string &startvalue="", const string &title="", const string &icon="");
+	InputDialog(GMenu2X *gmenu2x, /*Touchscreen &ts,*/ const string &text, const string &startvalue = "", const string &title = "", const string &icon = "");
 	~InputDialog();
 
 	bool exec();

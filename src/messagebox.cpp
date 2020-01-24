@@ -82,8 +82,8 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
 	gmenu2x->powerManager->resetSuspendTimer();
 }
 
-MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
-: gmenu2x(gmenu2x), text(text), icon(icon) {
+MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon):
+gmenu2x(gmenu2x), text(text), icon(icon) {
 	buttonText.resize(19);
 	button.resize(19);
 	buttonPosition.resize(19);

@@ -1014,12 +1014,14 @@ void GMenu2X::settings() {
 		setBacklight(confInt["backlight"], false);
 		writeConfig();
 
-		#if defined(TARGET_GP2X)
-			if (prevgamma != confInt["gamma"]) setGamma(confInt["gamma"]);
-		#endif
+#if defined(TARGET_GP2X)
+		if (prevgamma != confInt["gamma"]) {
+			setGamma(confInt["gamma"]);
+		}
+#endif
 
 		if (prevDateTime != newDateTime) {
-			setDateTime(newDateTime.c_str());
+			set_date_time(newDateTime.c_str());
 			reinit();
 		}
 	}
@@ -1028,17 +1030,18 @@ void GMenu2X::settings() {
 }
 
 void GMenu2X::resetSettings() {
-	bool	reset_gmenu = true,
-			reset_skin = true,
-			reset_icon = false,
-			/* reset_homedir = false, */
-			reset_manual = false,
-			reset_parameter = false,
-			reset_backdrop = false,
-			reset_filter = false,
-			reset_directory = false,
-			reset_boxart = false,
-			reset_cpu = false;
+	bool
+		reset_gmenu = true,
+		reset_skin = true,
+		reset_icon = false,
+		/* reset_homedir = false, */
+		reset_manual = false,
+		reset_parameter = false,
+		reset_backdrop = false,
+		reset_filter = false,
+		reset_directory = false,
+		reset_boxart = false,
+		reset_cpu = false;
 
 	SettingsDialog sd(this, ts, tr["Reset settings"], "skin:icons/configure.png");
 	sd.addSetting(new MenuSettingBool(this, tr["GMenuNX"], tr["Reset GMenuNX settings"], &reset_gmenu));

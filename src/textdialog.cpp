@@ -27,9 +27,8 @@ using namespace std;
 #include <fstream>
 #include <sstream>
 
-TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop)
-	: Dialog(gmenu2x, title, description, icon), backdrop(backdrop)
-{}
+TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop):
+Dialog(gmenu2x, title, description, icon), backdrop(backdrop) {}
 
 void TextDialog::preProcess() {
 	uint32_t i = 0;

@@ -28,8 +28,8 @@
 	#include <libopk.h>
 #endif
 
-Selector::Selector(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, LinkApp *link)
-: BrowseDialog(gmenu2x, title, description, icon), link(link) {
+Selector::Selector(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, LinkApp *link):
+BrowseDialog(gmenu2x, title, description, icon), link(link) {
 	loadAliases();
 	setFilter(link->getSelectorFilter());
 	setPath(gmenu2x->confStr["homePath"]);

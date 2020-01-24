@@ -2,14 +2,9 @@
 
 PowerManager *PowerManager::instance = NULL;
 
-PowerManager::PowerManager(GMenu2X *gmenu2x, uint32_t suspendTimeout, uint32_t powerTimeout) {
+PowerManager::PowerManager(GMenu2X *gmenu2x, uint32_t suspendTimeout, uint32_t powerTimeout):
+gmenu2x(gmenu2x), suspendTimeout(suspendTimeout), powerTimeout(powerTimeout) {
 	instance = this;
-	this->suspendTimeout = suspendTimeout;
-	this->powerTimeout = powerTimeout;
-	this->gmenu2x = gmenu2x;
-	this->suspendActive = false;
-
-	this->powerTimer = NULL;
 
 	resetSuspendTimer();
 }
