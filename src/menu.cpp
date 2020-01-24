@@ -240,33 +240,16 @@ bool Menu::addLink(string exec) {
 	}
 
 	INFO("Adding link: '%s'", linkpath.c_str());
-	ofstream f(linkpath.c_str());
-	if (f.is_open()) {
-		f << "title=" << title << endl;
-		f << "exec=" << exec << endl;
 
-		string selectoraliases = path + "/aliases.txt";
-		if (file_exists(selectoraliases))
-			f << "selectoraliases=" << selectoraliases << endl;
+	LinkApp *link = new LinkApp(gmenu2x, linkpath.c_str());
+	if (!exec.empty()) link->setExec(exec);
+	if (!title.empty()) link->setTitle(title);
+	link->save();
 
-		f.close();
-
-		int isection = find(sections.begin(), sections.end(), section) - sections.begin();
-
-		if (isection >= 0 && isection < (int)sections.size()) {
-			INFO("Section: '%s(%i)'", sections[isection].c_str(), isection);
-
-			LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkpath.c_str());
-			if (link->targetExists())
-				links[isection].push_back( link );
-			else
-				delete link;
-		}
+	int isection = find(sections.begin(), sections.end(), section) - sections.begin();
+	if (isection >= 0 && isection < (int)sections.size()) {
+		links[isection].push_back(link);
 		setLinkIndex(links[isection].size() - 1);
-
-	} else {
-		ERROR("Error while opening the file '%s' for write.", linkpath.c_str());
-		return false;
 	}
 
 	return true;
