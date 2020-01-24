@@ -97,15 +97,15 @@ uint8_t numJoy = 0; // number of connected joysticks
 string fwType = "";
 
 #if defined(TARGET_RETROFW)
-	#include "platform/retrofw.cpp"
-#elif defined(TARGET_GCW0)
-	#include "platform/gcw0.cpp"
+	#include "platform/retrofw.h"
+#elif defined(TARGET_RG350)
+	#include "platform/rg350.h"
 #elif defined(TARGET_BITTBOY)
-	#include "platform/bittboy.cpp"
+	#include "platform/bittboy.h"
 #elif defined(TARGET_GP2X) || defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	#include "platform/gp2x.cpp"
-#else //if defined(TARGET_PC)
-	#include "platform/pc.cpp"
+	#include "platform/gp2x.h"
+#else //if defined(TARGET_LINUX)
+	#include "platform/linux.h"
 #endif
 
 #if defined(OPK_SUPPORT)
@@ -1847,7 +1847,7 @@ void GMenu2X::poweroffDialog() {
 			MessageBox mb(this, tr["Poweroff"]);
 			mb.setAutoHide(1);
 			mb.exec();
-			#if !defined(TARGET_PC)
+			#if !defined(TARGET_LINUX)
 				system("sync; mount -o remount,ro $HOME; poweroff");
 			#endif
 			setVolume(0);
@@ -1858,7 +1858,7 @@ void GMenu2X::poweroffDialog() {
 			MessageBox mb(this, tr["Rebooting"]);
 			mb.setAutoHide(1);
 			mb.exec();
-			#if !defined(TARGET_PC)
+			#if !defined(TARGET_LINUX)
 				system("sync; mount -o remount,ro $HOME; reboot");
 			#endif
 			setVolume(0);

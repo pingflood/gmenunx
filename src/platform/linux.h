@@ -1,22 +1,12 @@
 #ifndef HW_PC_H
 #define HW_PC_H
 
-// #define HW_UDC // hardware have UDC support
-// #define HW_EXT_SD // hardware have external sd card support
-// #define HW_SCALER // hardware have screen scaler (e.g., IPU)
-// #define OPK_SUPPORT // firmware support opk
-// #define IPK_SUPPORT // firmware support ipk
+#include <linux/soundcard.h>
 
 volatile uint16_t *memregs;
 uint8_t memdev = 0;
 int SOUND_MIXER_READ = SOUND_MIXER_READ_PCM;
 int SOUND_MIXER_WRITE = SOUND_MIXER_WRITE_PCM;
-
-const int CPU_MENU = 528;
-const int CPU_LINK = 600;
-const int CPU_MAX = 700;
-const int CPU_MIN = 500;
-const int CPU_STEP = 5;
 
 uint16_t getDevStatus() {
 	FILE *f;
@@ -29,8 +19,6 @@ uint16_t getDevStatus() {
 	}
 	return 0;
 }
-
-uint8_t numJoyPrev = 0;
 
 uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 	printf("%s:%d: %s\n", __FILE__, __LINE__, __func__);
@@ -70,6 +58,12 @@ uint8_t getVolumeMode(uint8_t vol) {
 class GMenuNX : public GMenu2X {
 private:
 	void hwInit() {
+		CPU_MENU = 528;
+		CPU_LINK = 600;
+		CPU_MAX = 700;
+		CPU_MIN = 500;
+		CPU_STEP = 5;
+
 		w = 480;
 		h = 272;
 	}

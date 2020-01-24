@@ -1,29 +1,13 @@
 #ifndef HW_PC_H
 #define HW_PC_H
 
-// #define HW_UDC // hardware have UDC support
-// #define HW_EXT_SD // hardware have external sd card support
-// #define HW_SCALER // hardware have screen scaler (e.g., IPU)
-// #define OPK_SUPPORT // firmware support opk
-// #define IPK_SUPPORT // firmware support ipk
-
 volatile uint16_t *memregs;
 uint8_t memdev = 0;
-int SOUND_MIXER_READ = SOUND_MIXER_READ_PCM;
-int SOUND_MIXER_WRITE = SOUND_MIXER_WRITE_PCM;
 int32_t tickBattery = 0;
-uint8_t numJoyPrev = 0;
-
-const int CPU_MENU = 0;
-const int CPU_LINK = 0;
-const int CPU_MAX = 0;
-const int CPU_MIN = 0;
-const int CPU_STEP = 0;
 
 uint16_t getDevStatus() {
 	char buf[10000];
 	if (FILE *f = fopen("/proc/bus/input/devices", "r")) {
-	// if (f = fopen("/proc/bus/input/handlers", "r")) {
 		size_t sz = fread(buf, sizeof(char), 10000, f);
 		fclose(f);
 		return sz;
@@ -37,15 +21,13 @@ uint8_t getMMCStatus() {
 
 uint8_t getUDCStatus() {
 	int val = -1;
-	// char buf[8];
 	if (FILE *f = fopen("/sys/class/power_supply/usb/online", "r")) {
-		// fgets(buf, sizeof(buf), f);
 		fscanf(f, "%i", &val);
 		fclose(f);
-		// if (atoi(buf) == 1) return UDC_CONNECT;
-		if (val == 1) return UDC_CONNECT;
+		if (val == 1) {
+			return UDC_CONNECT;
+		}
 	}
-
 	return UDC_REMOVE;
 }
 
@@ -69,7 +51,6 @@ int16_t getBatteryLevel() {
 };
 
 uint8_t getBatteryStatus(int32_t val, int32_t min, int32_t max) {
-	// int32_t val = getBatteryLevel();
 	if ((val > 10000) || (val < 0)) return 6;
 	if (val > 90) return 5; // 100%
 	if (val > 75) return 4; // 80%
@@ -109,6 +90,18 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 class GMenuNX : public GMenu2X {
 private:
 	void hwInit() {
+		CPU_MENU = 0;
+		CPU_LINK = 0;
+		CPU_MAX = 0;
+		CPU_MIN = 0;
+		CPU_STEP = 0;
+
+		batteryIcon = getBatteryStatus(getBatteryLevel(), 0, 0);
+
+#if defined(OPK_SUPPORT)
+		system("umount -fl /mnt");
+#endif
+
 		w = 320;
 		h = 240;
 		bpp = 32;

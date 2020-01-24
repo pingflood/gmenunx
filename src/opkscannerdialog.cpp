@@ -75,7 +75,7 @@ void OPKScannerDialog::opkInstall(const string &path) {
 			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
 
 			ERROR("%s: Unsupported platform '%s'", pkgname.c_str(), platform.c_str());
-#if !defined(TARGET_PC) // pc debug
+#if !defined(TARGET_LINUX) // pc debug
 			continue;
 #endif
 		} else {
