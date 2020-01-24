@@ -769,6 +769,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	} else if (input[MMC_INSERT] || input[MMC_REMOVE]) {
 		confInt["section"] = menu->selSectionIndex();
 		confInt["link"] = menu->selLinkIndex();
+		SDL_Delay(2000);
 		initMenu();
 
 	} else {
