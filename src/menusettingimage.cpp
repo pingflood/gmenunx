@@ -34,15 +34,13 @@ void MenuSettingImage::setValue(const string &value) {
 		skinpath = exe_path() + "/skins/Default";
 		inSkinDir = value.substr(0, skinpath.length()) == skinpath;
 	}
+
+	*_value = value;
 	if (inSkinDir) {
 		string tempIcon = value.substr(skinpath.length(), value.length());
 		string::size_type pos = tempIcon.find("/");
 		if (pos != string::npos) {
 			*_value = "skin:" + tempIcon.substr(pos + 1, value.length());
-		} else {
-			*_value = value;
 		}
-	} else {
-		*_value = value;
 	}
 }
