@@ -228,17 +228,8 @@ bool Menu::addActionLink(uint32_t section, const string &title, fastdelegate::Fa
 
 bool Menu::addLink(string exec) {
 	string section = selSection();
-	string path = dir_name(exec);
 	string title = base_name(exec, true);
-	string linkpath = "sections/" + section + "/" + title;
-
-	int x = 2;
-	while (file_exists(linkpath)) {
-		stringstream ss;
-		linkpath = ""; ss << x; ss >> linkpath;
-		linkpath = "sections/" + section + "/" + title + linkpath;
-		x++;
-	}
+	string linkpath = unique_filename("sections/" + section + "/" + title, ".lnk");
 
 	// Reduce title length to fit the link width
 	if ((int)gmenu2x->font->getTextWidth(title) > gmenu2x->linkWidth) {
