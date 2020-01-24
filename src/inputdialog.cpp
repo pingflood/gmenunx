@@ -108,8 +108,6 @@ bool InputDialog::exec() {
 	uint32_t caretTick = 0, curTick;
 	bool caretOn = true;
 
-	uint32_t action;
-
 	bg->box(gmenu2x->bottomBarRect, (RGBAColor){0,0,0,255});
 
 	gmenu2x->s->box(gmenu2x->bottomBarRect, gmenu2x->skinConfColors[COLOR_BOTTOM_BAR_BG]);
@@ -142,66 +140,29 @@ bool InputDialog::exec() {
 		gmenu2x->s->clearClipRect();
 
 		// if (gmenu2x->f200) ts.poll();
-		action = drawVirtualKeyboard();
+		// action =
+		drawVirtualKeyboard();
 		gmenu2x->s->flip();
 
 		bool inputAction = gmenu2x->input.update();
 		if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-		if ( gmenu2x->input[CANCEL] || gmenu2x->input[MENU] ) action = ID_ACTION_CLOSE;
-		else if ( gmenu2x->input[SETTINGS] ) action = ID_ACTION_SAVE;
-		else if ( gmenu2x->input[UP]       ) action = ID_ACTION_UP;
-		else if ( gmenu2x->input[DOWN]     ) action = ID_ACTION_DOWN;
-		else if ( gmenu2x->input[LEFT]     ) action = ID_ACTION_LEFT;
-		else if ( gmenu2x->input[RIGHT]    ) action = ID_ACTION_RIGHT;
-		else if ( gmenu2x->input[CONFIRM]  ) action = ID_ACTION_SELECT;
-		else if ( gmenu2x->input[MANUAL]   ) action = ID_ACTION_KB_CHANGE;
-		else if ( gmenu2x->input[SECTION_PREV] ) action = ID_ACTION_BACKSPACE;
-		else if ( gmenu2x->input[SECTION_NEXT] ) action = ID_ACTION_SPACE;
-
-		switch (action) {
-			case ID_ACTION_SAVE:
-				ok = true;
-				loop = false;
-				break;
-			case ID_ACTION_CLOSE:
-				ok = false;
-				loop = false;
-				break;
-			case ID_ACTION_UP:
-				selRow--;
-				break;
-			case ID_ACTION_DOWN:
-				selRow++;
-				if (selRow == (int)kb->size()) selCol = selCol < 8 ? 0 : 1;
-				break;
-			case ID_ACTION_LEFT:
-				selCol--;
-				break;
-			case ID_ACTION_RIGHT:
-				selCol++;
-				break;
-			case ID_ACTION_BACKSPACE:
-				backspace();
-				break;
-			case ID_ACTION_SPACE:
-				space();
-				break;
-			case ID_ACTION_KB_CHANGE:
-				changeKeys();
-				break;
-			case ID_ACTION_SELECT:
-				confirm();
-				break;
-		}
+		if (gmenu2x->input[CANCEL] || gmenu2x->input[MENU]) return false;
+		else if (gmenu2x->input[SETTINGS])		return true;
+		else if (gmenu2x->input[UP])			selRow--;
+		else if (gmenu2x->input[DOWN])			selRow++;
+		else if (gmenu2x->input[LEFT])			selCol--;
+		else if (gmenu2x->input[RIGHT])			selCol++;
+		else if (gmenu2x->input[CONFIRM])		confirm();
+		else if (gmenu2x->input[MANUAL])		changeKeys();
+		else if (gmenu2x->input[SECTION_PREV])	backspace();
+		else if (gmenu2x->input[SECTION_NEXT])	space();
 	}
-
-	return ok;
 }
 
 void InputDialog::backspace() {
 	// check for utf8 characters
-	input = input.substr(0,input.length()-( gmenu2x->font->utf8Code(input[input.length()-2]) ? 2 : 1 ));
+	input = input.substr(0, input.length() - (gmenu2x->font->utf8Code(input[input.length() - 2]) ? 2 : 1));
 }
 
 void InputDialog::space() {
@@ -230,8 +191,7 @@ void InputDialog::changeKeys() {
 }
 
 int InputDialog::drawVirtualKeyboard() {
-	int action = ID_NO_ACTION;
-
+	// int action = ID_NO_ACTION;
 	gmenu2x->s->box(gmenu2x->listRect.x, kbRect.y, gmenu2x->listRect.w, kbRect.h, (RGBAColor){0,0,0,220});
 
 	if (selCol < 0) selCol = selRow == (int)kb->size() ? 1 : kbLength - 1;
@@ -240,8 +200,8 @@ int InputDialog::drawVirtualKeyboard() {
 	if (selRow >= (int)kb->size()) selRow = 0;
 
 	// selection
-	if (selRow < (int)kb->size())
-		gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH, kbRect.y + 2 + selRow * KEY_HEIGHT, KEY_WIDTH - 1, KEY_HEIGHT - 2, (RGBAColor){0xff,0xff,0xff,220});
+	// if (selRow < (int)kb->size())
+	gmenu2x->s->box(kbLeft + selCol * KEY_WIDTH, kbRect.y + 2 + selRow * KEY_HEIGHT, KEY_WIDTH - 1, KEY_HEIGHT - 2, (RGBAColor){0xff,0xff,0xff,220});
 
 	// keys
 	for (uint32_t l = 0; l < kb->size(); l++) {
@@ -275,7 +235,7 @@ int InputDialog::drawVirtualKeyboard() {
 	// 	action = ID_ACTION_SELECT;
 	// }
 
-	return action;
+	return 0; //action;
 }
 
 InputDialog::~InputDialog() {
