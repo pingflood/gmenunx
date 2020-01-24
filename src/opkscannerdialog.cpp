@@ -17,6 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#if defined(OPK_SUPPORT)
 
 #include "opkscannerdialog.h"
 #include "utilities.h"
@@ -279,3 +280,5 @@ void OPKScannerDialog::exec() {
 		}
 	}
 }
+
+#endif // defined(OPK_SUPPORT)
