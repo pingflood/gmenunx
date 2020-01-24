@@ -45,12 +45,29 @@ private:
 	vector<string> sections;
 	vector<linklist> links;
 
-	void readLinks();
+	const int iconPadding = 4;
+	uint32_t section_changed, icon_changed;
+
+	Surface *iconSD, *iconManual, *iconCPU, *iconMenu, *iconL, *iconR, *iconBGoff, *iconBGon;
+	Surface *iconBrightness[6], *iconBattery[7], *iconVolume[3];
+
+	int8_t brightnessIcon = 5;
+	string iconDescription = "";
+
+	SDL_TimerID sectionChangedTimer, iconChangedTimer;
+
 	void freeLinks();
+
+	void drawList();
+	void drawGrid();
+	void drawSectionBar();
+	void drawStatusBar();
+	void drawIconTray();
 
 public:
 	Menu(GMenu2X *gmenu2x);
 	~Menu();
+	uint32_t linkCols, linkRows, linkWidth, linkHeight, linkSpacing = 4;
 
 	linklist *sectionLinks(int i = -1);
 
@@ -65,6 +82,7 @@ public:
 	uint32_t firstDispSection();
 	uint32_t firstDispRow();
 
+	void readLinks();
 	bool addActionLink(uint32_t section, const string &title, fastdelegate::FastDelegate0<> action, const string &description="", const string &icon="");
 	bool addLink(string exec);
 	bool addSection(const string &sectionName);
@@ -91,6 +109,9 @@ public:
 	void renameSection(int index, const string &name);
 	int getSectionIndex(const string &name);
 	const string getSectionIcon(int i = -1);
+
+	void initLayout();
+	void exec();
 };
 
 #endif

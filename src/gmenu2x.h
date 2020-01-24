@@ -110,31 +110,13 @@ class Menu;
 
 class GMenu2X {
 private:
-	/*!
-	Starts the scanning of the nand and sd filesystems, searching for gpe and gpu files and creating the links in 2 dedicated sections.
-	*/
-	// void linkScanner();
-	/*!
-	Performs the actual scan in the given path and populates the files vector with the results. The creation of the links is not performed here.
-	@see scanner
-	*/
-	// void scanPath(string path, vector<string> *files);
-
-	/*!
-	Displays a selector and launches the specified executable file
-	*/
-	void explorer();
-
-	string lastSelectorDir, currBackdrop;
+	string lastSelectorDir;
 	int lastSelectorElement;
+	void explorer();
 	void readConfig();
 	bool readTmp();
-
 	void initFont();
-
-	void showManual();
 	void umountSdDialog();
-
 	void opkInstall(string path);
 	void opkUninstall();
 	void opkScanner();
@@ -155,7 +137,6 @@ public:
 	 * Variables needed for elements disposition
 	 */
 	uint32_t w = 320, h = 240, bpp = 16;
-	uint32_t linkCols, linkRows, linkWidth, linkHeight, linkSpacing = 4;
 	SDL_Rect listRect, linksRect, sectionBarRect, bottomBarRect;
 
 	//Configuration hashes
@@ -172,7 +153,7 @@ public:
 	Touchscreen ts;
 	Menu *menu;
 	bool f200 = true; //gp2x type // touchscreen
-	uint32_t section_changed = 0, icon_changed = 0;
+	string currBackdrop;
 
 	~GMenu2X();
 	void quit();
@@ -187,7 +168,6 @@ public:
 	void setSkin(const string &skin, bool clearSC = true);
 	void skinMenu();
 	void skinColors();
-	void initLayout();
 	uint32_t onChangeSkin() { return 1; }
 
 	bool inputCommonActions(bool &inputAction);
