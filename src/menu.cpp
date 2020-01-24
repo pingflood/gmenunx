@@ -278,17 +278,15 @@ void Menu::deleteSelectedLink() {
 	sectionLinks()->erase(sectionLinks()->begin() + selLinkIndex());
 	setLinkIndex(selLinkIndex());
 
-	bool icon_used = false;
 	for (uint32_t i = 0; i < sections.size(); i++) {
 		for (uint32_t j = 0; j < sectionLinks(i)->size(); j++) {
 			if (iconpath == sectionLinks(i)->at(j)->getIconPath()) {
-				icon_used = true;
+				return; // icon in use by another link; return here.
 			}
 		}
 	}
-	if (!icon_used) {
-		gmenu2x->sc.del(iconpath);
-	}
+
+	gmenu2x->sc.del(iconpath);
 }
 
 void Menu::deleteSelectedSection() {
