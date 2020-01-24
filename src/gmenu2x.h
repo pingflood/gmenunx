@@ -84,6 +84,19 @@ using std::string;
 using std::vector;
 using fastdelegate::FastDelegate0;
 
+extern uint16_t mmcPrev, mmcStatus;
+extern uint16_t udcPrev, udcStatus;
+extern uint16_t tvOutPrev, tvOutStatus;
+extern uint16_t volumeModePrev, volumeMode;
+extern uint16_t batteryIcon;
+extern uint8_t numJoyPrev, numJoy; // number of connected joysticks
+
+extern int CPU_MENU;
+extern int CPU_LINK;
+extern int CPU_MAX;
+extern int CPU_MIN;
+extern int CPU_STEP;
+
 typedef FastDelegate0<> MenuAction;
 typedef unordered_map<string, string, hash<string> > ConfStrHash;
 typedef unordered_map<string, int, hash<string> > ConfIntHash;

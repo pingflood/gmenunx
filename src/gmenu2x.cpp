@@ -84,13 +84,23 @@ using namespace fastdelegate;
 enum vol_mode_t {
 	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
 };
+
+string fwType = "";
+
 uint16_t mmcPrev, mmcStatus;
 uint16_t udcPrev = UDC_REMOVE, udcStatus;
 uint16_t tvOutPrev = TV_REMOVE, tvOutStatus;
 uint16_t volumeModePrev, volumeMode;
 uint16_t batteryIcon = 3;
-string fwType = "";
 uint8_t numJoyPrev, numJoy; // number of connected joysticks
+
+int CPU_MENU = 0;
+int CPU_LINK = 0;
+int CPU_MAX = 0;
+int CPU_MIN = 0;
+int CPU_STEP = 0;
+
+const char *CARD_ROOT = getenv("HOME");
 
 #if defined(TARGET_RETROFW)
 	#include "platform/retrofw.h"
@@ -104,9 +114,6 @@ uint8_t numJoyPrev, numJoy; // number of connected joysticks
 	#include "platform/linux.h"
 #endif
 
-
-const char *CARD_ROOT = getenv("HOME"); // Note: Add a trailing /!
-// const int CARD_ROOT_LEN = 1;
 
 static GMenu2X *app;
 
