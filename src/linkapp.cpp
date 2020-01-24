@@ -91,13 +91,6 @@ Link(gmenu2x, MakeDelegate(this, &LinkApp::run)), file(file) {
 
 	is_opk = (file_ext(exec, true) == ".opk");
 
-	if ((char)exec.find("\%f") >= 0 || (char)params.find("\%f") >= 0) {
-		if (this->getSelectorDir().empty()) {
-			setSelectorDir(gmenu2x->confStr["homePath"]);
-		}
-		selectorbrowser = true;
-	}
-
 	if (iconPath.empty()) searchIcon();
 	if (manualPath.empty()) searchManual();
 	if (backdropPath.empty()) searchBackdrop();

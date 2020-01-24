@@ -159,6 +159,7 @@ void OPKScannerDialog::opkInstall(const string &path) {
 		if (!title.empty()) link->setTitle(title);
 		if (!description.empty()) link->setDescription(description);
 		if (!manual.empty()) link->setManual(manual);
+		if (((char)params.find("\%f") >= 0) && link->getSelectorDir().empty()) link->setSelectorDir(gmenu2x->confStr["homePath"]);
 		if (!selectordir.empty() && link->getSelectorDir().empty()) link->setSelectorDir(selectordir);
 		if (!selectorfilter.empty()) link->setSelectorFilter(selectorfilter);
 		if (!aliasfile.empty()) link->setAliasFile(aliasfile);
