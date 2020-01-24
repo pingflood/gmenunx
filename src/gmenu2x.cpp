@@ -1775,22 +1775,22 @@ void GMenu2X::poweroffDialog() {
 			MessageBox mb(this, tr["Poweroff"]);
 			mb.setAutoHide(1);
 			mb.exec();
-			#if !defined(TARGET_LINUX)
-				system("sync; mount -o remount,ro $HOME; poweroff");
-			#endif
 			setVolume(0);
-			setBacklight(0);
+			quit();
+#if !defined(TARGET_LINUX)
+			system("sync; mount -o remount,ro $HOME; poweroff");
+#endif
 			break;
 		}
 		case SECTION_NEXT: {
 			MessageBox mb(this, tr["Rebooting"]);
 			mb.setAutoHide(1);
 			mb.exec();
-			#if !defined(TARGET_LINUX)
-				system("sync; mount -o remount,ro $HOME; reboot");
-			#endif
 			setVolume(0);
-			SDL_Delay(2000);
+			quit();
+#if !defined(TARGET_LINUX)
+			system("sync; mount -o remount,ro $HOME; reboot");
+#endif
 			break;
 		}
 	}
