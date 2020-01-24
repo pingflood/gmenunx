@@ -39,6 +39,7 @@ typedef vector<string> stringlist;
 class InputDialog {
 protected:
 	GMenu2X *gmenu2x;
+	SDL_TimerID wakeUpTimer = NULL;
 
 private:
 	enum id_actions {

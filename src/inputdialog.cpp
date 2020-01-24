@@ -120,7 +120,6 @@ bool InputDialog::exec() {
 	gmenu2x->drawButton(bg, "start", gmenu2x->tr["Save"]
 	))));
 
-	SDL_TimerID wakeUpTimer = NULL;
 	while (loop) {
 		SDL_RemoveTimer(wakeUpTimer);
 		wakeUpTimer = SDL_AddTimer(500, gmenu2x->input.wakeUp, (void*)false);
@@ -280,5 +279,6 @@ int InputDialog::drawVirtualKeyboard() {
 }
 
 InputDialog::~InputDialog() {
+	SDL_RemoveTimer(wakeUpTimer); wakeUpTimer = NULL;
 	gmenu2x->input.dropEvents(); // prevent passing input away
 }
