@@ -23,13 +23,16 @@
 
 using namespace std;
 
-MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
+MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options):
+gmenu2x(gmenu2x) {
 	bool loop = true, inputAction = false;
 	int sel = 0;
 	uint32_t i, fadeAlpha = 0, h = gmenu2x->font->getHeight(), h2 = gmenu2x->font->getHalfHeight();
 	SDL_Rect box;
 
 	Surface bg(gmenu2x->s);
+
+	gmenu2x->input.dropEvents(); // prevent passing input away
 	gmenu2x->powerManager->clearTimer();
 
 	box.h = h * options.size() + 8;
@@ -78,8 +81,6 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options) {
 			}
 		} while (!inputAction);
 	}
-	gmenu2x->input.dropEvents(); // prevent passing input away
-	gmenu2x->powerManager->resetSuspendTimer();
 }
 
 MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon):
@@ -120,9 +121,13 @@ gmenu2x(gmenu2x), text(text), icon(icon) {
 	button[VOLUP] = "vol+";
 	button[VOLDOWN] = "vol-";
 }
+
 MessageBox::~MessageBox() {
+	gmenu2x->input.dropEvents(); // prevent passing input away
+	gmenu2x->powerManager->resetSuspendTimer();
 	clearTimer();
 }
+
 void MessageBox::setButton(int action, const string &btn) {
 	buttonText[action] = btn;
 }
@@ -140,6 +145,8 @@ int MessageBox::exec() {
 	SDL_Rect box;
 
 	Surface bg(gmenu2x->s);
+
+	gmenu2x->input.dropEvents(); // prevent passing input away
 	gmenu2x->powerManager->clearTimer();
 
 	Surface *icn = gmenu2x->sc.add(icon, icon + "mb");
@@ -242,8 +249,6 @@ int MessageBox::exec() {
 		}
 	}
 
-	gmenu2x->input.dropEvents(); // prevent passing input away
-	gmenu2x->powerManager->resetSuspendTimer();
 	return result;
 }
 
