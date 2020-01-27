@@ -267,6 +267,8 @@ void GMenu2X::main() {
 
 	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
+	powerManager->resetSuspendTimer();
+
 	// recover last session
 	if (lastSelectorElement >= 0 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty())) {
 		if (confInt["skinBackdrops"] & BD_DIALOG)
