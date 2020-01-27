@@ -745,8 +745,8 @@ void Menu::exec() {
 	iconMenu = gmenu2x->sc.skinRes("imgs/menu.png");
 	iconL = gmenu2x->sc.skinRes("imgs/section-l.png");
 	iconR = gmenu2x->sc.skinRes("imgs/section-r.png");
-	iconBGoff = gmenu2x->sc.skinRes("imgs/iconbg_off.png");
-	iconBGon = gmenu2x->sc.skinRes("imgs/iconbg_on.png");
+	iconBGoff = gmenu2x->sc["skins/" + gmenu2x->confStr["skin"] + "/imgs/iconbg_off.png"];
+	iconBGon = gmenu2x->sc["skins/" + gmenu2x->confStr["skin"] + "/imgs/iconbg_on.png"];
 
 	while (true) {
 		// BACKGROUND
