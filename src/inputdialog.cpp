@@ -170,18 +170,13 @@ void InputDialog::space() {
 }
 
 void InputDialog::confirm() {
-	if (selRow == (int)kb->size()) {
-		if (selCol == 0) ok = false;
-		loop = false;
-	} else {
-		bool utf8;
-		int xc=0;
-		for (uint32_t x = 0; x < kb->at(selRow).length(); x++) {
-			utf8 = gmenu2x->font->utf8Code(kb->at(selRow)[x]);
-			if (xc == selCol) input += kb->at(selRow).substr(x, utf8 ? 2 : 1);
-			if (utf8) x++;
-			xc++;
-		}
+	bool utf8;
+	int xc=0;
+	for (uint32_t x = 0; x < kb->at(selRow).length(); x++) {
+		utf8 = gmenu2x->font->utf8Code(kb->at(selRow)[x]);
+		if (xc == selCol) input += kb->at(selRow).substr(x, utf8 ? 2 : 1);
+		if (utf8) x++;
+		xc++;
 	}
 }
 
