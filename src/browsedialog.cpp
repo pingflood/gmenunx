@@ -165,6 +165,7 @@ bool BrowseDialog::exec() {
 			} else if (gmenu2x->input[MENU]) {
 				contextMenu();
 			} else if (showDirectories && allowDirUp && (gmenu2x->input[MODIFIER] || (gmenu2x->input[CONFIRM] && getFile(selected) == ".."))) { /*Directory Up */
+				gmenu2x->input.dropEvents(); // prevent passing input away
 				selected = 0;
 				preview = "";
 				if (browse_history.size() > 0) {
@@ -173,6 +174,7 @@ bool BrowseDialog::exec() {
 				}
 				directoryEnter(path + "/..");
 			} else if (gmenu2x->input[CONFIRM]) {
+				gmenu2x->input.dropEvents(); // prevent passing input away
 				if (allowEnterDirectory && isDirectory(selected)) {
 					browse_history.push_back(selected);
 					selected = 0;
