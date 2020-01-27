@@ -118,7 +118,7 @@ bool InputDialog::exec() {
 	gmenu2x->drawButton(bg, "start", gmenu2x->tr["Save"]
 	))));
 
-	while (loop) {
+	while (true) {
 		SDL_RemoveTimer(wakeUpTimer);
 		wakeUpTimer = SDL_AddTimer(500, gmenu2x->input.wakeUp, (void*)false);
 

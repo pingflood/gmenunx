@@ -58,7 +58,6 @@ private:
 	};
 
 	int selRow, selCol;
-	bool loop = true, ok = true;
 	string title, text, icon;
 	int16_t curKeyboard;
 	vector<stringlist> keyboard;
