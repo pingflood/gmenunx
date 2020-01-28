@@ -9,6 +9,10 @@ fontName(fontName), fontSize(fontSize), textColor(textColor), outlineColor(outli
 }
 
 FontHelper::~FontHelper() {
+	free();
+}
+
+void FontHelper::free() {
 	TTF_CloseFont(font);
 	TTF_CloseFont(fontOutline);
 }
