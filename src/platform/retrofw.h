@@ -164,6 +164,12 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 
 class GMenuNX : public GMenu2X {
 private:
+	void hwDeinit() {
+		if (memdev > 0) {
+			close(memdev);
+		}
+	}
+
 	void hwInit() {
 		CPU_MENU = 528;
 		CPU_LINK = 600;

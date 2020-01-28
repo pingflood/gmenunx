@@ -223,6 +223,12 @@ uint8_t getVolumeMode(uint8_t vol) {
 
 class GMenuNX : public GMenu2X {
 private:
+	void hwDeinit() {
+		if (memdev > 0) {
+			close(memdev);
+		}
+	}
+
 	void hwInit() {
 		CPU_MENU = 702;
 		CPU_LINK = 702;
