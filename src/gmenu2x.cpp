@@ -1402,7 +1402,6 @@ void GMenu2X::contextMenu() {
 	options.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
 
 #if defined(OPK_SUPPORT)
-	options.push_back((MenuOption){tr["Install package"],	MakeDelegate(this, &GMenu2X::installPackage)});
 	options.push_back((MenuOption){tr["Update OPK links"],	MakeDelegate(this, &GMenu2X::opkScanner)});
 #endif
 
@@ -1413,9 +1412,30 @@ void GMenu2X::addLink() {
 	BrowseDialog bd(this, tr["Add link"], tr["Select an application"]);
 	bd.showDirectories = true;
 	bd.showFiles = true;
-	bd.setFilter(".dge,.gpu,.gpe,.sh,.bin,.elf,");
+	string filter = ".dge,.gpu,.gpe,.sh,.bin,.elf,";
+
+#if defined(IPK_SUPPORT)
+	filter = ".ipk," + filter;
+#endif
+#if defined(OPK_SUPPORT)
+	filter = ".opk," + filter;
+#endif
+
+	bd.setFilter(filter);
 	if (bd.exec()) {
 		ledOn();
+		string ext = bd.getExt(bd.selected);
+
+#if defined(IPK_SUPPORT)
+		if (ext == ".ipk" && file_exists("/usr/bin/opkg")) {
+			ipkInstall(bd.getFilePath(bd.selected));
+		} else
+#endif
+#if defined(OPK_SUPPORT)
+		if (ext == ".opk") {
+			opkInstall(bd.getFilePath(bd.selected));
+		} else
+#endif
 		if (menu->addLink(bd.getFilePath(bd.selected))) {
 			editLink();
 		}
@@ -1753,32 +1773,6 @@ void GMenu2X::ipkUninstall() {
 	}
 }
 #endif
-
-void GMenu2X::installPackage() {
-	BrowseDialog bd(this, tr["Install package"], tr["Select package to install"]);
-	bd.showDirectories = true;
-	bd.showFiles = true;
-	bd.setFilter(".ipk,.opk");
-	if (bd.exec()) {
-		string ext = bd.getExt(bd.selected);
-
-#if defined(IPK_SUPPORT)
-		if (ext == ".ipk" && file_exists("/usr/bin/opkg")) {
-			ipkInstall(bd.getFilePath(bd.selected));
-		} else
-#endif
-#if defined(OPK_SUPPORT)
-		if (ext == ".opk") {
-			opkInstall(bd.getFilePath(bd.selected));
-		} else
-#endif
-		{
-			MessageBox mb(this, tr["Package type unsupported in this system"]);
-			mb.setAutoHide(1000);
-			mb.exec();
-		}
-	}
-}
 
 void GMenu2X::setInputSpeed() {
 	input.setInterval(150);
