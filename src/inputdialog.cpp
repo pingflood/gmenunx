@@ -201,6 +201,8 @@ bool InputDialog::exec() {
 		}
 	}
 
+	gmenu2x->input.dropEvents(); // prevent passing input away
+
 	return ok;
 }
 
