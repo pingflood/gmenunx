@@ -29,7 +29,7 @@ uint8_t numJoyPrev = 0;
 // batteryIcon = 3;
 
 const int CPU_MENU = 528;
-const int CPU_MAX = CPU_MENU * 3;
+const int CPU_MAX = CPU_MENU * 2;
 const int CPU_MIN = CPU_MENU / 2;
 const int CPU_STEP = 6;
 
