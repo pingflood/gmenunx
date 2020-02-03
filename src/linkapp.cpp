@@ -407,9 +407,9 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	if (gmenu2x->confInt["outputLogs"]) command += " &> " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
 
 	if (!gmenu2x->confStr["homePath"].empty() && dir_exists(gmenu2x->confStr["homePath"])) {
-		gmenu2x->confStr["homePath"] = "HOME=" + gmenu2x->confStr["homePath"];
+		params = "HOME=" + gmenu2x->confStr["homePath"];
 		// populate environ
-		environ[0] = (char*)gmenu2x->confStr["homePath"].c_str();
+		environ[0] = (char*)params.c_str();
 		environ[1] = (char*)"PATH=/bin:/sbin:/usr/bin:/usr/sbin",
 		environ[2] = (char*)"TERM=vt100",
 		environ[3] = (char*)"SDL_NOMOUSE=1",
