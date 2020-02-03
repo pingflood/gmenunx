@@ -178,6 +178,9 @@ void Surface::load(const string &img, bool alpha, const string &skin) {
 		raw = SDL_DisplayFormat(_raw);
 		SDL_FreeSurface(_raw);
 	}
+
+	if (alpha)
+		enableAlpha();
 }
 
 void Surface::lock() {
