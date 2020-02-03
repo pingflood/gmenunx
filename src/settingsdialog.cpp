@@ -35,7 +35,6 @@ SettingsDialog::~SettingsDialog() {
 bool SettingsDialog::exec() {
 	bool ts_pressed = false, inputAction = false;
 	uint32_t i, iY, firstElement = 0, action = SD_NO_ACTION, rowHeight, numRows;
-	voices[selected]->adjustInput();
 
 	while (loop) {
 		gmenu2x->menu->initLayout();
@@ -43,6 +42,11 @@ bool SettingsDialog::exec() {
 		gmenu2x->titlefont->setSize(gmenu2x->skinConfInt["fontSizeTitle"])->setColor(gmenu2x->skinConfColors[COLOR_FONT_ALT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
 		rowHeight = gmenu2x->font->getHeight() + 1;
 		numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
+
+		if (selected < 0) selected = voices.size() - 1;
+		if (selected >= voices.size()) selected = 0;
+		gmenu2x->setInputSpeed();
+		voices[selected]->adjustInput();
 
 		this->description = voices[selected]->getDescription();
 		drawDialog(gmenu2x->s);
@@ -92,16 +96,10 @@ bool SettingsDialog::exec() {
 					}
 					break;
 				case SD_ACTION_UP:
-					selected -= 1;
-					if (selected < 0) selected = voices.size() - 1;
-					gmenu2x->setInputSpeed();
-					voices[selected]->adjustInput();
+					selected--;
 					break;
 				case SD_ACTION_DOWN:
-					selected += 1;
-					if (selected >= voices.size()) selected = 0;
-					gmenu2x->setInputSpeed();
-					voices[selected]->adjustInput();
+					selected++;
 					break;
 				case SD_ACTION_PAGEUP:
 					selected -= numRows;
