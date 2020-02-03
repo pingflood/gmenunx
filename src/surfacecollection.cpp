@@ -128,12 +128,14 @@ Surface *SurfaceCollection::addSkinRes(const string &path) {
 	return s;
 }
 
-void SurfaceCollection::del(const string &path) {
+bool SurfaceCollection::del(const string &path) {
 	SurfaceHash::iterator i = surfaces.find(path);
 	if (i != surfaces.end()) {
 		delete i->second;
 		surfaces.erase(i);
+		return true;
 	}
+	return false;
 }
 
 void SurfaceCollection::clear() {
