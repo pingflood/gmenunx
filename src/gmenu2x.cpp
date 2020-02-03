@@ -427,11 +427,11 @@ void GMenu2X::main() {
 
 			if (skinConfInt["sectionLabel"] && SDL_GetTicks() - section_changed < 1400) {
 				if (skinConfInt["sectionBar"] == SB_LEFT)
-					s->write(font, tr.translate(menu->selSectionName()), sx, sy + skinConfInt["sectionBarSize"], HAlignLeft | VAlignBottom);
+					s->write(font, tr[menu->selSectionName()], sx, sy + skinConfInt["sectionBarSize"], HAlignLeft | VAlignBottom);
 				else if (skinConfInt["sectionBar"] == SB_RIGHT)
-					s->write(font, tr.translate(menu->selSectionName()), sx + skinConfInt["sectionBarSize"], sy + skinConfInt["sectionBarSize"], HAlignRight | VAlignBottom);
+					s->write(font, tr[menu->selSectionName()], sx + skinConfInt["sectionBarSize"], sy + skinConfInt["sectionBarSize"], HAlignRight | VAlignBottom);
 				else
-					s->write(font, tr.translate(menu->selSectionName()), sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
+					s->write(font, tr[menu->selSectionName()], sx + skinConfInt["sectionBarSize"] / 2 , sy + skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
 			} else {
 				SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;
 			}
@@ -465,8 +465,8 @@ void GMenu2X::main() {
 					s->box(ix, iy, linksRect.w, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 
 				sc[menu->sectionLinks()->at(i)->getIconPath()]->blit(s, {ix, iy, 36, linkHeight}, HAlignCenter | VAlignMiddle);
-				s->write(titlefont, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + linkSpacing + 36, iy + titlefont->getHeight()/2, VAlignMiddle);
-				s->write(font, tr.translate(menu->sectionLinks()->at(i)->getDescription()), ix + linkSpacing + 36, iy + linkHeight - linkSpacing/2, VAlignBottom);
+				s->write(titlefont, tr[menu->sectionLinks()->at(i)->getTitle()], ix + linkSpacing + 36, iy + titlefont->getHeight()/2, VAlignMiddle);
+				s->write(font, tr[menu->sectionLinks()->at(i)->getDescription()], ix + linkSpacing + 36, iy + linkHeight - linkSpacing/2, VAlignBottom);
 			}
 		} else { // CLASSIC
 			for (y = 0; y < linkRows; y++) {
@@ -493,7 +493,7 @@ void GMenu2X::main() {
 
 					icon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
 
-					if (skinConfInt["linkLabel"]) s->write(font, tr.translate(menu->sectionLinks()->at(i)->getTitle()), ix + 2 + linkWidth/2, iy + (linkHeight + min(linkHeight, icon->height()))/2, HAlignCenter | VAlignMiddle);
+					if (skinConfInt["linkLabel"]) s->write(font, tr[menu->sectionLinks()->at(i)->getTitle()], ix + 2 + linkWidth/2, iy + (linkHeight + min(linkHeight, icon->height()))/2, HAlignCenter | VAlignMiddle);
 				}
 			}
 		}
@@ -1745,17 +1745,17 @@ void GMenu2X::umountSdDialog() {
 void GMenu2X::contextMenu() {
 	vector<MenuOption> options;
 	if (menu->selLinkApp() != NULL) {
-		options.push_back((MenuOption){tr.translate("Edit $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::editLink)});
+		options.push_back((MenuOption){tr["Edit"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::editLink)});
 
 		#if defined(OPK_SUPPORT) || defined(IPK_SUPPORT)
 			if (file_ext(menu->selLinkApp()->getExec(), true) == ".opk") {
-				options.push_back((MenuOption){tr.translate("Uninstall $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::opkUninstall)});
+				options.push_back((MenuOption){tr["Uninstall"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::opkUninstall)});
 			} else
 			if (!ipkName(menu->selLinkApp()->getExec()).empty()) {
-				options.push_back((MenuOption){tr.translate("Uninstall $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::ipkUninstall)});
+				options.push_back((MenuOption){tr["Uninstall"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::ipkUninstall)});
 			} else
 		#endif
-		options.push_back((MenuOption){tr.translate("Delete $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::deleteLink)});
+		options.push_back((MenuOption){tr["Delete"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::deleteLink)});
 	}
 
 	options.push_back((MenuOption){tr["Add link"], 			MakeDelegate(this, &GMenu2X::addLink)});
@@ -1812,7 +1812,7 @@ void GMenu2X::editLink() {
 	string linkSelAliases = menu->selLinkApp()->getAliasFile();
 	int linkClock = menu->selLinkApp()->getCPU();
 	string linkBackdrop = menu->selLinkApp()->getBackdrop();
-	string dialogTitle = tr.translate("Edit $1", linkTitle.c_str(), NULL);
+	string dialogTitle = tr["Edit"] + " " + linkTitle;
 	string dialogIcon = menu->selLinkApp()->getIconPath();
 	string linkDir = dir_name(linkExec);
 
@@ -1929,7 +1929,7 @@ void GMenu2X::editLink() {
 
 void GMenu2X::deleteLink() {
 	if (menu->selLinkApp() != NULL) {
-		MessageBox mb(this, tr.translate("Delete $1", menu->selLink()->getTitle().c_str(), NULL) + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+		MessageBox mb(this, tr["Delete"] + " " + menu->selLink()->getTitle().c_str() + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
 		mb.setButton(CONFIRM, tr["Yes"]);
 		mb.setButton(CANCEL,  tr["No"]);
 		if (mb.exec() == CONFIRM) {
@@ -2010,7 +2010,7 @@ void GMenu2X::opkScanner() {
 
 void GMenu2X::opkUninstall() {
 	if (menu->selLinkApp() != NULL) {
-		MessageBox mb(this, tr.translate("Uninstall $1", menu->selLink()->getTitle().c_str(), NULL) + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+		MessageBox mb(this, tr["Uninstall"] + " " + menu->selLink()->getTitle().c_str() + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
 		mb.setButton(CONFIRM, tr["Yes"]);
 		mb.setButton(CANCEL,  tr["No"]);
 		if (mb.exec() == CONFIRM) {
@@ -2035,7 +2035,7 @@ string GMenu2X::ipkName(const string _file) {
 
 void GMenu2X::ipkUninstall() {
 	if (menu->selLinkApp() != NULL) {
-		MessageBox mb(this, tr.translate("Uninstall $1", menu->selLink()->getTitle().c_str(), NULL) + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+		MessageBox mb(this, tr["Uninstall"] + " " + menu->selLink()->getTitle().c_str() + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
 		mb.setButton(CONFIRM, tr["Yes"]);
 		mb.setButton(CANCEL,  tr["No"]);
 		if (mb.exec() == CONFIRM) {
