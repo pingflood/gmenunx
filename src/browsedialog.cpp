@@ -1,5 +1,5 @@
-#include "messagebox.h"
 #include "browsedialog.h"
+#include "messagebox.h"
 #include "debug.h"
 #include "utilities.h"
 #include "powermanager.h"
@@ -23,7 +23,6 @@ bool BrowseDialog::exec() {
 	uint32_t i, iY, firstElement = 0, padding = 6;
 	int32_t animation = 0;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
-	bool loop = true;
 	uint32_t numRows = (gmenu2x->listRect.h - 2) / rowHeight - 1;
 
 	if (path.empty() || !dir_exists(path))
@@ -33,8 +32,11 @@ bool BrowseDialog::exec() {
 
 	string preview = getPreview(selected);
 
-	while (loop) {
-		if (selected >= size()) selected = 0;
+	// this->description = getFilter();
+
+	while (true) {
+		if (selected < 0) selected = this->size() - 1;
+		if (selected >= this->size()) selected = 0;
 
 		bool inputAction = false;
 
@@ -137,11 +139,9 @@ bool BrowseDialog::exec() {
 			if (gmenu2x->inputCommonActions(inputAction)) continue;
 
 			if (gmenu2x->input[UP]) {
-				selected -= 1;
-				if (selected < 0) selected = this->size() - 1;
+				selected--;
 			} else if (gmenu2x->input[DOWN]) {
-				selected += 1;
-				if (selected >= this->size()) selected = 0;
+				selected++;
 			} else if (gmenu2x->input[LEFT]) {
 				selected -= numRows;
 				if (selected < 0) selected = 0;
@@ -165,7 +165,6 @@ bool BrowseDialog::exec() {
 			} else if (gmenu2x->input[MENU]) {
 				contextMenu();
 			} else if (showDirectories && allowDirUp && (gmenu2x->input[MODIFIER] || (gmenu2x->input[CONFIRM] && getFile(selected) == ".."))) { /*Directory Up */
-				gmenu2x->input.dropEvents(); // prevent passing input away
 				selected = 0;
 				preview = "";
 				if (browse_history.size() > 0) {
@@ -174,21 +173,18 @@ bool BrowseDialog::exec() {
 				}
 				directoryEnter(path + "/..");
 			} else if (gmenu2x->input[CONFIRM]) {
-				gmenu2x->input.dropEvents(); // prevent passing input away
 				if (allowEnterDirectory && isDirectory(selected)) {
 					browse_history.push_back(selected);
 					selected = 0;
 					directoryEnter(getFilePath(browse_history.back()));
 				} else {
-					result = true;
-					loop = false;
+					return true;
 				}
 			} else if (gmenu2x->input[SETTINGS] && allowSelectDirectory) {
-				result = true;
-				loop = false;
+				return true;
 			} else if (gmenu2x->input[CANCEL] || gmenu2x->input[SETTINGS]) {
-				result = false;
-				loop = (gmenu2x->confStr["previewMode"] != "Backdrop") && !(preview.empty() || preview == "#"); // close only if preview is empty.
+				if (!((gmenu2x->confStr["previewMode"] != "Backdrop") && !(preview.empty() || preview == "#")))
+					return false; // close only if preview is empty.
 				preview = "";
 			}
 
@@ -198,11 +194,10 @@ bool BrowseDialog::exec() {
 
 		} while (!inputAction);
 	}
-
-	return result;
 }
 
 void BrowseDialog::directoryEnter(const string &path) {
+	gmenu2x->input.dropEvents(); // prevent passing input away
 	gmenu2x->powerManager->clearTimer();
 
 	this->description = path;

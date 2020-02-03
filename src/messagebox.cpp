@@ -25,8 +25,8 @@ using namespace std;
 
 MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options):
 gmenu2x(gmenu2x) {
-	bool loop = true, inputAction = false;
-	int sel = 0;
+	bool inputAction = false;
+	int32_t selected = 0;
 	uint32_t i, fadeAlpha = 0, h = gmenu2x->font->getHeight(), h2 = gmenu2x->font->getHalfHeight();
 	SDL_Rect box;
 
@@ -45,7 +45,10 @@ gmenu2x(gmenu2x) {
 	box.y = (gmenu2x->h - box.h) / 2;
 
 	uint32_t tickStart = SDL_GetTicks();
-	while (loop) {
+	while (true) {
+		if (selected < 0) selected = options.size() - 1;
+		if (selected >= options.size()) selected = 0;
+
 		bg.blit(gmenu2x->s, 0, 0);
 
 		gmenu2x->s->box(0, 0, gmenu2x->w, gmenu2x->h, 0,0,0, fadeAlpha);
@@ -69,14 +72,14 @@ gmenu2x(gmenu2x) {
 
 			if (gmenu2x->inputCommonActions(inputAction)) continue;
 
-			if ( gmenu2x->input[MENU] || gmenu2x->input[CANCEL]) loop = false;
-			else if ( gmenu2x->input[UP] ) sel = (sel - 1 < 0) ? (int)options.size() - 1 : sel - 1 ;
-			else if ( gmenu2x->input[DOWN] ) sel = (sel + 1 > (int)options.size() - 1) ? 0 : sel + 1;
-			else if ( gmenu2x->input[LEFT] || gmenu2x->input[PAGEUP] ) sel = 0;
-			else if ( gmenu2x->input[RIGHT] || gmenu2x->input[PAGEDOWN] ) sel = (int)options.size() - 1;
-			else if ( gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM] ) {
-				options[sel].action();
-				loop = false;
+			if (gmenu2x->input[MENU] || gmenu2x->input[CANCEL]) return;
+			else if (gmenu2x->input[UP]) selected--;
+			else if (gmenu2x->input[DOWN]) selected++;
+			else if (gmenu2x->input[LEFT] || gmenu2x->input[PAGEUP]) selected = 0;
+			else if (gmenu2x->input[RIGHT] || gmenu2x->input[PAGEDOWN]) selected = (int)options.size() - 1;
+			else if (gmenu2x->input[SETTINGS] || gmenu2x->input[CONFIRM]) {
+				options[selected].action();
+				return;
 			}
 		} while (!inputAction);
 	}
@@ -140,7 +143,7 @@ void MessageBox::setBgAlpha(uint32_t bgalpha) {
 }
 
 int MessageBox::exec() {
-	int result = -1, fadeAlpha = 0, ix = 0;
+	int fadeAlpha = 0, ix = 0;
 	SDL_Rect box;
 
 	Surface bg(gmenu2x->s);
@@ -225,7 +228,7 @@ int MessageBox::exec() {
 		return -1;
 	}
 
-	while (result < 0) {
+	while (true) {
 		// touchscreen
 		// if (gmenu2x->f200 && gmenu2x->ts.poll()) {
 		// 	for (uint32_t i = 0; i < buttonText.size(); i++) {
@@ -241,14 +244,14 @@ int MessageBox::exec() {
 			// if (gmenu2x->inputCommonActions(inputAction)) continue; // causes power button bounce
 			for (uint32_t i = 0; i < buttonText.size(); i++) {
 				if (buttonText[i] != "" && gmenu2x->input[i]) {
-					result = i;
+					return i;
 					break;
 				}
 			}
 		}
 	}
 
-	return result;
+	return -1;
 }
 
 void MessageBox::exec(uint32_t timeOut) {
