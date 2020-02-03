@@ -31,7 +31,10 @@ using std::vector;
 class WallpaperDialog : protected Dialog {
 public:
 	WallpaperDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon);
+	~WallpaperDialog();
+
 	string wallpaper;
+	vector<string> wallpapers;
 
 	bool exec();
 };

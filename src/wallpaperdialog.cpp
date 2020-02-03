@@ -27,9 +27,15 @@ using namespace std;
 WallpaperDialog::WallpaperDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon):
 Dialog(gmenu2x, title, description, icon) {}
 
-bool WallpaperDialog::exec() {
-	bool loop = true, result = true, inputAction = false;
+WallpaperDialog::~WallpaperDialog() {
+	for (uint32_t i = 0; i < wallpapers.size(); i++) {
+		if (!gmenu2x->sc.del("skins/" + gmenu2x->confStr["skin"] + "/wallpapers/" + wallpapers[i])) {
+			gmenu2x->sc.del("skins/Default/wallpapers/" + wallpapers[i]);
+		}
+	}
+}
 
+bool WallpaperDialog::exec() {
 	uint32_t i, iY, firstElement = 0;
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
 	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
@@ -121,12 +127,4 @@ bool WallpaperDialog::exec() {
 			}
 		} while (!inputAction);
 	}
-
-	for (uint32_t i = 0; i < wallpapers.size(); i++)
-		if (i < wallpapers.size() - fl.getFiles().size())
-			gmenu2x->sc.del("skins/" + gmenu2x->confStr["skin"] + "/wallpapers/" + wallpapers[i]);
-		else
-			gmenu2x->sc.del("skins/Default/wallpapers/" + wallpapers[i]);
-
-	return result;
 }
