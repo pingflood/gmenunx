@@ -25,7 +25,10 @@ bool BrowseDialog::exec() {
 	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
 	uint32_t numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
 
-	drawTopBar(this->bg, title, description, icon);
+	string path = getPath();
+	if (path.empty() || !dir_exists(path))
+		directoryEnter(gmenu2x->confStr["homePath"]);
+
 	drawBottomBar(this->bg);
 	this->bg->box(gmenu2x->listRect, gmenu2x->skinConfColors[COLOR_LIST_BG]);
 
@@ -39,17 +42,16 @@ bool BrowseDialog::exec() {
 		buttonPos = gmenu2x->drawButton(this->bg, "a", gmenu2x->tr["Select"], buttonPos);
 	}
 
-	string path = getPath();
-	if (path.empty() || !dir_exists(path))
-		directoryEnter(gmenu2x->confStr["homePath"]);
-
 	string preview = getPreview(selected);
 
 	while (!close) {
 		bool inputAction = false; int tmpButtonPos = buttonPos;
+		string curPath = getPath();
 		this->bg->blit(gmenu2x->s,0,0);
+		drawTopBar(this->bg, title, curPath, icon);
+		// drawTopBar(this->bg, title, description, icon);
 
-		if (allowDirUp && getPath() != "/") tmpButtonPos = gmenu2x->drawButton(gmenu2x->s, "x", gmenu2x->tr["Folder up"], buttonPos);
+		if (allowDirUp && curPath != "/") tmpButtonPos = gmenu2x->drawButton(gmenu2x->s, "x", gmenu2x->tr["Folder up"], buttonPos);
 
 		if (!size()) {
 			MessageBox mb(gmenu2x, gmenu2x->tr["This directory is empty"]);
