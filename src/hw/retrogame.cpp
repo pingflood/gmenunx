@@ -60,8 +60,8 @@ uint16_t getTVOutStatus() {
 
 int32_t getBatteryStatus() {
 	char buf[32] = "-1";
-	FILE *f = fopen("/proc/jz/battery", "r");
-	if (f) {
+	FILE *f;
+	if (f = fopen("/proc/jz/battery", "r")) {
 		fgets(buf, sizeof(buf), f);
 		fclose(f);
 	}
@@ -70,8 +70,8 @@ int32_t getBatteryStatus() {
 
 uint16_t getTVOut() {
 	char buf[32] = "0";
-	FILE *f = fopen("/proc/jz/tvout", "r");
-	if (f) {
+	FILE *f;
+	if (f = fopen("/proc/jz/tvout", "r")) {
 		fgets(buf, sizeof(buf), f);
 		fclose(f);
 	}
@@ -196,8 +196,8 @@ private:
 		if (fbdev >= 0 && ioctl(fbdev, FBIOGET_VSCREENINFO, &vinfo) >= 0) {
 			w = vinfo.width;
 			h = vinfo.height;
+			close(fbdev);
 		}
-		close(fbdev);
 
 		if (w == 320 && h == 480) h = 240;
 
@@ -265,8 +265,8 @@ private:
 
 	int getBacklight() {
 		char buf[32] = "-1";
-		FILE *f = fopen("/proc/jz/lcd_backlight", "r");
-		if (f) {
+		FILE *f;
+		if (f = fopen("/proc/jz/lcd_backlight", "r")) {
 			fgets(buf, sizeof(buf), f);
 			fclose(f);
 		}
@@ -292,27 +292,34 @@ public:
 	int setBacklight(int val, bool popup = false) {
 		val = GMenu2X::setBacklight(val, popup);
 
-		char buf[128] = {0};
-		sprintf(buf, "echo %d > /proc/jz/lcd_backlight; echo %d > /proc/jz/backlight_control", val, val);
-		system(buf);
+		FILE *f;
+		if (f = fopen("/proc/jz/lcd_backlight", "w")) {
+			fprintf(f, "%d", val); // fputs(val, f);
+			fclose(f);
+		}
+
+		if (f = fopen("/proc/jz/backlight_control", "w")) {
+			fprintf(f, "%d", val); // fputs(val, f);
+			fclose(f);
+		}
 
 		return val;
 	}
 
 	void setScaleMode(unsigned int mode) {
-		if (!file_exists("/proc/jz/ipu_ratio")) return;
-
-		char buf[128] = {0};
-		sprintf(buf, "echo %d > /proc/jz/ipu_ratio", mode);
-		system(buf);
+		FILE *f;
+		if (f = fopen("/proc/jz/ipu_ratio", "w")) {
+			fprintf(f, "%d", mode); // fputs(val, f);
+			fclose(f);
+		}
 	}
 
 	void setTVOut(unsigned int mode) {
-		if (!file_exists("/proc/jz/tvout") || mode > 2) return;
-		char buf[128] = {0};
-		// sprintf(buf, "echo %d > /proc/jz/tvout; echo 1 > /proc/jz/tvout &> /dev/null", mode);
-		sprintf(buf, "echo %d > /proc/jz/tvout", mode);
-		system(buf);
+		FILE *f;
+		if (f = fopen("/proc/jz/tvout", "w")) {
+			fprintf(f, "%d", mode); // fputs(val, f);
+			fclose(f);
+		}
 	}
 
 	uint16_t getBatteryLevel() {
