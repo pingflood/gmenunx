@@ -38,9 +38,8 @@ gmenu2x(gmenu2x) {
 	box.h = h * options.size() + 8;
 	box.w = 0;
 	for (i = 0; i < options.size(); i++) {
-		int w = gmenu2x->font->getTextWidth(options[i].text);
-		if (w > box.w) box.w = w;
-	}
+		box.w = max(gmenu2x->font->getTextWidth(options[i].text), box.w);
+	};
 	box.w += 23;
 	box.x = (gmenu2x->w - box.w) / 2;
 	box.y = (gmenu2x->h - box.h) / 2;
