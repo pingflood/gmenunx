@@ -1,16 +1,12 @@
 #include "messagebox.h"
 #include "browsedialog.h"
-// #include "FastDelegate.h"
 #include "debug.h"
-
-// using namespace fastdelegate;
 using namespace std;
+extern const char *CARD_ROOT;
 
 BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon)
 : Dialog(gmenu2x), title(title), description(description), icon(icon) {
 	directoryEnter(gmenu2x->confStr["homePath"]);
-}
-BrowseDialog::~BrowseDialog() {
 }
 
 bool BrowseDialog::exec() {
@@ -64,11 +60,10 @@ bool BrowseDialog::exec() {
 			// Selection
 			if (selected >= firstElement + numRows) firstElement = selected - numRows;
 			if (selected < firstElement) firstElement = selected;
-			string curPath = getPath();
 
-			if (curPath == "/media" && getFile(selected) != ".." && isDirectory(selected)) {
-				gmenu2x->drawButton(gmenu2x->s, "select", gmenu2x->tr["Umount"], tmpButtonPos);
-			}
+			// if (curPath == "/media" && getFile(selected) != ".." && isDirectory(selected)) {
+			// 	gmenu2x->drawButton(gmenu2x->s, "select", gmenu2x->tr["Umount"], tmpButtonPos);
+			// }
 
 			//Files & Directories
 			iY = gmenu2x->listRect.y + 1;
@@ -131,7 +126,6 @@ bool BrowseDialog::exec() {
 		do {
 			inputAction = gmenu2x->input.update();
 			if (gmenu2x->inputCommonActions(inputAction)) continue;
-			if (customAction(inputAction)) continue;
 
 			if (gmenu2x->input[UP]) {
 				selected -= 1;
@@ -145,13 +139,9 @@ bool BrowseDialog::exec() {
 			} else if (gmenu2x->input[PAGEDOWN] || gmenu2x->input[RIGHT]) {
 				selected += numRows;
 				if (selected >= this->size()) selected = this->size() - 1;
-			} else if ( gmenu2x->input[MENU]) {
-				if (getPath() == "/media" && getFile(selected) != ".." && isDirectory(selected)) {
-					string umount = "sync; umount -fl " + getFilePath(selected) + "; rm -r " + getFilePath(selected);
-					system(umount.c_str());
-				}
-				directoryEnter(getPath()); // refresh
-			} else if ( allowDirUp && (gmenu2x->input[MODIFIER] || (gmenu2x->input[CONFIRM] && getFile(selected) == "..")) ) { /*Directory Up */
+			} else if (gmenu2x->input[MENU]) {
+				contextMenu();
+			} else if (allowDirUp && (gmenu2x->input[MODIFIER] || (gmenu2x->input[CONFIRM] && getFile(selected) == ".."))) { /*Directory Up */
 				selected = 0;
 				preview = "";
 				if (browse_history.size() > 0) {
@@ -210,4 +200,47 @@ const std::string BrowseDialog::getPreview(uint32_t i) {
 	string ext = getExt(i);
 	if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp") return getFilePath(i);
 	return "";
+}
+
+void BrowseDialog::contextMenu() {
+	vector<MenuOption> options;
+
+	customOptions(options);
+
+	if (getPath() == "/media" && getFile(selected) != ".." && isDirectory(selected))
+		options.push_back((MenuOption){gmenu2x->tr["Umount"], MakeDelegate(this, &BrowseDialog::umountDir)});
+
+	if (getPath() != CARD_ROOT)
+		options.push_back((MenuOption){gmenu2x->tr["Explore"] + " " + CARD_ROOT, MakeDelegate(this, &BrowseDialog::exploreHome)});
+
+	if (getPath() != "/media")
+		options.push_back((MenuOption){gmenu2x->tr["Explore"] + " /media", MakeDelegate(this, &BrowseDialog::exploreMedia)});
+
+	if (isFile(selected))
+		options.push_back((MenuOption){gmenu2x->tr["Delete"], MakeDelegate(this, &BrowseDialog::deleteFile)});
+
+	MessageBox mb(gmenu2x, options);
+}
+
+void BrowseDialog::deleteFile() {
+	MessageBox mb(gmenu2x, gmenu2x->tr["Delete"] + " " + getFileName(selected).c_str() + "\n" + gmenu2x->tr["Are you sure?"]);
+	mb.setButton(CONFIRM, gmenu2x->tr["Yes"]);
+	mb.setButton(CANCEL,  gmenu2x->tr["No"]);
+	if (mb.exec() == CONFIRM) {
+		WARNING("DELETE FILE");
+	}
+}
+
+void BrowseDialog::umountDir() {
+	string umount = "sync; umount -fl " + getFilePath(selected) + " && rm -r " + getFilePath(selected);
+	system(umount.c_str());
+	directoryEnter(getPath()); // refresh
+}
+
+void BrowseDialog::exploreHome() {
+	directoryEnter(CARD_ROOT);
+}
+
+void BrowseDialog::exploreMedia() {
+	directoryEnter("/media");
 }

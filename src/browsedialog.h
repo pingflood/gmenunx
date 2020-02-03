@@ -22,9 +22,10 @@
 #define BROWSEDIALOG_H_
 
 #include <string>
-#include "filelister.h"
 #include "gmenu2x.h"
 #include "dialog.h"
+#include "filelister.h"
+#include "menu.h"
 
 class FileLister;
 
@@ -39,10 +40,16 @@ private:
 	virtual const std::string getPreview(uint32_t i = 0);
 	vector<int> browse_history;
 
+	void contextMenu();
+	void deleteFile();
+	void umountDir();
+	void exploreHome();
+	void exploreMedia();
+
 public:
 	string title, description, icon;
 	BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon = "icons/explorer.png");
-	virtual ~BrowseDialog();
+	virtual ~BrowseDialog() {};
 	bool allowSelectDirectory = false, allowEnterDirectory = true;
 	int32_t selected = 0;
 	bool exec();
@@ -50,7 +57,7 @@ public:
 
 	virtual const std::string getFileName(uint32_t i = 0);
 	virtual const std::string getParams(uint32_t i = 0);
-	virtual bool customAction(bool &inputAction) { return false; };
+	virtual void customOptions(vector<MenuOption> &options) { return; };
 };
 
 #endif /*BROWSEDIALOG_H_*/

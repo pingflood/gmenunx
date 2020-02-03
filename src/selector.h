@@ -40,9 +40,8 @@ public:
 	Selector(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, LinkApp *link);
 	const std::string getFileName(uint32_t i = 0);
 	const std::string getParams(uint32_t i = 0);
-	bool customAction(bool &inputAction);
-	void contextMenu();
 	void addFavourite();
+	void customOptions(vector<MenuOption> &options);
 };
 
 #endif /*SELECTOR_H_*/

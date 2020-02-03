@@ -18,16 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-//for browsing the filesystem
-// #include <sys/stat.h>
-// #include <sys/types.h>
-// #include <dirent.h>
 #include <fstream>
 #include "messagebox.h"
 #include "linkapp.h"
 #include "selector.h"
 #include "debug.h"
-#include "menu.h"
 
 using namespace std;
 
@@ -124,39 +119,17 @@ const std::string Selector::getParams(uint32_t i) {
 	return it->second;
 }
 
-string favicon;
-bool Selector::customAction(bool &inputAction) {
-	return false;
-	if ( gmenu2x->input[MENU] ) {
-		favicon = getPreview(selected);
-		WARNING("favicon1: %s", favicon.c_str());
-		if (favicon.empty()) favicon = this->icon;
-		WARNING("favicon2: %s", favicon.c_str());
-		contextMenu();
-		return true;
+void Selector::customOptions(vector<MenuOption> &options) {
+	if (isFile(selected)) {
+		options.push_back((MenuOption){gmenu2x->tr["Add to home screen"], MakeDelegate(this, &Selector::addFavourite)});
 	}
-	return false;
 }
 
 void Selector::addFavourite() {
-	WARNING("favicon3: %s", favicon.c_str());
+	string favicon = getPreview(selected);
+	if (favicon.empty()) favicon = this->icon;
 	gmenu2x->menu->addLink(link->getExec(), "favourites", getFileName(selected), description, favicon, link->getParams() + " " + cmdclean(getFilePath(selected)));
-}
-
-void Selector::contextMenu() {
-	ERROR("%s:%d", __func__, __LINE__);
-	vector<MenuOption> options;
-	// if (menu->selLinkApp() != NULL) {
-	// 	options.push_back((MenuOption){tr.translate("Edit $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::editLink)});
-	// 	options.push_back((MenuOption){tr.translate("Delete $1", menu->selLink()->getTitle().c_str(), NULL), MakeDelegate(this, &GMenu2X::deleteLink)});
-	// }
-	ERROR("%s:%d", __func__, __LINE__);
-	options.push_back((MenuOption){gmenu2x->tr["Add to home screen"], 		MakeDelegate(this, &Selector::addFavourite)});
-	// options.push_back((MenuOption){tr["Add section"],	MakeDelegate(this, &GMenu2X::addSection)});
-	// options.push_back((MenuOption){tr["Rename section"],	MakeDelegate(this, &GMenu2X::renameSection)});
-	// options.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
-	// options.push_back((MenuOption){tr["Link scanner"],	MakeDelegate(this, &GMenu2X::linkScanner)});
-	ERROR("%s:%d", __func__, __LINE__);
-
-	MessageBox mb(gmenu2x, options);
+	MessageBox mb(gmenu2x, gmenu2x->tr["Added to home screen"], favicon);
+	// mb.setAutoHide(500);
+	mb.exec();
 }
