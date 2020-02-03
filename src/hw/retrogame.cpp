@@ -206,8 +206,8 @@ private:
 
 	void udcDialog(int udcStatus) {
 		if (udcStatus == UDC_REMOVE) {
-			INFO("USB Disconnected. Unloading modules...");
-			system("/usr/bin/retrofw stop; /etc/init.d/S99recovery stop; /etc/init.d/S80recovery stop");
+			INFO("USB Disconnected. Disabling devices...");
+			system("/usr/bin/retrofw stop");
 			return;
 		}
 
@@ -222,16 +222,14 @@ private:
 		}
 
 		if (option == CONFIRM) { // storage
-			INFO("Enabling gadget-lun storage device");
+			INFO("Enabling storage device");
 			quit();
-
-			if (file_exists("/usr/bin/retrofw")) execlp("/bin/sh", "/bin/sh", "-c", "/usr/bin/retrofw storage on", NULL);
-			else if (file_exists("/etc/init.d/S99recovery")) execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S99recovery storage on", NULL);
-			else if (file_exists("/etc/init.d/S80recovery")) execlp("/bin/sh", "/bin/sh", "-c", "/etc/init.d/S80recovery storage on", NULL);
+			execlp("/bin/sh", "/bin/sh", "-c", "exec /usr/bin/retrofw storage on", NULL);
 			return;
 		}
-		INFO("Enabling usb0 networking device");
-		system("/usr/bin/retrofw network on &");
+
+		INFO("Enabling networking device");
+		system("/usr/bin/retrofw network on");
 		iconInet = sc.skinRes("imgs/inet.png");
 	}
 
