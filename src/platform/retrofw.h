@@ -127,6 +127,9 @@ uint32_t hwCheck(unsigned int interval = 0, void *param = NULL) {
 		if (mmcPrev != mmcStatus) {
 			mmcPrev = mmcStatus;
 			InputManager::pushEvent(mmcStatus);
+			if (mmcStatus == MMC_REMOVE) {
+				system("umount -fl /mnt &> /dev/null");
+			}
 			return 2000;
 		}
 
