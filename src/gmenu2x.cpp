@@ -1751,8 +1751,13 @@ void GMenu2X::contextMenu() {
 	options.push_back((MenuOption){tr["Add section"],		MakeDelegate(this, &GMenu2X::addSection)});
 	options.push_back((MenuOption){tr["Rename section"],	MakeDelegate(this, &GMenu2X::renameSection)});
 	options.push_back((MenuOption){tr["Delete section"],	MakeDelegate(this, &GMenu2X::deleteSection)});
-	// options.push_back((MenuOption){tr["Link scanner"],	MakeDelegate(this, &GMenu2X::linkScanner)});
 
+	#if !defined(TARGET_PC)
+		if (file_exists("/usr/bin/retrofw"))
+	#endif
+	{
+		options.push_back((MenuOption){tr["OPK scanner"],	MakeDelegate(this, &GMenu2X::opkScanner)});
+	}
 	MessageBox mb(this, options);
 }
 
@@ -1981,6 +1986,12 @@ void GMenu2X::deleteSection() {
 		}
 		ledOff();
 	}
+}
+
+void GMenu2X::opkScanner() {
+	TerminalDialog td(this, tr["OPK scanner"], "opkscan", "skin:icons/terminal.png");
+	td.exec("retrofw opkscan");
+	initMenu();
 }
 
 void GMenu2X::setInputSpeed() {

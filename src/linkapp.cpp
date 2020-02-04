@@ -210,6 +210,8 @@ const string &LinkApp::searchIcon() {
 		iconPath = dir_name(exec) + "/" + sublinktitle;
 	else if (file_exists(execicon))
 		iconPath = execicon;
+	else if (file_ext(exec, true) == ".opk" && file_exists((string)getenv("HOME") + (string)"/.cache/" + sublinktitle))
+		iconPath = (string)getenv("HOME") + (string)"/.cache/" + sublinktitle;
 	else
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
 
@@ -355,6 +357,7 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 			params = strreplace(params, "[selFullPath]", cmdclean(dir + "/" + selectedFile));
 			params = strreplace(params, "[selPath]", cmdclean(dir));
 			params = strreplace(params, "[selFile]", cmdclean(selectedFileName));
+			params = strreplace(params, "\%f", cmdclean(selectedFileName));
 			params = strreplace(params, "[selExt]", cmdclean(selectedFileExtension));
 			if (params == origParams) params += " " + cmdclean(dir + "/" + selectedFile);
 		}
@@ -362,8 +365,11 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 	INFO("Executing '%s' (%s %s)", title.c_str(), exec.c_str(), params.c_str());
 
-	//check if we have to quit
 	string command = cmdclean(exec);
+
+	if (file_ext(command, true) == ".opk") {
+		command = "retrofw opkrun " + command;
+	}
 
 	// Check to see if permissions are desirable
 	struct stat fstat;
