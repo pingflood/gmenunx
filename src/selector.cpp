@@ -24,7 +24,9 @@
 #include "selector.h"
 #include "debug.h"
 
-using namespace std;
+#if defined(OPK_SUPPORT)
+	#include <libopk.h>
+#endif
 
 Selector::Selector(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, LinkApp *link)
 : BrowseDialog(gmenu2x, title, description, icon), link(link) {
@@ -73,25 +75,53 @@ const std::string Selector::getPreview(uint32_t i) {
 	return previews[fpath];
 }
 
-void Selector::loadAliases() {
+void Selector::parseAliases(istream &infile) {
 	aliases.clear();
 	params.clear();
-	if (file_exists(link->getAliasFile())) {
-		string line;
-		ifstream infile (link->getAliasFile().c_str(), ios_base::in);
-		while (getline(infile, line, '\n')) {
-			string name, value;
-			int d1 = line.find("=");
-			int d2 = line.find(";");
-			if (d2 > d1) d2 -= d1 + 1;
+	string line;
 
-			name = lowercase(trim(line.substr(0, d1)));
-			aliases[name] = trim(line.substr(d1 + 1, d2));
+	while (getline(infile, line, '\n')) {
+		string name, value;
+		int d1 = line.find("=");
+		int d2 = line.find(";");
+		if (d2 > d1) d2 -= d1 + 1;
 
-			if (d2 > 0)
-				params[name] = trim(line.substr(d1 + d2 + 2));
-		}
+		name = lowercase(trim(line.substr(0, d1)));
+		aliases[name] = trim(line.substr(d1 + 1, d2));
+
+		if (d2 > 0)
+			params[name] = trim(line.substr(d1 + d2 + 2));
+	}
+}
+
+void Selector::loadAliases() {
+	string linkExec = link->getExec();
+	string linkAlias = link->getAliasFile();
+
+	if (file_exists(linkAlias)) {
+		ifstream infile;
+		infile.open(linkAlias.c_str(), ios_base::in);
+		parseAliases(infile);
 		infile.close();
+
+#if defined(OPK_SUPPORT)
+	} else if (file_ext(linkExec, true) == ".opk") {
+		void *buf; size_t len;
+		struct OPK *opk = opk_open(linkExec.c_str());
+		if (!opk) {
+			ERROR("Unable to open OPK");
+			return;
+		}
+		if (opk_extract_file(opk, linkAlias.c_str(), &buf, &len) < 0) {
+			ERROR("Unable to extract file: %s\n", linkAlias.c_str());
+			return;
+		}
+		opk_close(opk);
+
+		istringstream infile((char *)buf);
+
+		parseAliases(infile);
+#endif // OPK_SUPPORT
 	}
 }
 

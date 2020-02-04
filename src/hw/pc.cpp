@@ -4,8 +4,8 @@
 #define HW_UDC // hardware have UDC support
 #define HW_EXT_SD // hardware have external sd card support
 #define HW_SCALER // hardware have screen scaler (e.g., IPU)
-#define OPK_SUPPORT // firmware support opk
-#define IPK_SUPPORT // firmware support ipk
+// #define OPK_SUPPORT // firmware support opk
+// #define IPK_SUPPORT // firmware support ipk
 
 volatile uint16_t *memregs;
 uint8_t memdev = 0;

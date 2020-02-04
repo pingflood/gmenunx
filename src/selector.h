@@ -22,10 +22,12 @@
 #define SELECTOR_H_
 
 #include "browsedialog.h"
+#include <sstream>
+
+using namespace std;
 
 class LinkApp;
 
-using std::string;
 class Selector : public BrowseDialog {
 private:
 	LinkApp *link;
@@ -34,6 +36,7 @@ private:
 	unordered_map<string, string> params;
 	unordered_map<string, string> previews;
 	void loadAliases();
+	void parseAliases(istream &infile);
 	const std::string getPreview(uint32_t i = 0);
 
 public:

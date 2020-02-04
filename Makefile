@@ -15,9 +15,14 @@ SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
 
 CFLAGS = $(SDL_CFLAGS) -ggdb -DTARGET_RETROGAME -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT -DTARGET=$(TARGET) -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=3 -g3 -mhard-float -mips32 -mno-mips16 # -I$(CHAINPREFIX)/usr/include/ -I$(SYSROOT)/usr/include/  -I$(SYSROOT)/usr/include/SDL/
 CFLAGS += -std=c++11 -fdata-sections -ffunction-sections -fno-exceptions -fno-math-errno -fno-threadsafe-statics -Os -Wno-narrowing
+CFLAGS += -Isrc/libopk src/libopk/libopk.a
 # CXXFLAGS = $(CFLAGS)
-LDFLAGS = $(SDL_LIBS) -lSDL_image -lSDL_ttf # -lSDL -lSDL_gfx  -lfreetype
+LDFLAGS = -Wl,-Bstatic -Lsrc/libopk -l:libopk.a -Wl,-Bdynamic -lz
+LDFLAGS += $(SDL_LIBS) -lSDL_image -lSDL_ttf
 LDFLAGS +=-Wl,--as-needed -Wl,--gc-sections
+ # -lSDL -lSDL_gfx  -lfreetype
+
+export CROSS_COMPILE
 
 OBJDIR = /tmp/gmenu2x/$(TARGET)
 DISTDIR = dist/$(TARGET)/root/home/retrofw/apps/gmenu2x
@@ -39,20 +44,24 @@ $(OBJDIR)/src/%.o: src/%.cpp src/%.h src/hw/retrogame.cpp
 # 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
 # 	rm -f $@.$$$$
 
-all: dir shared
+all: dir libopk shared
 
 dir:
 	@mkdir -p $(OBJDIR)/src dist/$(TARGET)
 
+libopk:
+	make -C src/libopk
+
 debug: $(OBJS)
 	@echo "Linking gmenu2x-debug..."
-	$(CXX) -o $(APPNAME)-debug $(LDFLAGS) $(OBJS)
+	$(CXX) -o $(APPNAME)-debug $(OBJS) $(LDFLAGS)
 
 shared: debug
 	$(STRIP) $(APPNAME)-debug -o $(APPNAME)
 
 clean:
-	rm -rf $(OBJDIR) *.gcda *.gcno $(APPNAME) /tmp/.gmenu-ipk/ dist/$(TARGET)/root/home/retrofw/apps/gmenu2x/
+	make -C src/libopk clean
+	rm -rf $(OBJDIR) *.gcda *.gcno $(APPNAME) $(APPNAME)-debug /tmp/.gmenu-ipk/ dist/$(TARGET)/root/home/retrofw/apps/gmenu2x/
 
 dist: dir shared
 	install -m755 -D $(APPNAME) $(DISTDIR)/gmenu2x

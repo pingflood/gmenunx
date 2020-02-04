@@ -49,6 +49,13 @@ Surface::Surface() {
 	dblbuffer = NULL;
 }
 
+Surface::Surface(void *s, size_t &size) {
+	SDL_RWops *rw = SDL_RWFromMem(s, size);
+	SDL_Surface *_raw = IMG_Load_RW(rw, 1);
+	raw = SDL_DisplayFormatAlpha(_raw);
+	SDL_FreeSurface(_raw);
+}
+
 Surface::Surface(const string &img, bool alpha, const string &skin) {
 	raw = NULL;
 	dblbuffer = NULL;

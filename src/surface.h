@@ -25,6 +25,7 @@
 #include <SDL_image.h>
 
 using std::string;
+using std::istream;
 
 const int	HAlignLeft		= 1,
 			HAlignRight		= 2,
@@ -64,11 +65,12 @@ private:
 
 public:
 	Surface();
-	Surface(const string &img, const string &skin="", bool alpha=true);
-	Surface(const string &img, bool alpha, const string &skin="");
+	Surface(const string &img, const string &skin = "", bool alpha = true);
+	Surface(const string &img, bool alpha, const string &skin = "");
 	Surface(SDL_Surface *s, SDL_PixelFormat *fmt = NULL, uint32_t flags = 0);
 	Surface(Surface *s);
-	Surface(int w, int h, uint32_t flags = SDL_HWSURFACE|SDL_SRCALPHA);
+	Surface(int w, int h, uint32_t flags = SDL_HWSURFACE | SDL_SRCALPHA);
+	Surface(void *s, size_t &size);
 	~Surface();
 
 	void enableVirtualDoubleBuffer(SDL_Surface *surface);

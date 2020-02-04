@@ -106,6 +106,10 @@ uint8_t numJoy = 0; // number of connected joysticks
 	#include "hw/pc.cpp"
 #endif
 
+#if defined(OPK_SUPPORT)
+	#include <libopk.h>
+#endif
+
 const char *CARD_ROOT = getenv("HOME"); // Note: Add a trailing /!
 // const int CARD_ROOT_LEN = 1;
 
@@ -1595,18 +1599,47 @@ void GMenu2X::showManual() {
 	string linkIcon = menu->selLinkApp()->getIcon();
 	string linkManual = menu->selLinkApp()->getManualPath();
 	string linkBackdrop = confInt["skinBackdrops"] | BD_DIALOG ? menu->selLinkApp()->getBackdropPath() : "";
+	string linkExec = menu->selLinkApp()->getExec();
 
-	if (linkManual == "" || !file_exists(linkManual)) return;
+	if (linkManual == "") return;
 
-	string ext = linkManual.substr(linkManual.size() - 4, 4);
-	if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == "jpeg") {
-		ImageViewerDialog im(this, linkTitle, linkDescription, linkIcon, linkManual);
-		im.exec();
+	TextDialog td(this, linkTitle, linkDescription, linkIcon); //, linkBackdrop);
+
+	if (file_exists(linkManual)) {
+		string ext = linkManual.substr(linkManual.size() - 4, 4);
+		if (ext == ".png" || ext == ".bmp" || ext == ".jpg" || ext == "jpeg") {
+			ImageViewerDialog im(this, linkTitle, linkDescription, linkIcon, linkManual);
+			im.exec();
+			return;
+		}
+
+		td.appendFile(linkManual);
+#if defined(OPK_SUPPORT)
+	} else if (file_ext(linkExec, true) == ".opk") {
+		void *buf; size_t len;
+		struct OPK *opk = opk_open(linkExec.c_str());
+
+		if (!opk) {
+			ERROR("Unable to open OPK");
+			return;
+		}
+
+		if (opk_extract_file(opk, linkManual.c_str(), &buf, &len) < 0) {
+			ERROR("Unable to extract file: %s\n", linkManual.c_str());
+			return;
+		}
+
+		opk_close(opk);
+
+		char* str = strdup((const char*)buf);
+		str[len] = 0;
+
+		td.appendText(str);
+#endif // OPK_SUPPORT
+	} else {
 		return;
 	}
 
-	TextDialog td(this, linkTitle, linkDescription, linkIcon); //, linkBackdrop);
-	td.appendFile(linkManual);
 	td.exec();
 }
 
@@ -1636,7 +1669,7 @@ void GMenu2X::explorer() {
 			initMenu();
 #endif
 #if defined(OPK_SUPPORT)
-		} else if (ext == ".ipk" && file_exists("/usr/bin/retrofw")) {
+		} else if (ext == ".opk" && file_exists("/usr/bin/retrofw")) {
 			string cmd = "retrofw opk install";
 			TerminalDialog td(this, tr["Package installer"], "opk install " + bd.getFileName(bd.selected), "skin:icons/terminal.png");
 			td.exec(cmd + cmdclean(bd.getFilePath(bd.selected)));

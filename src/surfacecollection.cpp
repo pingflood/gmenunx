@@ -23,6 +23,10 @@
 #include "utilities.h"
 #include "debug.h"
 
+#if defined(OPK_SUPPORT)
+#include <libopk.h>
+#endif
+
 using std::endl;
 using std::string;
 
@@ -72,12 +76,37 @@ Surface *SurfaceCollection::add(string path, string key) {
 
 	Surface *s;
 
-	string filePath = path;
-	if (filePath.substr(0,5)=="skin:") {
-		filePath = getSkinFilePath(filePath.substr(5,filePath.length()));
-		if (filePath.empty())
+#if defined(OPK_SUPPORT)
+	int pos = path.find('#'); // search for "opkfile.opk#icon.png"
+	if (pos != path.npos) {
+		// DEBUG("OPK icon: %s", path.c_str());
+
+		void *buf; size_t len;
+		struct OPK *opk = opk_open(path.substr(0, pos).c_str());
+		if (!opk) {
+			ERROR("Unable to open OPK");
 			return NULL;
-	} else if (!file_exists(filePath)) return NULL;
+		}
+
+		if (opk_extract_file(opk, path.substr(pos + 1).c_str(), &buf, &len) < 0) {
+			ERROR("Unable to extract file: %s", path.substr(pos + 1).c_str());
+			return NULL;
+		}
+		opk_close(opk);
+
+		s = new Surface(buf, len);
+	} else
+#endif // OPK_SUPPORT
+	{
+		if (path.substr(0, 5) == "skin:") {
+			path = getSkinFilePath(path.substr(5, path.length()));
+			if (path.empty())
+				return NULL;
+		} else if (!file_exists(path)) return NULL;
+
+		DEBUG("Adding surface: '%s'", path.c_str());
+		s = new Surface(path, true);
+	}
 
 	if (s != NULL)
 		surfaces[key] = s;

@@ -31,12 +31,12 @@ using namespace std;
 
 extern char** environ;
 
-LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfile):
-	Link(gmenu2x_, MakeDelegate(this, &LinkApp::run)),
-	inputMgr(inputMgr_)
+LinkApp::LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* file):
+	Link(gmenu2x, MakeDelegate(this, &LinkApp::run)),
+	inputMgr(inputMgr)
 {
 	manual = manualPath = "";
-	file = linkfile;
+	this->file = file;
 	setCPU(gmenu2x->confInt["cpuMenu"]);
 
 #if defined(TARGET_GP2X)
@@ -59,7 +59,7 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 	backdrop = backdropPath = "";
 
 	string line;
-	ifstream infile (linkfile, ios_base::in);
+	ifstream infile(file, ios_base::in);
 	while (getline(infile, line, '\n')) {
 		line = trim(line);
 		if (line == "") continue;
@@ -69,10 +69,10 @@ LinkApp::LinkApp(GMenu2X *gmenu2x_, InputManager &inputMgr_, const char* linkfil
 		string name = trim(line.substr(0,position));
 		string value = trim(line.substr(position+1));
 
-		if (name == "title") title = value;
+		if (name == "exec") exec = value;
+		else if (name == "title") title = value;
 		else if (name == "description") description = value;
 		else if (name == "icon") setIcon(value);
-		else if (name == "exec") exec = value;
 		else if (name == "params") params = value;
 		else if (name == "workdir") workdir = value;
 		else if (name == "manual") setManual(value);
@@ -210,8 +210,8 @@ const string &LinkApp::searchIcon() {
 	else if (file_exists(execicon))
 		iconPath = execicon;
 #if defined(OPK_SUPPORT)
-	else if (file_ext(exec, true) == ".opk" && file_exists((string)getenv("HOME") + (string)"/.cache/" + sublinktitle))
-		iconPath = (string)getenv("HOME") + (string)"/.cache/" + sublinktitle;
+	else if (file_ext(exec, true) == ".opk")
+		iconPath = exec + "#" + icon;
 #endif
 	else
 		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
@@ -413,9 +413,9 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 		environ[4] = NULL;
 	}
 
-	gmenu2x->quit();
-
 	command = "exec " + command;
+
+	gmenu2x->quit();
 	execle("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL, environ);
 	// execlp("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 
@@ -423,7 +423,6 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	//try relaunching gmenu2x
 	chdir(gmenu2x->getExePath().c_str());
 	execlp("./gmenu2x", "./gmenu2x", NULL);
-	chdir(gmenu2x->getExePath().c_str());
 }
 
 const string &LinkApp::getExec() {
@@ -536,10 +535,8 @@ const string &LinkApp::getAliasFile() {
 }
 
 void LinkApp::setAliasFile(const string &aliasfile) {
-	if (aliasfile == "" || file_exists(aliasfile)) {
-		this->aliasfile = aliasfile;
-		edited = true;
-	}
+	this->aliasfile = aliasfile;
+	edited = true;
 }
 
 void LinkApp::renameFile(const string &name) {

@@ -39,10 +39,10 @@ private:
 	InputManager &inputMgr;
 	int iclock = 0, selectorelement = 0, scalemode, _scalemode = 0; //, ivolume = 0;
 	bool selectorbrowser;
-	string exec, params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, aliasfile, file; //, backdrop, backdropPath, resolution;
+	string params, workdir, manual, manualPath, selectordir, selectorfilter, selectorscreens, aliasfile, file; //, backdrop, backdropPath, resolution;
 
 public:
-	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* linkfile);
+	LinkApp(GMenu2X *gmenu2x, InputManager &inputMgr, const char* file);
 	const string &getExec();
 	void setExec(const string &exec);
 	const string &getParams();
