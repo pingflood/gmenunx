@@ -32,8 +32,8 @@ MenuSettingString::MenuSettingString(
 	, dialogTitle(dialogTitle)
 	, dialogIcon(dialogIcon)
 {
-	btn = new IconButton(gmenu2x, "select", gmenu2x->tr["Clear"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingString::clear));
+	btn = new IconButton(gmenu2x, "select", gmenu2x->tr["Reset"]);
+	// btn->setAction(MakeDelegate(this, &MenuSettingString::clear));
 	buttonBox.add(btn);
 
 	btn = new IconButton(gmenu2x, "a", gmenu2x->tr["Edit"]);

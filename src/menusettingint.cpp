@@ -39,19 +39,15 @@ MenuSettingInt::MenuSettingInt(GMenu2X *gmenu2x, const string &title, const stri
 	setValue(evalIntConf(value, def, min, max));
 
 	//Delegates
-	ButtonAction actionInc = MakeDelegate(this, &MenuSettingInt::inc);
-	ButtonAction actionDec = MakeDelegate(this, &MenuSettingInt::dec);
+	// ButtonAction actionInc = MakeDelegate(this, &MenuSettingInt::inc);
+	// ButtonAction actionDec = MakeDelegate(this, &MenuSettingInt::dec);
 
-	btn = new IconButton(gmenu2x, "select", gmenu2x->tr["Default"]);
-	btn->setAction(MakeDelegate(this, &MenuSettingInt::setDefault));
+	btn = new IconButton(gmenu2x, "select", gmenu2x->tr["Reset"]);
+	// btn->setAction(MakeDelegate(this, &MenuSettingInt::setDefault));
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "left");
-	btn->setAction(actionDec);
-	buttonBox.add(btn);
-
-	btn = new IconButton(gmenu2x, "right", gmenu2x->tr["Change"]);
-	btn->setAction(actionInc);
+	btn = new IconButton(gmenu2x, "dpad", gmenu2x->tr["Change"]);
+	// btn->setAction(actionInc);
 	buttonBox.add(btn);
 }
 

@@ -36,19 +36,19 @@ MenuSettingRGBA::MenuSettingRGBA(GMenu2X *gmenu2x, const string &title, const st
 	this->setB(this->value().b);
 	this->setA(this->value().a);
 
-	btn = new IconButton(gmenu2x, "left");
-	btn->setAction(MakeDelegate(this, &MenuSettingRGBA::leftComponent));
-	buttonBox.add(btn);
+	// btn = new IconButton(gmenu2x, "left");
+	// btn->setAction(MakeDelegate(this, &MenuSettingRGBA::leftComponent));
+	// buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "right", gmenu2x->tr["Component"]);
+	btn = new IconButton(gmenu2x, "dpad", gmenu2x->tr["Component"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingRGBA::rightComponent));
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "y", gmenu2x->tr["Decrease"]);
+	btn = new IconButton(gmenu2x, "y", gmenu2x->tr["-"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingRGBA::dec));
 	buttonBox.add(btn);
 
-	btn = new IconButton(gmenu2x, "x", gmenu2x->tr["Increase"]);
+	btn = new IconButton(gmenu2x, "x", gmenu2x->tr["+"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingRGBA::inc));
 	buttonBox.add(btn);
 }

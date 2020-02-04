@@ -36,7 +36,7 @@ MenuSettingDir::MenuSettingDir(GMenu2X *gmenu2x, const string &title, const stri
 	if (dialogIcon.empty()) this->dialogIcon = "icons/explorer.png";
 	if (startPath.empty()) this->startPath = CARD_ROOT;
 
-	btn = new IconButton(gmenu2x, "select", gmenu2x->tr["Clear"]);
+	btn = new IconButton(gmenu2x, "select", gmenu2x->tr["Reset"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingDir::clear));
 	buttonBox.add(btn);
 

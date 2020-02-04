@@ -31,7 +31,7 @@ MenuSettingFile::MenuSettingFile(GMenu2X *gmenu2x, const string &title, const st
 	filter(filter), startPath(startPath),
 	dialogTitle(dialogTitle), dialogIcon(dialogIcon)
 {
-	btn = new IconButton(gmenu2x, "select", gmenu2x->tr["Clear"]);
+	btn = new IconButton(gmenu2x, "select", gmenu2x->tr["Reset"]);
 	btn->setAction(MakeDelegate(this, &MenuSettingFile::clear));
 	buttonBox.add(btn);
 
