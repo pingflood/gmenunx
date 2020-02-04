@@ -245,7 +245,6 @@ bool LinkApp::targetExists() {
 #if defined(TARGET_PC)
 	return true; //For displaying elements during testing on pc
 #endif
-
 	string target = exec;
 	if (!exec.empty() && exec[0] != '/' && !workdir.empty())
 		target = workdir + "/" + exec;

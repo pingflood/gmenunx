@@ -1,0 +1,105 @@
+GMenu2X is developed by Massimiliano "Ryo" Torromeo, and is released under the GPL-v2 license.
+Website: http://mtorromeo.github.com/gmenu2x
+E-Mail & PayPal account: massimiliano.torromeo@gmail.com
+
+Controls
+----
+* A: Accept / Launch selected link / Confirm action;
+* B: Back / Cancel action
+* X: Goes up one directory in file browser;
+* Y: Bring up the manual/readme;
+* L, R: Switch between sections / PageUp/PageDown on lists;
+* START: GMenuNX settings;
+* SELECT: Bring up the contextual menu;
+* SELECT + L: Volume control;
+* SELECT + R, BRIGHTNESS: Change screen brightness;
+* SELECT + START: Take a screenshot;
+* POWER: Toggle Suspend mode;
+* POWER/START (hold): Bring up Poweroff dialog.
+* TV-Out: If the device supports, (dis)connect the TV-out jack to toggle TV-out signal.
+
+In settings:
+
+* A, LEFT, RIGHT: Accept, select or toggle setting;
+* B: Back or cancel edits and return;
+* START: Save edits and return;
+* SELECT: Clear or set default value.
+
+
+Safe mode
+----
+To reset GMenuNX to default settings, hold START during initialization.
+
+
+How to have previews in Selector Browser
+----
+* Select the link you want to edit and press "menu";
+* Edit the link;
+* Configure the link to match your directory structure. Important fields:
+	* Selector Directory: The directory of your roms
+	* Selector Browser: Enable selector before launching the app
+	* Selector Filter: Filter extensions to be shown in the selector. Separe multiple extensions with commas.
+	* Selector Screenshots: The directory of the screenshots/preview of your roms. It can be different than your roms directory.
+* The name of the file of rom and preview have to be exactly the same. Suported image types are .png or .jpg;
+
+
+Thanks goes to...
+
+Contributors
+----
+NoidZ for his gp2x' buttons graphics
+Pickle for the initial Wiz and Caanoo ports
+Steward-Fu for the initial RetroGame ports
+TonyJih for the new RetroFW features
+Fontes for the RetroFW graphics
+
+Beta testers
+----
+Goemon4, PokeParadox, PSyMastR and Tripmonkey_uk (GP2X)
+Yann Vaillant (WIZ)
+msx, jbanes, jutley and scooterpsu (RetroFW)
+
+Translators
+----
+English & Italian by Massimiliano
+French by Yodaz
+Danish by claus
+Dutch by superfly
+Spanish by pedator
+Portuguese (Portugal) by NightShadow
+Portuguese (Brazil) by pingflood
+Slovak by Jozef
+Swedish by Esslan and Micket
+German by fusion_power, johnnysnet and Waldteufel
+Finnish by Jontte and Atte
+Norwegian by cowai
+Russian by XaMMaX90
+Chinese (CN) by KungfuPanda & simpleasy
+Chinese (TW) by TonyJih
+Korean by haven-jeon
+Polish by Macmmm81
+
+Donors
+----
+EvilDragon (www.gp2x.de)
+Tecnologie Creative (www.tecnologiecreative.it)
+TelcoLou
+gaterooze
+deepmenace
+superfly
+halo9
+sbock
+b._.o._.b
+Jacopastorius
+lorystorm90
+
+http://funnyplaying.com,
+https://droidbox.co.uk,
+https://bittboy.com,
+for giving a discount coupon and development units
+
+Wentao for giving hardware mod support:
+https://www.youtube.com/channel/UCeGZpAGYSiCGz6x4OX5MSEw
+
+and all the anonymous donors...
+(If I missed to list you or if you want to be removed, contact me.)

@@ -1,0 +1,61 @@
+TARGET=pc
+
+BUILDTIME	:=$(shell date +%s)
+
+# CHAINPREFIX := /opt/mipsel-linux-uclibc
+# CROSS_COMPILE := $(CHAINPREFIX)/usr/bin/mipsel-linux-
+
+CC			:= $(CROSS_COMPILE)gcc
+CXX			:= $(CROSS_COMPILE)g++
+STRIP		:= $(CROSS_COMPILE)strip
+
+SYSROOT     := $(shell $(CC) --print-sysroot)
+SDL_CFLAGS  := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
+SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
+
+CFLAGS = $(SDL_CFLAGS) -DTARGET_PC -DTARGET=$(TARGET) -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=4 -Wundef -Wno-deprecated -Wno-unknown-pragmas -Wno-format -pg -O0 -g -ggdb  -Wno-narrowing
+# CXXFLAGS = $(CFLAGS)
+LDFLAGS = $(SDL_LIBS) -lSDL_image -lSDL_ttf #-ljpeg -lpng12 -lz -lfreetype  -lSDL_gfx -L"/usr/lib"
+
+OBJDIR = /tmp/gmenu2x/$(TARGET)
+DISTDIR = dist/$(TARGET)/gmenu2x
+APPNAME = dist/$(TARGET)/gmenu2x
+
+SOURCES := $(wildcard src/*.cpp)
+OBJS := $(patsubst src/%.cpp, $(OBJDIR)/src/%.o, $(SOURCES))
+
+# File types rules
+$(OBJDIR)/src/%.o: src/%.cpp src/%.h
+	$(CXX) $(CFLAGS) -o $@ -c $<
+
+-include $(patsubst src/%.cpp, $(OBJDIR)/src/%.d, $(SOURCES))
+
+# $(OBJDIR)/src/%.d: src/%.cpp
+# 	@if [ ! -d $(OBJDIR)/src ]; then mkdir -p $(OBJDIR)/src; fi
+# 	$(CXX) -M $(CXXFLAGS) $< > $@.$$$$; \
+# 	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+# 	rm -f $@.$$$$
+
+all: dir shared
+
+dir:
+	@mkdir -p $(OBJDIR)/src dist/$(TARGET)
+
+debug: $(OBJS)
+	@echo "Linking gmenu2x-debug..."
+	$(CXX) -o $(APPNAME)-debug $(LDFLAGS) $(OBJS)
+
+shared: debug
+	$(STRIP) $(APPNAME)-debug -o $(APPNAME)
+
+clean:
+	rm -rf $(OBJDIR) $(DISTDIR) *.gcda *.gcno $(APPNAME)
+
+# dist: dir shared
+# 	install -m755 -D $(APPNAME)-debug $(DISTDIR)/gmenu2x
+# 	install -m644 assets/$(TARGET)/input.conf $(DISTDIR)
+# 	install -m755 -d $(DISTDIR)/sections/applications $(DISTDIR)/sections/emulators $(DISTDIR)/sections/games $(DISTDIR)/sections/settings
+# 	install -m644 -D README.md $(DISTDIR)/README.txt
+# 	install -m644 -D COPYING $(DISTDIR)/COPYING
+# 	install -m644 -D ChangeLog $(DISTDIR)/ChangeLog
+# 	cp -R assets/skins assets/translations $(DISTDIR)

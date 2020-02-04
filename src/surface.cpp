@@ -123,8 +123,8 @@ void Surface::enableAlpha() {
 }
 
 void Surface::free() {
-	SDL_FreeSurface( raw );
-	SDL_FreeSurface( dblbuffer );
+	SDL_FreeSurface(raw);
+	SDL_FreeSurface(dblbuffer);
 	raw = NULL;
 	dblbuffer = NULL;
 }
@@ -174,8 +174,8 @@ void Surface::load(const string &img, bool alpha, const string &skin) {
 }
 
 void Surface::lock() {
-	if ( SDL_MUSTLOCK(raw) && !locked ) {
-		if ( SDL_LockSurface(raw) < 0 ) {
+	if (SDL_MUSTLOCK(raw) && !locked) {
+		if (SDL_LockSurface(raw) < 0) {
 			ERROR("Can't lock surface: '%s'", SDL_GetError());
 			SDL_Quit();
 		}
@@ -184,7 +184,7 @@ void Surface::lock() {
 }
 
 void Surface::unlock() {
-	if ( SDL_MUSTLOCK(raw) && locked ) {
+	if (SDL_MUSTLOCK(raw) && locked) {
 		SDL_UnlockSurface(raw);
 		locked = false;
 	}
@@ -209,28 +209,28 @@ void Surface::putPixel(int x, int y, uint32_t color) {
 	//offset by y
 	pPosition += (raw->pitch * y);
 	//offset by x
-	pPosition += ( raw->format->BytesPerPixel * x ) ;
+	pPosition += (raw->format->BytesPerPixel * x);
 	//copy pixel data
-	memcpy ( pPosition , &color , raw->format->BytesPerPixel ) ;
+	memcpy(pPosition, &color, raw->format->BytesPerPixel);
 }
 
 RGBAColor Surface::pixelColor(int x, int y) {
 	RGBAColor color;
 	uint32_t col = pixel(x,y);
-	SDL_GetRGBA( col, raw->format, &color.r, &color.g, &color.b, &color.a );
+	SDL_GetRGBA(col, raw->format, &color.r, &color.g, &color.b, &color.a);
 	return color;
 }
 
 uint32_t Surface::pixel(int x, int y) {
 	//determine position
-	char* pPosition = ( char* ) raw->pixels ;
+	char* pPosition = (char*) raw->pixels;
 	//offset by y
-	pPosition += ( raw->pitch * y ) ;
+	pPosition += (raw->pitch * y);
 	//offset by x
-	pPosition += ( raw->format->BytesPerPixel * x ) ;
+	pPosition += (raw->format->BytesPerPixel * x);
 	//copy pixel data
 	uint32_t col = 0;
-	memcpy ( &col , pPosition , raw->format->BytesPerPixel ) ;
+	memcpy(&col, pPosition, raw->format->BytesPerPixel);
 	return col;
 }
 

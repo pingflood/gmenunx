@@ -2298,7 +2298,7 @@ void GMenu2X::drawSlider(int val, int min, int max, Surface &icon, Surface &bg) 
 
 	bg.blit(s,0,0);
 	s->box(box, skinConfColors[COLOR_MESSAGE_BOX_BG]);
-	s->rectangle(box.x+2, box.y+2, box.w-4, box.h-4, skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
+	s->rectangle(box.x + 2, box.y + 2, box.w - 4, box.h - 4, skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
 
 	icon.blit(s, 28, 28);
 

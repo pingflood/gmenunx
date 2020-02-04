@@ -77,7 +77,7 @@ public:
 	SDL_Surface *raw, *screen;
 
 	void free();
-	void load(const string &img, bool alpha=true, const string &skin="");
+	void load(const string &img, bool alpha = true, string skin = "");
 	void lock();
 	void unlock();
 	void flip();

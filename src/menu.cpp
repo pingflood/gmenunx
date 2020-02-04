@@ -124,11 +124,13 @@ void Menu::freeLinks() {
 }
 
 linklist *Menu::sectionLinks(int i) {
-	if (i < 0 || i > (int)links.size())
+	if (i < 0 || i > (int)links.size()) {
 		i = selSectionIndex();
+	}
 
-	if (i < 0 || i > (int)links.size())
+	if (i < 0 || i > (int)links.size()) {
 		return NULL;
+	}
 
 	return &links[i];
 }
@@ -195,7 +197,10 @@ void Menu::setSectionIndex(int i) {
 }
 
 string Menu::sectionPath(int section) {
-	if (section < 0 || section > (int)sections.size()) section = iSection;
+	if (section < 0 || section > (int)sections.size()) {
+		section = iSection;
+	}
+
 	return "sections/" + sections[section] + "/";
 }
 
@@ -409,7 +414,10 @@ int Menu::selLinkIndex() {
 }
 
 Link *Menu::selLink() {
-	if (sectionLinks()->size() == 0) return NULL;
+	if (sectionLinks()->size() == 0) {
+		return NULL;
+	}
+
 	return sectionLinks()->at(iLink);
 }
 

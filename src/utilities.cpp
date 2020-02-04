@@ -78,23 +78,23 @@ bool rmtree(string path) {
 	DEBUG("RMTREE: '%s'", path.c_str());
 
 	if ((dirp = opendir(path.c_str())) == NULL) return false;
-	if (path[path.length()-1]!='/') path += "/";
+	if (path[path.length() - 1] != '/') path += "/";
 
 	while ((dptr = readdir(dirp))) {
 		filepath = dptr->d_name;
-		if (filepath=="." || filepath=="..") continue;
-		filepath = path+filepath;
+		if (filepath == "." || filepath == "..") continue;
+		filepath = path + filepath;
 		int statRet = stat(filepath.c_str(), &st);
 		if (statRet == -1) continue;
 		if (S_ISDIR(st.st_mode)) {
 			if (!rmtree(filepath)) return false;
 		} else {
-			if (unlink(filepath.c_str())!=0) return false;
+			if (unlink(filepath.c_str()) != 0) return false;
 		}
 	}
 
 	closedir(dirp);
-	return rmdir(path.c_str())==0;
+	return rmdir(path.c_str()) == 0;
 }
 
 int max(int a, int b) {
@@ -154,13 +154,15 @@ bool split(vector<string> &vec, const string &str, const string &delim, bool des
 			break;
 		}
 
-		if (!destructive)
+		if (!destructive) {
 			j += delim.size();
+		}
 
 		vec.push_back(str.substr(i,j-i));
 
-		if (destructive)
+		if (destructive) {
 			i = j + delim.size();
+		}
 
 		if (i == str.size()) {
 			vec.push_back(std::string());
@@ -202,7 +204,7 @@ string exec(const char* cmd) {
 	char buffer[128];
 	string result = "";
 	while (!feof(pipe)) {
-		if(fgets(buffer, 128, pipe) != NULL)
+		if (fgets(buffer, 128, pipe) != NULL)
 			result += buffer;
 	}
 	pclose(pipe);
