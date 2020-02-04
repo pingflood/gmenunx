@@ -49,7 +49,7 @@ int TerminalDialog::drawText(vector<string> *text, int32_t firstCol, uint32_t fi
 void TerminalDialog::exec(const string &_cmd) {
 	string cmd;
 	bool close = false, inputAction = false;
-	int32_t firstCol = 0, maxLine = 0;
+	int32_t firstCol = 0, lineWidth = 0;
 	uint32_t firstRow = 0, rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 
 	drawTopBar(this->bg, title, description);
@@ -98,10 +98,11 @@ void TerminalDialog::exec(const string &_cmd) {
 				}
 				InputManager::pushEvent(NUM_ACTIONS);
 				split(text, rawText, "\r\n");
+				firstRow = text.size();
 			}
 
 			this->bg->blit(gmenu2x->s,0,0);
-			maxLine = drawText(&text, firstCol, firstRow, rowsPerPage);
+			lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
 			gmenu2x->s->flip();
 
 			inputAction = gmenu2x->input.update();
@@ -111,7 +112,7 @@ void TerminalDialog::exec(const string &_cmd) {
 			if ( gmenu2x->input[UP] && firstRow > 0 ) firstRow--;
 			else if ( gmenu2x->input[DOWN] && firstRow + rowsPerPage < text.size() ) firstRow++;
 			else if ( gmenu2x->input[RIGHT] ) {
-				if (firstCol > -1 * (maxLine - gmenu2x->listRect.w) - 10)
+				if (firstCol > -1 * (lineWidth - gmenu2x->listRect.w) - 10)
 					firstCol -= 30;
 			}
 			else if ( gmenu2x->input[LEFT] ) {
