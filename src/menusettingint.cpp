@@ -93,12 +93,12 @@ int MenuSettingInt::value() {
 	return *_value;
 }
 
-void MenuSettingInt::adjustInput() {
-	gmenu2x->input.setInterval(100, LEFT);
-	gmenu2x->input.setInterval(100, RIGHT);
-	gmenu2x->input.setInterval(100, DEC);
-	gmenu2x->input.setInterval(100, INC);
-}
+// void MenuSettingInt::adjustInput() {
+// 	gmenu2x->input.setInterval(100, LEFT);
+// 	gmenu2x->input.setInterval(100, RIGHT);
+// 	gmenu2x->input.setInterval(100, DEC);
+// 	gmenu2x->input.setInterval(100, INC);
+// }
 
 bool MenuSettingInt::edited() {
 	return originalValue != value();

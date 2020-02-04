@@ -159,10 +159,10 @@ unsigned short int MenuSettingDateTime::getSelPart() {
 	}
 }
 
-void MenuSettingDateTime::adjustInput() {
-	gmenu2x->input.setInterval(200, INC );
-	gmenu2x->input.setInterval(200, DEC );
-}
+// void MenuSettingDateTime::adjustInput() {
+// 	gmenu2x->input.setInterval(200, INC );
+// 	gmenu2x->input.setInterval(200, DEC );
+// }
 
 void MenuSettingDateTime::drawSelected(int y) {
 	int x = 155, w = 40;
