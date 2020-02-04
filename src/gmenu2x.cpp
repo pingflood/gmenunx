@@ -1724,33 +1724,12 @@ uint32_t GMenu2X::hwCheck(unsigned int interval = 0, void *param = NULL) {
 			tvOutPrev = tvOutStatus;
 			InputManager::pushEvent(tvOutStatus);
 		}
-		// 	if (tvOutStatus) {
-		// 		MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
-		// 		mb.setButton(CONFIRM, tr["NTSC"]);
-		// 		mb.setButton(MANUAL,  tr["PAL"]);
-		// 		mb.setButton(CANCEL,  tr["OFF"]);
-		// 		int op = mb.exec();
-		// 		switch (op) {
-		// 		    case CONFIRM:
-		// 	    		TVOut = TV_NTSC;
-		// 				setTVOut(TVOut);
-		// 				setBacklight(0);
-		// 				return;
-		// 				break;
-		// 		    case MANUAL:
-		// 		    	TVOut = TV_PAL;
-		// 				setTVOut(TVOut);
-		// 				setBacklight(0);
-		// 				return;
-		// 				break;
-		// 		    default:
-		// 		    	TVOut = TV_OFF;
-		// 				setTVOut(TVOut);
-		// 				setBacklight(confInt["backlight"]);
-		// 				break;
-		// 		}
-		// 	}
-		// }
+
+		volumeMode = getVolumeMode(1);
+		if (volumeModePrev != volumeMode) {
+			volumeModePrev = volumeMode;
+			InputManager::pushEvent(PHONES_CONNECT);
+		}
 
 		// volumeMode = getVolumeMode(confInt["globalVolume"]);
 		// if (volumeModePrev != volumeMode && volumeMode == VOLUME_MODE_PHONES) {
