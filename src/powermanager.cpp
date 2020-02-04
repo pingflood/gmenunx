@@ -68,6 +68,7 @@ Uint32 PowerManager::doSuspend(unsigned int interval, void *param) {
 	PowerManager::instance->gmenu2x->setBacklight(max(10, PowerManager::instance->gmenu2x->confInt["backlight"]));
 	PowerManager::instance->suspendActive = false;
 	PowerManager::instance->resetSuspendTimer();
+	return interval;
 };
 
 Uint32 PowerManager::doPowerOff(unsigned int interval, void *param) {
@@ -78,33 +79,6 @@ Uint32 PowerManager::doPowerOff(unsigned int interval, void *param) {
 		return interval;
 	}
 
-	MessageBox mb(PowerManager::instance->gmenu2x, PowerManager::instance->gmenu2x->tr["Poweroff or reboot the device?"], "skin:icons/exit.png");
-	mb.setButton(SECTION_NEXT, PowerManager::instance->gmenu2x->tr["Reboot"]);
-	mb.setButton(CONFIRM, PowerManager::instance->gmenu2x->tr["Poweroff"]);
-	mb.setButton(CANCEL,  PowerManager::instance->gmenu2x->tr["Cancel"]);
-	int response = mb.exec();
-	if (response == CONFIRM) {
-		MessageBox mb(PowerManager::instance->gmenu2x, PowerManager::instance->gmenu2x->tr["Poweroff"]);
-		mb.setAutoHide(500);
-		mb.exec();
-		// setSuspend(true);
-		// SDL_Delay(500);
-
-#if !defined(TARGET_PC)
-		PowerManager::instance->gmenu2x->setBacklight(0);
-		system("poweroff");
-#endif
-	}
-	else if (response == SECTION_NEXT) {
-		MessageBox mb(PowerManager::instance->gmenu2x, PowerManager::instance->gmenu2x->tr["Rebooting"]);
-		mb.setAutoHide(500);
-		mb.exec();
-		// setSuspend(true);
-		// SDL_Delay(500);
-
-#if !defined(TARGET_PC)
-		PowerManager::instance->gmenu2x->setBacklight(0);
-		system("reboot");
-#endif
-	}
+	PowerManager::instance->gmenu2x->poweroffDialog();
+	return 0;
 };
