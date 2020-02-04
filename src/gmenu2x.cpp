@@ -177,20 +177,20 @@ int memdev = 0;
 	volatile uint16_t *memregs;
 #endif
 
-int16_t mmcStatus, mmcPrev;
-int16_t getMMCStatus() {
+uint8_t mmcStatus, mmcPrev;
+uint8_t getMMCStatus() {
 	if (memdev > 0 && !(memregs[0x10500 >> 2] >> 0 & 0b1)) return MMC_INSERT;
 	return MMC_REMOVE;
 }
 
-int16_t udcPrev = false, udcStatus = false; //udcConnectedOnBoot;
-int16_t getUDCStatus() {
+uint8_t udcPrev = false, udcStatus = false; //udcConnectedOnBoot;
+uint8_t getUDCStatus() {
 	if (memdev > 0 && (memregs[0x10300 >> 2] >> 7 & 0b1)) return UDC_CONNECT;
 	return UDC_REMOVE;
 }
 
-int16_t tvOutPrev = false, tvOutStatus;
-bool getTVOutStatus() {
+uint8_t tvOutPrev = TV_REMOVE, tvOutStatus;
+uint8_t getTVOutStatus() {
 	if (memdev > 0 && !(memregs[0x10300 >> 2] >> 25 & 0b1)) return TV_CONNECT;
 	return TV_REMOVE;
 
@@ -202,7 +202,7 @@ bool getTVOutStatus() {
 enum vol_mode_t {
 	VOLUME_MODE_MUTE, VOLUME_MODE_PHONES, VOLUME_MODE_NORMAL
 };
-int16_t volumeModePrev, volumeMode;
+uint8_t volumeModePrev, volumeMode;
 uint8_t getVolumeMode(uint8_t vol) {
 	if (!vol) return VOLUME_MODE_MUTE;
 	else if (memdev > 0 && !(memregs[0x10300 >> 2] >> 6 & 0b1)) return VOLUME_MODE_PHONES;
