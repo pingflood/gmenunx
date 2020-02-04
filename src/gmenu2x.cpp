@@ -744,6 +744,14 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	} else if ( input[TV_CONNECT] ) {
 		tvOutDialog();
 		return true;
+	} else if ( input[TV_REMOVE] ) {
+		tvOutDialog(TV_OFF);
+		return true;
+	// } else if ( input[PHONES_CONNECT] ) {
+	// 	// tvOutDialog(TV_OFF);
+	// 	WARNING("volume mode changed");
+	// 	return true;
+
 #endif
 	}
 
@@ -1876,28 +1884,23 @@ void GMenu2X::umountSdDialog() {
 	bd.exec();
 }
 #if defined(TARGET_RETROGAME)
-void GMenu2X::tvOutDialog() {
-	MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
-	mb.setButton(CONFIRM, tr["NTSC"]);
-	mb.setButton(MANUAL,  tr["PAL"]);
-	mb.setButton(CANCEL,  tr["OFF"]);
-	int op = mb.exec();
-	switch (op) {
-		case CONFIRM:
-			TVOut = TV_NTSC;
-			setTVOut(TVOut);
+void GMenu2X::tvOutDialog(int TVOut) {
+	if (TVOut < 0){
+		MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
+		mb.setButton(TV_NTSC, tr["NTSC"]);
+		mb.setButton(TV_PAL,  tr["PAL"]);
+		mb.setButton(TV_OFF,  tr["OFF"]);
+		TVOut = mb.exec();
+	}
+
+	setTVOut(TVOut);
+
+	switch (TVOut) {
+		case TV_NTSC:
+		case TV_PAL:
 			setBacklight(0);
 			return;
-			break;
-		case MANUAL:
-			TVOut = TV_PAL;
-			setTVOut(TVOut);
-			setBacklight(0);
-			return;
-			break;
 		default:
-			TVOut = TV_OFF;
-			setTVOut(TVOut);
 			setBacklight(confInt["backlight"]);
 			break;
 	}

@@ -76,9 +76,9 @@ enum sb {
 };
 
 enum tvout {
-	TV_OFF,
-	TV_PAL,
-	TV_NTSC,
+	TV_OFF  = CANCEL,
+	TV_PAL  = MANUAL,
+	TV_NTSC = CONFIRM,
 };
 
 
@@ -161,7 +161,7 @@ private:
 #elif defined(TARGET_RETROGAME)
 	void formatSd();
 	void udcDialog();
-	void tvOutDialog();
+	void tvOutDialog(int TVOut = -1);
 #endif
 	void umountSdDialog();
 	void umountSd(bool ext);
