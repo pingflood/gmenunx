@@ -468,7 +468,7 @@ void GMenu2X::main() {
 
 					// s->setClipRect({ix, iy, linkWidth, linkHeight});
 					if (i == (uint32_t)menu->selLinkIndex()) {
-						if (iconBGon != NULL) iconBGon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
+						if (iconBGon != NULL) iconBGon->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle, 50);
 						else s->box(ix + (linkWidth - icon->width()) / 2 - 4, iy + (linkHeight - icon->height()) / 2 - 4, icon->width() + 8, icon->height() + 8, skinConfColors[COLOR_SELECTION_BG]);
 						// s->box(ix, iy, linkWidth, linkHeight, skinConfColors[COLOR_SELECTION_BG]);
 					} else if (iconBGoff != NULL) iconBGoff->blit(s, {ix + iconPadding/2, iy + iconPadding/2, linkWidth - iconPadding, linkHeight - iconPadding}, HAlignCenter | VAlignMiddle);
