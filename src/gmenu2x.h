@@ -21,9 +21,12 @@
 #ifndef GMENU2X_H
 #define GMENU2X_H
 
-// #include "powermanager.h"
 class PowerManager;
 
+#include <iostream>
+#include <string>
+#include <vector>
+#include <tr1/unordered_map>
 
 #include "surfacecollection.h"
 #include "iconbutton.h"
@@ -35,11 +38,6 @@ class PowerManager;
 #include "surface.h"
 #include "fonthelper.h"
 
-
-#include <iostream>
-#include <string>
-#include <vector>
-#include <tr1/unordered_map>
 
 const int MAX_VOLUME_SCALE_FACTOR = 200;
 // Default values - going to add settings adjustment, saving, loading and such
@@ -121,9 +119,6 @@ class GMenu2X {
 private:
 	int getBacklight();
 	int getVolume();
-
-	void setSuspend(bool suspend);
-	bool suspendActive = false;
 
 	string path; //!< Contains the working directory of GMenu2X
 	/*!

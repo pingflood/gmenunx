@@ -1,6 +1,6 @@
 #include "powermanager.h"
 #include "messagebox.h"
-#include "debug.h"
+// #include "debug.h"
 
 PowerManager *PowerManager::instance = NULL;
 
@@ -14,7 +14,6 @@ PowerManager::PowerManager(GMenu2X *gmenu2x, unsigned int suspendTimeout, unsign
 	this->powerTimer = NULL;
 
 	resetSuspendTimer();
-	// resetPowerTimeout(powerTimeout);
 }
 
 PowerManager::~PowerManager() {
@@ -33,13 +32,10 @@ void PowerManager::setPowerTimeout(unsigned int powerTimeout) {
 };
 
 void PowerManager::clearTimer() {
-	ERROR("clearTimer");
-	if (powerTimer != NULL) SDL_RemoveTimer(powerTimer);
-	powerTimer = NULL;
+	SDL_RemoveTimer(powerTimer); powerTimer = NULL;
 };
 
 void PowerManager::resetSuspendTimer() {
-	ERROR("resetSuspendTimer");
 	clearTimer();
 	powerTimer = SDL_AddTimer(this->suspendTimeout * 1e3, doSuspend, NULL);
 };

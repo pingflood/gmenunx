@@ -16,9 +16,6 @@ FontHelper::~FontHelper() {
 }
 
 void FontHelper::loadFont(const string &fontName, int fontSize, RGBAColor textColor, RGBAColor outlineColor) {
-	// if (this->font != NULL) TTF_CloseFont(this->font);
-	// if (this->fontOutline != NULL) TTF_CloseFont(this->fontOutline);
-
 	if (!TTF_WasInit()) {
 		DEBUG("Initializing font");
 		if (TTF_Init() == -1) {
@@ -47,7 +44,7 @@ void FontHelper::loadFont(const string &fontName, int fontSize, RGBAColor textCo
 
 
 bool FontHelper::utf8Code(unsigned char c) {
-	return (c>=194 && c<=198) || c==208 || c==209;
+	return (c >= 194 && c <= 198) || c == 208 || c == 209;
 }
 
 FontHelper *FontHelper::setSize(const int size) {
@@ -84,14 +81,14 @@ void FontHelper::write(SDL_Surface *s, const string &text, int x, int y, RGBACol
 
 	// Modify alpha channel of outline and text and merge them in the process
 	RGBAColor fgcol, bgcol;
-	for (int iy=0; iy<bg.raw->h; iy++)
-		for (int ix=0; ix<bg.raw->w; ix++) {
+	for (int iy = 0; iy < bg.raw->h; iy++)
+		for (int ix = 0; ix < bg.raw->w; ix++) {
 			bgcol = bg.pixelColor(ix, iy);
 			if (bgcol.a != 0) {
 				bgcol.a = bgcol.a * bgColor.a / 255;
 			}
-			if (ix > 0 && ix-1 < fg.raw->w && iy > 0 && iy-1 < fg.raw->h) {
-				fgcol = fg.pixelColor(ix-1, iy-1);
+			if (ix > 0 && ix - 1 < fg.raw->w && iy > 0 && iy - 1 < fg.raw->h) {
+				fgcol = fg.pixelColor(ix - 1, iy - 1);
 				if (fgcol.a > 50) {
 					bgcol = fgcol;
 					bgcol.a = bgcol.a * fgColor.a / 255;
@@ -178,7 +175,7 @@ uint FontHelper::getLineWidth(const string& text) {
 }
 
 uint FontHelper::getTextWidth(const string& text) {
-	if (text.find("\n",0)!=string::npos) {
+	if (text.find("\n",0) != string::npos) {
 		vector<string> textArr;
 		split(textArr,text,"\n");
 		return getTextWidth(&textArr);
@@ -188,7 +185,7 @@ uint FontHelper::getTextWidth(const string& text) {
 
 uint FontHelper::getTextWidth(vector<string> *text) {
 	int w = 0;
-	for (uint i=0; i<text->size(); i++)
+	for (uint i = 0; i < text->size(); i++)
 		w = max( getLineWidth(text->at(i)), w );
 	return w;
 }

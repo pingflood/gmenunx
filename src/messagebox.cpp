@@ -42,7 +42,7 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon)
 	buttons.resize(19);
 	buttonLabels.resize(19);
 	buttonPositions.resize(19);
-	for (uint x=0; x<buttons.size(); x++) {
+	for (uint x = 0; x < buttons.size(); x++) {
 		buttons[x] = "";
 		buttonLabels[x] = "";
 		buttonPositions[x].h = gmenu2x->font->getHeight();
@@ -166,6 +166,5 @@ int MessageBox::exec() {
 
 	gmenu2x->input.dropEvents(); // prevent passing input away
 	gmenu2x->powerManager->resetSuspendTimer();
-	// gmenu2x->tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 	return result;
 }

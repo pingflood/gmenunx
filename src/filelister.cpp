@@ -20,12 +20,12 @@
 
 //for browsing the filesystem
 #include <sys/stat.h>
-#include <sys/types.h>
+// #include <sys/types.h>
 #include <dirent.h>
-#include <errno.h>
-#include <iostream>
+// #include <errno.h>
+// #include <iostream>
 #include <algorithm>
-#include <cstring>
+// #include <cstring>
 
 #include "filelister.h"
 #include "utilities.h"

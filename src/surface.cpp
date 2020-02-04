@@ -25,29 +25,13 @@
 #include "utilities.h"
 #include "debug.h"
 
-
-// RGBAColor RGBAColor::fromString(const string &strColor) {
-// 	const int s = (strColor.at(0) == '#') ? 1 : 0;
-// 	return (RGBAColor){
-// 		uint8_t(constrain(strtol(strColor.substr(0 + s, 2).c_str(), nullptr, 16), 0, 255)),
-// 		uint8_t(constrain(strtol(strColor.substr(2 + s, 2).c_str(), nullptr, 16), 0, 255)),
-// 		uint8_t(constrain(strtol(strColor.substr(4 + s, 2).c_str(), nullptr, 16), 0, 255)),
-// 		uint8_t(constrain(strtol(strColor.substr(6 + s, 2).c_str(), nullptr, 16), 0, 255)),
-// 	};
-// }
-// string RGBAColor::toString(RGBAColor &color) {
-// 	char hexcolor[10];
-// 	snprintf(hexcolor, sizeof(hexcolor), "#%02x%02x%02x%02x", color.r, color.g, color.b, color.a);
-// 	return (string)hexcolor;
-// }
-
 RGBAColor strtorgba(const string &strColor) {
 	const int s = (strColor.at(0) == '#') ? 1 : 0;
 	RGBAColor c = {0,0,0,255};
-	c.r = constrain( strtol( strColor.substr(0 + s,2).c_str(), NULL, 16 ), 0, 255 );
-	c.g = constrain( strtol( strColor.substr(2 + s,2).c_str(), NULL, 16 ), 0, 255 );
-	c.b = constrain( strtol( strColor.substr(4 + s,2).c_str(), NULL, 16 ), 0, 255 );
-	c.a = constrain( strtol( strColor.substr(6 + s,2).c_str(), NULL, 16 ), 0, 255 );
+	c.r = constrain(strtol(strColor.substr(0 + s, 2).c_str(), NULL, 16), 0, 255);
+	c.g = constrain(strtol(strColor.substr(2 + s, 2).c_str(), NULL, 16), 0, 255);
+	c.b = constrain(strtol(strColor.substr(4 + s, 2).c_str(), NULL, 16), 0, 255);
+	c.a = constrain(strtol(strColor.substr(6 + s, 2).c_str(), NULL, 16), 0, 255);
 	return c;
 }
 
@@ -85,10 +69,10 @@ Surface::Surface(const string &img, const string &skin, bool alpha) {
 Surface::Surface(SDL_Surface *s, SDL_PixelFormat *fmt, Uint32 flags) {
 	dblbuffer = NULL;
 	this->operator =(s);
-	if (fmt!=NULL || flags!=0) {
-		if (fmt==NULL) fmt = s->format;
-		if (flags==0) flags = s->flags;
-		raw = SDL_ConvertSurface( s, fmt, flags );
+	if (fmt != NULL || flags != 0) {
+		if (fmt == NULL) fmt = s->format;
+		if (flags == 0) flags = s->flags;
+		raw = SDL_ConvertSurface(s, fmt, flags);
 	}
 }
 
@@ -143,7 +127,7 @@ void Surface::free() {
 }
 
 SDL_PixelFormat *Surface::format() {
-	if (raw==NULL)
+	if (raw == NULL)
 		return NULL;
 	else
 		return raw->format;
@@ -370,7 +354,7 @@ int Surface::hline(Sint16 x, Sint16 y, Sint16 w, RGBAColor c) {
 }
 
 void Surface::clearClipRect() {
-	SDL_SetClipRect(raw,NULL);
+	SDL_SetClipRect(raw, NULL);
 }
 
 void Surface::setClipRect(int x, int y, int w, int h) {

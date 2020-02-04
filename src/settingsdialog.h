@@ -52,4 +52,4 @@ public:
 	void addSetting(MenuSetting* set);
 };
 
-#endif /*INPUTDIALOG_H_*/
+#endif /*SETTINGSDIALOG_H_*/

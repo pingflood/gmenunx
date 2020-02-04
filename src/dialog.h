@@ -1,7 +1,7 @@
 #ifndef __DIALOG_H__
 #define __DIALOG_H__
 
-#include <string>
+// #include <string>
 
 class GMenu2X;
 class Surface;

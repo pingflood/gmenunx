@@ -128,11 +128,11 @@ linklist *Menu::sectionLinks(int i) {
 }
 
 void Menu::decSectionIndex() {
-	setSectionIndex(iSection-1);
+	setSectionIndex(iSection - 1);
 }
 
 void Menu::incSectionIndex() {
-	setSectionIndex(iSection+1);
+	setSectionIndex(iSection + 1);
 }
 
 uint Menu::firstDispSection() {
@@ -230,30 +230,30 @@ bool Menu::addLink(string path, string file, string section) {
 	if (path[path.length()-1]!='/') path += "/";
 	//search for a manual
 	pos = file.rfind(".");
-	string exename = path+file.substr(0,pos);
+	string exename = path + file.substr(0,pos);
 	string manual = "";
-	if (fileExists(exename+".man.png")) {
-		manual = exename+".man.png";
-	} else if (fileExists(exename+".man.jpg")) {
-		manual = exename+".man.jpg";
-	} else if (fileExists(exename+".man.jpeg")) {
-		manual = exename+".man.jpeg";
-	} else if (fileExists(exename+".man.bmp")) {
-		manual = exename+".man.bmp";
-	} else if (fileExists(exename+".man.txt")) {
-		manual = exename+".man.txt";
+	if (fileExists(exename + ".man.png")) {
+		manual = exename + ".man.png";
+	} else if (fileExists(exename + ".man.jpg")) {
+		manual = exename + ".man.jpg";
+	} else if (fileExists(exename + ".man.jpeg")) {
+		manual = exename + ".man.jpeg";
+	} else if (fileExists(exename + ".man.bmp")) {
+		manual = exename + ".man.bmp";
+	} else if (fileExists(exename + ".man.txt")) {
+		manual = exename + ".man.txt";
 	} else {
 		//scan directory for a file like *readme*
 		FileLister fl(path, false);
 		fl.setFilter(".txt");
 		fl.browse();
 		bool found = false;
-		for (uint x=0; x<fl.size() && !found; x++) {
+		for (uint x = 0; x < fl.size() && !found; x++) {
 			string lcfilename = fl[x];
 
 			if (lcfilename.find("readme") != string::npos) {
 				found = true;
-				manual = path+fl.getFiles()[x];
+				manual = path + fl.getFiles()[x];
 			}
 		}
 	}
@@ -401,10 +401,10 @@ void Menu::linkUp() {
 void Menu::linkDown() {
 	uint l = iLink+gmenu2x->linkColumns;
 	if (l >= sectionLinks()->size()) {
-		uint rows = (uint)ceil(sectionLinks()->size()/(double)gmenu2x->linkColumns);
-		uint curCol = (uint)ceil((iLink+1)/(double)gmenu2x->linkColumns);
+		uint rows = (uint)ceil(sectionLinks()->size() / (double)gmenu2x->linkColumns);
+		uint curCol = (uint)ceil((iLink+1) / (double)gmenu2x->linkColumns);
 		if (rows > curCol)
-			l = sectionLinks()->size()-1;
+			l = sectionLinks()->size() - 1;
 		else
 			l %= gmenu2x->linkColumns;
 	}
@@ -427,7 +427,7 @@ LinkApp *Menu::selLinkApp() {
 void Menu::setLinkIndex(int i) {
 	if (i < 0)
 		i = sectionLinks()->size() - 1;
-	else if ( i>= (int)sectionLinks()->size())
+	else if ( i >= (int)sectionLinks()->size())
 		i = 0;
 
 	if (i >= (int)(iFirstDispRow * gmenu2x->linkColumns + gmenu2x->linkColumns * gmenu2x->linkRows))
@@ -456,8 +456,8 @@ void Menu::readLinks() {
 		if ((dirp = opendir(sectionPath(i).c_str())) == NULL) continue;
 
 		while ((dptr = readdir(dirp))) {
-			if (dptr->d_name[0]=='.') continue;
-			filepath = sectionPath(i)+dptr->d_name;
+			if (dptr->d_name[0] == '.') continue;
+			filepath = sectionPath(i) + dptr->d_name;
 			int statRet = stat(filepath.c_str(), &st);
 			if (S_ISDIR(st.st_mode)) continue;
 			if (statRet != -1) {

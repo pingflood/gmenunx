@@ -38,8 +38,7 @@ private:
 	std::string skin;
 
 public:
-	SurfaceCollection(
-			bool defaultAlpha = true, const std::string &skin = "default");
+	SurfaceCollection(bool defaultAlpha = true, const std::string &skin = "default");
 	~SurfaceCollection();
 
 	void setSkin(const std::string &skin);
