@@ -26,20 +26,15 @@ In settings:
 * SELECT: Clear or set default value.
 
 
-Safe mode
-----
-To reset GMenuNX to default settings, hold START during initialization.
-
-
 How to have previews in Selector Browser
 ----
 * Select the link you want to edit and press "menu";
 * Edit the link;
 * Configure the link to match your directory structure. Important fields:
-	* Selector Directory: The directory of your roms
-	* Selector Browser: Enable selector before launching the app
-	* Selector Filter: Filter extensions to be shown in the selector. Separe multiple extensions with commas.
-	* Selector Screenshots: The directory of the screenshots/preview of your roms. It can be different than your roms directory.
++-- Selector Directory: The directory of your roms
++-- Selector Browser: Enable selector before launching the app
++-- Selector Filter: Filter extensions to be shown in the selector. Separe multiple extensions with commas.
++-- Selector Screenshots: The directory of the screenshots/preview of your roms. It can be different than your roms directory.
 * The name of the file of rom and preview have to be exactly the same. Suported image types are .png or .jpg;
 
 

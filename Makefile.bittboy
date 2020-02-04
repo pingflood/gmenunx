@@ -13,54 +13,48 @@ SYSROOT     := $(shell $(CC) --print-sysroot)
 SDL_CFLAGS  := $(shell $(SYSROOT)/usr/bin/sdl-config --cflags)
 SDL_LIBS    := $(shell $(SYSROOT)/usr/bin/sdl-config --libs)
 
-CFLAGS = -DPLATFORM=\"$(PLATFORM)\" -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=3
+CFLAGS = -DPLATFORM=\"$(PLATFORM)\" -D__BUILDTIME__=$(BUILDTIME) -DLOG_LEVEL=3
+CFLAGS += -Isrc 
 CFLAGS += -Os -ggdb -g3 $(SDL_CFLAGS)
 CFLAGS += -DTARGET_BITTBOY
 
 LDFLAGS = $(SDL_LIBS) -lfreetype -lSDL -lSDL_image -lSDL_ttf
 
 OBJDIR = /tmp/gmenu2x/$(PLATFORM)
-DISTDIR = dist/$(PLATFORM)/root/home/retrofw/apps/gmenu2x
-APPNAME = dist/$(PLATFORM)/gmenu2x
+DISTDIR = dist/$(PLATFORM)
+TARGET = $(DISTDIR)/gmenu2x
 
 SOURCES := $(wildcard src/*.cpp)
-OBJS := $(patsubst src/%.cpp, $(OBJDIR)/src/%.o, $(SOURCES))
+OBJS := $(patsubst src/%.cpp, $(OBJDIR)/%.o, $(SOURCES))
 
 # File types rules
-$(OBJDIR)/src/%.o: src/%.cpp src/%.h src/hw/bittboy.cpp
+$(OBJDIR)/%.o: src/%.cpp src/%.h src/platform/$(PLATFORM).h
 	$(CXX) $(CFLAGS) -o $@ -c $<
 
--include $(patsubst src/%.cpp, $(OBJDIR)/src/%.d, $(SOURCES))
+-include $(patsubst src/%.cpp, $(OBJDIR)/%.d, $(SOURCES))
 
 all: dir shared
 
 dir:
-	@mkdir -p $(OBJDIR)/src dist/$(PLATFORM)
+	@mkdir -p $(OBJDIR) $(DISTDIR)
 
 debug: $(OBJS)
 	@echo "Linking gmenu2x-debug..."
-	$(CXX) -o $(APPNAME)-debug $(LDFLAGS) $(OBJS)
+	$(CXX) -o $(TARGET)-debug $(LDFLAGS) $(OBJS)
 
 shared: debug
-	$(STRIP) $(APPNAME)-debug -o $(APPNAME)
+	$(STRIP) $(TARGET)-debug -o $(TARGET)
 
 clean:
-	rm -rf $(OBJDIR) *.gcda *.gcno $(APPNAME) $(APPNAME)-debug /tmp/.gmenu-ipk/ dist/$(PLATFORM)/root/home/retrofw/apps/gmenu2x/
+	rm -rf $(OBJDIR) *.gcda *.gcno $(TARGET) $(TARGET)-debug $(DISTDIR) dist/gmenunx-$(PLATFORM).zip
 
 dist: dir shared
-	install -m755 -D $(APPNAME) $(DISTDIR)/gmenu2x
-	install -m644 assets/$(PLATFORM)/input.conf $(DISTDIR)
-	install -m755 -d $(DISTDIR)/sections
-	install -m644 -D README.md $(DISTDIR)/README.txt
-	# install -m644 -D COPYING $(DISTDIR)/COPYING
-	install -m644 -D ChangeLog.md $(DISTDIR)/ChangeLog
+	mkdir -p $(DISTDIR)/skins/Default
 	install -m644 -D about.txt $(DISTDIR)/about.txt
-	cp -RH assets/skins assets/translations $(DISTDIR)
-	# cp -RH assets/$(PLATFORM)/BlackJeans.png assets/$(PLATFORM)/RetroFW.png assets/$(PLATFORM)/planet.jpg $(DISTDIR)/skins/Default/wallpapers
-	touch $(DISTDIR)/skins/Default/skin.conf $(DISTDIR)/gmenu2x.conf
-	# cp -RH assets/$(PLATFORM)/skin.conf $(DISTDIR)/skins/Default
-	# cp -RH assets/$(PLATFORM)/gmenu2x.conf $(DISTDIR)
-	# cp -RH assets/$(PLATFORM)/font.ttf $(DISTDIR)/skins/Default
+	install -m644 -D COPYING $(DISTDIR)/COPYING
+	cp -RH assets/translations $(DISTDIR)
+	cp -RH assets/skins/FontGrid/* $(DISTDIR)/skins/Default
+	cp -RH assets/$(PLATFORM)/input.conf $(DISTDIR)
 
 zip: dist
-	cd $(DISTDIR)/ && zip -r ../gmenunx.$(PLATFORM).zip skins translations ChangeLog COPYING gmenu2x input.conf gmenu2x.conf about.txt
+	cd $(DISTDIR)/ && rm -f ../gmenunx-$(PLATFORM).zip && zip -r ../gmenunx-$(PLATFORM).zip skins translations COPYING gmenu2x input.conf about.txt
