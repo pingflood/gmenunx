@@ -2,42 +2,41 @@
 #include "messagebox.h"
 #include "debug.h"
 
-
 PowerManager *PowerManager::instance = NULL;
 
-
 PowerManager::PowerManager(GMenu2X *gmenu2x, unsigned int suspendTimeout, unsigned int powerTimeout) {
-	// this->gmenu2x = gmenu2x;
-	ERROR("POWER START");
-
-	// assert(!instance);
 	instance = this;
 	this->suspendTimeout = suspendTimeout;
 	this->powerTimeout = powerTimeout;
 	this->gmenu2x = gmenu2x;
+	this->suspendActive = false;
 
-	// suspendActive = false;
+	this->powerTimer = NULL;
 
 	resetSuspendTimeout();
 	// resetPowerTimeout(powerTimeout);
 }
 
 PowerManager::~PowerManager() {
-	if (powerTimer != NULL) SDL_RemoveTimer(powerTimer);
+	clearTimeout();
 	instance = NULL;
-	// enableScreen();
 }
+
+void PowerManager::clearTimeout() {
+	ERROR("clearTimeout");
+	if (powerTimer != NULL) SDL_RemoveTimer(powerTimer);
+	powerTimer = NULL;
+};
 
 void PowerManager::resetSuspendTimeout() {
 	ERROR("resetSuspendTimeout");
-
-	if (powerTimer != NULL) SDL_RemoveTimer(powerTimer);
-	powerTimer = SDL_AddTimer(this->suspendTimeout * 1000, doSuspend, NULL);
+	clearTimeout();
+	powerTimer = SDL_AddTimer(this->suspendTimeout * 1e3, doSuspend, NULL);
 };
 
 void PowerManager::resetPowerTimeout() {
-	if (powerTimer != NULL) SDL_RemoveTimer(powerTimer);
-	powerTimer = SDL_AddTimer(this->powerTimeout * 1000, doPowerOff, NULL);
+	clearTimeout();
+	powerTimer = SDL_AddTimer(this->powerTimeout * 60e3, doPowerOff, NULL);
 };
 
 void PowerManager::doRestart(bool showDialog = false) {
@@ -48,13 +47,12 @@ Uint32 PowerManager::doSuspend(unsigned int interval, void * param) {
 	if (interval > 0) {
 		ERROR("POWER MANAGER ENTER SUSPEND");
 	
-		// MessageBox mb(this, tr["Suspend PM"]);
 		MessageBox mb(PowerManager::instance->gmenu2x, PowerManager::instance->gmenu2x->tr["Suspend"]);
 		mb.setAutoHide(500);
 		mb.exec();
 
-		PowerManager::instance->gmenu2x->setCPU(PowerManager::instance->gmenu2x->confInt["cpuMin"]);
 		PowerManager::instance->gmenu2x->setBacklight(0);
+		PowerManager::instance->gmenu2x->setCPU(PowerManager::instance->gmenu2x->confInt["cpuMin"]);
 		INFO("Enter suspend mode.");
 	
 		PowerManager::instance->resetPowerTimeout();
@@ -96,6 +94,7 @@ Uint32 PowerManager::doPowerOff(unsigned int interval, void * param) {
 		// SDL_Delay(500);
 
 #if !defined(TARGET_PC)
+		PowerManager::instance->gmenu2x->setBacklight(0);
 		system("poweroff");
 #endif
 	}
@@ -107,16 +106,8 @@ Uint32 PowerManager::doPowerOff(unsigned int interval, void * param) {
 		// SDL_Delay(500);
 
 #if !defined(TARGET_PC)
+		PowerManager::instance->gmenu2x->setBacklight(0);
 		system("reboot");
 #endif
-	}};
-
-
-
-
-
-
-	// PowerManager(GMenu2X *gmenu2x);
-	// ~PowerManager();
-	// // void resetScreenTimer();
-
+	}
+};

@@ -413,6 +413,8 @@ GMenu2X::GMenu2X() {
 
 	sc[confStr["wallpaper"]]->blit(s,0,0);
 
+	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
+
 	MessageBox mb(this,tr["Loading..."]);
 	mb.setAutoHide(1);
 	mb.exec();
@@ -1070,7 +1072,6 @@ void GMenu2X::main() {
 	}
 #endif
 
-	powerManager = new PowerManager(this, confInt["backlightTimeout"], confInt["powerTimeout"]);
 
 	while (!quit) {
 		tickNow = SDL_GetTicks();

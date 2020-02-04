@@ -26,6 +26,10 @@
 #include "messagebox.h"
 #include "debug.h"
 
+#include "powermanager.h"
+// #include "gmenu2x.h"
+
+
 using namespace std;
 
 MessageBox::MessageBox(GMenu2X *gmenu2x, const string &text, const string &icon) {
@@ -83,6 +87,8 @@ void MessageBox::setAutoHide(int autohide) {
 int MessageBox::exec() {
 	int result = -1;
 
+	gmenu2x->powerManager->clearTimeout();
+
 	// Surface bg(gmenu2x->s);
 	//Darken background
 	gmenu2x->s->box(0, 0, gmenu2x->resX, gmenu2x->resY, 0,0,0,200);
@@ -109,7 +115,7 @@ int MessageBox::exec() {
 	if (this->autohide) {
 		gmenu2x->s->flip();
 		SDL_Delay(this->autohide);
-		gmenu2x->tickSuspend = SDL_GetTicks(); // prevent immediate suspend
+		gmenu2x->powerManager->resetSuspendTimeout(); // = SDL_GetTicks(); // prevent immediate suspend
 		return -1;
 	}
 	//draw buttons rectangle
@@ -154,6 +160,7 @@ int MessageBox::exec() {
 	}
 
 	gmenu2x->input.dropEvents(); // prevent passing input away
-	gmenu2x->tickSuspend = SDL_GetTicks(); // prevent immediate suspend
+	gmenu2x->powerManager->resetSuspendTimeout();
+	// gmenu2x->tickSuspend = SDL_GetTicks(); // prevent immediate suspend
 	return result;
 }
