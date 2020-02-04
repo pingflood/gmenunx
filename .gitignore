@@ -1,0 +1,14 @@
+/objs/
+/dist/
+ftp.sh
+*.ipk
+*.o
+*.zip
+*.7z
+/test/
+*.so.*
+opkrun
+opkinfo
+*.a
+*~
+*.d
