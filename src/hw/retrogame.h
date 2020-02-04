@@ -61,7 +61,7 @@ int32_t getBatteryStatus() {
 
 uint16_t getTVOut() {
 	char buf[32] = "0";
-	FILE *f = fopen("/proc/jz/tvselect", "r");
+	FILE *f = fopen("/proc/jz/tvout", "r");
 	if (f) {
 		fgets(buf, sizeof(buf), f);
 		fclose(f);
@@ -228,7 +228,7 @@ private:
 	}
 
 	void tvOutDialog(int16_t mode) {
-		if (!fileExists("/proc/jz/tvselect")) return;
+		if (!fileExists("/proc/jz/tvout")) return;
 
 		if (mode < 0) {
 			MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
@@ -301,9 +301,10 @@ public:
 	}
 
 	void setTVOut(unsigned int mode) {
-		if (!fileExists("/proc/jz/tvselect") || mode > 2) return;
+		if (!fileExists("/proc/jz/tvout") || mode > 2) return;
 		char buf[128] = {0};
-		sprintf(buf, "echo %d > /proc/jz/tvselect; echo 1 > /proc/jz/tvout 2> /dev/null", mode);
+		// sprintf(buf, "echo %d > /proc/jz/tvout; echo 1 > /proc/jz/tvout &> /dev/null", mode);
+		sprintf(buf, "echo %d > /proc/jz/tvout", mode);
 		system(buf);
 	}
 
