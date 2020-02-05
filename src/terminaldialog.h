@@ -32,6 +32,7 @@ class TerminalDialog : protected TextDialog {
 public:
 	TerminalDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop = "");
 	void exec(string cmd);
+	void preProcess() { };
 };
 
 #endif /*TERMINALDIALOG_H_*/

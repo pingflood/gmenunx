@@ -188,8 +188,7 @@ void OPKScannerDialog::opkScan(string opkdir) {
 	}
 }
 
-void OPKScannerDialog::exec() {
-	bool inputAction = false;
+void OPKScannerDialog::preProcess() {
 	rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 
 	gmenu2x->powerManager->clearTimer();
@@ -244,42 +243,12 @@ void OPKScannerDialog::exec() {
 
 	text.push_back("----");
 	text.push_back(gmenu2x->tr["Done"]);
-	if (text.size() >= rowsPerPage) firstRow = text.size() - rowsPerPage;
+
+	if (text.size() >= rowsPerPage) {
+		firstRow = text.size() - rowsPerPage;
+	}
 
 	buttons.clear();
-	buttons.push_back({"dpad", gmenu2x->tr["Scroll"]});
-	buttons.push_back({"b", gmenu2x->tr["Exit"]});
-
-	gmenu2x->bg->blit(this->bg,0,0);
-	drawDialog(this->bg);
-	gmenu2x->s->flip();
-
-	while (true) {
-		lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
-
-		inputAction = gmenu2x->input.update();
-
-		if (gmenu2x->input[UP] && firstRow > 0) firstRow--;
-		else if (gmenu2x->input[DOWN] && firstRow + rowsPerPage < text.size()) firstRow++;
-		else if (gmenu2x->input[RIGHT] && firstCol > -1 * (lineWidth - gmenu2x->listRect.w) - 10) firstCol -= 30;
-		else if (gmenu2x->input[LEFT]  && firstCol < 0) firstCol += 30;
-		else if (gmenu2x->input[PAGEUP] || (gmenu2x->input[LEFT] && firstCol == 0)) {
-			if (firstRow >= rowsPerPage - 1)
-				firstRow -= rowsPerPage - 1;
-			else
-				firstRow = 0;
-		}
-		else if (gmenu2x->input[PAGEDOWN] || (gmenu2x->input[RIGHT] && firstCol == 0)) {
-			if (firstRow + rowsPerPage * 2 - 1 < text.size())
-				firstRow += rowsPerPage - 1;
-			else
-				firstRow = max(0,text.size()-rowsPerPage);
-		}
-		else if (gmenu2x->input[SETTINGS] || gmenu2x->input[CANCEL]) {
-			gmenu2x->powerManager->resetSuspendTimer();
-			return;
-		}
-	}
 }
 
 #endif // defined(OPK_SUPPORT)

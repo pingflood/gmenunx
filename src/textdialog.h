@@ -36,7 +36,6 @@ protected:
 	int32_t firstCol = 0, lineWidth = 0, firstRow = 0;
 	uint32_t rowsPerPage = 0;
 
-	void preProcess();
 	int drawText(vector<string> *text, int32_t firstCol, int32_t firstRow, uint32_t rowsPerPage);
 
 public:
@@ -46,6 +45,7 @@ public:
 	void appendFile(const string &file);
 
 	virtual void exec();
+	virtual void preProcess();
 };
 
 #endif /*TEXTDIALOG_H_*/
