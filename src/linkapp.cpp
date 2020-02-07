@@ -323,20 +323,11 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	mb.setAutoHide(1);
 	mb.exec();
 
-	if (selectedFile.empty())
-		gmenu2x->writeTmp();
-
 	string command = cmdclean(exec);
 
-	if (!selectedFile.empty()) {
-		string selectedFileExtension;
-		string selectedFileName;
-		string::size_type i = selectedFile.rfind(".");
-		if (i != string::npos) {
-			selectedFileExtension = selectedFile.substr(i,selectedFile.length());
-			selectedFileName = selectedFile.substr(0,i);
-		}
-
+	if (selectedFile.empty()) {
+		gmenu2x->writeTmp();
+	} else {
 		if (dir.empty()) {
 			dir = getSelectorDir();
 		}
@@ -348,9 +339,9 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 			params = strreplace(params, "[selFullPath]", cmdclean(dir + "/" + selectedFile));
 			params = strreplace(params, "\%f", cmdclean(dir + "/" + selectedFile));
 			params = strreplace(params, "[selPath]", cmdclean(dir));
-			params = strreplace(params, "[selFile]", cmdclean(selectedFileName));
-			params = strreplace(params, "[selFileNoExt]", base_name(cmdclean(selectedFileName), true));
-			params = strreplace(params, "[selExt]", cmdclean(selectedFileExtension));
+			params = strreplace(params, "[selFile]", cmdclean(selectedFile));
+			params = strreplace(params, "[selFileNoExt]", cmdclean(base_name(selectedFile, true)));
+			params = strreplace(params, "[selExt]", cmdclean(file_ext(selectedFile, false)));
 			if (params == origParams) params += " " + cmdclean(dir + "/" + selectedFile);
 		}
 	}
