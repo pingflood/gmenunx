@@ -870,7 +870,7 @@ void GMenu2X::writeSkinConfig() {
 	ledOff();
 }
 
-void GMenu2X::setSkin(const string &skin, bool clearSC) {
+void GMenu2X::setSkin(string skin, bool clearSC) {
 	confStr["skin"] = skin;
 
 	// Clear previous skin settings
@@ -905,7 +905,6 @@ void GMenu2X::setSkin(const string &skin, bool clearSC) {
 	skinConfColors[COLOR_FONT_ALT_OUTLINE] = (RGBAColor){253,1,252,0};
 
 	// load skin settings
-	string skinconfname = "skins/" + skin + "/skin.conf";
 	if (file_exists(skinconfname)) {
 		ifstream skinconf(skinconfname.c_str(), ios_base::in);
 		if (skinconf.is_open()) {
@@ -934,6 +933,9 @@ void GMenu2X::setSkin(const string &skin, bool clearSC) {
 					} else {
 						skinConfInt[name] = atoi(value.c_str());
 					}
+	skin = "skins/" + skin + "/skin.conf";
+
+	ifstream skinconf(skin.c_str(), ios_base::in);
 				}
 			}
 			skinconf.close();

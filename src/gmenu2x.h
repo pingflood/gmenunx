@@ -164,7 +164,7 @@ public:
 	void cpuSettings();
 	void showManual();
 
-	void setSkin(const string &skin, bool clearSC = true);
+	void setSkin(string skin, bool clearSC = true);
 	void skinMenu();
 	void skinColors();
 	uint32_t onChangeSkin() { return 1; }
