@@ -274,12 +274,13 @@ string base_name(string path, bool strip_extension) {
 	return path;
 }
 
-string file_ext(const string &path, bool lowercase) {
+string file_ext(const string &path, bool tolower) {
 	string ext = "";
 	string::size_type pos = path.rfind(".");
 	if (pos != string::npos && pos > 0) {
-		ext = path.substr(pos, path.length());
-		if (lowercase) transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+		ext = path.substr(pos);
+		if (tolower)
+			return lowercase(ext);
 	}
 	return ext;
 }
