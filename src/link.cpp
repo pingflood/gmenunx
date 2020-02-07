@@ -67,7 +67,7 @@ void Link::setBackdrop(const string &backdrop) {
 	edited = true;
 }
 
-const string &Link::searchIcon() {
+const string Link::searchIcon() {
 	if (!gmenu2x->sc.getSkinFilePath(iconPath).empty())
 		iconPath = gmenu2x->sc.getSkinFilePath(iconPath);
 	else
@@ -85,7 +85,7 @@ const string &Link::getIconPath() {
 		}
 	} else
 #endif
-	if (iconPath.empty()) searchIcon();
+	if (iconPath.empty()) iconPath = searchIcon();
 
 	return iconPath;
 }

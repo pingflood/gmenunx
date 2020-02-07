@@ -113,7 +113,7 @@ public:
 	// bool &runsInBackgroundRef() { return dontleave; }
 #endif
 
-	const string &searchIcon();
+	const string searchIcon();
 	const string searchBackdrop();
 	const string searchManual();
 };

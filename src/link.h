@@ -71,7 +71,7 @@ public:
 	void setDescription(const string &description);
 	const string &getIcon() { return icon; }
 	void setIcon(const string &icon);
-	virtual const string &searchIcon();
+	virtual const string searchIcon();
 	const string &getIconPath();
 	void setIconPath(const string &icon);
 	void setBackdrop(const string &backdrop);
