@@ -32,8 +32,8 @@ TextDialog(gmenu2x, title, description, icon, backdrop) {}
 void TerminalDialog::exec(string cmd) {
 	rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 
-	if (gmenu2x->sc.skinRes(this->icon) == NULL)
-		this->icon = "icons/terminal.png";
+	if (gmenu2x->sc[this->icon] == NULL)
+		this->icon = "skin:icons/terminal.png";
 
 	buttons.push_back({"skin:imgs/manual.png", gmenu2x->tr["Running.. Please wait.."]});
 

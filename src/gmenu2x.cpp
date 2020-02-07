@@ -1816,9 +1816,9 @@ int GMenu2X::setVolume(int val, bool popup) {
 		Surface bg(s);
 
 		Surface *iconVolume[3] = {
-			sc.skinRes("imgs/mute.png"),
-			sc.skinRes("imgs/phones.png"),
-			sc.skinRes("imgs/volume.png"),
+			sc["skin:imgs/mute.png"],
+			sc["skin:imgs/phones.png"],
+			sc["skin:imgs/volume.png"],
 		};
 
 		powerManager->clearTimer();
@@ -1857,12 +1857,12 @@ int GMenu2X::setBacklight(int val, bool popup) {
 		Surface bg(s);
 
 		Surface *iconBrightness[6] = {
-			sc.skinRes("imgs/brightness/0.png"),
-			sc.skinRes("imgs/brightness/1.png"),
-			sc.skinRes("imgs/brightness/2.png"),
-			sc.skinRes("imgs/brightness/3.png"),
-			sc.skinRes("imgs/brightness/4.png"),
-			sc.skinRes("imgs/brightness.png")
+			sc["skin:imgs/brightness/0.png"],
+			sc["skin:imgs/brightness/1.png"],
+			sc["skin:imgs/brightness/2.png"],
+			sc["skin:imgs/brightness/3.png"],
+			sc["skin:imgs/brightness/4.png"],
+			sc["skin:imgs/brightness.png"],
 		};
 
 		powerManager->clearTimer();
@@ -1907,7 +1907,7 @@ int GMenu2X::drawButton(Button *btn, int x, int y) {
 
 int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x, int y) {
 	if (y < 0) y = this->h + y;
-	Surface *icon = sc.skinRes("imgs/buttons/" + btn + ".png");
+	Surface *icon = sc["skin:imgs/buttons/" + btn + ".png"];
 	if (icon != NULL) {
 		icon->blit(s, x, y, HAlignLeft | VAlignMiddle);
 		x += 19;
@@ -1921,7 +1921,7 @@ int GMenu2X::drawButton(Surface *s, const string &btn, const string &text, int x
 
 int GMenu2X::drawButtonRight(Surface *s, const string &btn, const string &text, int x, int y) {
 	if (y < 0) y = this->h + y;
-	Surface *icon = sc.skinRes("imgs/buttons/" + btn + ".png");
+	Surface *icon = sc["skin:imgs/buttons/" + btn + ".png"];
 	if (icon != NULL) {
 		if (!text.empty()) {
 			x -= font->getTextWidth(text);

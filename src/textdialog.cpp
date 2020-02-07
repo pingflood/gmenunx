@@ -113,8 +113,8 @@ void TextDialog::exec() {
 	bool inputAction = false;
 	rowsPerPage = gmenu2x->listRect.h / gmenu2x->font->getHeight();
 
-	if (gmenu2x->sc.skinRes(this->icon) == NULL)
-		this->icon = "icons/ebook.png";
+	if (gmenu2x->sc[this->icon] == NULL)
+		this->icon = "skin:icons/ebook.png";
 
 	buttons.push_back({"dpad", gmenu2x->tr["Scroll"]});
 	buttons.push_back({"b", gmenu2x->tr["Exit"]});

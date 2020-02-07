@@ -14,10 +14,10 @@ Dialog(gmenu2x, title, description, icon) {
 bool BrowseDialog::exec() {
 	this->bg = new Surface(gmenu2x->bg); // needed to redraw on child screen return
 
-	Surface *iconGoUp = gmenu2x->sc.skinRes("imgs/go-up.png");
-	Surface *iconFolder = gmenu2x->sc.skinRes("imgs/folder.png");
-	Surface *iconFile = gmenu2x->sc.skinRes("imgs/file.png");
-	Surface *iconSd = gmenu2x->sc.skinRes("imgs/sd.png");
+	Surface *iconGoUp = gmenu2x->sc["skin:imgs/go-up.png"];
+	Surface *iconFolder = gmenu2x->sc["skin:imgs/folder.png"];
+	Surface *iconFile = gmenu2x->sc["skin:imgs/file.png"];
+	Surface *iconSd = gmenu2x->sc["skin:imgs/sd.png"];
 	Surface *iconCur;
 
 	uint32_t i, iY, firstElement = 0, padding = 6;

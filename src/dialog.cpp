@@ -16,7 +16,7 @@ Dialog::~Dialog() {
 }
 
 void Dialog::drawTopBar(Surface *s, const std::string &title, const std::string &description, const std::string &icon) {
-	// Surface *bar = sc.skinRes("imgs/topbar.png");
+	// Surface *bar = sc["skins/" + gmenu2x->confStr["skin"] + "/imgs/topbar.png"];
 	// if (bar != NULL) bar->blit(s, 0, 0);
 	// else
 	s->setClipRect({0, 0, gmenu2x->w, gmenu2x->skinConfInt["sectionBarSize"]});
@@ -29,8 +29,8 @@ void Dialog::drawTopBar(Surface *s, const std::string &title, const std::string 
 
 		Surface *i = gmenu2x->sc.add(icon, icon + "dialog");
 
-		if (i == NULL) i = gmenu2x->sc.skinRes(icon);
-		if (i == NULL) i = gmenu2x->sc.skinRes("icons/generic.png");
+		if (i == NULL) i = gmenu2x->sc["skin:" + icon];
+		if (i == NULL) i = gmenu2x->sc["skin:icons/generic.png"];
 
 		if (i->width() > iconOffset - 8 || i->height() > iconOffset - 8)
 			i->softStretch(iconOffset - 8, iconOffset - 8, SScaleFit);
@@ -50,7 +50,7 @@ void Dialog::drawTopBar(Surface *s, const std::string &title, const std::string 
 }
 
 void Dialog::drawBottomBar(Surface *s, buttons_t buttons) {
-	// Surface *bar = sc.skinRes("imgs/bottombar.png");
+	// Surface *bar = sc["skins/" + gmenu2x->confStr["skin"] + "/imgs/bottombar.png"];
 	// if (bar != NULL) bar->blit(s, 0, gmenu2x->h - bar->raw->h);
 	// else
 	s->box(gmenu2x->bottomBarRect, gmenu2x->skinConfColors[COLOR_BOTTOM_BAR_BG]);
@@ -60,12 +60,10 @@ void Dialog::drawBottomBar(Surface *s, buttons_t buttons) {
 	for (const auto &itr: buttons) {
 		Surface *btn;
 		string path = itr[0];
-		if (path.substr(0, 5) == "skin:") {
-			path = path.substr(5);
-			btn = gmenu2x->sc.skinRes(path);
-		} else {
-			btn = gmenu2x->sc.skinRes("imgs/buttons/" + path + ".png");
+		if (path.substr(0, 5) != "skin:") {
+			path = "skin:imgs/buttons/" + path + ".png";
 		}
+		btn = gmenu2x->sc[path];
 
 		string txt = itr[1];
 		if (btn != NULL) {

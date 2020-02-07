@@ -246,7 +246,7 @@ private:
 
 		INFO("Enabling networking device");
 		system("/usr/bin/retrofw network on");
-		iconInet = sc.skinRes("imgs/inet.png");
+		iconInet = sc["skin:imgs/inet.png"];
 	}
 
 	void tvOutDialog(int16_t mode) {

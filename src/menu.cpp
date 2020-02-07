@@ -619,7 +619,7 @@ void Menu::drawStatusBar() {
 
 		// // Menu indicator
 		// iconMenu->blit(gmenu2x->s, iconPadding, gmenu2x->bottomBarRect.y + gmenu2x->bottomBarRect.h / 2, VAlignMiddle);
-		// sc.skinRes("imgs/debug.png")->blit(gmenu2x->s, gmenu2x->bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, gmenu2x->bottomBarRect.y + gmenu2x->bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
+		// sc["skin:imgs/debug.png"]->blit(gmenu2x->s, gmenu2x->bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, gmenu2x->bottomBarRect.y + gmenu2x->bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
 
 		// Battery indicator
 		iconBattery[batteryIcon]->blit(gmenu2x->s, gmenu2x->bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, gmenu2x->bottomBarRect.y + gmenu2x->bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
@@ -719,32 +719,31 @@ void Menu::exec() {
 	sectionChangedTimer = SDL_AddTimer(2000, gmenu2x->input.wakeUp, (void*)false);
 	iconChangedTimer = SDL_AddTimer(1000, gmenu2x->input.wakeUp, (void*)false);
 
-	iconBrightness[0] = gmenu2x->sc.skinRes("imgs/brightness/0.png"),
-	iconBrightness[1] = gmenu2x->sc.skinRes("imgs/brightness/1.png"),
-	iconBrightness[2] = gmenu2x->sc.skinRes("imgs/brightness/2.png"),
-	iconBrightness[3] = gmenu2x->sc.skinRes("imgs/brightness/3.png"),
-	iconBrightness[4] = gmenu2x->sc.skinRes("imgs/brightness/4.png"),
-	iconBrightness[5] = gmenu2x->sc.skinRes("imgs/brightness.png"),
+	iconBrightness[0] = gmenu2x->sc["skin:imgs/brightness/0.png"],
+	iconBrightness[1] = gmenu2x->sc["skin:imgs/brightness/1.png"],
+	iconBrightness[2] = gmenu2x->sc["skin:imgs/brightness/2.png"],
+	iconBrightness[3] = gmenu2x->sc["skin:imgs/brightness/3.png"],
+	iconBrightness[4] = gmenu2x->sc["skin:imgs/brightness/4.png"],
+	iconBrightness[5] = gmenu2x->sc["skin:imgs/brightness.png"],
 
-	// batteryIcon = getBatteryStatus(getBatteryLevel(), confInt["minBattery"], confInt["maxBattery"]);
-	iconBattery[0] = gmenu2x->sc.skinRes("imgs/battery/0.png"),
-	iconBattery[1] = gmenu2x->sc.skinRes("imgs/battery/1.png"),
-	iconBattery[2] = gmenu2x->sc.skinRes("imgs/battery/2.png"),
-	iconBattery[3] = gmenu2x->sc.skinRes("imgs/battery/3.png"),
-	iconBattery[4] = gmenu2x->sc.skinRes("imgs/battery/4.png"),
-	iconBattery[5] = gmenu2x->sc.skinRes("imgs/battery/5.png"),
-	iconBattery[6] = gmenu2x->sc.skinRes("imgs/battery/ac.png"),
+	iconBattery[0] = gmenu2x->sc["skin:imgs/battery/0.png"],
+	iconBattery[1] = gmenu2x->sc["skin:imgs/battery/1.png"],
+	iconBattery[2] = gmenu2x->sc["skin:imgs/battery/2.png"],
+	iconBattery[3] = gmenu2x->sc["skin:imgs/battery/3.png"],
+	iconBattery[4] = gmenu2x->sc["skin:imgs/battery/4.png"],
+	iconBattery[5] = gmenu2x->sc["skin:imgs/battery/5.png"],
+	iconBattery[6] = gmenu2x->sc["skin:imgs/battery/ac.png"],
 
-	iconVolume[0] = gmenu2x->sc.skinRes("imgs/mute.png"),
-	iconVolume[1] = gmenu2x->sc.skinRes("imgs/phones.png"),
-	iconVolume[2] = gmenu2x->sc.skinRes("imgs/volume.png"),
+	iconVolume[0] = gmenu2x->sc["skin:imgs/mute.png"],
+	iconVolume[1] = gmenu2x->sc["skin:imgs/phones.png"],
+	iconVolume[2] = gmenu2x->sc["skin:imgs/volume.png"],
 
-	iconSD = gmenu2x->sc.skinRes("imgs/sd.png");
-	iconManual = gmenu2x->sc.skinRes("imgs/manual.png");
-	iconCPU = gmenu2x->sc.skinRes("imgs/cpu.png");
-	iconMenu = gmenu2x->sc.skinRes("imgs/menu.png");
-	iconL = gmenu2x->sc.skinRes("imgs/section-l.png");
-	iconR = gmenu2x->sc.skinRes("imgs/section-r.png");
+	iconSD = gmenu2x->sc["skin:imgs/sd.png"];
+	iconManual = gmenu2x->sc["skin:imgs/manual.png"];
+	iconCPU = gmenu2x->sc["skin:imgs/cpu.png"];
+	iconMenu = gmenu2x->sc["skin:imgs/menu.png"];
+	iconL = gmenu2x->sc["skin:imgs/section-l.png"];
+	iconR = gmenu2x->sc["skin:imgs/section-r.png"];
 	iconBGoff = gmenu2x->sc["skins/" + gmenu2x->confStr["skin"] + "/imgs/iconbg_off.png"];
 	iconBGon = gmenu2x->sc["skins/" + gmenu2x->confStr["skin"] + "/imgs/iconbg_on.png"];
 

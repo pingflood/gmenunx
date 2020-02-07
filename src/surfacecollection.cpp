@@ -57,23 +57,6 @@ string SurfaceCollection::getSkinFilePath(const string &file) {
 	return "";
 }
 
-Surface *SurfaceCollection::addSkinRes(const string &path) {
-	if (path.empty()) return NULL;
-	if (exists(path)) return surfaces[path]; // del(path);
-
-	string skinpath = getSkinFilePath(path);
-	if (skinpath.empty())
-		return NULL;
-
-	DEBUG("Adding skin surface: '%s'", path.c_str());
-	Surface *s = new Surface(skinpath, true);
-
-	if (s != NULL)
-		surfaces[path] = s;
-
-	return s;
-}
-
 Surface *SurfaceCollection::add(string path, string key) {
 	if (path.empty()) return NULL;
 	if (key.empty()) key = path;
@@ -124,11 +107,6 @@ Surface *SurfaceCollection::add(Surface *s, const string &key) {
 	if (exists(key)) return surfaces[key]; //del(key);
 	surfaces[key] = s;
 	return s;
-}
-
-Surface *SurfaceCollection::skinRes(const string &key) {
-	if (exists(key)) return surfaces[key];
-	return addSkinRes(key);
 }
 
 Surface *SurfaceCollection::operator[](const string &key) {

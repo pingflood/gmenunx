@@ -193,8 +193,9 @@ void OPKScannerDialog::preProcess() {
 
 	gmenu2x->powerManager->clearTimer();
 
-	if (gmenu2x->sc.skinRes(this->icon) == NULL)
-		this->icon = "icons/terminal.png";
+	if (gmenu2x->sc[this->icon] == NULL) {
+		this->icon = "skin:icons/terminal.png";
+	}
 
 	buttons.push_back({"skin:imgs/manual.png", gmenu2x->tr["Running.. Please wait.."]});
 

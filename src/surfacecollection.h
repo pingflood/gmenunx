@@ -39,23 +39,16 @@ private:
 
 public:
 	SurfaceCollection();
-	~SurfaceCollection();
-
 	void setSkin(const std::string &skin);
 	std::string getSkinFilePath(const std::string &file);
-
 	void debug();
-
 	Surface *add(Surface *s, const std::string &path);
 	Surface *add(std::string path, std::string key="");
-	Surface *addSkinRes(const std::string &path);
 	bool del(const std::string &key);
 	void clear();
 	void move(const std::string &from, const std::string &to);
 	bool exists(const std::string &path);
-
 	Surface *operator[](const std::string &);
-	Surface *skinRes(const std::string &);
 };
 
 #endif
