@@ -14,7 +14,7 @@ CFLAGS = -DPLATFORM=\"$(PLATFORM)\" -D__BUILDTIME__="$(BUILDTIME)" -DLOG_LEVEL=4
 CFLAGS += -O0 -ggdb -g -pg $(SDL_CFLAGS)
 CFLAGS += -Wundef -Wno-deprecated -Wno-unknown-pragmas -Wno-format -Wno-narrowing
 CFLAGS += -Isrc -Isrc/libopk
-CFLAGS += -DTARGET_LINUX -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT
+CFLAGS += -DTARGET_LINUX -DHW_TVOUT -DHW_UDC -DHW_EXT_SD -DHW_SCALER -DOPK_SUPPORT -DIPK_SUPPORT
 
 LDFLAGS = -Wl,-Bstatic -Lsrc/libopk -l:libopk.a
 LDFLAGS += -Wl,-Bdynamic -lz $(SDL_LIBS) -lSDL_image -lSDL_ttf

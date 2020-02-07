@@ -253,13 +253,22 @@ private:
 		if (!file_exists("/proc/jz/tvout")) return;
 
 		if (mode < 0) {
-			MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
-			mb.setButton(CONFIRM, tr["NTSC"]);
-			mb.setButton(MANUAL,  tr["PAL"]);
-			mb.setButton(CANCEL,  tr["OFF"]);
+			int option;
 
 			mode = TV_OFF;
-			switch (mb.exec()) {
+
+			if (confStr["tvMode"] == "NTSC") option = CONFIRM;
+			else if (confStr["tvMode"] == "PAL") option = MANUAL;
+			else if (confStr["tvMode"] == "OFF") option = CANCEL;
+			else {
+				MessageBox mb(this, tr["TV-out connected. Enable?"], "skin:icons/tv.png");
+				mb.setButton(CONFIRM, tr["NTSC"]);
+				mb.setButton(MANUAL,  tr["PAL"]);
+				mb.setButton(CANCEL,  tr["OFF"]);
+				option = mb.exec();
+			}
+
+			switch (option) {
 				case CONFIRM:
 					mode = TV_NTSC;
 					break;

@@ -512,6 +512,15 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingMultiString(this, tr["USB mode"], tr["Define default USB mode"], &confStr["usbMode"], &usbMode));
 #endif
 
+#if defined(HW_TVOUT)
+	vector<string> tvMode;
+	tvMode.push_back("Ask");
+	tvMode.push_back("NTSC");
+	tvMode.push_back("PAL");
+	tvMode.push_back("OFF");
+	sd.addSetting(new MenuSettingMultiString(this, tr["TV mode"], tr["Define default TV mode"], &confStr["tvMode"], &tvMode));
+#endif
+
 	sd.addSetting(new MenuSettingInt(this, tr["Suspend timeout"], tr["Seconds until suspend the device when inactive"], &confInt["backlightTimeout"], 30, 10, 300));
 	sd.addSetting(new MenuSettingInt(this, tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
 	sd.addSetting(new MenuSettingInt(this, tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
@@ -754,6 +763,7 @@ void GMenu2X::writeConfig() {
 				(curr->first == "previewMode" && curr->second == "Miniature") ||
 				(curr->first == "skinFont" && curr->second == "Custom") ||
 				(curr->first == "usbMode" && curr->second.empty()) ||
+				(curr->first == "tvMode" && curr->second == "Ask") ||
 				(curr->first == "lang" && curr->second.empty()) ||
 				(curr->first == "lang" && curr->second.empty()) ||
 				(curr->first == "bgscale" && curr->second.empty()) ||
