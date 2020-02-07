@@ -530,7 +530,6 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingMultiString(this, tr["Reset settings"], tr["Choose settings to reset back to defaults"], &tmp, &opFactory, 0, MakeDelegate(this, &GMenu2X::resetSettings)));
 
 	if (sd.exec() && sd.edited() && sd.save) {
-		if (confStr["usbMode"] == "Ask") confStr["usbMode"] = "";
 		if (lang == "English") lang = "";
 		if (confStr["lang"] != lang) {
 			confStr["lang"] = lang;
@@ -762,7 +761,7 @@ void GMenu2X::writeConfig() {
 				(curr->first == "skin" && curr->second == "Default") ||
 				(curr->first == "previewMode" && curr->second == "Miniature") ||
 				(curr->first == "skinFont" && curr->second == "Custom") ||
-				(curr->first == "usbMode" && curr->second.empty()) ||
+				(curr->first == "usbMode" && curr->second == "Ask") ||
 				(curr->first == "tvMode" && curr->second == "Ask") ||
 				(curr->first == "lang" && curr->second.empty()) ||
 				(curr->first == "lang" && curr->second.empty()) ||
