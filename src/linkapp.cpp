@@ -92,11 +92,11 @@ Link(gmenu2x, MakeDelegate(this, &LinkApp::run)), file(file) {
 	is_opk = (file_ext(exec, true) == ".opk");
 
 	if (iconPath.empty()) searchIcon();
-	if (manualPath.empty()) searchManual();
-	if (backdropPath.empty()) searchBackdrop();
+	if (manualPath.empty()) manualPath = searchManual();
+	if (backdropPath.empty()) backdropPath = searchBackdrop();
 }
 
-const string &LinkApp::searchManual() {
+const string LinkApp::searchManual() {
 	if (!manualPath.empty()) return manualPath;
 	string filename = exec;
 	string::size_type pos = exec.rfind(".");
@@ -109,17 +109,14 @@ const string &LinkApp::searchManual() {
 	string linktitle = base_name(file, true);
 	linktitle = dname + linktitle + ".man.txt";
 
-	if (file_exists(linktitle))
-		manualPath = linktitle;
-	else if (file_exists(filename))
-		manualPath = filename;
-	else if (file_exists(dirtitle))
-		manualPath = dirtitle;
+	if (file_exists(linktitle)) return linktitle;
+	if (file_exists(filename)) return filename;
+	if (file_exists(dirtitle)) return dirtitle;
 
-	return manualPath;
+	return "";
 }
 
-const string &LinkApp::searchBackdrop() {
+const string LinkApp::searchBackdrop() {
 	if (!backdropPath.empty() || !gmenu2x->confInt["skinBackdrops"]) return backdropPath;
 	string execicon = exec;
 	string::size_type pos = exec.rfind(".");
@@ -135,31 +132,34 @@ const string &LinkApp::searchBackdrop() {
 	pos = linktitle.rfind(".");
 	if (pos != string::npos) linktitle = linktitle.substr(0, pos);
 
-// auto backdrop
-	if (!gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".png").empty())
-		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".png");
-	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".jpg").empty())
-		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".jpg");
+	backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".png");
+	if (!backdropPath.empty()) return backdropPath;
 
-	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png").empty())
-		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png");
-	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".jpg").empty())
-		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".jpg");
+	backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + sublinktitle + ".jpg");
+	if (!backdropPath.empty()) return backdropPath;
 
-	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png").empty())
-		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png");
-	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg").empty())
-		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg");
+	backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".png");
+	if (!backdropPath.empty()) return backdropPath;
 
-	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".png").empty())
-		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".png");
-	else if (!gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".jpg").empty())
-		backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".jpg");
+	backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + linktitle + ".jpg");
+	if (!backdropPath.empty()) return backdropPath;
 
-	else if (file_exists(dir_name(exec) + "/backdrop.png"))
-		backdropPath = dir_name(exec) + "/backdrop.png";
+	backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".png");
+	if (!backdropPath.empty()) return backdropPath;
 
-	return backdropPath;
+	backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + exectitle + ".jpg");
+	if (!backdropPath.empty()) return backdropPath;
+
+	backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".png");
+	if (!backdropPath.empty()) return backdropPath;
+
+	backdropPath = gmenu2x->sc.getSkinFilePath("backdrops/" + dirtitle + ".jpg");
+	if (!backdropPath.empty()) return backdropPath;
+
+	backdropPath = dir_name(exec) + "/backdrop.png";
+	if (file_exists(backdropPath)) return backdropPath;
+
+	return "";
 }
 
 const string &LinkApp::searchIcon() {

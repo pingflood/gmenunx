@@ -114,8 +114,8 @@ public:
 #endif
 
 	const string &searchIcon();
-	const string &searchBackdrop();
-	const string &searchManual();
+	const string searchBackdrop();
+	const string searchManual();
 };
 
 #endif
