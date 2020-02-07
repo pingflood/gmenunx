@@ -582,8 +582,8 @@ void Menu::drawSectionBar() {
 	}
 
 	if (gmenu2x->skinConfInt["sectionBar"] == SB_CLASSIC) {
-		iconL->blit(gmenu2x->s, 0, 0, HAlignLeft | VAlignTop);
-		iconR->blit(gmenu2x->s, gmenu2x->w, 0, HAlignRight | VAlignTop);
+		if (iconL != NULL) iconL->blit(gmenu2x->s, 0, 0, HAlignLeft | VAlignTop);
+		if (iconR != NULL) iconR->blit(gmenu2x->s, gmenu2x->w, 0, HAlignRight | VAlignTop);
 	}
 }
 void Menu::drawStatusBar() {
@@ -742,8 +742,8 @@ void Menu::exec() {
 	iconManual = gmenu2x->sc["skin:imgs/manual.png"];
 	iconCPU = gmenu2x->sc["skin:imgs/cpu.png"];
 	iconMenu = gmenu2x->sc["skin:imgs/menu.png"];
-	iconL = gmenu2x->sc["skin:imgs/section-l.png"];
-	iconR = gmenu2x->sc["skin:imgs/section-r.png"];
+	iconL = gmenu2x->sc["skins/" + gmenu2x->confStr["skin"] + "/imgs/section-l.png"];
+	iconR = gmenu2x->sc["skins/" + gmenu2x->confStr["skin"] + "/imgs/section-r.png"];
 	iconBGoff = gmenu2x->sc["skins/" + gmenu2x->confStr["skin"] + "/imgs/iconbg_off.png"];
 	iconBGon = gmenu2x->sc["skins/" + gmenu2x->confStr["skin"] + "/imgs/iconbg_on.png"];
 
