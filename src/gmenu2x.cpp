@@ -1714,7 +1714,7 @@ void GMenu2X::explorer() {
 				params += " 2>&1 | tee " + cmdclean(exe_path()) + "/log.txt";
 			}
 
-			LinkApp *link = new LinkApp(this, this->input, "explorer.lnk~");
+			LinkApp *link = new LinkApp(this, "explorer.lnk~");
 			link->setExec(command);
 			link->setParams(params);
 			link->setIcon("skin:icons/terminal.png");

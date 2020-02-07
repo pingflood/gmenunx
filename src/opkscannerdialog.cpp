@@ -152,7 +152,7 @@ void OPKScannerDialog::opkInstall(const string &path) {
 
 		linkpath = "sections/" + section + "/" + linkpath;
 
-		LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkpath.c_str());
+		LinkApp *link = new LinkApp(gmenu2x, linkpath.c_str());
 
 		if (!path.empty()) link->setExec(path);
 		if (!params.empty()) link->setParams(params);

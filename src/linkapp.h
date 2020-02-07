@@ -27,8 +27,8 @@
 
 using std::string;
 
-class GMenu2X;
-class InputManager;
+// class GMenu2X;
+// class InputManager;
 
 /**
 	Parses links files.
@@ -36,7 +36,7 @@ class InputManager;
 */
 class LinkApp : public Link {
 private:
-	InputManager &input;
+	// InputManager &input;
 	int		clock = 0,
 			selectorelement = 0,
 			scalemode,
@@ -56,7 +56,7 @@ private:
 			file = "";
 
 public:
-	LinkApp(GMenu2X *gmenu2x, InputManager &input, const char* file);
+	LinkApp(GMenu2X *gmenu2x, const char* file);
 	const string &getExec() { return exec; }
 	void setExec(const string &exec);
 	const string &getParams() { return params; }

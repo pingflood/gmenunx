@@ -103,7 +103,7 @@ void Menu::readLinks() {
 
 		sort(linkfiles.begin(), linkfiles.end(), case_less());
 		for (uint32_t x = 0; x < linkfiles.size(); x++) {
-			LinkApp *link = new LinkApp(gmenu2x, gmenu2x->input, linkfiles[x].c_str());
+			LinkApp *link = new LinkApp(gmenu2x, linkfiles[x].c_str());
 			if (link->targetExists()) {
 				links[i].push_back(link);
 			} else {

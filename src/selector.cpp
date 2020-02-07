@@ -162,7 +162,7 @@ void Selector::addFavourite() {
 	string title = base_name(getFileName(selected), true);
 	string linkpath = "sections/favourites/" + title + "." + base_name(link->getExec(), true) + ".lnk";
 
-	LinkApp *fav = new LinkApp(gmenu2x, gmenu2x->input, linkpath.c_str());
+	LinkApp *fav = new LinkApp(gmenu2x, linkpath.c_str());
 
 	fav->setExec(link->getExec());
 	fav->setTitle(title);
