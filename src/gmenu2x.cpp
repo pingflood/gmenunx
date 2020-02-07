@@ -657,30 +657,29 @@ bool GMenu2X::readTmp() {
 		else if (name == "explorerLastDir") confStr["explorerLastDir"] = value;
 	}
 	// if (TVOut > 2) TVOut = 0;
-	inf.close();
+	tmp.close();
 	unlink("/tmp/gmenu2x.tmp");
 	return true;
 }
 
 void GMenu2X::writeTmp(int selelem, const string &selectordir) {
-	string conffile = "/tmp/gmenu2x.tmp";
-	ofstream inf(conffile.c_str());
-	if (inf.is_open()) {
-		inf << "section=" << menu->selSectionIndex() << endl;
-		inf << "link=" << menu->selLinkIndex() << endl;
-		if (selelem >- 1) inf << "selectorelem=" << selelem << endl;
-		if (selectordir != "") inf << "selectordir=" << selectordir << endl;
-		inf << "udcPrev=" << udcPrev << endl;
-		inf << "tvOutPrev=" << tvOutPrev << endl;
-		// inf << "TVOut=" << TVOut << endl;
-		inf << "currBackdrop=" << currBackdrop << endl;
-		if (!confStr["explorerLastDir"].empty()) inf << "explorerLastDir=" << confStr["explorerLastDir"] << endl;
-		inf.close();
+	ofstream tmp("/tmp/gmenu2x.tmp");
+	if (tmp.is_open()) {
+		tmp << "section=" << menu->selSectionIndex() << endl;
+		tmp << "link=" << menu->selLinkIndex() << endl;
+		if (selelem >- 1) tmp << "selectorelem=" << selelem << endl;
+		if (selectordir != "") tmp << "selectordir=" << selectordir << endl;
+		tmp << "udcPrev=" << udcPrev << endl;
+		tmp << "tvOutPrev=" << tvOutPrev << endl;
+		// tmp << "TVOut=" << TVOut << endl;
+		tmp << "currBackdrop=" << currBackdrop << endl;
+		if (!confStr["explorerLastDir"].empty()) tmp << "explorerLastDir=" << confStr["explorerLastDir"] << endl;
+		tmp.close();
 	}
 }
 
 void GMenu2X::readConfig() {
-	string conffile = exe_path() + "/gmenu2x.conf";
+	string conf = exe_path() + "/gmenu2x.conf";
 
 	// Defaults *** Sync with default values in writeConfig
 	confInt["saveSelection"] = 1;
@@ -697,23 +696,22 @@ void GMenu2X::readConfig() {
 
 	// input.update(false);
 
-	// if (!input[SETTINGS] && file_exists(conffile)) {
-	if (file_exists(conffile)) {
-		ifstream inf(conffile.c_str(), ios_base::in);
-		if (inf.is_open()) {
-			string line;
-			while (getline(inf, line, '\n')) {
-				string::size_type pos = line.find("=");
-				string name = trim(line.substr(0, pos));
-				string value = trim(line.substr(pos + 1, line.length()));
+	// if (!input[SETTINGS] && file_exists(conf)) {
 
-				if (value.length() > 1 && value.at(0) == '"' && value.at(value.length() - 1) == '"')
-					confStr[name] = value.substr(1,value.length()-2);
-				else
-					confInt[name] = atoi(value.c_str());
-			}
-			inf.close();
+	ifstream cfg(conf.c_str(), ios_base::in);
+	if (cfg.is_open()) {
+		string line;
+		while (getline(cfg, line, '\n')) {
+			string::size_type pos = line.find("=");
+			string name = trim(line.substr(0, pos));
+			string value = trim(line.substr(pos + 1));
+
+			if (value.length() > 1 && value.at(0) == '"' && value.at(value.length() - 1) == '"')
+				confStr[name] = value.substr(1, value.length() - 2);
+			else
+				confInt[name] = atoi(value.c_str());
 		}
+		cfg.close();
 	}
 
 	if (!confStr["lang"].empty()) tr.setLang(confStr["lang"]);
@@ -744,9 +742,9 @@ void GMenu2X::writeConfig() {
 		confInt["link"] = menu->selLinkIndex();
 	}
 
-	string conffile = exe_path() + "/gmenu2x.conf";
-	ofstream inf(conffile.c_str());
-	if (inf.is_open()) {
+	string conf = exe_path() + "/gmenu2x.conf";
+	ofstream cfg(conf.c_str());
+	if (cfg.is_open()) {
 		for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
 			if (
 				// deprecated
@@ -771,7 +769,7 @@ void GMenu2X::writeConfig() {
 				curr->first.empty() || curr->second.empty()
 			) continue;
 
-			inf << curr->first << "=\"" << curr->second << "\"" << endl;
+			cfg << curr->first << "=\"" << curr->second << "\"" << endl;
 		}
 
 		for (ConfIntHash::iterator curr = confInt.begin(); curr != confInt.end(); curr++) {
@@ -813,9 +811,9 @@ void GMenu2X::writeConfig() {
 				curr->first.empty()
 			) continue;
 
-			inf << curr->first << "=" << curr->second << endl;
+			cfg << curr->first << "=" << curr->second << endl;
 		}
-		inf.close();
+		cfg.close();
 	}
 	sync();
 
@@ -823,50 +821,56 @@ void GMenu2X::writeConfig() {
 }
 
 void GMenu2X::writeSkinConfig() {
+	string skinconf = exe_path() + "/skins/" + confStr["skin"] + "/skin.conf";
+	ofstream inf(skinconf.c_str());
+	if (!inf.is_open()) return;
+
 	ledOn();
-	string conffile = exe_path() + "/skins/" + confStr["skin"] + "/skin.conf";
-	ofstream inf(conffile.c_str());
-	if (inf.is_open()) {
-		for (ConfStrHash::iterator curr = skinConfStr.begin(); curr != skinConfStr.end(); curr++) {
-			if (
-				curr->first.empty() || curr->second.empty()
-			) continue;
 
-			inf << curr->first << "=\"" << curr->second << "\"" << endl;
-		}
-		for (ConfIntHash::iterator curr = skinConfInt.begin(); curr != skinConfInt.end(); curr++) {
-			if (
-				curr->first == "titleFontSize" ||
-				curr->first == "sectionBarHeight" ||
-				curr->first == "linkHeight" ||
-				curr->first == "selectorPreviewX" ||
-				curr->first == "selectorPreviewY" ||
-				curr->first == "selectorPreviewWidth" ||
-				curr->first == "selectorPreviewHeight" ||
-				curr->first == "selectorX" ||
-				curr->first == "linkItemHeight" ||
-				curr->first == "topBarHeight" ||
-
-				(curr->first == "previewWidth" && curr->second == 142) ||
-				(curr->first == "linkCols" && curr->second == 4) ||
-				(curr->first == "linkRows" && curr->second == 4) ||
-				(curr->first == "sectionBar" && curr->second == SB_CLASSIC) ||
-				(curr->first == "sectionLabel" && curr->second == 1) ||
-				(curr->first == "linkLabel" && curr->second == 1) ||
-				(curr->first == "showDialogIcon" && curr->second == 1) ||
-
-				curr->first.empty()
-			) continue;
-			inf << curr->first << "=" << curr->second << endl;
+	for (ConfStrHash::iterator curr = skinConfStr.begin(); curr != skinConfStr.end(); curr++) {
+		if (curr->first.empty() || curr->second.empty()) {
+			continue;
 		}
 
-		for (int i = 0; i < NUM_COLORS; ++i) {
-			inf << colorToString((enum color)i) << "=" << rgbatostr(skinConfColors[i]) << endl;
-		}
-
-		inf.close();
-		sync();
+		inf << curr->first << "=\"" << curr->second << "\"" << endl;
 	}
+
+	for (ConfIntHash::iterator curr = skinConfInt.begin(); curr != skinConfInt.end(); curr++) {
+		if (
+			curr->first == "titleFontSize" ||
+			curr->first == "sectionBarHeight" ||
+			curr->first == "linkHeight" ||
+			curr->first == "selectorPreviewX" ||
+			curr->first == "selectorPreviewY" ||
+			curr->first == "selectorPreviewWidth" ||
+			curr->first == "selectorPreviewHeight" ||
+			curr->first == "selectorX" ||
+			curr->first == "linkItemHeight" ||
+			curr->first == "topBarHeight" ||
+
+			(curr->first == "previewWidth" && curr->second == 142) ||
+			(curr->first == "linkCols" && curr->second == 4) ||
+			(curr->first == "linkRows" && curr->second == 4) ||
+			(curr->first == "sectionBar" && curr->second == SB_CLASSIC) ||
+			(curr->first == "sectionLabel" && curr->second == 1) ||
+			(curr->first == "linkLabel" && curr->second == 1) ||
+			(curr->first == "showDialogIcon" && curr->second == 1) ||
+
+			curr->first.empty()
+		) {
+			continue;
+		}
+
+		inf << curr->first << "=" << curr->second << endl;
+	}
+
+	for (int i = 0; i < NUM_COLORS; ++i) {
+		inf << colorToString((enum color)i) << "=" << rgbatostr(skinConfColors[i]) << endl;
+	}
+
+	inf.close();
+
+	sync();
 	ledOff();
 }
 
@@ -905,41 +909,38 @@ void GMenu2X::setSkin(string skin, bool clearSC) {
 	skinConfColors[COLOR_FONT_ALT_OUTLINE] = (RGBAColor){253,1,252,0};
 
 	// load skin settings
-	if (file_exists(skinconfname)) {
-		ifstream skinconf(skinconfname.c_str(), ios_base::in);
-		if (skinconf.is_open()) {
-			string line;
-			while (getline(skinconf, line, '\n')) {
-				line = trim(line);
-				// DEBUG("skinconf: '%s'", line.c_str());
-				string::size_type pos = line.find("=");
-				string name = trim(line.substr(0,pos));
-				string value = trim(line.substr(pos+1,line.length()));
-
-				if (value.length() > 0) {
-					if (value.length() > 1 && value.at(0) == '"' && value.at(value.length() - 1) == '"') {
-						skinConfStr[name] = value.substr(1, value.length() - 2);
-					} else if (value.at(0) == '#') {
-						// skinConfColor[name] = strtorgba(value.substr(1,value.length()) );
-						skinConfColors[stringToColor(name)] = strtorgba(value);
-					} else if (name.length() > 6 && name.substr(name.length() - 6, 5 ) == "Color") {
-						value += name.substr(name.length() - 1);
-						name = name.substr(0, name.length() - 6);
-						if (name == "selection" || name == "topBar" || name == "bottomBar" || name == "messageBox") name += "Bg";
-						if (value.substr(value.length() - 1) == "R") skinConfColors[stringToColor(name)].r = atoi(value.c_str());
-						if (value.substr(value.length() - 1) == "G") skinConfColors[stringToColor(name)].g = atoi(value.c_str());
-						if (value.substr(value.length() - 1) == "B") skinConfColors[stringToColor(name)].b = atoi(value.c_str());
-						if (value.substr(value.length() - 1) == "A") skinConfColors[stringToColor(name)].a = atoi(value.c_str());
-					} else {
-						skinConfInt[name] = atoi(value.c_str());
-					}
 	skin = "skins/" + skin + "/skin.conf";
 
 	ifstream skinconf(skin.c_str(), ios_base::in);
+	if (skinconf.is_open()) {
+		string line;
+		while (getline(skinconf, line, '\n')) {
+			line = trim(line);
+			// DEBUG("skinconf: '%s'", line.c_str());
+			string::size_type pos = line.find("=");
+			string name = trim(line.substr(0, pos));
+			string value = trim(line.substr(pos + 1));
+
+			if (value.length() > 0) {
+				if (value.length() > 1 && value.at(0) == '"' && value.at(value.length() - 1) == '"') {
+					skinConfStr[name] = value.substr(1, value.length() - 2);
+				} else if (value.at(0) == '#') {
+					// skinConfColor[name] = strtorgba(value.substr(1,value.length()) );
+					skinConfColors[stringToColor(name)] = strtorgba(value);
+				} else if (name.length() > 6 && name.substr(name.length() - 6, 5) == "Color") {
+					value += name.substr(name.length() - 1);
+					name = name.substr(0, name.length() - 6);
+					if (name == "selection" || name == "topBar" || name == "bottomBar" || name == "messageBox") name += "Bg";
+					if (value.substr(value.length() - 1) == "R") skinConfColors[stringToColor(name)].r = atoi(value.c_str());
+					if (value.substr(value.length() - 1) == "G") skinConfColors[stringToColor(name)].g = atoi(value.c_str());
+					if (value.substr(value.length() - 1) == "B") skinConfColors[stringToColor(name)].b = atoi(value.c_str());
+					if (value.substr(value.length() - 1) == "A") skinConfColors[stringToColor(name)].a = atoi(value.c_str());
+				} else {
+					skinConfInt[name] = atoi(value.c_str());
 				}
 			}
-			skinconf.close();
 		}
+		skinconf.close();
 	}
 
 	// (poor) HACK: ensure some colors have a default value
