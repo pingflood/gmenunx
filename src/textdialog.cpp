@@ -75,7 +75,7 @@ void TextDialog::preProcess() {
 }
 
 int TextDialog::drawText(vector<string> *text, int32_t firstCol, int32_t firstRow, uint32_t rowsPerPage) {
-	this->bg->blit(gmenu2x->s,0,0);
+	drawDialog(gmenu2x->s);
 
 	gmenu2x->s->setClipRect(gmenu2x->listRect);
 	int mx = 0;
@@ -119,9 +119,16 @@ void TextDialog::exec() {
 	buttons.push_back({"dpad", gmenu2x->tr["Scroll"]});
 	buttons.push_back({"b", gmenu2x->tr["Exit"]});
 
-	drawDialog(this->bg);
+	drawDialog(gmenu2x->s);
 
 	while (true) {
+		if (gmenu2x->confStr["previewMode"] == "Backdrop") {
+			if (!backdrop.empty())
+				gmenu2x->setBackground(this->bg, backdrop);
+			else
+				gmenu2x->bg->blit(this->bg,0,0);
+		}
+
 		lineWidth = drawText(&text, firstCol, firstRow, rowsPerPage);
 
 		do {

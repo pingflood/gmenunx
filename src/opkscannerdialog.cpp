@@ -199,7 +199,7 @@ void OPKScannerDialog::preProcess() {
 
 	buttons.push_back({"skin:imgs/manual.png", gmenu2x->tr["Running.. Please wait.."]});
 
-	drawDialog(this->bg);
+	drawDialog(gmenu2x->s);
 
 	gmenu2x->s->flip();
 
