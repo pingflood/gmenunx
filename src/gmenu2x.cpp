@@ -1388,25 +1388,8 @@ void GMenu2X::umountSdDialog() {
 void GMenu2X::contextMenu() {
 	vector<MenuOption> options;
 	if (menu->selLinkApp() != NULL) {
-		options.push_back((MenuOption){tr["Edit"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::editLink)});
-
-		string package = "";
-		#if defined(OPK_SUPPORT)
-			if (file_ext(menu->selLinkApp()->getExec(), true) == ".opk") {
-				package = base_name(menu->selLinkApp()->getExec());
-				options.push_back((MenuOption){tr["Uninstall"] + " " + package.c_str(), MakeDelegate(this, &GMenu2X::opkUninstall)});
-			} else
-		#endif
-		#if defined(IPK_SUPPORT)
-			{
-				package = ipkName(menu->selLinkApp()->getFile());
-				if (!package.empty()) {
-					options.push_back((MenuOption){tr["Uninstall"] + " " + package.c_str() + ".ipk", MakeDelegate(this, &GMenu2X::ipkUninstall)});
-				}
-			}
-		#endif
-		if (package.empty())
-		options.push_back((MenuOption){tr["Delete"] + " " + menu->selLink()->getTitle().c_str(), MakeDelegate(this, &GMenu2X::deleteLink)});
+		options.push_back((MenuOption){tr["Edit"] + " " + menu->selLink()->getTitle(), MakeDelegate(this, &GMenu2X::editLink)});
+		options.push_back((MenuOption){tr["Delete"] + " " + menu->selLink()->getTitle(), MakeDelegate(this, &GMenu2X::deleteLink)});
 	}
 
 	options.push_back((MenuOption){tr["Add link"], 			MakeDelegate(this, &GMenu2X::addLink)});
@@ -1622,16 +1605,45 @@ void GMenu2X::editLink() {
 }
 
 void GMenu2X::deleteLink() {
-	if (menu->selLinkApp() != NULL) {
-		MessageBox mb(this, tr["Delete"] + " " + menu->selLink()->getTitle().c_str() + "\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
-		mb.setButton(MANUAL, tr["Yes"]);
-		mb.setButton(CANCEL,  tr["No"]);
-		if (mb.exec() != MANUAL) return;
+	int package_type = 0;
+	MessageBox mb(this, tr["Delete"] + " " + menu->selLink()->getTitle() + "\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
+	string package = menu->selLinkApp()->getExec();
+#if defined(OPK_SUPPORT)
+	if (file_ext(package, true) == ".opk") {
+		package_type = 1;
+		mb.setButton(MODIFIER, tr["Uninstall OPK"]);
+		goto dialog; // shameless use of goto
+	}
+#endif
+#if defined(IPK_SUPPORT)
+	package = ipkName(menu->selLinkApp()->getFile());
+	if (!package.empty()) {
+		package_type = 2;
+		mb.setButton(MODIFIER, tr["Uninstall IPK"]);
+		goto dialog; // shameless use of goto
+	}
+#endif
 
-		ledOn();
-		menu->deleteSelectedLink();
-		sync();
-		ledOff();
+	dialog:
+	mb.setButton(MANUAL, tr["Delete link"]);
+	mb.setButton(CANCEL,  tr["No"]);
+
+	switch (mb.exec()) {
+		case MODIFIER:
+			if (package_type == 1) {
+				unlink(package.c_str());
+				menu->deleteSelectedLink();
+			} else if (package_type == 2) {
+				TerminalDialog td(this, tr["Uninstall package"], "opkg remove " + package, "skin:icons/configure.png");
+				td.exec("opkg remove " + package);
+			}
+			initMenu();
+			break;
+		case MANUAL:
+			menu->deleteSelectedLink();
+			break;
+		default:
+			return;
 	}
 }
 
@@ -1707,29 +1719,6 @@ void GMenu2X::opkInstall(string path) {
 	od.exec();
 	initMenu();
 }
-
-void GMenu2X::opkUninstall() {
-	if (menu->selLinkApp() == NULL) return;
-
-	string package = base_name(menu->selLinkApp()->getExec());
-	MessageBox mb(this, tr["Uninstall"] + " " + package + "\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
-	mb.setButton(MODIFIER, tr["Uninstall"]);
-	mb.setButton(MANUAL, tr["Delete link"]);
-	mb.setButton(CANCEL,  tr["No"]);
-	switch (mb.exec()) {
-		case MODIFIER:
-			unlink(cmdclean(menu->selLinkApp()->getExec()).c_str());
-			menu->deleteSelectedLink();
-			initMenu();
-			break;
-		case MANUAL:
-			menu->deleteSelectedLink();
-			break;
-		default:
-			return;
-	}
-	sync();
-}
 #endif
 
 #if defined(IPK_SUPPORT)
@@ -1759,31 +1748,6 @@ void GMenu2X::ipkInstall(string path) {
 	td.exec(cmd + cmdclean(path));
 	system("if [ -d sections/systems ]; then mkdir -p sections/emulators.systems; cp -r sections/systems/* sections/emulators.systems/; rm -rf sections/systems; fi; sync;");
 	initMenu();
-}
-
-void GMenu2X::ipkUninstall() {
-	if (menu->selLinkApp() == NULL) return;
-	string package = ipkName(menu->selLinkApp()->getFile());
-	if (!package.empty()) {
-		MessageBox mb(this, tr["Uninstall"] + " " + package + ".ipk\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
-		mb.setButton(MODIFIER, tr["Uninstall"]);
-		mb.setButton(MANUAL, tr["Delete link"]);
-		mb.setButton(CANCEL,  tr["No"]);
-		switch (mb.exec()) {
-			case MODIFIER: {
-				TerminalDialog td(this, tr["Uninstall package"], "opkg remove " + package, "skin:icons/configure.png");
-				td.exec("opkg remove " + package);
-				initMenu();
-				break;
-			}
-			case MANUAL:
-				menu->deleteSelectedLink();
-				break;
-			default:
-				return;
-		}
-		sync();
-	}
 }
 #endif
 
