@@ -63,6 +63,7 @@ Link(gmenu2x, MakeDelegate(this, &LinkApp::run)), file(file) {
 		else if (name == "title") setTitle(value);
 		else if (name == "description") setDescription(value);
 		else if (name == "icon") setIcon(value);
+		else if (name == "opk[icon]") icon_opk = value;
 		else if (name == "params") setParams(value);
 		else if (name == "home") setHomeDir(value);
 		else if (name == "manual") setManual(value);
@@ -91,7 +92,7 @@ Link(gmenu2x, MakeDelegate(this, &LinkApp::run)), file(file) {
 
 	is_opk = (file_ext(exec, true) == ".opk");
 
-	if (iconPath.empty() || is_opk) iconPath = searchIcon();
+	if (iconPath.empty()) iconPath = searchIcon();
 	if (manualPath.empty()) manualPath = searchManual();
 	if (backdropPath.empty()) backdropPath = searchBackdrop();
 }
@@ -163,45 +164,53 @@ const string LinkApp::searchBackdrop() {
 }
 
 const string LinkApp::searchIcon() {
+	string iconpath = gmenu2x->sc.getSkinFilePath(icon);
+	if (!iconpath.empty()) return iconpath;
+
 	string execicon = exec;
 	string::size_type pos = exec.rfind(".");
 	if (pos != string::npos) execicon = exec.substr(0, pos);
-	execicon += ".png";
-	string exectitle = base_name(execicon) + ".png";
-	string dirtitle = base_name(dir_name(exec)) + ".png";
-	string linktitle = base_name(file) + ".png";
+	string exectitle = base_name(execicon);
+	string dirtitle = base_name(dir_name(exec));
+	string linktitle = base_name(file);
 
 	vector<string> linkparts;
 	split(linkparts, linktitle, ".");
 
-	if (linkparts.size() > 2 && !gmenu2x->sc.getSkinFilePath("icons/" + linkparts[0] + "." + linkparts[1] + ".png").empty())
-		return gmenu2x->sc.getSkinFilePath("icons/" + linkparts[0] + "." + linkparts[1] + ".png");
-	else if (linkparts.size() > 2 && !gmenu2x->sc.getSkinFilePath("icons/" + linkparts[1] + "." + linkparts[0] + ".png").empty())
-		return gmenu2x->sc.getSkinFilePath("icons/" + linkparts[1] + "." + linkparts[0] + ".png");
-	else if (linkparts.size() > 1 && !gmenu2x->sc.getSkinFilePath("icons/" + linkparts[1] + ".png").empty())
-		return gmenu2x->sc.getSkinFilePath("icons/" + linkparts[1] + ".png");
-	else if (linkparts.size() > 1 && !gmenu2x->sc.getSkinFilePath("icons/" + linkparts[0] + ".png").empty())
-		return gmenu2x->sc.getSkinFilePath("icons/" + linkparts[0] + ".png");
-	else if (!gmenu2x->sc.getSkinFilePath("icons/" + linktitle).empty())
-		return gmenu2x->sc.getSkinFilePath("icons/" + linktitle);
-	else if (!gmenu2x->sc.getSkinFilePath("icons/" + exectitle).empty())
-		return gmenu2x->sc.getSkinFilePath("icons/" + exectitle);
-	else if (!gmenu2x->sc.getSkinFilePath("icons/" + dirtitle).empty())
-		return gmenu2x->sc.getSkinFilePath("icons/" + dirtitle);
-	else if (file_exists(dir_name(exec) + "/" + exectitle))
-		return dir_name(exec) + "/" + exectitle;
-	else if (file_exists(execicon))
-		return execicon;
-	else
+	if (linkparts.size() > 2) {
+		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[0] + "." + linkparts[1] + ".png");
+		if (!iconpath.empty()) return iconpath;
+
+		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[1] + "." + linkparts[0] + ".png");
+		if (!iconpath.empty()) return iconpath;
+	}
+
+	if (linkparts.size() > 1) {
+		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[1] + ".png");
+		if (!iconpath.empty()) return iconpath;
+
+		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[0] + ".png");
+		if (!iconpath.empty()) return iconpath;
+	}
+
+	iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linktitle + ".png");
+	if (!iconpath.empty()) return iconpath;
+
+	iconpath = gmenu2x->sc.getSkinFilePath("icons/" + exectitle + ".png");
+	if (!iconpath.empty()) return iconpath;
+
+	iconpath = gmenu2x->sc.getSkinFilePath("icons/" + dirtitle + ".png");
+	if (!iconpath.empty()) return iconpath;
+
+	iconpath = dir_name(exec) + "/" + exectitle + ".png";
+	if (file_exists(iconpath)) return iconpath;
+
+	iconpath = execicon + ".png";
+	if (file_exists(iconpath)) return iconpath;
+
 #if defined(OPK_SUPPORT)
 	if (isOPK()) {
-		split(linkparts, icon, "#");
-		icon = linkparts[linkparts.size() - 1];
-		if (!gmenu2x->sc.getSkinFilePath("icons/" + icon).empty()) {
-			return gmenu2x->sc.getSkinFilePath("icons/" + icon);
-		} else {
-			return exec + "#" + icon;
-		}
+		return exec + "#" + icon_opk;
 	} else
 #endif
 
@@ -234,12 +243,17 @@ bool LinkApp::targetExists() {
 
 bool LinkApp::save() {
 	if (!edited) return false;
+	int pos = icon.find('#'); // search for "opkfile.opk#icon.png"
+	if (pos != string::npos) {
+		icon_opk = icon.substr(pos + 1);
+	}
 
 	ofstream f(file.c_str());
 	if (f.is_open()) {
 		if (title != "")			f << "title="			<< title			<< endl;
 		if (description != "")		f << "description="		<< description		<< endl;
 		if (icon != "")				f << "icon="			<< icon				<< endl;
+		if (icon_opk != "")			f << "opk[icon]="		<< icon_opk			<< endl;
 		if (exec != "")				f << "exec="			<< exec				<< endl;
 		if (params != "")			f << "params="			<< params			<< endl;
 		if (homedir != "")			f << "home="			<< homedir			<< endl;

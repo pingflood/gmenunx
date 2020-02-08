@@ -69,7 +69,7 @@ public:
 	void setTitle(const string &title);
 	const string &getDescription() { return description; }
 	void setDescription(const string &description);
-	const string &getIcon() { return icon; }
+	const string &getIcon();
 	void setIcon(const string &icon);
 	virtual const string searchIcon();
 	const string &getIconPath();

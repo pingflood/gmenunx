@@ -37,19 +37,23 @@ void Link::setDescription(const string &description) {
 	edited = true;
 }
 
-void Link::setIcon(const string &icon) {
-	this->icon = icon;
+const string &Link::getIcon() {
+	int pos = iconPath.find('#'); // search for "opkfile.opk#icon.png"
+	if (pos != string::npos) icon = "";
+	return icon;
+}
 
-	if (icon.compare(0, 5, "skin:") == 0)
+void Link::setIcon(const string &icon) {
+	int pos = icon.find('#'); // search for "opkfile.opk#icon.png"
+
+	this->icon = icon;
+	if (icon.compare(0, 5, "skin:") == 0) {
 		this->iconPath = gmenu2x->sc.getSkinFilePath(icon.substr(5, string::npos));
-	else if (file_exists(icon))
+	} else if (file_exists(icon)) {
 		this->iconPath = icon;
-#if defined(OPK_SUPPORT)
-	else if (icon.find("#") != std::string::npos)
-		this->iconPath = icon;
-#endif
-	else
+	} else if (!(icon.empty() && pos != string::npos)) { // keep the opk icon
 		this->iconPath = "";
+	}
 
 	edited = true;
 }
@@ -69,24 +73,12 @@ void Link::setBackdrop(const string &backdrop) {
 
 const string Link::searchIcon() {
 	if (!gmenu2x->sc.getSkinFilePath(iconPath).empty())
-		iconPath = gmenu2x->sc.getSkinFilePath(iconPath);
-	else
-		iconPath = gmenu2x->sc.getSkinFilePath("icons/generic.png");
-	return iconPath;
+		return gmenu2x->sc.getSkinFilePath(iconPath);
+	return gmenu2x->sc.getSkinFilePath("icons/generic.png");
 }
 
 const string &Link::getIconPath() {
-#if defined(OPK_SUPPORT)
-	string::size_type pos = iconPath.find('#');
-	if (isOPK() && pos != iconPath.npos) {
-		string icon = iconPath.substr(pos + 1);
-		if (!gmenu2x->sc.getSkinFilePath("icons/" + icon).empty()) {
-			iconPath = gmenu2x->sc.getSkinFilePath("icons/" + icon);
-		}
-	} else
-#endif
 	if (iconPath.empty()) iconPath = searchIcon();
-
 	return iconPath;
 }
 

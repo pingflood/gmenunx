@@ -62,27 +62,33 @@ Surface *SurfaceCollection::add(string path, string key) {
 	if (key.empty()) key = path;
 	if (exists(key)) return surfaces[key]; //del(key);
 
-	Surface *s;
+	Surface *s = NULL;
 
 #if defined(OPK_SUPPORT)
 	int pos = path.find('#'); // search for "opkfile.opk#icon.png"
 	if (pos != path.npos) {
-		// DEBUG("OPK icon: %s", path.c_str());
+		string iconpath = "icons/" + path.substr(pos + 1);
+		iconpath = getSkinFilePath(iconpath);
 
-		void *buf; size_t len;
-		struct OPK *opk = opk_open(path.substr(0, pos).c_str());
-		if (!opk) {
-			ERROR("Unable to open OPK");
-			return NULL;
+		if (!iconpath.empty()) {
+			DEBUG("Adding OPK skin surface: '%s'", iconpath.c_str());
+			s = new Surface(iconpath, true);
+
+		} else {
+			DEBUG("Adding OPK surface: %s", path.c_str());
+			void *buf; size_t len;
+			struct OPK *opk = opk_open(path.substr(0, pos).c_str());
+			if (!opk) {
+				ERROR("Unable to open OPK");
+				// return NULL;
+			} else if (opk_extract_file(opk, path.substr(pos + 1).c_str(), &buf, &len) < 0) {
+				ERROR("Unable to extract file: %s", path.substr(pos + 1).c_str());
+				// return NULL;
+			} else {
+				opk_close(opk);
+				s = new Surface(buf, len);
+			}
 		}
-
-		if (opk_extract_file(opk, path.substr(pos + 1).c_str(), &buf, &len) < 0) {
-			ERROR("Unable to extract file: %s", path.substr(pos + 1).c_str());
-			return NULL;
-		}
-		opk_close(opk);
-
-		s = new Surface(buf, len);
 	} else
 #endif // OPK_SUPPORT
 	{
@@ -90,15 +96,14 @@ Surface *SurfaceCollection::add(string path, string key) {
 			path = getSkinFilePath(path.substr(5));
 		}
 
-		if (path.empty() || !file_exists(path))
-			return NULL;
-
-		DEBUG("Adding surface: '%s'", path.c_str());
-		s = new Surface(path, true);
+		if (!path.empty() && file_exists(path)) {
+			DEBUG("Adding surface: '%s'", path.c_str());
+			s = new Surface(path, true);
+		}
 	}
 
-	if (s != NULL)
-		surfaces[key] = s;
+	// if (s != NULL)
+	surfaces[key] = s;
 
 	return s;
 }
