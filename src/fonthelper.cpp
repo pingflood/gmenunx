@@ -26,14 +26,10 @@ void FontHelper::loadFont(const string &fontName, int fontSize) {
 		}
 	}
 	this->font = TTF_OpenFont(fontName.c_str(), fontSize);
-	if (!this->font) {
-		ERROR("TTF_OpenFont %s: %s", fontName.c_str(), TTF_GetError());
-		exit(2);
-	}
 	this->fontOutline = TTF_OpenFont(fontName.c_str(), fontSize);
-	if (!this->fontOutline) {
+	if (!this->font || !this->fontOutline) {
 		ERROR("TTF_OpenFont %s: %s", fontName.c_str(), TTF_GetError());
-		exit(2);
+		return;
 	}
 	TTF_SetFontHinting(this->font, TTF_HINTING_LIGHT);
 	TTF_SetFontHinting(this->fontOutline, TTF_HINTING_LIGHT);

@@ -433,12 +433,21 @@ void GMenu2X::setBackground(Surface *bg, string wallpaper) {
 }
 
 void GMenu2X::initFont() {
-	if (font != NULL) delete font;
-	if (titlefont != NULL) delete titlefont;
-
 	string skinFont = confStr["skinFont"] == "Default" ? "skins/Default/font.ttf" : sc.getSkinFilePath("font.ttf");
+
+	delete font;
 	font = new FontHelper(skinFont, skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
+	if (!font->font) {
+		delete font;
+		font = new FontHelper("skins/Default/font.ttf", skinConfInt["fontSize"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
+	}
+
+	delete titlefont;
 	titlefont = new FontHelper(skinFont, skinConfInt["fontSizeTitle"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
+	if (!titlefont->font) {
+		delete titlefont;
+		titlefont = new FontHelper("skins/Default/font.ttf", skinConfInt["fontSizeTitle"], skinConfColors[COLOR_FONT], skinConfColors[COLOR_FONT_OUTLINE]);
+	}
 }
 
 void GMenu2X::initMenu() {

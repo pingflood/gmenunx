@@ -15,9 +15,7 @@ using std::string;
 
 class FontHelper {
 private:
-
 	int height, halfHeight, fontSize;
-	TTF_Font *font, *fontOutline;
 	RGBAColor textColor, outlineColor;
 	string fontName;
 
@@ -50,6 +48,7 @@ public:
 	FontHelper *setSize(const int size);
 	FontHelper *setColor(RGBAColor color);
 	FontHelper *setOutlineColor(RGBAColor color);
+	TTF_Font *font, *fontOutline;
 };
 
 #endif /* FONTHELPER_H */
