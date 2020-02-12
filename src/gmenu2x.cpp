@@ -287,13 +287,16 @@ void GMenu2X::main() {
 bool GMenu2X::inputCommonActions(bool &inputAction) {
 	if (powerManager->suspendActive) {
 		// SUSPEND ACTIVE
-		while (!(input[POWER] || input[SETTINGS] || input[UDC_CONNECT] || input[MMC_INSERT] || input[MMC_REMOVE])) {
+		while (!(input[POWER] || input[SETTINGS] || input[UDC_CONNECT] || input[UDC_REMOVE] || input[MMC_INSERT] || input[MMC_REMOVE])) {
 			input.update();
 		}
 
 		powerManager->doSuspend(0);
 		input[WAKE_UP] = true;
-		return true;
+
+		if (!(input[UDC_REMOVE] || input[UDC_CONNECT] || input[MMC_INSERT] || input[MMC_REMOVE])) {
+			return true;
+		}
 	}
 
 	if (inputAction) powerManager->resetSuspendTimer();
