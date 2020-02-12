@@ -214,8 +214,6 @@ void GMenu2X::main() {
 	setBacklight(confInt["backlight"]);
 	setVolume(confInt["globalVolume"]);
 
-	setSkin(confStr["skin"], true);
-
 	setenv("SDL_FBCON_DONT_CLEAR", "1", 0);
 	setenv("SDL_NOMOUSE", "1", 1);
 
@@ -240,6 +238,8 @@ void GMenu2X::main() {
 	s = new Surface();
 
 	s->enableVirtualDoubleBuffer(screen);
+
+	setSkin(confStr["skin"], true);
 
 	currBackdrop = confStr["wallpaper"];
 	setBackground(s, currBackdrop);
@@ -884,6 +884,9 @@ void GMenu2X::writeSkinConfig() {
 }
 
 void GMenu2X::setSkin(string skin, bool clearSC) {
+	input.update(false);
+	if (input[SETTINGS]) skin = "Default";
+
 	confStr["skin"] = skin;
 
 	// Clear previous skin settings
