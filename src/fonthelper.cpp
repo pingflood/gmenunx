@@ -3,6 +3,8 @@
 #include "debug.h"
 #include <sstream>
 
+const uint8_t outline = 1;
+
 FontHelper::FontHelper(const string &fontName, int fontSize, RGBAColor textColor, RGBAColor outlineColor):
 fontName(fontName), fontSize(fontSize), textColor(textColor), outlineColor(outlineColor) {
 	loadFont(fontName, fontSize);
@@ -33,7 +35,7 @@ void FontHelper::loadFont(const string &fontName, int fontSize) {
 	}
 	TTF_SetFontHinting(this->font, TTF_HINTING_LIGHT);
 	TTF_SetFontHinting(this->fontOutline, TTF_HINTING_LIGHT);
-	TTF_SetFontOutline(this->fontOutline, 1);
+	TTF_SetFontOutline(this->fontOutline, outline);
 	height = 0;
 	// Get maximum line height with a sample text
 	TTF_SizeUTF8(this->font, "AZ0987654321", NULL, &height);
@@ -174,7 +176,7 @@ void FontHelper::write(Surface *surface, const string &text, int x, int y, RGBAC
 		Surface bg;
 		bg.raw = TTF_RenderUTF8_Blended(fontOutline, text.c_str(), rgbatosdl(bgColor));
 		bg.setAlpha(bgColor.a);
-		bg.blit(surface, x - TTF_GetFontOutline(fontOutline), y - TTF_GetFontOutline(fontOutline));
+		bg.blit(surface, x - outline, y - outline);
 	}
 
 	if (fgColor.a > 0) {
