@@ -242,7 +242,7 @@ void GMenu2X::main() {
 	setSkin(confStr["skin"], true);
 
 	currBackdrop = confStr["wallpaper"];
-	setBackground(s, currBackdrop);
+	confStr["wallpaper"] = setBackground(s, currBackdrop);
 
 	bg = new Surface(s);
 
@@ -416,7 +416,7 @@ void GMenu2X::cls(Surface *s, bool flip) {
 	}
 }
 
-void GMenu2X::setBackground(Surface *bg, string wallpaper) {
+string GMenu2X::setBackground(Surface *bg, string wallpaper) {
 	if (!sc.exists(wallpaper)) { // search and scale background
 		if (wallpaper.empty() || sc[wallpaper] == NULL) {
 			DEBUG("Searching wallpaper");
@@ -425,7 +425,7 @@ void GMenu2X::setBackground(Surface *bg, string wallpaper) {
 			fl.browse();
 			wallpaper = "skins/Default/wallpapers/" + fl.getFiles()[0];
 		}
-		if (sc[wallpaper] == NULL) return;
+		if (sc[wallpaper] == NULL) return "";
 		if (confStr["bgscale"] == "Stretch") sc[wallpaper]->softStretch(this->w, this->h, SScaleStretch);
 		else if (confStr["bgscale"] == "Crop") sc[wallpaper]->softStretch(this->w, this->h, SScaleMax);
 		else if (confStr["bgscale"] == "Aspect") sc[wallpaper]->softStretch(this->w, this->h, SScaleFit);
@@ -433,6 +433,7 @@ void GMenu2X::setBackground(Surface *bg, string wallpaper) {
 
 	cls(bg, false);
 	sc[wallpaper]->blit(bg, (this->w - sc[wallpaper]->width()) / 2, (this->h - sc[wallpaper]->height()) / 2);
+	return wallpaper;
 }
 
 void GMenu2X::initFont() {

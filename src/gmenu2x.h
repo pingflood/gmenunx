@@ -194,7 +194,7 @@ public:
 	void renameSection();
 	void deleteSection();
 
-	void setBackground(Surface *bg, string wallpaper);
+	string setBackground(Surface *bg, string wallpaper);
 
 	int drawButton(Button *btn, int x = 5, int y = -8);
 	int drawButton(Surface *s, const string &btn, const string &text = "", int x = 5, int y = -8);
