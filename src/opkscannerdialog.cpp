@@ -32,6 +32,8 @@
 using namespace std;
 extern const char *CARD_ROOT;
 
+bool any_platform = false;
+
 OPKScannerDialog::OPKScannerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop):
 TextDialog(gmenu2x, title, description, icon, backdrop) {}
 
@@ -71,14 +73,12 @@ void OPKScannerDialog::opkInstall(const string &path) {
 		string linkpath = linkname.substr(0, pos);
 		linkpath = pkgname + "." + linkname + ".lnk";
 
-		if (!(platform == PLATFORM || platform == "all")) {
+		if (!(any_platform || platform == PLATFORM || platform == "all")) {
 			text.push_back(" - " + linkname + ": " + gmenu2x->tr["Unsupported platform"]);
 			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
 
 			ERROR("%s: Unsupported platform '%s'", pkgname.c_str(), platform.c_str());
-#if !defined(TARGET_LINUX) // pc debug
 			continue;
-#endif
 		} else {
 			text.push_back(" + " + linkname + ": " + gmenu2x->tr["OK"]);
 			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
@@ -188,7 +188,8 @@ void OPKScannerDialog::opkScan(string opkdir) {
 	}
 }
 
-void OPKScannerDialog::preProcess() {
+void OPKScannerDialog::exec(bool _any_platform) {
+	any_platform = _any_platform;
 	rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
 
 	gmenu2x->powerManager->clearTimer();
@@ -250,6 +251,8 @@ void OPKScannerDialog::preProcess() {
 	}
 
 	buttons.clear();
+
+	TextDialog::exec();
 }
 
 #endif // defined(OPK_SUPPORT)

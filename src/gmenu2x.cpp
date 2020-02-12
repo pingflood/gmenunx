@@ -1731,9 +1731,12 @@ void GMenu2X::opkScanner() {
 }
 
 void GMenu2X::opkInstall(string path) {
+	input.update(false);
+	bool debug = input[MANUAL];
+
 	OPKScannerDialog od(this, tr["Package installer"], tr["Installing"] + " " + base_name(path), "skin:icons/configure.png");
 	od.opkpath = path;
-	od.exec();
+	od.exec(debug);
 	initMenu();
 }
 #endif

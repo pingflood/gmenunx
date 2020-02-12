@@ -36,7 +36,8 @@ public:
 	void opkInstall(const string &path);
 	void opkScan(string opkdir);
 	OPKScannerDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop = "");
-	void preProcess();
+	void preProcess() { };
+	void exec(bool any_platform = false);
 };
 
 #endif /*OPKSCANNERDIALOG_H_*/
