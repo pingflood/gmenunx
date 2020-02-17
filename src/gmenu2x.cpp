@@ -918,7 +918,7 @@ void GMenu2X::settings() {
 	string prevDateTime = getDateTime();
 	string newDateTime = prevDateTime;
 	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &newDateTime));
-	sd.addSetting(new MenuSettingDir(this, tr["Home path"],	tr["Alternative home for launched links"], &confStr["homePath"]));
+	sd.addSetting(new MenuSettingDir(this, tr["Home path"],	tr["Set as home for launched links"], &confStr["homePath"]));
 
 #if defined(HW_UDC)
 	vector<string> usbMode;
@@ -928,7 +928,7 @@ void GMenu2X::settings() {
 	sd.addSetting(new MenuSettingMultiString(this, tr["USB mode"], tr["Define default USB mode"], &confStr["usbMode"], &usbMode));
 #endif
 
-	sd.addSetting(new MenuSettingInt(this, tr["Screen timeout"], tr["Seconds to turn display off if inactive"], &confInt["backlightTimeout"], 30, 10, 300));
+	sd.addSetting(new MenuSettingInt(this, tr["Suspend timeout"], tr["Seconds until suspend the device when inactive"], &confInt["backlightTimeout"], 30, 10, 300));
 	// sd.addSetting(new MenuSettingInt(this, tr["Power timeout"], tr["Minutes to poweroff system if inactive"], &confInt["powerTimeout"], 10, 1, 300));
 	sd.addSetting(new MenuSettingInt(this, tr["Backlight"], tr["Set LCD backlight"], &confInt["backlight"], 70, 1, 100));
 	sd.addSetting(new MenuSettingInt(this, tr["Audio volume"], tr["Set the default audio volume"], &confInt["globalVolume"], 60, 0, 100));
@@ -1763,7 +1763,7 @@ void GMenu2X::contextMenu() {
 	if (file_exists("/usr/bin/retrofw"))
 #endif
 	{
-		options.push_back((MenuOption){tr["Update OPK links"], MakeDelegate(this, &GMenu2X::opkScanner)});
+		options.push_back((MenuOption){tr["Update OPKs"], MakeDelegate(this, &GMenu2X::opkScanner)});
 	}
 #endif
 	MessageBox mb(this, options);
