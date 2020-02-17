@@ -56,23 +56,24 @@ msx, jbanes, jutley and scooterpsu (RetroFW)
 
 Translators
 ----
-English & Italian by Massimiliano
-French by Yodaz
-Danish by claus
-Dutch by superfly
-Spanish by pedator
-Portuguese (Portugal) by NightShadow
-Portuguese (Brazil) by pingflood
-Slovak by Jozef
-Swedish by Esslan and Micket
-German by fusion_power, johnnysnet and Waldteufel
-Finnish by Jontte and Atte
-Norwegian by cowai
-Russian by XaMMaX90
-Chinese (CN) by KungfuPanda & simpleasy
-Chinese (TW) by TonyJih
-Korean by haven-jeon
-Polish by Macmmm81
+Chinese (CN): 蔡蔡哥; simpleasy; KungfuPanda
+Chinese (TW): wentao; TonyJih
+Danish: claus
+Dutch: superfly
+English: Massimiliano
+Finnish: Jontte; Atte
+French: Yodaz
+German: fusion_power; johnnysnet; Waldteufel
+Italian: Massimiliano
+Korean: haven-jeon
+Norwegian: cowai
+Polish: Macmmm81
+Portuguese (Brazil): pingflood
+Portuguese (Portugal): NightShadow
+Russian: XaMMaX90
+Slovak: Jozef
+Spanish: pedator
+Swedish: Esslan; Micket
 
 Donors
 ----
@@ -96,5 +97,5 @@ for giving a discount coupon and development units
 Wentao for giving hardware mod support:
 https://www.youtube.com/channel/UCeGZpAGYSiCGz6x4OX5MSEw
 
-and all the anonymous donors...
+and all the anonymous colaborators...
 (If I missed to list you or if you want to be removed, contact me.)
