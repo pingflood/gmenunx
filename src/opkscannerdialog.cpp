@@ -96,6 +96,7 @@ void OPKScannerDialog::opkInstall(const string &path) {
 			selectordir = "",
 			selectorfilter = "",
 			aliasfile = "",
+			scaling = "",
 			icon = "",
 			section = "applications";
 		bool terminal = false;
@@ -131,6 +132,9 @@ void OPKScannerDialog::opkInstall(const string &path) {
 			if (!strncmp(key, "X-OD-Selector", lkey)) {
 				selectordir = buf;
 			} else
+			if (!strncmp(key, "X-OD-Scaling", lkey)) {
+				scaling = buf;
+			} else
 			if (!strncmp(key, "X-OD-Filter", lkey)) {
 				selectorfilter = buf;
 			} else
@@ -165,6 +169,7 @@ void OPKScannerDialog::opkInstall(const string &path) {
 		if (!selectorfilter.empty()) link->setSelectorFilter(selectorfilter);
 		if (!aliasfile.empty()) link->setAliasFile(aliasfile);
 		if (!icon.empty()) link->setIcon(icon);
+		if (!scaling.empty()) link->setScaleMode(atoi(scaling.c_str()));
 		link->setTerminal(terminal);
 
 		link->save();
