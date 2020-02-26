@@ -45,14 +45,16 @@ void SurfaceCollection::setSkin(const string &skin) {
 	this->skin = skin;
 }
 
-string SurfaceCollection::getSkinFilePath(const string &file) {
+string SurfaceCollection::getSkinFilePath(const string &file, bool fallback) {
 	string ret = "skins/" + skin + "/" + file;
 	if (file_exists(ret))
 		return ret;
 
-	ret = "skins/Default/" + file;
-	if (file_exists(ret))
-		return ret;
+	if (fallback) {
+		ret = "skins/Default/" + file;
+		if (file_exists(ret))
+			return ret;
+	}
 
 	return "";
 }
@@ -68,7 +70,7 @@ Surface *SurfaceCollection::add(string path, string key) {
 	int pos = path.find('#'); // search for "opkfile.opk#icon.png"
 	if (pos != path.npos) {
 		string iconpath = "icons/" + path.substr(pos + 1);
-		iconpath = getSkinFilePath(iconpath);
+		iconpath = getSkinFilePath(iconpath, false);
 
 		if (!iconpath.empty()) {
 			DEBUG("Adding OPK skin surface: '%s'", iconpath.c_str());

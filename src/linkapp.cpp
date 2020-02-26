@@ -164,7 +164,7 @@ const string LinkApp::searchBackdrop() {
 }
 
 const string LinkApp::searchIcon() {
-	string iconpath = gmenu2x->sc.getSkinFilePath(icon);
+	string iconpath = gmenu2x->sc.getSkinFilePath(icon, false);
 	if (!iconpath.empty()) return iconpath;
 
 	string execicon = exec;
@@ -178,28 +178,28 @@ const string LinkApp::searchIcon() {
 	split(linkparts, linktitle, ".");
 
 	if (linkparts.size() > 2) {
-		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[0] + "." + linkparts[1] + ".png");
+		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[0] + "." + linkparts[1] + ".png", false);
 		if (!iconpath.empty()) return iconpath;
 
-		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[1] + "." + linkparts[0] + ".png");
+		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[1] + "." + linkparts[0] + ".png", false);
 		if (!iconpath.empty()) return iconpath;
 	}
 
 	if (linkparts.size() > 1) {
-		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[1] + ".png");
+		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[1] + ".png", false);
 		if (!iconpath.empty()) return iconpath;
 
-		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[0] + ".png");
+		iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linkparts[0] + ".png", false);
 		if (!iconpath.empty()) return iconpath;
 	}
 
-	iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linktitle + ".png");
+	iconpath = gmenu2x->sc.getSkinFilePath("icons/" + linktitle + ".png", false);
 	if (!iconpath.empty()) return iconpath;
 
-	iconpath = gmenu2x->sc.getSkinFilePath("icons/" + exectitle + ".png");
+	iconpath = gmenu2x->sc.getSkinFilePath("icons/" + exectitle + ".png", false);
 	if (!iconpath.empty()) return iconpath;
 
-	iconpath = gmenu2x->sc.getSkinFilePath("icons/" + dirtitle + ".png");
+	iconpath = gmenu2x->sc.getSkinFilePath("icons/" + dirtitle + ".png", false);
 	if (!iconpath.empty()) return iconpath;
 
 	iconpath = dir_name(exec) + "/" + exectitle + ".png";

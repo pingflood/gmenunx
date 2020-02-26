@@ -40,7 +40,7 @@ private:
 public:
 	SurfaceCollection();
 	void setSkin(const std::string &skin);
-	std::string getSkinFilePath(const std::string &file);
+	std::string getSkinFilePath(const std::string &file, bool falback = true);
 	void debug();
 	Surface *add(Surface *s, const std::string &path);
 	Surface *add(std::string path, std::string key="");
