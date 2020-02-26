@@ -1525,6 +1525,9 @@ void GMenu2X::explorer() {
 		} else if (ext == ".sh") {
 			TerminalDialog td(this, tr["Terminal"], "sh" + cmdclean(bd.getFileName(bd.selected)), "skin:icons/terminal.png");
 			td.exec(bd.getFilePath(bd.selected));
+		} else if (ext == ".zip") {
+			TerminalDialog td(this, tr["Zip content"], bd.getFileName(bd.selected), "skin:icons/terminal.png");
+			td.exec("unzip -l " + cmdclean(bd.getFilePath(bd.selected)));
 		} else {
 			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
 				writeConfig();
