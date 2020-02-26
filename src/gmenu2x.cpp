@@ -1525,6 +1525,9 @@ void GMenu2X::explorer() {
 		} else if (ext == ".sh") {
 			TerminalDialog td(this, tr["Terminal"], "sh" + cmdclean(bd.getFileName(bd.selected)), "skin:icons/terminal.png");
 			td.exec(bd.getFilePath(bd.selected));
+		} else if (ext == ".zip" && (bd.getFile(bd.selected).rfind("gmenu2x-skin-", 0) == 0) || (bd.getFile(bd.selected).rfind("gmenunx-skin-", 0) == 0)) {
+			TerminalDialog td(this, tr["Skin installer"], bd.getFileName(bd.selected), "skin:icons/skin.png");
+			td.exec("rm -rf /tmp/skins; mkdir -p /tmp/skins; unzip -o " + cmdclean(bd.getFilePath(bd.selected)) + " -d /tmp/skins; cp -rf /tmp/skins/ " + getExePath() + "/skins 2> /dev/null; rm -rf /tmp/skins; sync");
 		} else if (ext == ".zip") {
 			TerminalDialog td(this, tr["Zip content"], bd.getFileName(bd.selected), "skin:icons/terminal.png");
 			td.exec("unzip -l " + cmdclean(bd.getFilePath(bd.selected)));
