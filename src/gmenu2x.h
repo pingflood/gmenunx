@@ -98,14 +98,6 @@ class Menu;
 class GMenu2X {
 private:
 	static GMenu2X *instance;
-
-	string path = ""; //!< Contains the working directory of GMenu2X
-	/*!
-	Retrieves the free disk space on the sd
-	@return String containing a human readable representation of the free disk space
-	*/
-	string getDiskFree(const char *path);
-
 	/*!
 	Starts the scanning of the nand and sd filesystems, searching for gpe and gpu files and creating the links in 2 dedicated sections.
 	*/
@@ -152,13 +144,6 @@ public:
 	uint32_t w = 320, h = 240, bpp = 16;
 	uint32_t linkCols, linkRows, linkWidth, linkHeight, linkSpacing = 4;
 	SDL_Rect listRect, linksRect, sectionBarRect, bottomBarRect;
-	/*!
-	Retrieves the parent directory of GMenu2X.
-	This functions is used to initialize the "path" variable.
-	@see path
-	@return String containing the parent directory
-	*/
-	const string &getExePath();
 
 	//Configuration hashes
 	ConfStrHash confStr, skinConfStr;

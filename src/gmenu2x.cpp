@@ -19,36 +19,28 @@
  ***************************************************************************/
 
 #include <iostream>
-#include <iomanip>
+// #include <iomanip>
 #include <sstream>
 #include <fstream>
 #include <algorithm>
 #include <stdlib.h>
-#include <math.h>
+// #include <math.h>
 #include <signal.h>
 
 // #include <sys/reboot.h>
 
-#include <sys/statvfs.h>
-#include <errno.h>
+// #include <errno.h>
 
 // for browsing the filesystem
-#include <sys/stat.h>
+// #include <sys/stat.h>
 // #include <sys/types.h>
-#include <dirent.h>
+// #include <dirent.h>
 
-// for soundcard
 #include <sys/ioctl.h>
-#include <linux/soundcard.h>
 
 #include <linux/vt.h>
 #include <linux/kd.h>
 #include <linux/fb.h>
-
-#include <sys/mman.h>
-
-#include <ctime>
-#include <sys/time.h>   /* for settimeofday() */
 
 #include "linkapp.h"
 #include "menu.h"
@@ -146,70 +138,14 @@ static const char *colorToString(enum color c) {
 	return colorNames[c];
 }
 
-// char *ms2hms(uint32_t t, bool mm = true, bool ss = true) {
-// 	static char buf[10];
+// static GMenu2X *app;
+GMenu2X *GMenu2X::instance = NULL;
 
-// 	t = t / 1000;
-// 	int s = (t % 60);
-// 	int m = (t % 3600) / 60;
-// 	int h = (t % 86400) / 3600;
-// 	// int d = (t % (86400 * 30)) / 86400;
-
-// 	if (!ss) sprintf(buf, "%02d:%02d", h, m);
-// 	else if (!mm) sprintf(buf, "%02d", h);
-// 	else sprintf(buf, "%02d:%02d:%02d", h, m, s);
-// 	return buf;
-// };
-
-void syncDateTime(time_t t) {
-#if !defined(TARGET_PC)
-	struct timeval tv = { t, 0 };
-	settimeofday(&tv, NULL);
-	system("hwclock --systohc &");
-#endif
 }
 
-void initDateTime() {
-	time_t now = time(0);
-	const uint32_t t = __BUILDTIME__;
 
-	if (now < t) {
-		syncDateTime(t);
-	}
-}
 
-void setDateTime(const char* timestamp) {
-	int imonth, iday, iyear, ihour, iminute;
 
-	sscanf(timestamp, "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
-
-	struct tm datetime = { 0 };
-
-	datetime.tm_year = iyear - 1900;
-	datetime.tm_mon  = imonth - 1;
-	datetime.tm_mday = iday;
-	datetime.tm_hour = ihour;
-	datetime.tm_min  = iminute;
-	datetime.tm_sec  = 0;
-
-	if (datetime.tm_year < 0) datetime.tm_year = 0;
-
-	time_t t = mktime(&datetime);
-
-	syncDateTime(t);
-}
-
-const string getDateTime() {
-#if !defined(TARGET_PC)
-	system("hwclock --hctosys &");
-#endif
-
-	char buf[80];
-	time_t now = time(0);
-	struct tm tstruct = *localtime(&now);
-	strftime(buf, sizeof(buf), "%F %R", &tstruct);
-	return buf;
-}
 
 
 static void quit_all(int err) {
@@ -228,7 +164,7 @@ GMenu2X::~GMenu2X() {
 void GMenu2X::quit() {
 	powerManager->clearTimer();
 
-	getDateTime(); // update sw clock
+	get_date_time(); // update sw clock
 
 	writeConfig();
 
@@ -272,9 +208,9 @@ void GMenu2X::main() {
 
 	hwInit();
 
-	chdir(getExePath().c_str());
+	chdir(exe_path().c_str());
 
-	initDateTime();
+	init_date_time();
 
 	readConfig();
 
@@ -952,8 +888,9 @@ void GMenu2X::initMenu() {
 				menu->addActionLink(i, "USB Nand", MakeDelegate(this, &GMenu2X::activateNandUsb), tr["Activate USB on NAND"], "usb.png");
 			}
 #endif
-			if (file_exists(getExePath() + "log.txt"))
+			if (file_exists(exe_path() + "/log.txt")) {
 				menu->addActionLink(i, tr["Log Viewer"], MakeDelegate(this, &GMenu2X::viewLog), tr["Displays last launched program's output"], "ebook.png");
+			}
 
 			menu->addActionLink(i, tr["About"], MakeDelegate(this, &GMenu2X::about), tr["Info about system"], "about.png");
 			menu->addActionLink(i, tr["Power"], MakeDelegate(this, &GMenu2X::poweroffDialog), tr["Power menu"], "exit.png");
@@ -983,7 +920,7 @@ void GMenu2X::settings() {
 
 	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenuNX"], &lang, &fl_tr.getFiles()));
 
-	string prevDateTime = getDateTime();
+	string prevDateTime = get_date_time();
 	string newDateTime = prevDateTime;
 	sd.addSetting(new MenuSettingDateTime(this, tr["Date & Time"], tr["Set system's date & time"], &newDateTime));
 	sd.addSetting(new MenuSettingDir(this, tr["Home path"],	tr["Set as home for launched links"], &confStr["homePath"]));
@@ -1087,11 +1024,11 @@ void GMenu2X::resetSettings() {
 			}
 		}
 		if (reset_skin) {
-			string tmppath = getExePath() + "skins/Default/skin.conf";
+			string tmppath = exe_path() + "/skins/Default/skin.conf";
 			unlink(tmppath.c_str());
 		}
 		if (reset_gmenu) {
-			string tmppath = getExePath() + "gmenu2x.conf";
+			string tmppath = exe_path() + "/gmenu2x.conf";
 			unlink(tmppath.c_str());
 		}
 		reinit();
@@ -1156,7 +1093,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 }
 
 void GMenu2X::readConfig() {
-	string conffile = getExePath() + "gmenu2x.conf";
+	string conffile = exe_path() + "/gmenu2x.conf";
 
 	// Defaults *** Sync with default values in writeConfig
 	confInt["saveSelection"] = 1;
@@ -1220,7 +1157,7 @@ void GMenu2X::writeConfig() {
 		confInt["link"] = menu->selLinkIndex();
 	}
 
-	string conffile = getExePath() + "gmenu2x.conf";
+	string conffile = exe_path() + "/gmenu2x.conf";
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
@@ -1299,7 +1236,7 @@ void GMenu2X::writeConfig() {
 
 void GMenu2X::writeSkinConfig() {
 	ledOn();
-	string conffile = getExePath() + "skins/" + confStr["skin"] + "/skin.conf";
+	string conffile = exe_path() + "/skins/" + confStr["skin"] + "/skin.conf";
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for (ConfStrHash::iterator curr = skinConfStr.begin(); curr != skinConfStr.end(); curr++) {
@@ -1635,11 +1572,11 @@ void GMenu2X::about() {
 }
 
 void GMenu2X::viewLog() {
-	string logfile = getExePath() + "log.txt";
+	string logfile = exe_path() + "/log.txt";
 	if (!file_exists(logfile)) return;
 
 	TextDialog td(this, tr["Log Viewer"], tr["Last launched program's output"], "skin:icons/ebook.png");
-	td.appendFile(getExePath() + "log.txt");
+	td.appendFile(exe_path() + "/log.txt");
 	td.exec();
 
 	MessageBox mb(this, tr["Delete the log file?"], "skin:icons/ebook.png");
@@ -1773,7 +1710,7 @@ void GMenu2X::explorer() {
 					params = "-batch -ex \"run\" -ex \"bt\" --args " + command;
 					command = "gdb";
 				}
-				params += " 2>&1 | tee " + cmdclean(getExePath()) + "/log.txt";
+				params += " 2>&1 | tee " + cmdclean(exe_path()) + "/log.txt";
 			}
 
 			LinkApp *link = new LinkApp(this, this->input, "explorer.lnk~");
@@ -1789,33 +1726,15 @@ void GMenu2X::explorer() {
 	confStr["explorerLastDir"] = bd.getPath();
 }
 
-string exclusive_filename(string path, string ext) {
-	uint32_t x = 0;
-	string fname = path + ext;
-	while (file_exists(fname)) {
-		stringstream ss;
-		ss << x;
-		ss >> fname;
-		fname = path + fname + ext;
-		x++;
-	}
-	return fname;
-}
-
-
-bool GMenu2X::saveScreenshot() {
-	string fname;
-
-	mkdir("screenshots/", 0777);
-
+bool GMenu2X::saveScreenshot(string path) {
 	if (file_exists("/usr/bin/fbgrab")) {
-		fname = exclusive_filename("screenshots/screen", ".png");
-		fname = "/usr/bin/fbgrab " + fname + "; sync";
-		return system(fname.c_str()) == 0;
+		path = unique_filename(path + "/screenshot", ".png");
+		path = "/usr/bin/fbgrab " + path + " &";
+		return system(path.c_str()) == 0;
 	}
 
-	fname = exclusive_filename("screenshots/screen", ".bmp");
-	return SDL_SaveBMP(s->raw, fname.c_str()) == 0;
+	path = unique_filename(path + "/screenshot", ".bmp");
+	return SDL_SaveBMP(s->raw, path.c_str()) == 0;
 }
 
 void GMenu2X::reinit(bool showDialog) {
@@ -1828,7 +1747,7 @@ void GMenu2X::reinit(bool showDialog) {
 
 	quit();
 	WARNING("Re-launching gmenu2x");
-	chdir(getExePath().c_str());
+	chdir(exe_path().c_str());
 	execlp("./gmenu2x", "./gmenu2x", NULL);
 }
 
@@ -2017,10 +1936,10 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingImage(			this, tr["Backdrop"],		tr["Select an image backdrop"], &linkBackdrop, ".png,.bmp,.jpg,.jpeg", linkExec, dialogTitle, dialogIcon));
 	sd.addSetting(new MenuSettingFile(			this, tr["Manual"],			tr["Select a Manual or Readme file"], &linkManual, ".man.png,.txt,.me", linkExec, dialogTitle, dialogIcon));
 
-	#if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-		bool linkUseGinge = menu->selLinkApp()->getUseGinge();
-		string ginge_prep = getExePath() + "/ginge/ginge_prep";
-		if (file_exists(ginge_prep))
+#if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
+	bool linkUseGinge = menu->selLinkApp()->getUseGinge();
+	string ginge_prep = exe_path() + "/ginge/ginge_prep";
+	if (file_exists(ginge_prep))
 		sd.addSetting(new MenuSettingBool(		this, tr["Use Ginge"],			tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
 #endif
 
@@ -2162,7 +2081,7 @@ void GMenu2X::deleteSection() {
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() != MANUAL) return;
 	ledOn();
-	if (rmtree(getExePath() + "sections/" + menu->selSection())) {
+	if (rmtree(exe_path() + "/sections/" + menu->selSection())) {
 		menu->deleteSelectedSection();
 		sync();
 	}
@@ -2398,40 +2317,6 @@ int GMenu2X::setBacklight(int val, bool popup) {
 	}
 
 	return val;
-}
-
-const string &GMenu2X::getExePath() {
-	if (path.empty()) {
-		char buf[255];
-		memset(buf, 0, 255);
-		int l = readlink("/proc/self/exe", buf, 255);
-
-		path = buf;
-		path = path.substr(0, l);
-		l = path.rfind("/");
-		path = path.substr(0, l + 1);
-	}
-	return path;
-}
-
-string GMenu2X::getDiskFree(const char *path) {
-	string df = "N/A";
-	struct statvfs b;
-
-	if (statvfs(path, &b) == 0) {
-		// Make sure that the multiplication happens in 64 bits.
-		uint32_t freeMiB = ((uint64_t)b.f_bfree * b.f_bsize) / (1024 * 1024);
-		uint32_t totalMiB = ((uint64_t)b.f_blocks * b.f_frsize) / (1024 * 1024);
-		stringstream ss;
-		if (totalMiB >= 10000) {
-			ss	<< (freeMiB / 1024) << "." << ((freeMiB % 1024) * 10) / 1024 << "/"
-				<< (totalMiB / 1024) << "." << ((totalMiB % 1024) * 10) / 1024 << "GiB";
-		} else {
-			ss	<< freeMiB << "/" << totalMiB << "MiB";
-		}
-		ss >> df;
-	} else WARNING("statvfs failed with error '%s'", strerror(errno));
-	return df;
 }
 
 int GMenu2X::drawButton(Button *btn, int x, int y) {

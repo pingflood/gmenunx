@@ -407,7 +407,7 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 #if defined(TARGET_GP2X)
 	//if (useRamTimings) gmenu2x->applyRamTimings();
 	// if (useGinge) {
-		// string ginge_prep = gmenu2x->getExePath() + "/ginge/ginge_prep";
+		// string ginge_prep = exe_path() + "/ginge/ginge_prep";
 		// if (file_exists(ginge_prep)) command = cmdclean(ginge_prep) + " " + command;
 	// }
 	if (fwType == "open2x") gmenu2x->writeConfigOpen2x();
@@ -422,9 +422,9 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 	command = gmenu2x->hwPreLinkLaunch() + command;
 
 	if (gmenu2x->confInt["outputLogs"]) {
-		params = "echo " + cmdclean(command) + " > " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
+		params = "echo " + cmdclean(command) + " > " + cmdclean(exe_path()) + "/log.txt";
 		system(params.c_str());
-		command += " 2>&1 | tee -a " + cmdclean(gmenu2x->getExePath()) + "/log.txt";
+		command += " 2>&1 | tee -a " + cmdclean(exe_path()) + "/log.txt";
 	}
 
 	// params = this->getHomeDir();
@@ -443,7 +443,7 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 	//if execution continues then something went wrong and as we already called SDL_Quit we cannot continue
 	//try relaunching gmenu2x
-	chdir(gmenu2x->getExePath().c_str());
+	chdir(exe_path().c_str());
 	execlp("./gmenu2x", "./gmenu2x", NULL);
 }
 

@@ -23,6 +23,9 @@
 #include <dirent.h>
 #include <math.h>
 
+#include <ctime>
+#include <sys/time.h>   /* for settimeofday() */
+
 #include <SDL.h>
 
 #include <algorithm>
@@ -312,3 +315,111 @@ bool file_copy(const string &src, const string &dst) {
 	fclose(fd);
 	return true;
 }
+
+string unique_filename(string path, string ext) {
+	uint32_t x = 0;
+	string fname = path + ext;
+	while (file_exists(fname)) {
+		stringstream ss;
+		ss << x;
+		ss >> fname;
+		fname = path + fname + ext;
+		x++;
+	}
+	return fname;
+}
+
+string exe_path() {
+	char real_path[PATH_MAX];
+	memset(real_path, 0, PATH_MAX);
+	readlink("/proc/self/exe", real_path, PATH_MAX);
+	return dir_name(real_path);
+}
+
+string disk_free(const char *path) {
+	string df = "N/A";
+	struct statvfs b;
+
+	if (statvfs(path, &b) == 0) {
+		// Make sure that the multiplication happens in 64 bits.
+		uint32_t freeMiB = ((uint64_t)b.f_bfree * b.f_bsize) / (1024 * 1024);
+		uint32_t totalMiB = ((uint64_t)b.f_blocks * b.f_frsize) / (1024 * 1024);
+		stringstream ss;
+		if (totalMiB >= 10000) {
+			ss	<< (freeMiB / 1024) << "." << ((freeMiB % 1024) * 10) / 1024 << "/"
+				<< (totalMiB / 1024) << "." << ((totalMiB % 1024) * 10) / 1024 << "GiB";
+		} else {
+			ss	<< freeMiB << "/" << totalMiB << "MiB";
+		}
+		ss >> df;
+	} else {
+		WARNING("statvfs failed with error '%s'", strerror(errno));
+	}
+
+	return df;
+}
+
+const string get_date_time() {
+#if !defined(TARGET_LINUX)
+	system("hwclock --hctosys &");
+#endif
+
+	char buf[80];
+	time_t now = time(0);
+	struct tm tstruct = *localtime(&now);
+	strftime(buf, sizeof(buf), "%F %R", &tstruct);
+	return buf;
+}
+
+void sync_date_time(time_t t) {
+#if !defined(TARGET_LINUX)
+	struct timeval tv = { t, 0 };
+	settimeofday(&tv, NULL);
+	system("hwclock --systohc &");
+#endif
+}
+
+void init_date_time() {
+	time_t now = time(0);
+	const uint32_t t = __BUILDTIME__;
+
+	if (now < t) {
+		sync_date_time(t);
+	}
+}
+
+void set_date_time(const char* timestamp) {
+	int imonth, iday, iyear, ihour, iminute;
+
+	sscanf(timestamp, "%d-%d-%d %d:%d", &iyear, &imonth, &iday, &ihour, &iminute);
+
+	struct tm datetime = { 0 };
+
+	datetime.tm_year = iyear - 1900;
+	datetime.tm_mon  = imonth - 1;
+	datetime.tm_mday = iday;
+	datetime.tm_hour = ihour;
+	datetime.tm_min  = iminute;
+	datetime.tm_sec  = 0;
+
+	if (datetime.tm_year < 0) datetime.tm_year = 0;
+
+	time_t t = mktime(&datetime);
+
+	sync_date_time(t);
+}
+
+// char *ms2hms(uint32_t t, bool mm = true, bool ss = true) {
+// 	static char buf[10];
+
+// 	t = t / 1000;
+// 	int s = (t % 60);
+// 	int m = (t % 3600) / 60;
+// 	int h = (t % 86400) / 3600;
+// 	// int d = (t % (86400 * 30)) / 86400;
+
+// 	if (!ss) sprintf(buf, "%02d:%02d", h, m);
+// 	else if (!mm) sprintf(buf, "%02d", h);
+// 	else sprintf(buf, "%02d:%02d:%02d", h, m, s);
+// 	return buf;
+// };
