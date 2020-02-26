@@ -58,6 +58,7 @@ public:
 	int sectionNumItems();
 
 	const string &selSection();
+	const string selSectionName();
 	void decSectionIndex();
 	void incSectionIndex();
 	void setSectionIndex(int i);

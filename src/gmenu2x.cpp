@@ -332,11 +332,11 @@ void GMenu2X::main() {
 			s->box(sectionBarRect, skinConfColors[COLOR_TOP_BAR_BG]);
 
 			x = sectionBarRect.x; y = sectionBarRect.y; ix = 0;
-			int selx = (menu->selSectionIndex() - menu->firstDispSection()) * skinConfInt["sectionBarSize"] + ix;
+			int selx = (menu->selSectionIndex() - menu->firstDispSection()) * skinConfInt["sectionBarSize"];
 
 			if (confInt["sectionBar"] == SB_CLASSIC) {
 				ix = (resX - skinConfInt["sectionBarSize"] * min(menu->sectionNumItems(), menu->getSections().size())) / 2;
-				s->box(selx, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
+				s->box(selx + ix, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"], skinConfColors[COLOR_SELECTION_BG]);
 			}
 			
 			for (i = menu->firstDispSection(); i < menu->getSections().size() && i < menu->firstDispSection() + menu->sectionNumItems(); i++) {
@@ -352,7 +352,7 @@ void GMenu2X::main() {
 				sc[menu->getSectionIcon(i)]->blit(s, {x, y, skinConfInt["sectionBarSize"], skinConfInt["sectionBarSize"]}, HAlignCenter | VAlignMiddle);
 			}
 
-			if (confInt["sectionLabel"]) s->write(font, tr.translate(menu->selSection()), selx + skinConfInt["sectionBarSize"]/2, y + skinConfInt["sectionBarSize"] - 1, HAlignCenter | VAlignBottom);
+			if (confInt["sectionLabel"]) s->write(font, menu->selSectionName(), selx + ix + skinConfInt["sectionBarSize"]/2, y + skinConfInt["sectionBarSize"] - 1, HAlignCenter | VAlignBottom);
 
 			if (confInt["sectionBar"] == SB_CLASSIC) {
 				iconL->blit(s, 0, 0, HAlignLeft | VAlignTop);

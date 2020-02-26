@@ -210,6 +210,16 @@ const string &Menu::selSection() {
 	return sections[iSection];
 }
 
+const string Menu::selSectionName() {
+	string sectionname = sections[iSection];
+	string::size_type pos = sectionname.find(".");
+	if (pos != string::npos && pos > 0 && pos < sectionname.length()) {
+		sectionname = sectionname.substr(pos + 1, sectionname.length());
+	}
+	return sectionname;
+}
+
+
 int Menu::sectionNumItems() {
 	if (gmenu2x->confInt["sectionBar"] == SB_LEFT || gmenu2x->confInt["sectionBar"] == SB_RIGHT)
 		return (gmenu2x->resY - 40) / gmenu2x->skinConfInt["sectionBarSize"];
