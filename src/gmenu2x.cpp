@@ -862,7 +862,7 @@ void GMenu2X::writeSkinConfig() {
 			curr->first == "linkItemHeight" ||
 			curr->first == "topBarHeight" ||
 
-			(curr->first == "previewWidth" && curr->second == 142) ||
+			(curr->first == "previewWidth" && curr->second == 128) ||
 			(curr->first == "linkCols" && curr->second == 4) ||
 			(curr->first == "linkRows" && curr->second == 4) ||
 			(curr->first == "sectionBar" && curr->second == SB_CLASSIC) ||
@@ -977,7 +977,7 @@ void GMenu2X::setSkin(string skin, bool clearSC) {
 
 	evalIntConf(&skinConfInt["sectionBarSize"], 40, 1, this->w);
 	evalIntConf(&skinConfInt["bottomBarHeight"], 16, 1, this->h);
-	evalIntConf(&skinConfInt["previewWidth"], 142, 1, this->w);
+	evalIntConf(&skinConfInt["previewWidth"], 128, 1, this->w);
 	evalIntConf(&skinConfInt["fontSize"], 12, 6, 60);
 	evalIntConf(&skinConfInt["fontSizeTitle"], 20, 6, 60);
 	evalIntConf(&skinConfInt["sectionBar"], SB_CLASSIC, 0, 5);
