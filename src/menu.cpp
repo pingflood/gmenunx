@@ -172,20 +172,31 @@ const string &Menu::selSection() {
 const string Menu::selSectionName() {
 	string sectionname = sections[iSection];
 	string::size_type pos = sectionname.find(".");
-	if (sectionname == "applications")
+
+	if (sectionname == "applications") {
 		return "apps";
-	else if (sectionname == "emulators")
+	}
+
+	if (sectionname == "emulators") {
 		return "emus";
-	else if (pos != string::npos && pos > 0 && pos < sectionname.length())
+	}
+
+	if (pos != string::npos && pos > 0 && pos < sectionname.length()) {
 		return sectionname.substr(pos + 1);
+	}
+
 	return sectionname;
 }
 
 int Menu::sectionNumItems() {
-	if (gmenu2x->skinConfInt["sectionBar"] == SB_LEFT || gmenu2x->skinConfInt["sectionBar"] == SB_RIGHT)
+	if (gmenu2x->skinConfInt["sectionBar"] == SB_LEFT || gmenu2x->skinConfInt["sectionBar"] == SB_RIGHT) {
 		return (gmenu2x->h - 40) / gmenu2x->skinConfInt["sectionBarSize"];
-	else if (gmenu2x->skinConfInt["sectionBar"] == SB_TOP || gmenu2x->skinConfInt["sectionBar"] == SB_BOTTOM)
+	}
+
+	if (gmenu2x->skinConfInt["sectionBar"] == SB_TOP || gmenu2x->skinConfInt["sectionBar"] == SB_BOTTOM) {
 		return (gmenu2x->w - 40) / gmenu2x->skinConfInt["sectionBarSize"];
+	}
+
 	return (gmenu2x->w / gmenu2x->skinConfInt["sectionBarSize"]) - 1;
 }
 
