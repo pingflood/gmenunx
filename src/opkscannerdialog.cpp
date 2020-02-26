@@ -28,6 +28,7 @@
 #include <dirent.h>
 #include <libopk.h>
 #include "filelister.h"
+#include <algorithm>
 
 using namespace std;
 extern const char *CARD_ROOT;
@@ -209,35 +210,53 @@ void OPKScannerDialog::exec(bool _any_platform) {
 		lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
 		opkInstall(opkpath);
 	} else {
+		vector<string> paths;
+		paths.clear();
+
 		FileLister fl;
 		fl.showDirectories = true;
 		fl.showFiles = false;
 		fl.allowDirUp = false;
+
 		fl.setPath(CARD_ROOT);
 		fl.browse();
+		for (uint32_t j = 0; j < fl.size(); j++) {
+			if (find(paths.begin(), paths.end(), fl.getFilePath(j)) == paths.end()) {
+				paths.push_back(fl.getFilePath(j));
+			}
+		}
 
-		for (uint32_t i = 0; i < fl.size(); i++) {
-			text.push_back(gmenu2x->tr["Scanning"] + " " + fl.getFilePath(i));
-			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
-			opkScan(fl.getFilePath(i));
+		if (gmenu2x->confStr["homePath"] != CARD_ROOT) {
+			fl.setPath(gmenu2x->confStr["homePath"]);
+			fl.browse();
+			for (uint32_t j = 0; j < fl.size(); j++) {
+				if (find(paths.begin(), paths.end(), fl.getFilePath(j)) == paths.end()) {
+					paths.push_back(fl.getFilePath(j));
+				}
+			}
 		}
 
 		fl.setPath("/media");
 		fl.browse();
-
 		for (uint32_t i = 0; i < fl.size(); i++) {
 			FileLister flsub;
 			flsub.showDirectories = true;
 			flsub.showFiles = false;
 			flsub.allowDirUp = false;
+
 			flsub.setPath(fl.getFilePath(i));
 			flsub.browse();
-
 			for (uint32_t j = 0; j < flsub.size(); j++) {
-				text.push_back(gmenu2x->tr["Scanning"] + " " + flsub.getFilePath(j));
-				lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
-				opkScan(flsub.getFilePath(j));
+				if (find(paths.begin(), paths.end(), flsub.getFilePath(j)) == paths.end()) {
+					paths.push_back(flsub.getFilePath(j));
+				}
 			}
+		}
+
+		for (uint32_t i = 0; i < paths.size(); i++) {
+			text.push_back(gmenu2x->tr["Scanning"] + " " + paths[i]);
+			lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
+			opkScan(paths[i]);
 		}
 	}
 
