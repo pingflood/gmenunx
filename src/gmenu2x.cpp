@@ -964,13 +964,14 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 void GMenu2X::readConfig() {
 	string conffile = path + "gmenu2x.conf";
 
-	// Defaults
+	// Defaults *** Sync with default values in writeConfig
 	// confStr["datetime"] = __BUILDTIME__;
 	if (fwType != "RETROARCADE") confStr["batteryType"] = "BL-5B";
 	else confStr["batteryType"] = "Linear";
 	confInt["saveSelection"] = 1;
 	confInt["sectionLabel"] = 1;
 	confInt["linkLabel"] = 1;
+	confInt["skinBackdrops"] = 1;
 	confStr["defaultDir"] = CARD_ROOT;
 
 	input.update(false);
@@ -1028,12 +1029,55 @@ void GMenu2X::writeConfig() {
 	ofstream inf(conffile.c_str());
 	if (inf.is_open()) {
 		for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
-			if (curr->first == "sectionBarPosition" || curr->first == "tvoutEncoding") continue;
+			if (
+				// deprecated
+				curr->first == "sectionBarPosition" ||
+				curr->first == "tvoutEncoding" ||
+
+				// defaults
+				(curr->first == "defaultDir" && curr->second == CARD_ROOT) ||
+				(curr->first == "skin" && curr->second == "Default") ||
+				(curr->first == "usbMode" && curr->second.empty()) ||
+				(curr->first == "lang" && curr->second.empty()) ||
+				(curr->first == "lang" && curr->second.empty()) ||
+				(curr->first == "bgscale" && curr->second.empty()) ||
+				(curr->first == "bgscale" && curr->second == "Original")
+			) continue;
+
 			inf << curr->first << "=\"" << curr->second << "\"" << endl;
 		}
 
 		for (ConfIntHash::iterator curr = confInt.begin(); curr != confInt.end(); curr++) {
-			if (curr->first == "batteryLog" || curr->first == "maxClock" || curr->first == "minClock" || curr->first == "menuClock" || curr->first == "TVOut") continue;
+			if (
+				// deprecated
+				curr->first == "batteryLog" ||
+				curr->first == "maxClock" ||
+				curr->first == "minClock" ||
+				curr->first == "menuClock" ||
+				curr->first == "TVOut" ||
+
+				/* defaults */
+				(curr->first == "skinBackdrops" && curr->second == 1) ||
+				(curr->first == "backlightTimeout" && curr->second == 30) ||
+				(curr->first == "powerTimeout" && curr->second == 10) ||
+				(curr->first == "outputLogs" && curr->second == 0) ||
+				(curr->first == "cpuMax" && curr->second == 642) ||
+				(curr->first == "cpuMin" && curr->second == 342) ||
+				(curr->first == "cpuMenu" && curr->second == 528) ||
+				(curr->first == "globalVolume" && curr->second == 60) ||
+				(curr->first == "backlight" && curr->second == 70) ||
+				(curr->first == "minBattery" && curr->second == 3550) ||
+				(curr->first == "maxBattery" && curr->second == 3720) ||
+				(curr->first == "sectionBar" && curr->second == SB_CLASSIC) ||
+				(curr->first == "linkCols" && curr->second == 4) ||
+				(curr->first == "linkRows" && curr->second == 4) ||
+				(curr->first == "saveSelection" && curr->second == 1) ||
+				(curr->first == "sectionLabel" && curr->second == 1) ||
+				(curr->first == "linkLabel" && curr->second == 1) ||
+				(curr->first == "section" && curr->second == 0) ||
+				(curr->first == "link" && curr->second == 0)
+			) continue;
+
 			inf << curr->first << "=" << curr->second << endl;
 		}
 		inf.close();
