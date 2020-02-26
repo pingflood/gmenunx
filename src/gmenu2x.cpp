@@ -456,6 +456,7 @@ void GMenu2X::initFont() {
 void GMenu2X::initMenu() {
 	// Menu structure handler
 	menu->initLayout();
+	menu->readSections();
 	menu->readLinks();
 
 	for (uint32_t i = 0; i < menu->getSections().size(); i++) {

@@ -39,6 +39,16 @@ Menu::Menu(GMenu2X *gmenu2x):
 gmenu2x(gmenu2x) {
 	iFirstDispSection = 0;
 
+	readSections();
+
+	setSectionIndex(0);
+}
+
+Menu::~Menu() {
+	freeLinks();
+}
+
+void Menu::readSections() {
 	DIR *dirp;
 	struct dirent *dptr;
 
@@ -47,6 +57,9 @@ gmenu2x(gmenu2x) {
 	if ((dirp = opendir("sections")) == NULL) {
 		return;
 	}
+
+	sections.clear();
+	links.clear();
 
 	while ((dptr = readdir(dirp))) {
 		if (dptr->d_name[0] == '.') {
@@ -66,11 +79,6 @@ gmenu2x(gmenu2x) {
 
 	closedir(dirp);
 	sort(sections.begin(),sections.end(), case_less());
-	setSectionIndex(0);
-}
-
-Menu::~Menu() {
-	freeLinks();
 }
 
 void Menu::readLinks() {

@@ -82,6 +82,7 @@ public:
 	uint32_t firstDispSection();
 	uint32_t firstDispRow();
 
+	void readSections();
 	void readLinks();
 	bool addActionLink(uint32_t section, const string &title, fastdelegate::FastDelegate0<> action, const string &description="", const string &icon="");
 	bool addLink(string exec);
