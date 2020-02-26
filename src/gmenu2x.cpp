@@ -1682,30 +1682,8 @@ void GMenu2X::addSection() {
 void GMenu2X::renameSection() {
 	InputDialog id(this, /*ts,*/ tr["Insert a new name for this section"], menu->selSection(), tr["Rename section"], menu->getSectionIcon());
 	if (id.exec()) {
-		// only if a section with the same name does not exist & !samename
-		if (menu->selSection() != id.getInput() && find(menu->getSections().begin(),menu->getSections().end(), id.getInput()) == menu->getSections().end()) {
-			// section directory doesn't exists
-			string newsectiondir = "sections/" + id.getInput();
-			string sectiondir = "sections/" + menu->selSection();
-			ledOn();
-			if (rename(sectiondir.c_str(), "tmpsection")==0 && rename("tmpsection", newsectiondir.c_str())==0) {
-				string oldpng = sectiondir + ".png", newpng = newsectiondir+".png";
-				string oldicon = sc.getSkinFilePath(oldpng), newicon = sc.getSkinFilePath(newpng);
-				if (!oldicon.empty() && newicon.empty()) {
-					newicon = oldicon;
-					newicon.replace(newicon.find(oldpng), oldpng.length(), newpng);
-
-					if (!file_exists(newicon)) {
-						rename(oldicon.c_str(), "tmpsectionicon");
-						rename("tmpsectionicon", newicon.c_str());
-						sc.move("skin:" + oldpng, "skin:" + newpng);
-					}
-				}
-				menu->renameSection(menu->selSectionIndex(), id.getInput());
-				sync();
-			}
-			ledOff();
-		}
+		menu->renameSection(menu->selSectionIndex(), id.getInput());
+		sync();
 	}
 }
 

@@ -423,7 +423,14 @@ void Menu::setLinkIndex(int i) {
 }
 
 void Menu::renameSection(int index, const string &name) {
-	sections[index] = name;
+	// section directory doesn't exists
+	string oldsection = "sections/" + selSection();
+	string newsection = "sections/" + name;
+
+	if (oldsection != newsection && rename(oldsection.c_str(), newsection.c_str()) == 0) {
+		sections[index] = name;
+	}
+
 }
 
 int Menu::getSectionIndex(const string &name) {
