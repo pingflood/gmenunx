@@ -266,6 +266,8 @@ void GMenu2X::main() {
 		viewLog();
 	};
 
+	input.dropEvents();
+
 	SDL_TimerID hwCheckTimer = SDL_AddTimer(1000, hwCheck, NULL);
 
 	powerManager->resetSuspendTimer();
