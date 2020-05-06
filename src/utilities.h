@@ -83,7 +83,6 @@ string exe_path();
 string disk_free(const char *path);
 const string get_date_time();
 void sync_date_time(time_t t);
-void init_date_time();
 void set_date_time(const char* timestamp);
 
 bool file_copy(const string &src, const string &dst);

@@ -380,15 +380,6 @@ void sync_date_time(time_t t) {
 #endif
 }
 
-void init_date_time() {
-	time_t now = time(0);
-	const uint32_t t = __BUILDTIME__;
-
-	if (now < t) {
-		sync_date_time(t);
-	}
-}
-
 void set_date_time(const char* timestamp) {
 	int imonth, iday, iyear, ihour, iminute;
 
