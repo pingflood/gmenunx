@@ -183,11 +183,11 @@ GMenu2X::~GMenu2X() {
 }
 
 void GMenu2X::quit() {
-	powerManager->clearTimer();
+	s->flip(); s->flip(); s->flip(); // flush buffers
 
+	powerManager->clearTimer();
 	writeConfig();
 
-	s->flip(); s->flip(); s->flip(); // flush buffers
 	s->free();
 
 	font->free();
