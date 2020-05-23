@@ -207,16 +207,15 @@ void Menu::setSectionIndex(int i) {
 		i = 0;
 	}
 
-	iSection = i;
+	int numSections = sectionNumItems();
 
-	int numRows = sectionNumItems() - 1;
-
-	if (i >= (int)iFirstDispSection + numRows) {
-		iFirstDispSection = i - numRows;
+	if (i >= (int)iFirstDispSection + numSections) {
+		iFirstDispSection = i - numSections + 1;
 	} else if (i < (int)iFirstDispSection) {
 		iFirstDispSection = i;
 	}
 
+	iSection = i;
 	iLink = 0;
 	iFirstDispRow = 0;
 }
