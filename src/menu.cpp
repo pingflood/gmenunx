@@ -330,20 +330,16 @@ bool Menu::linkChangeSection(uint32_t linkIndex, uint32_t oldSectionIndex, uint3
 
 void Menu::pageUp() {
 	// PAGEUP with left
-	if ((int)(iLink - linkRows - 1) < 0) {
-		setLinkIndex(0);
-	} else {
-		setLinkIndex(iLink - linkRows + 1);
-	}
+	int i = iLinkIndex - linkRows;
+	if (i < 0) i = 0;
+	setLinkIndex(i);
 }
 
 void Menu::pageDown() {
 	// PAGEDOWN with right
-	if (iLink + linkRows > sectionLinks()->size()) {
-		setLinkIndex(sectionLinks()->size() - 1);
-	} else {
-		setLinkIndex(iLink + linkRows - 1);
-	}
+	int i = iLinkIndex + linkRows;
+	if (i >= sectionLinks()->size()) i = sectionLinks()->size() - 1;
+	setLinkIndex(i);
 }
 
 void Menu::linkLeft() {
