@@ -160,15 +160,6 @@ void Menu::incSectionIndex() {
 uint32_t Menu::firstDispSection() {
 	return iFirstDispSection;
 }
-
-int Menu::getSectionIndex() {
-	return iSection;
-}
-
-const string &Menu::getSection() {
-	return sections[iSection];
-}
-
 const string Menu::getSectionName() {
 	string sectionname = sections[iSection];
 	string::size_type pos = sectionname.find(".");

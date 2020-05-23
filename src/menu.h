@@ -71,10 +71,8 @@ public:
 
 	linklist *sectionLinks(int i = -1);
 
-	int getSectionIndex();
 	int sectionNumItems();
 
-	const string &getSection();
 	const string getSectionName();
 	void decSectionIndex();
 	void incSectionIndex();
@@ -93,7 +91,6 @@ public:
 	void loadIcons();
 	bool linkChangeSection(uint32_t linkIndex, uint32_t oldSectionIndex, uint32_t newSectionIndex);
 
-	int getLinkIndex();
 	Link *getLink();
 	LinkApp *getLinkApp();
 	void pageUp();
@@ -113,6 +110,10 @@ public:
 
 	void initLayout();
 	void exec();
+
+	int getSectionIndex() { return iSectionIndex; }
+	int getLinkIndex() { return iLinkIndex; }
+	const string &getSection() { return sections[iSectionIndex]; }
 };
 
 #endif
