@@ -199,7 +199,7 @@ public:
 	int drawButton(Button *btn, int x = 5, int y = -8);
 	int drawButton(Surface *s, const string &btn, const string &text = "", int x = 5, int y = -8);
 	int drawButtonRight(Surface *s, const string &btn, const string &text = "", int x = 5, int y = -8);
-	void drawScrollBar(uint32_t pagesize, uint32_t totalsize, uint32_t pagepos, SDL_Rect scrollRect);
+	void drawScrollBar(uint32_t pagesize, uint32_t totalsize, uint32_t pagepos, SDL_Rect scrollRect, const uint8_t align = HAlignRight);
 
 	static uint32_t timerFlip(uint32_t interval, void *param = NULL);
 
