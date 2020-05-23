@@ -40,8 +40,8 @@ Handles the menu structure
 class Menu {
 private:
 	GMenu2X *gmenu2x;
-	int iSection, iLink;
-	int32_t iFirstDispSection, iFirstDispRow;
+	int iSectionIndex, iLinkIndex;
+	int32_t firstDispSection, firstDispLink;
 	vector<string> sections;
 	vector<linklist> links;
 
@@ -74,11 +74,7 @@ public:
 	int sectionNumItems();
 
 	const string getSectionName();
-	void decSectionIndex();
-	void incSectionIndex();
 	void setSectionIndex(int i);
-	uint32_t firstDispSection();
-	uint32_t firstDispRow();
 
 	void readSections();
 	void readLinks();

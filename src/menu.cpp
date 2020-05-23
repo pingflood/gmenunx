@@ -37,7 +37,7 @@ using namespace std;
 
 Menu::Menu(GMenu2X *gmenu2x):
 gmenu2x(gmenu2x) {
-	iFirstDispSection = 0;
+	firstDispSection = 0;
 
 	readSections();
 
@@ -84,8 +84,8 @@ void Menu::readSections() {
 void Menu::readLinks() {
 	vector<string> linkfiles;
 
-	iLink = 0;
-	iFirstDispRow = 0;
+	iLinkIndex = 0;
+	firstDispLink = 0;
 
 	DIR *dirp;
 	struct dirent *dptr;
@@ -124,10 +124,6 @@ void Menu::readLinks() {
 	}
 }
 
-uint32_t Menu::firstDispRow() {
-	return iFirstDispRow;
-}
-
 // SECTION MANAGEMENT
 void Menu::freeLinks() {
 	for (vector<linklist>::iterator section = links.begin(); section < links.end(); section++) {
@@ -149,19 +145,8 @@ linklist *Menu::sectionLinks(int i) {
 	return &links[i];
 }
 
-void Menu::decSectionIndex() {
-	setSectionIndex(iSection - 1);
-}
-
-void Menu::incSectionIndex() {
-	setSectionIndex(iSection + 1);
-}
-
-uint32_t Menu::firstDispSection() {
-	return iFirstDispSection;
-}
 const string Menu::getSectionName() {
-	string sectionname = sections[iSection];
+	string sectionname = sections[iSectionIndex];
 	string::size_type pos = sectionname.find(".");
 
 	if (sectionname == "applications") {
@@ -200,20 +185,20 @@ void Menu::setSectionIndex(int i) {
 
 	int numSections = sectionNumItems();
 
-	if (i >= (int)iFirstDispSection + numSections) {
-		iFirstDispSection = i - numSections + 1;
-	} else if (i < (int)iFirstDispSection) {
-		iFirstDispSection = i;
+	if (i >= (int)firstDispSection + numSections) {
+		firstDispSection = i - numSections + 1;
+	} else if (i < (int)firstDispSection) {
+		firstDispSection = i;
 	}
 
-	iSection = i;
-	iLink = 0;
-	iFirstDispRow = 0;
+	iSectionIndex = i;
+	iLinkIndex = 0;
+	firstDispLink = 0;
 }
 
 string Menu::sectionPath(int section) {
 	if (section < 0 || section > (int)sections.size()) {
-		section = iSection;
+		section = iSectionIndex;
 	}
 
 	return "sections/" + sections[section] + "/";
@@ -255,10 +240,10 @@ bool Menu::addLink(string exec) {
 	if (!title.empty()) link->setTitle(title);
 	link->save();
 
-	int isection = find(sections.begin(), sections.end(), section) - sections.begin();
-	if (isection >= 0 && isection < (int)sections.size()) {
-		links[isection].push_back(link);
-		setLinkIndex(links[isection].size() - 1);
+	int iSectionIndex = find(sections.begin(), sections.end(), section) - sections.begin();
+	if (iSectionIndex >= 0 && iSectionIndex < (int)sections.size()) {
+		links[iSectionIndex].push_back(link);
+		setLinkIndex(links[iSectionIndex].size() - 1);
 	}
 
 	return true;
@@ -343,15 +328,15 @@ void Menu::pageDown() {
 }
 
 void Menu::linkLeft() {
-	setLinkIndex(iLink - 1);
+	setLinkIndex(iLinkIndex - 1);
 }
 
 void Menu::linkRight() {
-	setLinkIndex(iLink + 1);
+	setLinkIndex(iLinkIndex + 1);
 }
 
 void Menu::linkUp() {
-	int l = iLink - linkCols;
+	int l = iLinkIndex - linkCols;
 	if (l < 0) {
 		uint32_t rows = (uint32_t)ceil(sectionLinks()->size() / (double)linkCols);
 		l += (rows * linkCols);
@@ -363,10 +348,10 @@ void Menu::linkUp() {
 }
 
 void Menu::linkDown() {
-	uint32_t l = iLink + linkCols;
+	uint32_t l = iLinkIndex + linkCols;
 	if (l >= sectionLinks()->size()) {
 		uint32_t rows = (uint32_t)ceil(sectionLinks()->size() / (double)linkCols);
-		uint32_t curCol = (uint32_t)ceil((iLink+1) / (double)linkCols);
+		uint32_t curCol = (uint32_t)ceil((iLinkIndex+1) / (double)linkCols);
 		if (rows > curCol) {
 			l = sectionLinks()->size() - 1;
 		} else {
@@ -376,16 +361,12 @@ void Menu::linkDown() {
 	setLinkIndex(l);
 }
 
-int Menu::getLinkIndex() {
-	return iLink;
-}
-
 Link *Menu::getLink() {
 	if (sectionLinks()->size() == 0) {
 		return NULL;
 	}
 
-	return sectionLinks()->at(iLink);
+	return sectionLinks()->at(iLinkIndex);
 }
 
 LinkApp *Menu::getLinkApp() {
@@ -401,25 +382,25 @@ void Menu::setLinkIndex(int i) {
 
 	int perPage = linkCols * linkRows;
 	if (linkRows == 1) {
-		if (i < iFirstDispRow) {
-			iFirstDispRow = i;
-		} else if (i >= iFirstDispRow + perPage) {
-			iFirstDispRow = i - perPage + 1;
+		if (i < firstDispLink) {
+			firstDispLink = i;
+		} else if (i >= firstDispLink + perPage) {
+			firstDispLink = i - perPage + 1;
 		}
 	} else {
 		int page = i / linkCols;
-		if (i < iFirstDispRow) {
-			iFirstDispRow = page * linkCols;
-		} else if (i >= iFirstDispRow + perPage) {
-			iFirstDispRow = page * linkCols - linkCols * (linkRows - 1);
+		if (i < firstDispLink) {
+			firstDispLink = page * linkCols;
+		} else if (i >= firstDispLink + perPage) {
+			firstDispLink = page * linkCols - linkCols * (linkRows - 1);
 		}
 	}
 
-	if (iFirstDispRow < 0) {
-		iFirstDispRow = 0;
+	if (firstDispLink < 0) {
+		firstDispLink = 0;
 	}
 
-	iLink = i;
+	iLinkIndex = i;
 }
 
 void Menu::renameSection(int index, const string &name) {
@@ -438,7 +419,7 @@ int Menu::getSectionIndexByName(const string &name) {
 }
 
 const string Menu::getSectionIcon(int i) {
-	if (i < 0) i = iSection;
+	if (i < 0) i = iSectionIndex;
 
 	string sectionIcon = gmenu2x->sc.getSkinFilePath("sections/" + sections[i] + ".png", false);
 	if (!sectionIcon.empty()) {
@@ -504,7 +485,7 @@ void Menu::initLayout() {
 }
 
 void Menu::drawList() {
-	int i = firstDispRow();
+	int i = firstDispLink;
 
 	int ix = gmenu2x->linksRect.x;
 	for (int y = 0; y < linkRows && i < sectionLinks()->size(); y++, i++) {
@@ -534,7 +515,7 @@ void Menu::drawList() {
 }
 
 void Menu::drawGrid() {
-	int i = firstDispRow();
+	int i = firstDispLink;
 
 	for (int y = 0; y < linkRows; y++) {
 		for (int x = 0; x < linkCols && i < sectionLinks()->size(); x++, i++) {
@@ -587,17 +568,17 @@ void Menu::drawSectionBar() {
 	int ix = 0, iy = 0, sy = 0;
 	int x = gmenu2x->sectionBarRect.x;
 	int y = gmenu2x->sectionBarRect.y;
-	int sx = (getSectionIndex() - firstDispSection()) * gmenu2x->skinConfInt["sectionBarSize"];
+	int sx = (getSectionIndex() - firstDispSection) * gmenu2x->skinConfInt["sectionBarSize"];
 
 	if (gmenu2x->skinConfInt["sectionBar"] == SB_CLASSIC) {
 		ix = (gmenu2x->w - gmenu2x->skinConfInt["sectionBarSize"] * min(sectionNumItems(), getSections().size())) / 2;
 	}
 
-	for (int i = firstDispSection(); i < getSections().size() && i < firstDispSection() + sectionNumItems(); i++) {
+	for (int i = firstDispSection; i < getSections().size() && i < firstDispSection + sectionNumItems(); i++) {
 		if (gmenu2x->skinConfInt["sectionBar"] == SB_LEFT || gmenu2x->skinConfInt["sectionBar"] == SB_RIGHT) {
-			y = (i - firstDispSection()) * gmenu2x->skinConfInt["sectionBarSize"];
+			y = (i - firstDispSection) * gmenu2x->skinConfInt["sectionBarSize"];
 		} else {
-			x = (i - firstDispSection()) * gmenu2x->skinConfInt["sectionBarSize"] + ix;
+			x = (i - firstDispSection) * gmenu2x->skinConfInt["sectionBarSize"] + ix;
 		}
 
 		if (getSectionIndex() == (int)i) {
@@ -883,8 +864,8 @@ void Menu::exec() {
 		else if (gmenu2x->input[DOWN])	linkDown();
 
 		// SECTION
-		else if (gmenu2x->input[SECTION_PREV]) decSectionIndex();
-		else if (gmenu2x->input[SECTION_NEXT]) incSectionIndex();
+		else if (gmenu2x->input[SECTION_PREV]) setSectionIndex(iSectionIndex - 1);
+		else if (gmenu2x->input[SECTION_NEXT]) setSectionIndex(iSectionIndex + 1);
 
 		// SELLINKAPP SELECTED
 		else if (gmenu2x->input[MANUAL] && getLinkApp() != NULL && !getLinkApp()->getManualPath().empty()) gmenu2x->showManual();
