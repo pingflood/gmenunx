@@ -413,10 +413,24 @@ void Menu::setLinkIndex(int i) {
 		i = 0;
 	}
 
-	if (i >= (int)(iFirstDispRow * linkCols + linkCols * linkRows)) {
-		iFirstDispRow = i / linkCols - linkRows + 1;
-	} else if (i < (int)(iFirstDispRow * linkCols)) {
-		iFirstDispRow = i / linkCols;
+	int perPage = linkCols * linkRows;
+	if (linkRows == 1) {
+		if (i < iFirstDispRow) {
+			iFirstDispRow = i;
+		} else if (i >= iFirstDispRow + perPage) {
+			iFirstDispRow = i - perPage + 1;
+		}
+	} else {
+		int page = i / linkCols;
+		if (i < iFirstDispRow) {
+			iFirstDispRow = page * linkCols;
+		} else if (i >= iFirstDispRow + perPage) {
+			iFirstDispRow = page * linkCols - linkCols * (linkRows - 1);
+		}
+	}
+
+	if (iFirstDispRow < 0) {
+		iFirstDispRow = 0;
 	}
 
 	iLink = i;
@@ -504,7 +518,7 @@ void Menu::initLayout() {
 }
 
 void Menu::drawList() {
-	int i = firstDispRow() * linkCols;
+	int i = firstDispRow();
 
 	int ix = gmenu2x->linksRect.x;
 	for (int y = 0; y < linkRows && i < sectionLinks()->size(); y++, i++) {
@@ -527,10 +541,14 @@ void Menu::drawList() {
 		gmenu2x->s->write(gmenu2x->titlefont, gmenu2x->tr[sectionLinks()->at(i)->getTitle()], ix + linkSpacing + 36, iy + gmenu2x->titlefont->getHeight()/2, VAlignMiddle);
 		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr[sectionLinks()->at(i)->getDescription()], ix + linkSpacing + 36, iy + linkHeight - linkSpacing/2, VAlignBottom);
 	}
+
+	if (sectionLinks()->size() > linkRows) {
+		gmenu2x->drawScrollBar(1, sectionLinks()->size(), selLinkIndex(), gmenu2x->linksRect, HAlignRight);
+	}
 }
 
 void Menu::drawGrid() {
-	int i = firstDispRow() * linkCols;
+	int i = firstDispRow();
 
 	for (int y = 0; y < linkRows; y++) {
 		for (int x = 0; x < linkCols && i < sectionLinks()->size(); x++, i++) {
@@ -568,6 +586,12 @@ void Menu::drawGrid() {
 				gmenu2x->s->write(gmenu2x->font, gmenu2x->tr[sectionLinks()->at(i)->getTitle()], labelRect, HAlignCenter | VAlignMiddle);
 			}
 		}
+	}
+
+	if (linkRows == 1 && sectionLinks()->size() > linkCols) {
+		gmenu2x->drawScrollBar(1, sectionLinks()->size(), selLinkIndex(), gmenu2x->linksRect, VAlignBottom);
+	} else if (sectionLinks()->size() > linkCols * linkRows) {
+		gmenu2x->drawScrollBar(1, sectionLinks()->size()/linkCols + 1, selLinkIndex()/linkCols, gmenu2x->linksRect, HAlignRight);
 	}
 }
 
@@ -814,9 +838,6 @@ void Menu::exec() {
 			drawGrid(); // CLASSIC
 		}
 		gmenu2x->s->clearClipRect();
-
-		// SCROLLBAR
-		gmenu2x->drawScrollBar(linkRows, sectionLinks()->size()/linkCols + ((sectionLinks()->size()%linkCols==0) ? 0 : 1), firstDispRow(), gmenu2x->linksRect);
 
 		if (!sectionLinks()->size()) {
 			MessageBox mb(gmenu2x, gmenu2x->tr["This section is empty"]);
