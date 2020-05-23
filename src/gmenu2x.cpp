@@ -318,8 +318,8 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		input.update();
 
 		if (SDL_GetTicks() - button_hold > 1000) {
-			wasActive = 0;
-			poweroffDialog();
+			wasActive = SCREENSHOT;
+			break;
 		}
 	}
 
@@ -329,7 +329,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 		input.update();
 
 		if (input[SETTINGS]) {
-			wasActive = SCREENSHOT;
+			wasActive = POWER;
 		} else if (input[BACKLIGHT_HOTKEY]) {
 			wasActive = BACKLIGHT;
 		} else if (input[VOLUME_HOTKEY]) {

@@ -16,16 +16,15 @@ Unpack the latest [Release](https://github.com/pingflood/GMenuNX/releases/) over
 
 * A: Accept / Launch selected link / Confirm action;
 * B: Back / Cancel action
-* X: Goes up one directory in file browser;
-* Y: Bring up the manual/readme;
+* X: Go up one directory in file browser;
+* Y: Show the manual/readme;
 * L, R: Switch between sections / PageUp/PageDown on lists;
 * START: GMenuNX settings;
-* SELECT: Bring up the contextual menu;
+* SELECT: Context menu;
 * SELECT + L: Volume control;
 * SELECT + R, BRIGHTNESS: Change screen brightness;
-* SELECT + START: Take a screenshot;
-* POWER: Toggle Suspend mode;
-* POWER/START (hold): Bring up Poweroff dialog.
+* START (hold): Take a screenshot;
+* SELECT + START / POWER: Bring up Poweroff dialog.
 * TV-Out: If the device supports, (dis)connect the TV-out jack to toggle TV-out signal.
 
 In settings:
