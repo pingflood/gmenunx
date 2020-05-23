@@ -105,6 +105,8 @@ private:
 		w = 320;
 		h = 240;
 		bpp = 32;
+
+		system("echo 1 > /sys/class/hdmi/hdmi &");
 	}
 
 	int getBacklight() {
