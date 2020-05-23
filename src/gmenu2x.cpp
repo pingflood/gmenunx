@@ -389,7 +389,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 	// 	return true;
 
 	} else if (input[MMC_INSERT] || input[MMC_REMOVE]) {
-		confInt["section"] = menu->selSectionIndex();
+		confInt["section"] = menu->getSectionIndex();
 		confInt["link"] = menu->getLinkIndex();
 		SDL_Delay(2000);
 		initMenu();
@@ -675,7 +675,7 @@ bool GMenu2X::readTmp() {
 void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 	ofstream tmp("/tmp/gmenu2x.tmp");
 	if (tmp.is_open()) {
-		tmp << "section=" << menu->selSectionIndex() << endl;
+		tmp << "section=" << menu->getSectionIndex() << endl;
 		tmp << "link=" << menu->getLinkIndex() << endl;
 		if (selelem >- 1) tmp << "selectorelem=" << selelem << endl;
 		if (selectordir != "") tmp << "selectordir=" << selectordir << endl;
@@ -748,7 +748,7 @@ void GMenu2X::readConfig() {
 void GMenu2X::writeConfig() {
 	ledOn();
 	if (confInt["saveSelection"] && menu != NULL) {
-		confInt["section"] = menu->selSectionIndex();
+		confInt["section"] = menu->getSectionIndex();
 		confInt["link"] = menu->getLinkIndex();
 	}
 
@@ -1298,7 +1298,7 @@ void GMenu2X::explorer() {
 			TerminalDialog td(this, tr["Zip content"], bd.getFileName(bd.selected), "skin:icons/terminal.png");
 			td.exec("unzip -l " + cmdclean(bd.getFilePath(bd.selected)));
 		} else {
-			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->getLinkIndex())) {
+			if (confInt["saveSelection"] && (confInt["section"] != menu->getSectionIndex() || confInt["link"] != menu->getLinkIndex())) {
 				writeConfig();
 			}
 
@@ -1605,13 +1605,13 @@ void GMenu2X::editLink() {
 
 			INFO("New section: (%i) %s", newSectionIndex - menu->getSections().begin(), newSection.c_str());
 
-			menu->linkChangeSection(menu->getLinkIndex(), menu->selSectionIndex(), newSectionIndex - menu->getSections().begin());
+			menu->linkChangeSection(menu->getLinkIndex(), menu->getSectionIndex(), newSectionIndex - menu->getSections().begin());
 		}
 		menu->getLinkApp()->save();
 		sync();
 		ledOff();
 	}
-	confInt["section"] = menu->selSectionIndex();
+	confInt["section"] = menu->getSectionIndex();
 	confInt["link"] = menu->getLinkIndex();
 	confStr["tmp_selector"] = "";
 }
@@ -1676,20 +1676,20 @@ void GMenu2X::addSection() {
 }
 
 void GMenu2X::renameSection() {
-	InputDialog id(this, /*ts,*/ tr["Insert a new name for this section"], menu->selSection(), tr["Rename section"], menu->getSectionIcon());
+	InputDialog id(this, /*ts,*/ tr["Insert a new name for this section"], menu->getSection(), tr["Rename section"], menu->getSectionIcon());
 	if (id.exec()) {
-		menu->renameSection(menu->selSectionIndex(), id.getInput());
+		menu->renameSection(menu->getSectionIndex(), id.getInput());
 		sync();
 	}
 }
 
 void GMenu2X::deleteSection() {
-	MessageBox mb(this, tr["Delete section"] + " '" +  menu->selSectionName() + "'\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->getSectionIcon());
+	MessageBox mb(this, tr["Delete section"] + " '" +  menu->getSectionName() + "'\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->getSectionIcon());
 	mb.setButton(MANUAL, tr["Yes"]);
 	mb.setButton(CANCEL,  tr["No"]);
 	if (mb.exec() != MANUAL) return;
 	ledOn();
-	if (rmtree(exe_path() + "/sections/" + menu->selSection())) {
+	if (rmtree(exe_path() + "/sections/" + menu->getSection())) {
 		menu->deleteSelectedSection();
 		sync();
 	}

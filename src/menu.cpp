@@ -139,7 +139,7 @@ void Menu::freeLinks() {
 
 linklist *Menu::sectionLinks(int i) {
 	if (i < 0 || i > (int)links.size()) {
-		i = selSectionIndex();
+		i = getSectionIndex();
 	}
 
 	if (i < 0 || i > (int)links.size()) {
@@ -161,15 +161,15 @@ uint32_t Menu::firstDispSection() {
 	return iFirstDispSection;
 }
 
-int Menu::selSectionIndex() {
+int Menu::getSectionIndex() {
 	return iSection;
 }
 
-const string &Menu::selSection() {
+const string &Menu::getSection() {
 	return sections[iSection];
 }
 
-const string Menu::selSectionName() {
+const string Menu::getSectionName() {
 	string sectionname = sections[iSection];
 	string::size_type pos = sectionname.find(".");
 
@@ -246,7 +246,7 @@ bool Menu::addActionLink(uint32_t section, const string &title, fastdelegate::Fa
 }
 
 bool Menu::addLink(string exec) {
-	string section = selSection();
+	string section = getSection();
 	string title = base_name(exec, true);
 	string linkpath = unique_filename("sections/" + section + "/" + title, ".lnk");
 
@@ -309,12 +309,12 @@ void Menu::deleteSelectedLink() {
 }
 
 void Menu::deleteSelectedSection() {
-	INFO("Deleting section '%s'", selSection().c_str());
+	INFO("Deleting section '%s'", getSection().c_str());
 
-	string iconpath = "sections/" + selSection() + ".png";
+	string iconpath = "sections/" + getSection() + ".png";
 
-	links.erase(links.begin() + selSectionIndex());
-	sections.erase(sections.begin() + selSectionIndex());
+	links.erase(links.begin() + getSectionIndex());
+	sections.erase(sections.begin() + getSectionIndex());
 	setSectionIndex(0); //reload sections
 
 	for (uint32_t i = 0; i < sections.size(); i++) {
@@ -438,7 +438,7 @@ void Menu::setLinkIndex(int i) {
 
 void Menu::renameSection(int index, const string &name) {
 	// section directory doesn't exists
-	string oldsection = "sections/" + selSection();
+	string oldsection = "sections/" + getSection();
 	string newsection = "sections/" + name;
 
 	if (oldsection != newsection && rename(oldsection.c_str(), newsection.c_str()) == 0) {
@@ -447,7 +447,7 @@ void Menu::renameSection(int index, const string &name) {
 
 }
 
-int Menu::getSectionIndex(const string &name) {
+int Menu::getSectionIndexByName(const string &name) {
 	return distance(sections.begin(), find(sections.begin(), sections.end(), name));
 }
 
@@ -601,7 +601,7 @@ void Menu::drawSectionBar() {
 	int ix = 0, iy = 0, sy = 0;
 	int x = gmenu2x->sectionBarRect.x;
 	int y = gmenu2x->sectionBarRect.y;
-	int sx = (selSectionIndex() - firstDispSection()) * gmenu2x->skinConfInt["sectionBarSize"];
+	int sx = (getSectionIndex() - firstDispSection()) * gmenu2x->skinConfInt["sectionBarSize"];
 
 	if (gmenu2x->skinConfInt["sectionBar"] == SB_CLASSIC) {
 		ix = (gmenu2x->w - gmenu2x->skinConfInt["sectionBarSize"] * min(sectionNumItems(), getSections().size())) / 2;
@@ -614,7 +614,7 @@ void Menu::drawSectionBar() {
 			x = (i - firstDispSection()) * gmenu2x->skinConfInt["sectionBarSize"] + ix;
 		}
 
-		if (selSectionIndex() == (int)i) {
+		if (getSectionIndex() == (int)i) {
 			sx = x;
 			sy = y;
 			gmenu2x->s->box(sx, sy, gmenu2x->skinConfInt["sectionBarSize"], gmenu2x->skinConfInt["sectionBarSize"], gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
@@ -625,11 +625,11 @@ void Menu::drawSectionBar() {
 
 	if (gmenu2x->skinConfInt["sectionLabel"] && SDL_GetTicks() - section_changed < 1400) {
 		if (gmenu2x->skinConfInt["sectionBar"] == SB_LEFT) {
-			gmenu2x->s->write(gmenu2x->font, gmenu2x->tr[selSectionName()], sx, sy + gmenu2x->skinConfInt["sectionBarSize"], HAlignLeft | VAlignBottom);
+			gmenu2x->s->write(gmenu2x->font, gmenu2x->tr[getSectionName()], sx, sy + gmenu2x->skinConfInt["sectionBarSize"], HAlignLeft | VAlignBottom);
 		} else if (gmenu2x->skinConfInt["sectionBar"] == SB_RIGHT) {
-			gmenu2x->s->write(gmenu2x->font, gmenu2x->tr[selSectionName()], sx + gmenu2x->skinConfInt["sectionBarSize"], sy + gmenu2x->skinConfInt["sectionBarSize"], HAlignRight | VAlignBottom);
+			gmenu2x->s->write(gmenu2x->font, gmenu2x->tr[getSectionName()], sx + gmenu2x->skinConfInt["sectionBarSize"], sy + gmenu2x->skinConfInt["sectionBarSize"], HAlignRight | VAlignBottom);
 		} else {
-			gmenu2x->s->write(gmenu2x->font, gmenu2x->tr[selSectionName()], sx + gmenu2x->skinConfInt["sectionBarSize"] / 2 , sy + gmenu2x->skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
+			gmenu2x->s->write(gmenu2x->font, gmenu2x->tr[getSectionName()], sx + gmenu2x->skinConfInt["sectionBarSize"] / 2 , sy + gmenu2x->skinConfInt["sectionBarSize"], HAlignCenter | VAlignBottom);
 		}
 	} else {
 		SDL_RemoveTimer(sectionChangedTimer); sectionChangedTimer = NULL;

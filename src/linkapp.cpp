@@ -388,7 +388,7 @@ void LinkApp::launch(const string &selectedFile, string dir) {
 
 	if (params != "") command += " " + params;
 
-	if (gmenu2x->confInt["saveSelection"] && (gmenu2x->confInt["section"] != gmenu2x->menu->selSectionIndex() || gmenu2x->confInt["link"] != gmenu2x->menu->getLinkIndex())) {
+	if (gmenu2x->confInt["saveSelection"] && (gmenu2x->confInt["section"] != gmenu2x->menu->getSectionIndex() || gmenu2x->confInt["link"] != gmenu2x->menu->getLinkIndex())) {
 		gmenu2x->writeConfig();
 	}
 

@@ -71,11 +71,11 @@ public:
 
 	linklist *sectionLinks(int i = -1);
 
-	int selSectionIndex();
+	int getSectionIndex();
 	int sectionNumItems();
 
-	const string &selSection();
-	const string selSectionName();
+	const string &getSection();
+	const string getSectionName();
 	void decSectionIndex();
 	void incSectionIndex();
 	void setSectionIndex(int i);
@@ -108,7 +108,7 @@ public:
 
 	const vector<string> &getSections() { return sections; }
 	void renameSection(int index, const string &name);
-	int getSectionIndex(const string &name);
+	int getSectionIndexByName(const string &name);
 	const string getSectionIcon(int i = -1);
 
 	void initLayout();
