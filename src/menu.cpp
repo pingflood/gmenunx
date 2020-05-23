@@ -289,13 +289,13 @@ bool Menu::addSection(const string &sectionName) {
 }
 
 void Menu::deleteSelectedLink() {
-	string iconpath = selLink()->getIconPath();
+	string iconpath = getLink()->getIconPath();
 
-	INFO("Deleting link '%s'", selLink()->getTitle().c_str());
+	INFO("Deleting link '%s'", getLink()->getTitle().c_str());
 
-	if (selLinkApp() != NULL) unlink(selLinkApp()->getFile().c_str());
-	sectionLinks()->erase(sectionLinks()->begin() + selLinkIndex());
-	setLinkIndex(selLinkIndex());
+	if (getLinkApp() != NULL) unlink(getLinkApp()->getFile().c_str());
+	sectionLinks()->erase(sectionLinks()->begin() + getLinkIndex());
+	setLinkIndex(getLinkIndex());
 
 	for (uint32_t i = 0; i < sections.size(); i++) {
 		for (uint32_t j = 0; j < sectionLinks(i)->size(); j++) {
@@ -390,11 +390,11 @@ void Menu::linkDown() {
 	setLinkIndex(l);
 }
 
-int Menu::selLinkIndex() {
+int Menu::getLinkIndex() {
 	return iLink;
 }
 
-Link *Menu::selLink() {
+Link *Menu::getLink() {
 	if (sectionLinks()->size() == 0) {
 		return NULL;
 	}
@@ -402,8 +402,8 @@ Link *Menu::selLink() {
 	return sectionLinks()->at(iLink);
 }
 
-LinkApp *Menu::selLinkApp() {
-	return dynamic_cast<LinkApp*>(selLink());
+LinkApp *Menu::getLinkApp() {
+	return dynamic_cast<LinkApp*>(getLink());
 }
 
 void Menu::setLinkIndex(int i) {
@@ -524,7 +524,7 @@ void Menu::drawList() {
 	for (int y = 0; y < linkRows && i < sectionLinks()->size(); y++, i++) {
 		int iy = gmenu2x->linksRect.y + y * linkHeight;
 
-		if (i == (uint32_t)selLinkIndex()) {
+		if (i == (uint32_t)getLinkIndex()) {
 			gmenu2x->s->box(ix, iy, gmenu2x->linksRect.w, linkHeight, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
 		}
 
@@ -543,7 +543,7 @@ void Menu::drawList() {
 	}
 
 	if (sectionLinks()->size() > linkRows) {
-		gmenu2x->drawScrollBar(1, sectionLinks()->size(), selLinkIndex(), gmenu2x->linksRect, HAlignRight);
+		gmenu2x->drawScrollBar(1, sectionLinks()->size(), getLinkIndex(), gmenu2x->linksRect, HAlignRight);
 	}
 }
 
@@ -564,7 +564,7 @@ void Menu::drawGrid() {
 				icon->softStretch(linkWidth, linkHeight, SScaleFit);
 			}
 
-			if (i == (uint32_t)selLinkIndex()) {
+			if (i == (uint32_t)getLinkIndex()) {
 				if (iconBGon != NULL && icon->width() <= iconBGon->width() && icon->height() <= iconBGon->height()) {
 					iconBGon->blit(gmenu2x->s, ix + (linkWidth + iconPadding) / 2, iy + (linkHeight + iconPadding) / 2, HAlignCenter | VAlignMiddle, 50);
 				} else {
@@ -589,9 +589,9 @@ void Menu::drawGrid() {
 	}
 
 	if (linkRows == 1 && sectionLinks()->size() > linkCols) {
-		gmenu2x->drawScrollBar(1, sectionLinks()->size(), selLinkIndex(), gmenu2x->linksRect, VAlignBottom);
+		gmenu2x->drawScrollBar(1, sectionLinks()->size(), getLinkIndex(), gmenu2x->linksRect, VAlignBottom);
 	} else if (sectionLinks()->size() > linkCols * linkRows) {
-		gmenu2x->drawScrollBar(1, sectionLinks()->size()/linkCols + 1, selLinkIndex()/linkCols, gmenu2x->linksRect, HAlignRight);
+		gmenu2x->drawScrollBar(1, sectionLinks()->size()/linkCols + 1, getLinkIndex()/linkCols, gmenu2x->linksRect, HAlignRight);
 	}
 }
 
@@ -691,16 +691,16 @@ void Menu::drawStatusBar() {
 			iconTrayShift++;
 		}
 
-		if (selLink() != NULL) {
-			if (selLinkApp() != NULL) {
-				if (!selLinkApp()->getManualPath().empty()) {
+		if (getLink() != NULL) {
+			if (getLinkApp() != NULL) {
+				if (!getLinkApp()->getManualPath().empty()) {
 					// Manual indicator
 					iconManual->blit(gmenu2x->s, gmenu2x->bottomBarRect.w - iconTrayShift * (iconWidth + iconPadding) - iconPadding, gmenu2x->bottomBarRect.y + gmenu2x->bottomBarRect.h / 2, HAlignRight | VAlignMiddle);
 				}
 
 				if (CPU_MAX != CPU_MIN) {
 					// CPU indicator
-					{ stringstream ss; ss << selLinkApp()->getCPU() << "MHz"; ss.get(&buf[0], sizeof(buf)); }
+					{ stringstream ss; ss << getLinkApp()->getCPU() << "MHz"; ss.get(&buf[0], sizeof(buf)); }
 					x += iconPadding + pctWidth;
 					iconCPU->blit(gmenu2x->s, x, gmenu2x->bottomBarRect.y + gmenu2x->bottomBarRect.h / 2, VAlignMiddle);
 					x += iconWidth + iconPadding;
@@ -732,16 +732,16 @@ void Menu::drawIconTray() {
 		iconTrayShift++;
 	}
 
-	if (selLink() != NULL) {
-		if (selLinkApp() != NULL) {
-			if (!selLinkApp()->getManualPath().empty() && iconTrayShift < 2) {
+	if (getLink() != NULL) {
+		if (getLinkApp() != NULL) {
+			if (!getLinkApp()->getManualPath().empty() && iconTrayShift < 2) {
 				// Manual indicator
 				iconManual->blit(gmenu2x->s, gmenu2x->sectionBarRect.x + gmenu2x->sectionBarRect.w - 38 + iconTrayShift * 20, gmenu2x->sectionBarRect.y + gmenu2x->sectionBarRect.h - 18);
 				iconTrayShift++;
 			}
 
 			if (CPU_MAX != CPU_MIN) {
-				if (selLinkApp()->getCPU() != gmenu2x->confInt["cpuMenu"] && iconTrayShift < 2) {
+				if (getLinkApp()->getCPU() != gmenu2x->confInt["cpuMenu"] && iconTrayShift < 2) {
 					// CPU indicator
 					iconCPU->blit(gmenu2x->s, gmenu2x->sectionBarRect.x + gmenu2x->sectionBarRect.w - 38 + iconTrayShift * 20, gmenu2x->sectionBarRect.y + gmenu2x->sectionBarRect.h - 18);
 					iconTrayShift++;
@@ -805,10 +805,10 @@ void Menu::exec() {
 		// BACKGROUND
 		gmenu2x->currBackdrop = gmenu2x->confStr["wallpaper"];
 		if (gmenu2x->confInt["skinBackdrops"] & BD_MENU) {
-			if (selLink() != NULL && !selLink()->getBackdropPath().empty()) {
-				gmenu2x->currBackdrop = selLink()->getBackdropPath();
-			} else if (selLinkApp() != NULL && !selLinkApp()->getBackdropPath().empty()) {
-				gmenu2x->currBackdrop = selLinkApp()->getBackdropPath();
+			if (getLink() != NULL && !getLink()->getBackdropPath().empty()) {
+				gmenu2x->currBackdrop = getLink()->getBackdropPath();
+			} else if (getLinkApp() != NULL && !getLinkApp()->getBackdropPath().empty()) {
+				gmenu2x->currBackdrop = getLinkApp()->getBackdropPath();
 			}
 		}
 		gmenu2x->setBackground(gmenu2x->s, gmenu2x->currBackdrop);
@@ -875,14 +875,14 @@ void Menu::exec() {
 			icon_changed = section_changed = 0;
 		}
 
-		if (gmenu2x->input[CONFIRM] && selLink() != NULL) {
+		if (gmenu2x->input[CONFIRM] && getLink() != NULL) {
 			if (gmenu2x->confInt["skinBackdrops"] & BD_DIALOG) {
 				gmenu2x->setBackground(gmenu2x->bg, gmenu2x->currBackdrop);
 			} else {
 				gmenu2x->setBackground(gmenu2x->bg, gmenu2x->confStr["wallpaper"]);
 			}
 
-			selLink()->run();
+			getLink()->run();
 		}
 		else if (gmenu2x->input[CANCEL])	continue;
 		else if (gmenu2x->input[SETTINGS])	gmenu2x->settings();
@@ -901,7 +901,7 @@ void Menu::exec() {
 		else if (gmenu2x->input[SECTION_NEXT]) incSectionIndex();
 
 		// SELLINKAPP SELECTED
-		else if (gmenu2x->input[MANUAL] && selLinkApp() != NULL && !selLinkApp()->getManualPath().empty()) gmenu2x->showManual();
+		else if (gmenu2x->input[MANUAL] && getLinkApp() != NULL && !getLinkApp()->getManualPath().empty()) gmenu2x->showManual();
 		// On Screen Help
 		// else if (gmenu2x->input[MANUAL]) {
 		// 	s->box(10,50,300,162, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
@@ -925,10 +925,10 @@ void Menu::exec() {
 		// }
 
 		iconDescription = "";
-		if (selLinkApp() != NULL) {
-			iconDescription = selLinkApp()->getDescription();
-		} else if (selLink() != NULL) {
-			iconDescription = selLink()->getDescription();
+		if (getLinkApp() != NULL) {
+			iconDescription = getLinkApp()->getDescription();
+		} else if (getLink() != NULL) {
+			iconDescription = getLink()->getDescription();
 		}
 
 		if (

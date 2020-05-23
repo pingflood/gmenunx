@@ -93,9 +93,9 @@ public:
 	void loadIcons();
 	bool linkChangeSection(uint32_t linkIndex, uint32_t oldSectionIndex, uint32_t newSectionIndex);
 
-	int selLinkIndex();
-	Link *selLink();
-	LinkApp *selLinkApp();
+	int getLinkIndex();
+	Link *getLink();
+	LinkApp *getLinkApp();
 	void pageUp();
 	void pageDown();
 	void linkLeft();

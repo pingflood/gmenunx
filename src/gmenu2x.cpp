@@ -269,12 +269,12 @@ void GMenu2X::main() {
 	powerManager->resetSuspendTimer();
 
 	// recover last session
-	if (lastSelectorElement >= 0 && menu->selLinkApp() != NULL && (!menu->selLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty())) {
+	if (lastSelectorElement >= 0 && menu->getLinkApp() != NULL && (!menu->getLinkApp()->getSelectorDir().empty() || !lastSelectorDir.empty())) {
 		if (confInt["skinBackdrops"] & BD_DIALOG)
 			setBackground(bg, currBackdrop);
 		else
 			setBackground(bg, confStr["wallpaper"]);
-		menu->selLinkApp()->selector(lastSelectorElement, lastSelectorDir);
+		menu->getLinkApp()->selector(lastSelectorElement, lastSelectorDir);
 	}
 
 	menu->exec();
@@ -390,7 +390,7 @@ bool GMenu2X::inputCommonActions(bool &inputAction) {
 
 	} else if (input[MMC_INSERT] || input[MMC_REMOVE]) {
 		confInt["section"] = menu->selSectionIndex();
-		confInt["link"] = menu->selLinkIndex();
+		confInt["link"] = menu->getLinkIndex();
 		SDL_Delay(2000);
 		initMenu();
 
@@ -604,20 +604,20 @@ void GMenu2X::resetSettings() {
 			for (uint32_t l = 0; l < menu->sectionLinks(s)->size(); l++) {
 				menu->setSectionIndex(s);
 				menu->setLinkIndex(l);
-				bool islink = menu->selLinkApp() != NULL;
+				bool islink = menu->getLinkApp() != NULL;
 				// WARNING("APP: %d %d %d %s", s, l, islink, menu->sectionLinks(s)->at(l)->getTitle().c_str());
 				if (!islink) continue;
-				if (reset_cpu)			menu->selLinkApp()->setCPU();
-				if (reset_icon)			menu->selLinkApp()->setIcon("");
-				// if (reset_homedir)		menu->selLinkApp()->setHomeDir("");
-				if (reset_manual)		menu->selLinkApp()->setManual("");
-				if (reset_parameter) 	menu->selLinkApp()->setParams("");
-				if (reset_filter) 		menu->selLinkApp()->setSelectorFilter("");
-				if (reset_directory) 	menu->selLinkApp()->setSelectorDir("");
-				if (reset_boxart) 		menu->selLinkApp()->setSelectorScreens("");
-				if (reset_backdrop) 	menu->selLinkApp()->setBackdrop("");
+				if (reset_cpu)			menu->getLinkApp()->setCPU();
+				if (reset_icon)			menu->getLinkApp()->setIcon("");
+				// if (reset_homedir)		menu->getLinkApp()->setHomeDir("");
+				if (reset_manual)		menu->getLinkApp()->setManual("");
+				if (reset_parameter) 	menu->getLinkApp()->setParams("");
+				if (reset_filter) 		menu->getLinkApp()->setSelectorFilter("");
+				if (reset_directory) 	menu->getLinkApp()->setSelectorDir("");
+				if (reset_boxart) 		menu->getLinkApp()->setSelectorScreens("");
+				if (reset_backdrop) 	menu->getLinkApp()->setBackdrop("");
 				if (reset_icon || reset_manual || reset_parameter || reset_backdrop || reset_filter || reset_directory || reset_boxart )
-					menu->selLinkApp()->save();
+					menu->getLinkApp()->save();
 			}
 		}
 		if (reset_skin) {
@@ -676,7 +676,7 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 	ofstream tmp("/tmp/gmenu2x.tmp");
 	if (tmp.is_open()) {
 		tmp << "section=" << menu->selSectionIndex() << endl;
-		tmp << "link=" << menu->selLinkIndex() << endl;
+		tmp << "link=" << menu->getLinkIndex() << endl;
 		if (selelem >- 1) tmp << "selectorelem=" << selelem << endl;
 		if (selectordir != "") tmp << "selectordir=" << selectordir << endl;
 		tmp << "udcPrev=" << udcPrev << endl;
@@ -749,7 +749,7 @@ void GMenu2X::writeConfig() {
 	ledOn();
 	if (confInt["saveSelection"] && menu != NULL) {
 		confInt["section"] = menu->selSectionIndex();
-		confInt["link"] = menu->selLinkIndex();
+		confInt["link"] = menu->getLinkIndex();
 	}
 
 	string conf = exe_path() + "/gmenu2x.conf";
@@ -1209,12 +1209,12 @@ void GMenu2X::changeWallpaper() {
 }
 
 void GMenu2X::showManual() {
-	string linkTitle = menu->selLinkApp()->getTitle();
-	string linkDescription = menu->selLinkApp()->getDescription();
-	string linkIcon = menu->selLinkApp()->getIcon();
-	string linkManual = menu->selLinkApp()->getManualPath();
-	string linkBackdrop = confInt["skinBackdrops"] | BD_DIALOG ? menu->selLinkApp()->getBackdropPath() : "";
-	string linkExec = menu->selLinkApp()->getExec();
+	string linkTitle = menu->getLinkApp()->getTitle();
+	string linkDescription = menu->getLinkApp()->getDescription();
+	string linkIcon = menu->getLinkApp()->getIcon();
+	string linkManual = menu->getLinkApp()->getManualPath();
+	string linkBackdrop = confInt["skinBackdrops"] | BD_DIALOG ? menu->getLinkApp()->getBackdropPath() : "";
+	string linkExec = menu->getLinkApp()->getExec();
 
 	if (linkManual == "") return;
 
@@ -1298,7 +1298,7 @@ void GMenu2X::explorer() {
 			TerminalDialog td(this, tr["Zip content"], bd.getFileName(bd.selected), "skin:icons/terminal.png");
 			td.exec("unzip -l " + cmdclean(bd.getFilePath(bd.selected)));
 		} else {
-			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex())) {
+			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->getLinkIndex())) {
 				writeConfig();
 			}
 
@@ -1400,9 +1400,9 @@ void GMenu2X::umountSdDialog() {
 
 void GMenu2X::contextMenu() {
 	vector<MenuOption> options;
-	if (menu->selLinkApp() != NULL) {
-		options.push_back((MenuOption){tr["Edit"] + " " + menu->selLink()->getTitle(), MakeDelegate(this, &GMenu2X::editLink)});
-		options.push_back((MenuOption){tr["Delete"] + " " + menu->selLink()->getTitle(), MakeDelegate(this, &GMenu2X::deleteLink)});
+	if (menu->getLinkApp() != NULL) {
+		options.push_back((MenuOption){tr["Edit"] + " " + menu->getLink()->getTitle(), MakeDelegate(this, &GMenu2X::editLink)});
+		options.push_back((MenuOption){tr["Delete"] + " " + menu->getLink()->getTitle(), MakeDelegate(this, &GMenu2X::deleteLink)});
 	}
 
 	options.push_back((MenuOption){tr["Add link"], 			MakeDelegate(this, &GMenu2X::addLink)});
@@ -1463,32 +1463,32 @@ void GMenu2X::changeSelectorDir() {
 }
 
 void GMenu2X::editLink() {
-	if (menu->selLinkApp() == NULL) return;
+	if (menu->getLinkApp() == NULL) return;
 
 	vector<string> pathV;
-	split(pathV, menu->selLinkApp()->getFile(), "/");
+	split(pathV, menu->getLinkApp()->getFile(), "/");
 	string oldSection = "";
 	if (pathV.size() > 1) oldSection = pathV[pathV.size()-2];
 	string newSection = oldSection;
 
-	string linkExec = menu->selLinkApp()->getExec();
-	string linkTitle = menu->selLinkApp()->getTitle();
-	string linkDescription = menu->selLinkApp()->getDescription();
-	string linkIcon = menu->selLinkApp()->getIcon();
-	string linkManual = menu->selLinkApp()->getManual();
-	string linkParams = menu->selLinkApp()->getParams();
-	string linkSelFilter = menu->selLinkApp()->getSelectorFilter();
-	string linkSelDir = menu->selLinkApp()->getSelectorDir();
+	string linkExec = menu->getLinkApp()->getExec();
+	string linkTitle = menu->getLinkApp()->getTitle();
+	string linkDescription = menu->getLinkApp()->getDescription();
+	string linkIcon = menu->getLinkApp()->getIcon();
+	string linkManual = menu->getLinkApp()->getManual();
+	string linkParams = menu->getLinkApp()->getParams();
+	string linkSelFilter = menu->getLinkApp()->getSelectorFilter();
+	string linkSelDir = menu->getLinkApp()->getSelectorDir();
 	bool useSelector = !linkSelDir.empty();
-	bool linkSelBrowser = menu->selLinkApp()->getSelectorBrowser();
-	string linkSelScreens = menu->selLinkApp()->getSelectorScreens();
-	string linkSelAliases = menu->selLinkApp()->getAliasFile();
-	int linkClock = menu->selLinkApp()->getCPU();
-	string linkBackdrop = menu->selLinkApp()->getBackdrop();
+	bool linkSelBrowser = menu->getLinkApp()->getSelectorBrowser();
+	string linkSelScreens = menu->getLinkApp()->getSelectorScreens();
+	string linkSelAliases = menu->getLinkApp()->getAliasFile();
+	int linkClock = menu->getLinkApp()->getCPU();
+	string linkBackdrop = menu->getLinkApp()->getBackdrop();
 	string dialogTitle = tr["Edit"] + " " + linkTitle;
-	string dialogIcon = menu->selLinkApp()->getIconPath();
+	string dialogIcon = menu->getLinkApp()->getIconPath();
 	string linkDir = dir_name(linkExec);
-	// string linkHomeDir = menu->selLinkApp()->getHomeDir();
+	// string linkHomeDir = menu->getLinkApp()->getHomeDir();
 
 	vector<string> scaleMode;
 	// scaleMode.push_back("Crop");
@@ -1496,7 +1496,7 @@ void GMenu2X::editLink() {
 	scaleMode.push_back("Aspect");
 	scaleMode.push_back("Original");
 	if (((float)(this->w)/this->h) != (4.0f/3.0f)) scaleMode.push_back("4:3");
-	string linkScaleMode = scaleMode[menu->selLinkApp()->getScaleMode()];
+	string linkScaleMode = scaleMode[menu->getLinkApp()->getScaleMode()];
 
 	vector<string> selStr;
 	selStr.push_back("OFF");
@@ -1539,28 +1539,28 @@ void GMenu2X::editLink() {
 	sd.addSetting(new MenuSettingFile(			this, tr["Manual"],			tr["Select a Manual or Readme file"], &linkManual, ".man.png,.txt,.me", linkExec, dialogTitle, dialogIcon));
 
 #if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-	bool linkUseGinge = menu->selLinkApp()->getUseGinge();
+	bool linkUseGinge = menu->getLinkApp()->getUseGinge();
 	string ginge_prep = exe_path() + "/ginge/ginge_prep";
 	if (file_exists(ginge_prep))
 		sd.addSetting(new MenuSettingBool(		this, tr["Use Ginge"],			tr["Compatibility layer for running GP2X applications"], &linkUseGinge ));
 #endif
 
 #if defined(HW_GAMMA)
-	int linkGamma = menu->selLinkApp()->getGamma();
+	int linkGamma = menu->getLinkApp()->getGamma();
 	sd.addSetting(new MenuSettingInt(		this, tr["Gamma"],	tr["Gamma value to set when launching this link"], &linkGamma, 0, 100 ));
 #endif
 
 	if (sd.exec() && sd.edited() && sd.save) {
 		ledOn();
 
-		menu->selLinkApp()->setExec(linkExec);
-		menu->selLinkApp()->setTitle(linkTitle);
-		menu->selLinkApp()->setDescription(linkDescription);
-		menu->selLinkApp()->setIcon(linkIcon);
-		menu->selLinkApp()->setManual(linkManual);
-		menu->selLinkApp()->setParams(linkParams);
-		menu->selLinkApp()->setSelectorFilter(linkSelFilter);
-		menu->selLinkApp()->setSelectorElement(0);
+		menu->getLinkApp()->setExec(linkExec);
+		menu->getLinkApp()->setTitle(linkTitle);
+		menu->getLinkApp()->setDescription(linkDescription);
+		menu->getLinkApp()->setIcon(linkIcon);
+		menu->getLinkApp()->setManual(linkManual);
+		menu->getLinkApp()->setParams(linkParams);
+		menu->getLinkApp()->setSelectorFilter(linkSelFilter);
+		menu->getLinkApp()->setSelectorElement(0);
 
 		if (linkSelDir.empty()) linkSelDir = confStr["homePath"];
 		if (confStr["tmp_selector"] == "OFF") linkSelDir = "";
@@ -1571,21 +1571,21 @@ void GMenu2X::editLink() {
 		if (linkScaleMode == "Aspect") scalemode = 1;
 		else if (linkScaleMode == "Original") scalemode = 2;
 		else if (linkScaleMode == "4:3") scalemode = 3;
-		menu->selLinkApp()->setScaleMode(scalemode);
+		menu->getLinkApp()->setScaleMode(scalemode);
 
-		menu->selLinkApp()->setSelectorDir(linkSelDir);
-		menu->selLinkApp()->setSelectorBrowser(linkSelBrowser);
-		menu->selLinkApp()->setSelectorScreens(linkSelScreens);
-		menu->selLinkApp()->setAliasFile(linkSelAliases);
-		menu->selLinkApp()->setBackdrop(linkBackdrop);
-		menu->selLinkApp()->setCPU(linkClock);
+		menu->getLinkApp()->setSelectorDir(linkSelDir);
+		menu->getLinkApp()->setSelectorBrowser(linkSelBrowser);
+		menu->getLinkApp()->setSelectorScreens(linkSelScreens);
+		menu->getLinkApp()->setAliasFile(linkSelAliases);
+		menu->getLinkApp()->setBackdrop(linkBackdrop);
+		menu->getLinkApp()->setCPU(linkClock);
 
 #if defined(HW_GAMMA)
-		menu->selLinkApp()->setGamma(linkGamma);
+		menu->getLinkApp()->setGamma(linkGamma);
 #endif
 
 #if defined(TARGET_WIZ) || defined(TARGET_CAANOO)
-		menu->selLinkApp()->setUseGinge(linkUseGinge);
+		menu->getLinkApp()->setUseGinge(linkUseGinge);
 #endif
 
 		// if section changed move file and update link->file
@@ -1600,26 +1600,26 @@ void GMenu2X::editLink() {
 				newFileName = "sections/" + newSection + "/" + linkTitle + id;
 				x++;
 			}
-			rename(menu->selLinkApp()->getFile().c_str(), newFileName.c_str());
-			menu->selLinkApp()->renameFile(newFileName);
+			rename(menu->getLinkApp()->getFile().c_str(), newFileName.c_str());
+			menu->getLinkApp()->renameFile(newFileName);
 
 			INFO("New section: (%i) %s", newSectionIndex - menu->getSections().begin(), newSection.c_str());
 
-			menu->linkChangeSection(menu->selLinkIndex(), menu->selSectionIndex(), newSectionIndex - menu->getSections().begin());
+			menu->linkChangeSection(menu->getLinkIndex(), menu->selSectionIndex(), newSectionIndex - menu->getSections().begin());
 		}
-		menu->selLinkApp()->save();
+		menu->getLinkApp()->save();
 		sync();
 		ledOff();
 	}
 	confInt["section"] = menu->selSectionIndex();
-	confInt["link"] = menu->selLinkIndex();
+	confInt["link"] = menu->getLinkIndex();
 	confStr["tmp_selector"] = "";
 }
 
 void GMenu2X::deleteLink() {
 	int package_type = 0;
-	MessageBox mb(this, tr["Delete"] + " " + menu->selLink()->getTitle() + "\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->selLink()->getIconPath());
-	string package = menu->selLinkApp()->getExec();
+	MessageBox mb(this, tr["Delete"] + " " + menu->getLink()->getTitle() + "\n" + tr["THIS CAN'T BE UNDONE"] + "\n" + tr["Are you sure?"], menu->getLink()->getIconPath());
+	string package = menu->getLinkApp()->getExec();
 #if defined(OPK_SUPPORT)
 	if (file_ext(package, true) == ".opk") {
 		package_type = 1;
@@ -1628,7 +1628,7 @@ void GMenu2X::deleteLink() {
 	}
 #endif
 #if defined(IPK_SUPPORT)
-	package = ipkName(menu->selLinkApp()->getFile());
+	package = ipkName(menu->getLinkApp()->getFile());
 	if (!package.empty()) {
 		package_type = 2;
 		mb.setButton(MODIFIER, tr["Uninstall IPK"]);
