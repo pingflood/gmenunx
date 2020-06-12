@@ -182,7 +182,7 @@ public:
 			val = 1;
 		}
 
-		sprintf(cmd, "alsa-setvolume default Headphone %d; alsa-setvolume default PCM %d", hp, val);
+		sprintf(cmd, "amixer set Headphone %d; amixer set PCM %d", hp, val);
 		system(cmd);
 
 		return (val + hp) * (100.0f / 63.0f);
@@ -190,11 +190,13 @@ public:
 
 	int getVolume() {
 		int pcm = 0, hp = 0;
-		if (FILE *f = popen("alsa-getvolume default PCM", "r")) {
+		// if (FILE *f = popen("alsa-getvolume default PCM", "r")) {
+		if (FILE *f = popen("amixer get PCM | grep -i \"Playback [0-9] \\[\" | cut -f 5 -d \" \" | head -n 1", "r")) {
 			fscanf(f, "%i", &pcm);
 			pclose(f);
 		}
-		if (FILE *f = popen("alsa-getvolume default Headphone", "r")) {
+		// if (FILE *f = popen("alsa-getvolume default Headphone", "r")) {
+		if (FILE *f = popen("amixer get Headphone | grep -i \"Playback [0-9] \\[\" | cut -f 5 -d \" \" | head -n 1", "r")) {
 			fscanf(f, "%i", &hp);
 			pclose(f);
 		}
