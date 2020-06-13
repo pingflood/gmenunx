@@ -11,9 +11,9 @@ CFLAGS = -DTARGET_WIZ -DPLATFORM=\"$(PLATFORM)\" -I"$(CHAINPREFIX)/include" `$(C
 CXXFLAGS = $(CFLAGS)
 LDFLAGS = -L$(CHAINPREFIX)/lib -lSDL_image -lSDL_ttf -lfreetype -lSDL_gfx -ljpeg -lpng12 -lSDL -lz -ldl
 
-OBJDIR = /tmp/gmenu2x/$(PLATFORM)
-DISTDIR = dist/$(PLATFORM)/gmenu2x
-APPNAME = dist/$(PLATFORM)/gmenu2x
+OBJDIR = /tmp/gmenunx/$(PLATFORM)
+DISTDIR = dist/$(PLATFORM)/gmenunx
+APPNAME = dist/$(PLATFORM)/gmenunx
 
 SOURCES := $(wildcard src/*.cpp)
 OBJS := $(patsubst src/%.cpp, $(OBJDIR)/src/%.o, $(SOURCES))
@@ -28,7 +28,7 @@ dir:
 	@if [ ! -d $(OBJDIR)/src ]; then mkdir -p $(OBJDIR)/src; fi
 
 build: dir $(OBJS)
-	@echo "Linking gmenu2x-debug..."
+	@echo "Linking gmenunx-debug..."
 	$(CXX) -o $(APPNAME)-debug `$(CHAINPREFIX)/bin/sdl-config --libs` $(LDFLAGS) $(OBJS)
 	$(STRIP) $(APPNAME)-debug -o $(APPNAME)
 
@@ -36,7 +36,7 @@ clean:
 	rm -rf $(OBJDIR) $(DISTDIR) *.gcda *.gcno $(APPNAME)
 
 dist: build
-	install -m755 -D $(APPNAME) $(DISTDIR)/gmenu2x
+	install -m755 -D $(APPNAME) $(DISTDIR)/gmenunx
 	install -m755 -d $(DISTDIR)/sections/applications $(DISTDIR)/sections/emulators $(DISTDIR)/sections/games $(DISTDIR)/sections/settings
 	install -m644 -D README.md $(DISTDIR)/README.txt
 	install -m644 -D COPYING $(DISTDIR)/COPYING

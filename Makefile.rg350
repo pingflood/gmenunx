@@ -27,9 +27,9 @@ LDFLAGS = -Wl,-Bstatic -Lsrc/libopk -l:libopk.a -Wl,-Bdynamic -lz
 LDFLAGS += $(SDL_LIBS) -lSDL_image -lSDL_ttf
 LDFLAGS +=-Wl,--as-needed -Wl,--gc-sections
 
-OBJDIR = /tmp/gmenu2x/$(PLATFORM)
+OBJDIR = /tmp/gmenunx/$(PLATFORM)
 DISTDIR = dist/$(PLATFORM)
-TARGET = $(DISTDIR)/gmenu2x
+TARGET = $(DISTDIR)/gmenunx
 
 SOURCES := $(wildcard src/*.cpp)
 OBJS := $(patsubst src/%.cpp, $(OBJDIR)/%.o, $(SOURCES))
@@ -48,7 +48,7 @@ libopk:
 	make -C src/libopk
 
 debug: $(OBJS)
-	@echo "Linking gmenu2x-debug..."
+	@echo "Linking gmenunx-debug..."
 	$(CXX) -o $(TARGET)-debug $(OBJS) $(LDFLAGS)
 
 shared: debug
@@ -67,4 +67,4 @@ dist: dir libopk shared
 	cp -RH assets/$(PLATFORM)/input.conf $(DISTDIR)
 
 zip: dist
-	cd $(DISTDIR)/ && rm -f ../gmenunx-$(PLATFORM).zip && zip -r ../gmenunx-$(PLATFORM).zip skins translations COPYING gmenu2x input.conf about.txt
+	cd $(DISTDIR)/ && rm -f ../gmenunx-$(PLATFORM).zip && zip -r ../gmenunx-$(PLATFORM).zip skins translations COPYING gmenunx input.conf about.txt

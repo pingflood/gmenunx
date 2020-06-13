@@ -20,9 +20,9 @@ CFLAGS += -DTARGET_BITTBOY
 
 LDFLAGS = $(SDL_LIBS) -lfreetype -lSDL -lSDL_image -lSDL_ttf
 
-OBJDIR = /tmp/gmenu2x/$(PLATFORM)
+OBJDIR = /tmp/gmenunx/$(PLATFORM)
 DISTDIR = dist/$(PLATFORM)
-TARGET = $(DISTDIR)/gmenu2x
+TARGET = $(DISTDIR)/gmenunx
 
 SOURCES := $(wildcard src/*.cpp)
 OBJS := $(patsubst src/%.cpp, $(OBJDIR)/%.o, $(SOURCES))
@@ -39,7 +39,7 @@ dir:
 	@mkdir -p $(OBJDIR) $(DISTDIR)
 
 debug: $(OBJS)
-	@echo "Linking gmenu2x-debug..."
+	@echo "Linking gmenunx-debug..."
 	$(CXX) -o $(TARGET)-debug $(LDFLAGS) $(OBJS)
 
 shared: debug
@@ -57,4 +57,4 @@ dist: dir shared
 	cp -RH assets/$(PLATFORM)/input.conf $(DISTDIR)
 
 zip: dist
-	cd $(DISTDIR)/ && rm -f ../gmenunx-$(PLATFORM).zip && zip -r ../gmenunx-$(PLATFORM).zip skins translations COPYING gmenu2x input.conf about.txt
+	cd $(DISTDIR)/ && rm -f ../gmenunx-$(PLATFORM).zip && zip -r ../gmenunx-$(PLATFORM).zip skins translations COPYING gmenunx input.conf about.txt

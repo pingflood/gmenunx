@@ -26,9 +26,9 @@ LDFLAGS = -Wl,-Bstatic -Lsrc/libopk -l:libopk.a
 LDFLAGS += -Wl,-Bdynamic -lz $(SDL_LIBS) -lSDL_image -lSDL_ttf
 LDFLAGS += -Wl,--as-needed -Wl,--gc-sections
 
-OBJDIR = /tmp/gmenu2x/$(PLATFORM)
+OBJDIR = /tmp/gmenunx/$(PLATFORM)
 DISTDIR = dist/$(PLATFORM)
-TARGET = $(DISTDIR)/gmenu2x
+TARGET = $(DISTDIR)/gmenunx
 
 SOURCES := $(wildcard src/*.cpp)
 OBJS := $(patsubst src/%.cpp, $(OBJDIR)/%.o, $(SOURCES))
@@ -47,7 +47,7 @@ libopk:
 	make -C src/libopk
 
 debug: $(OBJS)
-	@echo "Linking gmenu2x-debug..."
+	@echo "Linking gmenunx-debug..."
 	$(CXX) -o $(TARGET)-debug $(OBJS) $(LDFLAGS)
 
 shared: debug
@@ -62,10 +62,10 @@ ipk: dist
 	sed "s/^Version:.*/Version: $$(date +%Y%m%d)/" assets/control > /tmp/.gmenu-ipk/control
 	cp assets/conffiles /tmp/.gmenu-ipk/
 	echo -e "#!/bin/sh\nsync; echo -e 'Installing gmenunx..'; mount -o remount,rw /; rm /var/lib/opkg/info/gmenunx.list; exit 0" > /tmp/.gmenu-ipk/preinst
-	echo -e "#!/bin/sh\nsync; mount -o remount,ro /; echo -e 'Installation finished.\nRestarting gmenunx..'; sleep 1; killall gmenu2x; exit 0" > /tmp/.gmenu-ipk/postinst
+	echo -e "#!/bin/sh\nsync; mount -o remount,ro /; echo -e 'Installation finished.\nRestarting gmenunx..'; sleep 1; killall gmenunx; exit 0" > /tmp/.gmenu-ipk/postinst
 	chmod +x /tmp/.gmenu-ipk/postinst /tmp/.gmenu-ipk/preinst
 	tar --owner=0 --group=0 -czvf /tmp/.gmenu-ipk/control.tar.gz -C /tmp/.gmenu-ipk/ control conffiles postinst preinst
-	tar --owner=0 --group=0 -czvf /tmp/.gmenu-ipk/data.tar.gz -C $(DISTDIR) about.txt COPYING gmenu2x gmenu2x.conf input.conf skins translations
+	tar --owner=0 --group=0 -czvf /tmp/.gmenu-ipk/data.tar.gz -C $(DISTDIR) about.txt COPYING gmenunx gmenunx.conf input.conf skins translations
 	echo 2.0 > /tmp/.gmenu-ipk/debian-binary
 	ar r dist/gmenunx-$(PLATFORM).ipk /tmp/.gmenu-ipk/control.tar.gz /tmp/.gmenu-ipk/data.tar.gz /tmp/.gmenu-ipk/debian-binary
 
@@ -77,7 +77,7 @@ dist: dir libopk shared
 	cp -RH assets/skins/RetroFW/* $(DISTDIR)/skins/Default
 	cp -RH assets/skins/Default/font.ttf $(DISTDIR)/skins/Default
 	cp -RH assets/$(PLATFORM)/input.conf $(DISTDIR)
-	echo "wallpaper=\"skins/Default/wallpapers/RetroFW.png\"" > $(DISTDIR)/gmenu2x.conf
+	echo "wallpaper=\"skins/Default/wallpapers/RetroFW.png\"" > $(DISTDIR)/gmenunx.conf
 
 zip: dist
-	cd $(DISTDIR)/ && rm -f ../gmenunx-$(PLATFORM).zip && zip -r ../gmenunx-$(PLATFORM).zip skins translations COPYING gmenu2x input.conf gmenu2x.conf about.txt
+	cd $(DISTDIR)/ && rm -f ../gmenunx-$(PLATFORM).zip && zip -r ../gmenunx-$(PLATFORM).zip skins translations COPYING gmenunx input.conf gmenunx.conf about.txt
