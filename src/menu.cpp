@@ -19,7 +19,6 @@
  ***************************************************************************/
 #include <unistd.h>
 #include <sstream>
-#include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <algorithm>

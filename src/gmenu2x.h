@@ -23,6 +23,7 @@
 
 class PowerManager;
 
+#include <sys/stat.h>
 #include <iostream>
 #include <string>
 #include <vector>
