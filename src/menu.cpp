@@ -42,7 +42,11 @@ gmenu2x(gmenu2x) {
 }
 
 Menu::~Menu() {
-	freeLinks();
+	for (vector<linklist>::iterator section = links.begin(); section < links.end(); section++) {
+		for (linklist::iterator link = section->begin(); link < section->end(); link++) {
+			delete *link;
+		}
+	}
 }
 
 void Menu::readSections() {
@@ -118,15 +122,6 @@ void Menu::readLinks() {
 		}
 
 		closedir(dirp);
-	}
-}
-
-// SECTION MANAGEMENT
-void Menu::freeLinks() {
-	for (vector<linklist>::iterator section = links.begin(); section < links.end(); section++) {
-		for (linklist::iterator link = section->begin(); link < section->end(); link++) {
-			delete *link;
-		}
 	}
 }
 

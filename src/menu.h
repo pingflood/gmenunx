@@ -56,8 +56,6 @@ private:
 
 	SDL_TimerID sectionChangedTimer, iconChangedTimer;
 
-	void freeLinks();
-
 	void drawList();
 	void drawGrid();
 	void drawSectionBar();
