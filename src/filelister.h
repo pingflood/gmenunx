@@ -33,8 +33,8 @@ private:
 
 public:
 	string path, filter;
-	bool showDirectories = true, showFiles = true, allowDirUp = true;
 	FileLister();
+	bool showDirectories = true, showFiles = true, showFullPath = false, allowDirUp = true;
 	void browse(string _path);
 
 	uint32_t size();
