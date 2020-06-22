@@ -83,7 +83,7 @@ int TextDialog::drawText(vector<string> *text, int32_t firstCol, int32_t firstRo
 	if (firstRow < 0 && text->size() >= rowsPerPage) firstRow = text->size() - rowsPerPage;
 	if (firstRow < 0) firstRow = 0;
 
-	int fh = gmenu2x->font->getHeight();
+	int fh = gmenu2x->font->height();
 
 	for (uint32_t i = firstRow; i < firstRow + rowsPerPage && i < text->size(); i++) {
 		int y = gmenu2x->listRect.y + (i - firstRow) * fh;
@@ -111,7 +111,7 @@ void TextDialog::exec() {
 	preProcess();
 
 	bool inputAction = false;
-	rowsPerPage = gmenu2x->listRect.h / gmenu2x->font->getHeight();
+	rowsPerPage = gmenu2x->listRect.h / gmenu2x->font->height();
 
 	if (gmenu2x->sc[this->icon] == NULL)
 		this->icon = "skin:icons/ebook.png";

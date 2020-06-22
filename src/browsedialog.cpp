@@ -21,7 +21,7 @@ bool BrowseDialog::exec() {
 
 	uint32_t i, iY, firstElement = 0, padding = 6;
 	int32_t animation = 0;
-	uint32_t rowHeight = gmenu2x->font->getHeight() + 1;
+	uint32_t rowHeight = gmenu2x->font->height() + 1;
 	uint32_t numRows = (gmenu2x->listRect.h - 2) / rowHeight - 1;
 
 	if (path.empty() || !dir_exists(path))

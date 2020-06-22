@@ -25,7 +25,7 @@ MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options):
 gmenu2x(gmenu2x) {
 	bool inputAction = false;
 	int32_t selected = 0;
-	uint32_t i, fadeAlpha = 0, h = gmenu2x->font->getHeight(), h2 = gmenu2x->font->getHalfHeight();
+	uint32_t i, fadeAlpha = 0, h = gmenu2x->font->height(), h2 = gmenu2x->font->height() / 2;
 	SDL_Rect box;
 
 	Surface bg(gmenu2x->s);
@@ -93,7 +93,7 @@ gmenu2x(gmenu2x), text(text), icon(icon) {
 	for (uint32_t x = 0; x < buttonText.size(); x++) {
 		buttonText[x] = "";
 		button[x] = "";
-		buttonPosition[x].h = gmenu2x->font->getHeight();
+		buttonPosition[x].h = gmenu2x->font->height();
 		anyaction = true;
 	}
 
@@ -151,7 +151,7 @@ int MessageBox::exec() {
 
 	Surface *icn = gmenu2x->sc.add(icon, icon + "mb");
 
-	box.h = gmenu2x->font->getTextHeight(text) * gmenu2x->font->getHeight() + gmenu2x->font->getHeight();
+	box.h = gmenu2x->font->getTextHeight(text) * gmenu2x->font->height() + gmenu2x->font->height();
 	if (icn != NULL && box.h < 40) box.h = 48;
 
 	box.w = gmenu2x->font->getTextWidth(text) + 24;
@@ -201,12 +201,12 @@ int MessageBox::exec() {
 
 		if (!this->autohide) {
 			// draw buttons rectangle
-			gmenu2x->s->box(box.x, box.y+box.h, box.w, gmenu2x->font->getHeight(), gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
+			gmenu2x->s->box(box.x, box.y+box.h, box.w, gmenu2x->font->height(), gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 
 			int btnX = (gmenu2x->w + box.w) / 2 - 6;
 			for (uint32_t i = 0; i < buttonText.size(); i++) {
 				if (!buttonText[i].empty()) {
-					buttonPosition[i].y = box.y+box.h+gmenu2x->font->getHalfHeight();
+					buttonPosition[i].y = box.y+box.h+gmenu2x->font->height() / 2;
 					buttonPosition[i].w = btnX;
 
 					btnX = gmenu2x->drawButtonRight(gmenu2x->s, button[i], buttonText[i], btnX, buttonPosition[i].y);

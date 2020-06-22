@@ -47,7 +47,7 @@ MenuSetting(gmenu2x, title, description), _value(value), def(def), min(min), max
 
 void MenuSettingInt::draw(int y) {
 	MenuSetting::draw(y);
-	gmenu2x->s->write(gmenu2x->font, strvalue, 155, y+gmenu2x->font->getHalfHeight(), VAlignMiddle);
+	gmenu2x->s->write(gmenu2x->font, strvalue, 155, y+gmenu2x->font->height() / 2, VAlignMiddle);
 }
 
 uint32_t MenuSettingInt::manageInput() {

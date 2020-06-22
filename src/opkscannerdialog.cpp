@@ -195,7 +195,7 @@ void OPKScannerDialog::opkScan(string opkdir) {
 
 void OPKScannerDialog::exec(bool _any_platform) {
 	any_platform = _any_platform;
-	rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
+	rowsPerPage = gmenu2x->listRect.h / gmenu2x->font->height();
 
 	gmenu2x->powerManager->clearTimer();
 

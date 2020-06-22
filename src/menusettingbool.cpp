@@ -51,10 +51,10 @@ void MenuSettingBool::draw(int y) {
 	RGBAColor color = (RGBAColor){255, 0, 0, 255};
 	if (value()) color = (RGBAColor) {0, 255, 0, 255};
 
-	int w = gmenu2x->font->getHeight()/2.5;
-	gmenu2x->s->box(155, y + 1, w, gmenu2x->font->getHeight() - 2, color);
-	gmenu2x->s->rectangle(155, y + 1, w, gmenu2x->font->getHeight() - 2, 0, 0, 0, 255);
-	gmenu2x->s->write(gmenu2x->font, strvalue, 155 + w + 2, y + gmenu2x->font->getHalfHeight(), VAlignMiddle);
+	int w = gmenu2x->font->height()/2.5;
+	gmenu2x->s->box(155, y + 1, w, gmenu2x->font->height() - 2, color);
+	gmenu2x->s->rectangle(155, y + 1, w, gmenu2x->font->height() - 2, 0, 0, 0, 255);
+	gmenu2x->s->write(gmenu2x->font, strvalue, 155 + w + 2, y + gmenu2x->font->height() / 2, VAlignMiddle);
 }
 
 uint32_t MenuSettingBool::manageInput() {

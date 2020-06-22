@@ -101,7 +101,7 @@ void InputDialog::setKeyboard(int kb) {
 bool InputDialog::exec() {
 	Surface *bg = new Surface(gmenu2x->s);
 
-	SDL_Rect box = {gmenu2x->listRect.x + 2, 0, gmenu2x->listRect.w - 4, gmenu2x->font->getHeight() + 4};
+	SDL_Rect box = {gmenu2x->listRect.x + 2, 0, gmenu2x->listRect.w - 4, gmenu2x->font->height() + 4};
 	box.y = kbRect.y - box.h;
 
 	uint32_t caretTick = 0, curTick;

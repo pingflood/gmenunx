@@ -30,7 +30,7 @@ MenuSettingStringBase::~MenuSettingStringBase() {}
 
 void MenuSettingStringBase::draw(int y) {
 	MenuSetting::draw(y);
-	gmenu2x->s->write(gmenu2x->font, value(), 155, y + gmenu2x->font->getHalfHeight(), VAlignMiddle);
+	gmenu2x->s->write(gmenu2x->font, value(), 155, y + gmenu2x->font->height() / 2, VAlignMiddle);
 }
 
 uint32_t MenuSettingStringBase::manageInput() {

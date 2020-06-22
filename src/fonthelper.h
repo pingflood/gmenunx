@@ -15,7 +15,7 @@ using std::string;
 
 class FontHelper {
 private:
-	int height, halfHeight, fontSize;
+	int fontHeight, fontSize;
 	RGBAColor textColor, outlineColor;
 	string fontName;
 
@@ -40,8 +40,7 @@ public:
 	int getTextHeight(const string &text);
 	uint32_t getTextWidth(vector<string> *text);
 
-	uint32_t getHeight() { return height; };
-	uint32_t getHalfHeight() { return halfHeight; };
+	uint32_t height() { return fontHeight; };
 
 	void loadFont(const string &fontName, int fontSize);
 

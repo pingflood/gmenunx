@@ -502,7 +502,7 @@ void Menu::drawList() {
 		}
 
 		icon->blit(gmenu2x->s, {ix + 2, iy + 2, 32, linkHeight - 4}, HAlignCenter | VAlignMiddle);
-		gmenu2x->s->write(gmenu2x->titlefont, gmenu2x->tr[sectionLinks()->at(i)->getTitle()], ix + linkSpacing + 36, iy + gmenu2x->titlefont->getHeight()/2, VAlignMiddle);
+		gmenu2x->s->write(gmenu2x->titlefont, gmenu2x->tr[sectionLinks()->at(i)->getTitle()], ix + linkSpacing + 36, iy + gmenu2x->titlefont->height()/2, VAlignMiddle);
 		gmenu2x->s->write(gmenu2x->font, gmenu2x->tr[sectionLinks()->at(i)->getDescription()], ix + linkSpacing + 36, iy + linkHeight - linkSpacing/2, VAlignBottom);
 	}
 
@@ -871,15 +871,15 @@ void Menu::exec() {
 		// 	s->box(10,50,300,162, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BG]);
 		// 	s->rectangle(12,52,296,158, gmenu2x->skinConfColors[COLOR_MESSAGE_BOX_BORDER]);
 		// 	int line = 60; s->write(gmenu2x->font, gmenu2x->tr["CONTROLS"], 20, line);
-		// 	line += font->getHeight() + 5; s->write(gmenu2x->font, gmenu2x->tr["A: Select"], 20, line);
-		// 	line += font->getHeight() + 5; s->write(gmenu2x->font, gmenu2x->tr["B: Cancel"], 20, line);
-		// 	line += font->getHeight() + 5; s->write(gmenu2x->font, gmenu2x->tr["Y: Show manual"], 20, line);
-		// 	line += font->getHeight() + 5; s->write(gmenu2x->font, gmenu2x->tr["L, R: Change section"], 20, line);
-		// 	line += font->getHeight() + 5; s->write(gmenu2x->font, gmenu2x->tr["Start: Settings"], 20, line);
-		// 	line += font->getHeight() + 5; s->write(gmenu2x->font, gmenu2x->tr["Select: Menu"], 20, line);
-		// 	line += font->getHeight() + 5; s->write(gmenu2x->font, gmenu2x->tr["Select+Start: Save screenshot"], 20, line);
-		// 	line += font->getHeight() + 5; s->write(gmenu2x->font, gmenu2x->tr["Select+L: Adjust volume level"], 20, line);
-		// 	line += font->getHeight() + 5; s->write(gmenu2x->font, gmenu2x->tr["Select+R: Adjust backlight level"], 20, line);
+		// 	line += font->height() + 5; s->write(gmenu2x->font, gmenu2x->tr["A: Select"], 20, line);
+		// 	line += font->height() + 5; s->write(gmenu2x->font, gmenu2x->tr["B: Cancel"], 20, line);
+		// 	line += font->height() + 5; s->write(gmenu2x->font, gmenu2x->tr["Y: Show manual"], 20, line);
+		// 	line += font->height() + 5; s->write(gmenu2x->font, gmenu2x->tr["L, R: Change section"], 20, line);
+		// 	line += font->height() + 5; s->write(gmenu2x->font, gmenu2x->tr["Start: Settings"], 20, line);
+		// 	line += font->height() + 5; s->write(gmenu2x->font, gmenu2x->tr["Select: Menu"], 20, line);
+		// 	line += font->height() + 5; s->write(gmenu2x->font, gmenu2x->tr["Select+Start: Save screenshot"], 20, line);
+		// 	line += font->height() + 5; s->write(gmenu2x->font, gmenu2x->tr["Select+L: Adjust volume level"], 20, line);
+		// 	line += font->height() + 5; s->write(gmenu2x->font, gmenu2x->tr["Select+R: Adjust backlight level"], 20, line);
 		// 	s->flip();
 		// 	bool close = false;
 		// 	while (!close) {

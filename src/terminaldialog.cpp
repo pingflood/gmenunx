@@ -28,7 +28,7 @@ TerminalDialog::TerminalDialog(GMenu2X *gmenu2x, const string &title, const stri
 TextDialog(gmenu2x, title, description, icon, backdrop) {}
 
 void TerminalDialog::exec(string cmd) {
-	rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->getHeight();
+	rowsPerPage = gmenu2x->listRect.h/gmenu2x->font->height();
 
 	if (gmenu2x->sc[this->icon] == NULL)
 		this->icon = "skin:icons/terminal.png";

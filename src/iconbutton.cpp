@@ -55,7 +55,7 @@ void IconButton::recalcSize() {
 
 	if (label != "") {
 		labelRect.w = gmenu2x->font->getTextWidth(label);
-		labelRect.h = gmenu2x->font->getHeight();
+		labelRect.h = gmenu2x->font->height();
 		if (labelPosition == IconButton::DISP_LEFT || labelPosition == IconButton::DISP_RIGHT) {
 			w += margin + labelRect.w;
 			labelHAlign = HAlignLeft;

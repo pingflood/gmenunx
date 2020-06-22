@@ -36,10 +36,9 @@ void FontHelper::loadFont(const string &fontName, int fontSize) {
 	TTF_SetFontHinting(this->font, TTF_HINTING_LIGHT);
 	TTF_SetFontHinting(this->fontOutline, TTF_HINTING_LIGHT);
 	TTF_SetFontOutline(this->fontOutline, outline);
-	height = 0;
+	fontHeight = 0;
 	// Get maximum line height with a sample text
-	TTF_SizeUTF8(this->font, "AZ0987654321", NULL, &height);
-	halfHeight = height / 2;
+	TTF_SizeUTF8(this->font, "AZ0987654321", NULL, &fontHeight);
 }
 
 bool FontHelper::utf8Code(uint8_t c) {
@@ -100,9 +99,9 @@ void FontHelper::write(Surface *surface, vector<string> *text, int x, int y, con
 
 void FontHelper::write(Surface *surface, vector<string> *text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor) {
 	if (align & VAlignMiddle) {
-		y -= getHalfHeight() * text->size();
+		y -= text->size() * height() / 2;
 	} else if (align & VAlignBottom) {
-		y -= getHeight() * text->size();
+		y -= text->size() * height();
 	}
 
 	for (uint32_t i = 0; i < text->size(); i++) {
@@ -112,7 +111,7 @@ void FontHelper::write(Surface *surface, vector<string> *text, int x, int y, con
 		} else if (align & HAlignRight) {
 			ix -= getTextWidth(text->at(i));
 		}
-		write(surface, text->at(i), ix, y + i * getHeight(), fgColor, bgColor);
+		write(surface, text->at(i), ix, y + i * height(), fgColor, bgColor);
 	}
 }
 
@@ -131,9 +130,9 @@ void FontHelper::write(Surface* surface, const string &text, int x, int y, const
 	}
 
 	if (align & VAlignMiddle) {
-		y -= getHalfHeight();
+		y -= height() / 2;
 	} else if (align & VAlignBottom) {
-		y -= getHeight();
+		y -= height();
 	}
 
 	write(surface, text, x, y, fgColor, bgColor);

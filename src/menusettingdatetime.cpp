@@ -48,7 +48,7 @@ MenuSetting(gmenu2x, title, description) {
 void MenuSettingDateTime::draw(int y) {
 	this->y = y;
 	MenuSetting::draw(y);
-	gmenu2x->s->write(gmenu2x->font, year + "-" + month + "-" + day + " " + hour + ":" + minute, 155, y+gmenu2x->font->getHalfHeight(), VAlignMiddle);
+	gmenu2x->s->write(gmenu2x->font, year + "-" + month + "-" + day + " " + hour + ":" + minute, 155, y + gmenu2x->font->height() / 2, VAlignMiddle);
 }
 
 void MenuSettingDateTime::drawSelected(int y) {
@@ -75,8 +75,8 @@ void MenuSettingDateTime::drawSelected(int y) {
 				w = gmenu2x->font->getTextWidth(year);
 				break;
 		}
-		gmenu2x->s->box(x - 2, y, w + 3, gmenu2x->font->getHeight() + 1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
-		gmenu2x->s->rectangle(x - 2, y, w + 3, gmenu2x->font->getHeight() + 1, 0, 0, 0, 255);
+		gmenu2x->s->box(x - 2, y, w + 3, gmenu2x->font->height() + 1, gmenu2x->skinConfColors[COLOR_SELECTION_BG]);
+		gmenu2x->s->rectangle(x - 2, y, w + 3, gmenu2x->font->height() + 1, 0, 0, 0, 255);
 	}
 	MenuSetting::drawSelected(y);
 }

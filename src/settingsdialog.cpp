@@ -38,7 +38,7 @@ bool SettingsDialog::exec() {
 		gmenu2x->menu->initLayout();
 		gmenu2x->font->setSize(gmenu2x->skinConfInt["fontSize"])->setColor(gmenu2x->skinConfColors[COLOR_FONT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_OUTLINE]);
 		gmenu2x->titlefont->setSize(gmenu2x->skinConfInt["fontSizeTitle"])->setColor(gmenu2x->skinConfColors[COLOR_FONT_ALT])->setOutlineColor(gmenu2x->skinConfColors[COLOR_FONT_ALT_OUTLINE]);
-		rowHeight = gmenu2x->font->getHeight() + 1;
+		rowHeight = gmenu2x->font->height() + 1;
 		numRows = (gmenu2x->listRect.h - 2)/rowHeight - 1;
 
 		if (selected < 0) selected = voices.size() - 1;
