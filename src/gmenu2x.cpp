@@ -413,7 +413,9 @@ string GMenu2X::setBackground(Surface *bg, string wallpaper) {
 	if (!sc.exists(wallpaper)) { // search and scale background
 		if (wallpaper.empty() || sc[wallpaper] == NULL) {
 			DEBUG("Searching wallpaper");
-			FileLister fl("skins/Default/wallpapers", false, true);
+			FileLister fl;
+			fl.showDirectories = false;
+			fl.showFiles = true;
 			fl.setFilter(".png,.jpg,.jpeg,.bmp");
 			fl.browse();
 			wallpaper = "skins/Default/wallpapers/" + fl.getFiles()[0];
@@ -491,9 +493,8 @@ void GMenu2X::settings() {
 	powerManager->clearTimer();
 
 	// int prevgamma = confInt["gamma"];
-	FileLister fl_tr("translations");
-	fl_tr.browse();
-	fl_tr.insertFile("English");
+	FileLister fl;
+	fl.insertFile("English");
 	string lang = tr.lang();
 	if (lang == "") lang = "English";
 
@@ -504,7 +505,7 @@ void GMenu2X::settings() {
 	SettingsDialog sd(this, ts, tr["Settings"], "skin:icons/configure.png");
 	sd.allowCancel = false;
 
-	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenuNX"], &lang, &fl_tr.getFiles()));
+	sd.addSetting(new MenuSettingMultiString(this, tr["Language"], tr["Set the language used by GMenuNX"], &lang, &fl.getFiles()));
 
 	string prevDateTime = get_date_time();
 	string newDateTime = prevDateTime;
@@ -987,10 +988,17 @@ void GMenu2X::skinMenu() {
 	string initSkin = confStr["skin"];
 	string prevSkin = "/";
 
-	FileLister fl_sk("skins", true, false);
-	fl_sk.addExclude("..");
-	fl_sk.browse();
+	vector<string> skins;
 
+	FileLister fl;
+
+	fl.showFullPath = true;
+	fl.showDirectories = true;
+	fl.showFiles = false;
+
+	fl.addExclude("..");
+
+	skins = fl.getDirectories();
 	vector<string> wpLabel;
 	wpLabel.push_back(">>");
 	string tmp = ">>";
@@ -1036,9 +1044,12 @@ void GMenu2X::skinMenu() {
 	string wpPath = confStr["wallpaper"];
 	confStr["tmp_wallpaper"] = "";
 
+	fl.showDirectories = false;
+	fl.showFiles = true;
+	fl.setFilter(".png,.jpg,.jpeg,.bmp");
+
 	do {
 		if (prevSkin != confStr["skin"] || skinFontPrev != confStr["skinFont"]) {
-
 			prevSkin = confStr["skin"];
 			skinFontPrev = confStr["skinFont"];
 
@@ -1048,15 +1059,8 @@ void GMenu2X::skinMenu() {
 			confStr["tmp_wallpaper"] = (confStr["tmp_wallpaper"].empty() || skinConfStr["wallpaper"].empty()) ? base_name(confStr["wallpaper"]) : skinConfStr["wallpaper"];
 			wallpapers.clear();
 
-			FileLister fl_wp("skins/" + confStr["skin"] + "/wallpapers");
-			fl_wp.setFilter(".png,.jpg,.jpeg,.bmp");
-			fl_wp.browse();
-			wallpapers = fl_wp.getFiles();
-
-			if (confStr["skin"] != "Default") {
-				fl_wp.setPath("skins/Default/wallpapers");
-				fl_wp.browse();
-				wallpapers.insert(wallpapers.end(), fl_wp.getFiles().begin(), fl_wp.getFiles().end());
+				fl.browse(confStr["skin"] + "/wallpapers");
+				wallpapers.insert(wallpapers.end(), fl.getFiles().begin(), fl.getFiles().end());
 			}
 
 			sc.del("skin:icons/skin.png");
