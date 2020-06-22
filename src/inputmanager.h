@@ -84,7 +84,7 @@ public:
 
 	InputManager();
 	~InputManager();
-	void init(const string &conffile);
+	void init(string conffile);
 	void initJoysticks(bool reinit = false);
 
 	bool update(bool wait = true);
