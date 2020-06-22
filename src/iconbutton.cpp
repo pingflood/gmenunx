@@ -3,7 +3,6 @@
 #include "surface.h"
 #include "debug.h"
 
-using namespace std;
 using namespace fastdelegate;
 
 IconButton::IconButton(GMenu2X *gmenu2x, const string &icon, const string &label):

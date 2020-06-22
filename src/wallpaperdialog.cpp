@@ -23,8 +23,6 @@
 #include "filelister.h"
 #include "debug.h"
 
-using namespace std;
-
 WallpaperDialog::WallpaperDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon):
 Dialog(gmenu2x, title, description, icon) {}
 

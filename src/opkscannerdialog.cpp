@@ -30,7 +30,6 @@
 #include "filelister.h"
 #include <algorithm>
 
-using namespace std;
 extern const char *CARD_ROOT;
 
 bool any_platform = false;

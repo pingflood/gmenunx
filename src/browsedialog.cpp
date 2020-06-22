@@ -3,7 +3,6 @@
 #include "debug.h"
 #include "utilities.h"
 #include "powermanager.h"
-using namespace std;
 extern const char *CARD_ROOT;
 
 BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon):

@@ -22,10 +22,11 @@
 
 #include <string>
 #include <tr1/unordered_map>
+using std::string;
 
 class Surface;
 
-typedef std::tr1::unordered_map<std::string, Surface *> SurfaceHash;
+typedef std::tr1::unordered_map<string, Surface *> SurfaceHash;
 
 /**
 Hash Map of surfaces that loads surfaces not already loaded and reuses already loaded ones.
@@ -39,16 +40,16 @@ private:
 
 public:
 	SurfaceCollection();
-	void setSkin(const std::string &skin);
-	std::string getSkinFilePath(const std::string &file, bool falback = true);
+	void setSkin(const string &skin);
+	string getSkinFilePath(const string &file, bool falback = true);
 	void debug();
-	Surface *add(Surface *s, const std::string &path);
-	Surface *add(std::string path, std::string key="");
-	bool del(const std::string &key);
+	Surface *add(Surface *s, const string &path);
+	Surface *add(string path, string key="");
+	bool del(const string &key);
 	void clear();
-	void move(const std::string &from, const std::string &to);
-	bool exists(const std::string &path);
-	Surface *operator[](const std::string &);
+	void move(const string &from, const string &to);
+	bool exists(const string &path);
+	Surface *operator[](const string &);
 };
 
 #endif

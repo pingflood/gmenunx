@@ -27,9 +27,6 @@
 #include <libopk.h>
 #endif
 
-using std::endl;
-using std::string;
-
 SurfaceCollection::SurfaceCollection() {
 	setSkin("Default");
 }

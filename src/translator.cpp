@@ -19,13 +19,12 @@
  ***************************************************************************/
 
 #include <fstream>
-#include <sstream>
 #include <stdarg.h>
 
 #include "translator.h"
 #include "debug.h"
 
-using namespace std;
+using std::ifstream;
 
 Translator::Translator(const string &lang) {
 	_lang = "";

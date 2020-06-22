@@ -28,6 +28,9 @@
 	#include <libopk.h>
 #endif
 
+using std::ifstream;
+using std::istringstream;
+
 Selector::Selector(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, LinkApp *link):
 BrowseDialog(gmenu2x, title, description, icon), link(link) {
 	loadAliases();

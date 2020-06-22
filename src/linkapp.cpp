@@ -27,7 +27,8 @@
 #include "messagebox.h"
 #include "debug.h"
 
-using namespace std;
+using std::ifstream;
+using std::ofstream;
 
 extern char** environ;
 
@@ -250,38 +251,32 @@ bool LinkApp::save() {
 
 	ofstream f(file.c_str());
 	if (f.is_open()) {
-		if (title != "")			f << "title="			<< title			<< endl;
-		if (description != "")		f << "description="		<< description		<< endl;
-		if (icon != "")				f << "icon="			<< icon				<< endl;
-		if (icon_opk != "")			f << "opk[icon]="		<< icon_opk			<< endl;
-		if (exec != "")				f << "exec="			<< exec				<< endl;
-		if (params != "")			f << "params="			<< params			<< endl;
-		if (homedir != "")			f << "home="			<< homedir			<< endl;
-		if (manual != "")			f << "manual="			<< manual			<< endl;
-		if (clock != 0 && clock != gmenu2x->confInt["cpuLink"])
-									f << "clock="			<< clock			<< endl;
-		// if (useRamTimings)		f << "useramtimings=true"					<< endl;
-		// if (useGinge)			f << "useginge=true"						<< endl;
-		// if (volume > 0)			f << "volume="			<< volume			<< endl;
+	if (title != "")			f << "title="			<< title			<< std::endl;
+	if (description != "")		f << "description="		<< description		<< std::endl;
+	if (icon != "")				f << "icon="			<< icon				<< std::endl;
+	if (icon_opk != "")			f << "opk[icon]="		<< icon_opk			<< std::endl;
+	if (exec != "")				f << "exec="			<< exec				<< std::endl;
+	if (params != "")			f << "params="			<< params			<< std::endl;
+	if (homedir != "")			f << "home="			<< homedir			<< std::endl;
+	if (manual != "")			f << "manual="			<< manual			<< std::endl;
+	if (clock != 0 && clock != gmenu2x->confInt["cpuLink"])
+								f << "clock="			<< clock			<< std::endl;
+	// if (useRamTimings)		f << "useramtimings=true"					<< std::endl;
+	// if (useGinge)			f << "useginge=true"						<< std::endl;
+	// if (volume > 0)			f << "volume="			<< volume			<< std::endl;
 #if defined(HW_GAMMA)
 		if (gamma != 0)				f << "gamma="			<< gamma			<< endl;
 #endif
 
-		if (selectordir != "")		f << "selectordir="		<< selectordir		<< endl;
-		if (!selectorbrowser)		f << "selectorbrowser=false"				<< endl; // selectorbrowser = true by default
-		if (scalemode != _scalemode)	f << "scalemode="	<< scalemode		<< endl; // scalemode = 0 by default
-		if (selectorfilter != "")	f << "selectorfilter="	<< selectorfilter	<< endl;
-		if (selectorscreens != "")	f << "selectorscreens="	<< selectorscreens	<< endl;
-		if (selectorelement > 0)	f << "selectorelement="	<< selectorelement	<< endl;
-		if (aliasfile != "")		f << "selectoraliases="	<< aliasfile		<< endl;
-		if (backdrop != "")			f << "backdrop="		<< backdrop			<< endl;
-		if (terminal)				f << "terminal=true"						<< endl;
-		f.close();
-		return true;
-	}
-
-	ERROR("Error while opening the file '%s' for write.", file.c_str());
-	return false;
+	if (selectordir != "")		f << "selectordir="		<< selectordir		<< std::endl;
+	if (!selectorbrowser)		f << "selectorbrowser=false"				<< std::endl; // selectorbrowser = true by default
+	if (scalemode != _scalemode)	f << "scalemode="	<< scalemode		<< std::endl; // scalemode = 0 by default
+	if (selectorfilter != "")	f << "selectorfilter="	<< selectorfilter	<< std::endl;
+	if (selectorscreens != "")	f << "selectorscreens="	<< selectorscreens	<< std::endl;
+	if (selectorelement > 0)	f << "selectorelement="	<< selectorelement	<< std::endl;
+	if (aliasfile != "")		f << "selectoraliases="	<< aliasfile		<< std::endl;
+	if (backdrop != "")			f << "backdrop="		<< backdrop			<< std::endl;
+	if (terminal)				f << "terminal=true"						<< std::endl;
 }
 
 void LinkApp::run() {

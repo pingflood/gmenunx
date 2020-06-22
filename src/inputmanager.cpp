@@ -24,8 +24,7 @@
 #include "gmenu2x.h"
 
 #include <fstream>
-
-using namespace std;
+using std::ifstream;
 
 extern uint8_t numJoy; // number of connected joysticks
 

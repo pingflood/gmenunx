@@ -22,16 +22,11 @@
 #define IMAGEVIEWERDIALOG_H_
 
 #include <string>
-#include <fstream>
 
 #include "gmenu2x.h"
 #include "dialog.h"
 
-using namespace std;
 using std::string;
-using std::vector;
-using std::ifstream;
-using std::ios_base;
 
 class ImageViewerDialog : protected Dialog {
 protected:

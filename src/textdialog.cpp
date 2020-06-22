@@ -22,10 +22,10 @@
 #include "messagebox.h"
 // #include "debug.h"
 
-using namespace std;
-
 #include <fstream>
-#include <sstream>
+
+using std::ifstream;
+using std::stringstream;
 
 TextDialog::TextDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop):
 Dialog(gmenu2x, title, description, icon), backdrop(backdrop) {}

@@ -22,7 +22,6 @@
 #include "messagebox.h"
 #include "debug.h"
 
-using namespace std;
 using namespace fastdelegate;
 
 InputDialog::InputDialog(GMenu2X *gmenu2x, const string &text, const string &startvalue, const string &title, const string &icon):

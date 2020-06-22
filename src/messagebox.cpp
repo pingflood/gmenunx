@@ -21,8 +21,6 @@
 #include "powermanager.h"
 #include "debug.h"
 
-using namespace std;
-
 MessageBox::MessageBox(GMenu2X *gmenu2x, vector<MenuOption> options):
 gmenu2x(gmenu2x) {
 	bool inputAction = false;

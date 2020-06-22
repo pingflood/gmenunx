@@ -23,8 +23,6 @@
 
 #include "touchscreen.h"
 
-using namespace std;
-
 Touchscreen::Touchscreen() {
 	wm97xx = 0;
 	calibrated = false;

@@ -24,8 +24,6 @@
 #include "powermanager.h"
 #include "debug.h"
 
-using namespace std;
-
 TerminalDialog::TerminalDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon, const string &backdrop):
 TextDialog(gmenu2x, title, description, icon, backdrop) {}
 

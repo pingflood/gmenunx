@@ -22,8 +22,6 @@
 #include "messagebox.h"
 #include "menu.h"
 
-using namespace std;
-
 SettingsDialog::SettingsDialog(GMenu2X *gmenu2x, Touchscreen &ts, const string &title, const string &icon):
 Dialog(gmenu2x, title, "", icon), ts(ts) {}
 

@@ -32,8 +32,6 @@
 #include "powermanager.h"
 #include "utilities.h"
 
-using namespace std;
-
 Menu::Menu(GMenu2X *gmenu2x):
 gmenu2x(gmenu2x) {
 	firstDispSection = 0;

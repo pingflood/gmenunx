@@ -24,8 +24,6 @@
 #include "browsedialog.h"
 #include <sstream>
 
-using namespace std;
-
 class LinkApp;
 
 class Selector : public BrowseDialog {

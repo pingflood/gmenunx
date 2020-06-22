@@ -28,7 +28,6 @@
 #include "gmenu2x.h"
 #include "debug.h"
 
-using namespace std;
 
 FileLister::FileLister(const string &startPath, bool showDirectories, bool showFiles):
 showDirectories(showDirectories), showFiles(showFiles) {
