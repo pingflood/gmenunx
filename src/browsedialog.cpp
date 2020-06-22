@@ -48,7 +48,7 @@ bool BrowseDialog::exec(string _path) {
 			buttons.push_back({"a", gmenu2x->tr["Select"]});
 
 		if (showDirectories && allowDirUp && path != "/")
-			buttons.push_back({"x", gmenu2x->tr["Folder up"]});
+			buttons.push_back({"x", gmenu2x->tr["Dir up"]});
 
 		if (gmenu2x->confStr["previewMode"] == "Backdrop") {
 			if (!(preview.empty() || preview == "#"))
