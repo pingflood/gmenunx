@@ -25,8 +25,6 @@ public:
 
 	bool utf8Code(uint8_t c);
 
-	void free();
-
 	void write(Surface *surface, const string &text, int x, int y, RGBAColor fgColor, RGBAColor bgColor);
 	void write(Surface *surface, const string &text, int x, int y, const uint8_t align = HAlignLeft | VAlignTop);
 	void write(Surface *surface, const string &text, int x, int y, const uint8_t align, RGBAColor fgColor, RGBAColor bgColor);
