@@ -35,7 +35,6 @@ Selector::Selector(GMenu2X *gmenu2x, const string &title, const string &descript
 BrowseDialog(gmenu2x, title, description, icon), link(link) {
 	loadAliases();
 	setFilter(link->getSelectorFilter());
-	setPath(gmenu2x->confStr["homePath"]);
 }
 
 const std::string Selector::getPreview(uint32_t i) {

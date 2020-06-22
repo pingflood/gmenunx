@@ -7,7 +7,6 @@ extern const char *CARD_ROOT;
 
 BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &description, const string &icon):
 Dialog(gmenu2x, title, description, icon) {
-	setPath(gmenu2x->confStr["homePath"]);
 }
 
 bool BrowseDialog::exec() {
@@ -25,7 +24,7 @@ bool BrowseDialog::exec() {
 	uint32_t numRows = (gmenu2x->listRect.h - 2) / rowHeight - 1;
 
 	if (path.empty() || !dir_exists(path))
-		setPath(gmenu2x->confStr["homePath"]);
+		path = gmenu2x->confStr["homePath"];
 
 	directoryEnter(path);
 
@@ -207,8 +206,7 @@ void BrowseDialog::directoryEnter(const string &path) {
 
 	SDL_TimerID flipScreenTimer = SDL_AddTimer(500, GMenu2X::timerFlip, (void*)false);
 
-	setPath(path);
-	browse();
+	browse(path);
 	onChangeDir();
 
 	SDL_RemoveTimer(flipScreenTimer); flipScreenTimer = NULL;

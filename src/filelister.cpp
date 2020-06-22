@@ -32,7 +32,7 @@ FileLister::FileLister() {
 }
 
 void FileLister::browse(string _path) {
-	this->path = path = real_path(_path);
+	this->path = real_path(_path);
 
 	directories.clear();
 	files.clear();
