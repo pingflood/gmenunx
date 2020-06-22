@@ -686,25 +686,21 @@ void GMenu2X::writeTmp(int selelem, const string &selectordir) {
 	f.close();
 }
 
-void GMenu2X::readConfig() {
-	string conf = exe_path() + "/gmenu2x.conf";
+void GMenu2X::readConfig(string conffile, bool defaults) {
+	if (defaults) {
+		// Defaults *** Sync with default values in writeConfig
+		confInt["saveSelection"] = 1;
+		confInt["skinBackdrops"] = 0;
+		confStr["homePath"] = CARD_ROOT;
+		confInt["globalVolume"] = 60;
+		confStr["bgscale"] = "Crop";
+		confStr["skinFont"] = "Custom";
 
-	// Defaults *** Sync with default values in writeConfig
-	confInt["saveSelection"] = 1;
-	confInt["skinBackdrops"] = 0;
-	confStr["homePath"] = CARD_ROOT;
-	confInt["globalVolume"] = 60;
-	confStr["bgscale"] = "Crop";
-	confStr["skinFont"] = "Custom";
-
-	confInt["cpuMenu"] = CPU_MENU;
-	confInt["cpuMax"] = CPU_MAX;
-	confInt["cpuMin"] = CPU_MIN;
-	confInt["cpuLink"] = CPU_LINK;
-
-	// input.update(false);
-
-	// if (!input[SETTINGS] && file_exists(conf)) {
+		confInt["cpuMenu"] = CPU_MENU;
+		confInt["cpuMax"] = CPU_MAX;
+		confInt["cpuMin"] = CPU_MIN;
+		confInt["cpuLink"] = CPU_LINK;
+	}
 
 	ifstream f(conffile, std::ios_base::in);
 	if (f.is_open()) {

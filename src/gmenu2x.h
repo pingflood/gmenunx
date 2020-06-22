@@ -114,7 +114,7 @@ private:
 	string lastSelectorDir;
 	int lastSelectorElement;
 	void explorer();
-	void readConfig();
+	void readConfig(string conffile, bool defaults = false);
 	bool readTmp();
 	void initFont();
 	void umountSdDialog();
