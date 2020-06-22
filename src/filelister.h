@@ -33,9 +33,9 @@ private:
 
 public:
 	string path, filter;
-	FileLister(const string &startPath = "/", bool showDirectories = true, bool showFiles = true);
 	bool showDirectories = true, showFiles = true, allowDirUp = true;
-	void browse();
+	FileLister();
+	void browse(string _path);
 
 	uint32_t size();
 	uint32_t dirCount();

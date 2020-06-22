@@ -28,13 +28,12 @@
 #include "gmenu2x.h"
 #include "debug.h"
 
-
-FileLister::FileLister(const string &startPath, bool showDirectories, bool showFiles):
-showDirectories(showDirectories), showFiles(showFiles) {
-	setPath(startPath);
+FileLister::FileLister() {
 }
 
-void FileLister::browse() {
+void FileLister::browse(string _path) {
+	this->path = path = real_path(_path);
+
 	directories.clear();
 	files.clear();
 
