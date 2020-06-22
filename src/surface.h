@@ -64,7 +64,6 @@ SDL_Color rgbatosdl(RGBAColor color);
 class Surface {
 private:
 	bool locked;
-	int halfW, halfH;
 	SDL_Surface *dblbuffer;
 
 public:
