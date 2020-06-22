@@ -76,8 +76,8 @@ void InputManager::init(const string &conffile) {
 		return;
 	}
 
-	ifstream inf(conffile.c_str(), ios_base::in);
-	if (!inf.is_open()) {
+	ifstream f(conffile, std::ios_base::in);
+	if (!f.is_open()) {
 		ERROR("Could not open %s", conffile.c_str());
 		return;
 	}
@@ -94,7 +94,7 @@ void InputManager::init(const string &conffile) {
 		actions[x].maplist.push_back(map);
 	}
 
-	while (getline(inf, line, '\n')) {
+	while (getline(f, line, '\n')) {
 		linenum++;
 		pos = line.find("=");
 		name = trim(line.substr(0, pos));
@@ -158,7 +158,7 @@ void InputManager::init(const string &conffile) {
 			continue;
 		}
 	}
-	inf.close();
+	f.close();
 }
 
 void InputManager::setActionsCount(int count) {

@@ -646,12 +646,12 @@ void GMenu2X::resetSettings() {
 
 bool GMenu2X::readTmp() {
 	lastSelectorElement = -1;
-	ifstream tmp("/tmp/gmenu2x.tmp", ios_base::in);
-	if (!tmp.is_open()) return false;
+	ifstream f("/tmp/gmenunx.tmp", std::ios_base::in);
+	if (!f.is_open()) return false;
 
 	string line;
 
-	while (getline(tmp, line, '\n')) {
+	while (getline(f, line, '\n')) {
 		string::size_type pos = line.find("=");
 		string name = trim(line.substr(0, pos));
 		string value = trim(line.substr(pos + 1));
@@ -667,25 +667,25 @@ bool GMenu2X::readTmp() {
 		else if (name == "explorerLastDir") confStr["explorerLastDir"] = value;
 	}
 	// if (TVOut > 2) TVOut = 0;
-	tmp.close();
-	unlink("/tmp/gmenu2x.tmp");
+	f.close();
+	unlink("/tmp/gmenunx.tmp");
 	return true;
 }
 
 void GMenu2X::writeTmp(int selelem, const string &selectordir) {
-	ofstream tmp("/tmp/gmenu2x.tmp");
-	if (tmp.is_open()) {
-		tmp << "section=" << menu->getSectionIndex() << endl;
-		tmp << "link=" << menu->getLinkIndex() << endl;
-		if (selelem >- 1) tmp << "selectorelem=" << selelem << endl;
-		if (selectordir != "") tmp << "selectordir=" << selectordir << endl;
-		tmp << "udcPrev=" << udcPrev << endl;
-		tmp << "tvOutPrev=" << tvOutPrev << endl;
-		// tmp << "TVOut=" << TVOut << endl;
-		tmp << "currBackdrop=" << currBackdrop << endl;
-		if (!confStr["explorerLastDir"].empty()) tmp << "explorerLastDir=" << confStr["explorerLastDir"] << endl;
-		tmp.close();
-	}
+	ofstream f("/tmp/gmenunx.tmp");
+	if (!f.is_open()) return;
+
+	f << "section=" << menu->getSectionIndex() << std::endl;
+	f << "link=" << menu->getLinkIndex() << std::endl;
+	if (selelem >- 1) f << "selectorelem=" << selelem << std::endl;
+	if (selectordir != "") f << "selectordir=" << selectordir << std::endl;
+	f << "udcPrev=" << udcPrev << std::endl;
+	f << "tvOutPrev=" << tvOutPrev << std::endl;
+	// f << "TVOut=" << TVOut << std::endl;
+	f << "currBackdrop=" << currBackdrop << std::endl;
+	if (!confStr["explorerLastDir"].empty()) f << "explorerLastDir=" << confStr["explorerLastDir"] << std::endl;
+	f.close();
 }
 
 void GMenu2X::readConfig() {
@@ -708,10 +708,10 @@ void GMenu2X::readConfig() {
 
 	// if (!input[SETTINGS] && file_exists(conf)) {
 
-	ifstream cfg(conf.c_str(), ios_base::in);
-	if (cfg.is_open()) {
+	ifstream f(conffile, std::ios_base::in);
+	if (f.is_open()) {
 		string line;
-		while (getline(cfg, line, '\n')) {
+		while (getline(f, line, '\n')) {
 			string::size_type pos = line.find("=");
 			string name = trim(line.substr(0, pos));
 			string value = trim(line.substr(pos + 1));
@@ -721,7 +721,7 @@ void GMenu2X::readConfig() {
 			else
 				confInt[name] = atoi(value.c_str());
 		}
-		cfg.close();
+		f.close();
 	}
 
 	if (!confStr["lang"].empty()) tr.setLang(confStr["lang"]);
@@ -753,96 +753,96 @@ void GMenu2X::writeConfig() {
 	}
 
 	string conf = exe_path() + "/gmenu2x.conf";
-	ofstream cfg(conf.c_str());
-	if (cfg.is_open()) {
-		for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
-			if (
-				// deprecated
-				curr->first == "sectionBarPosition" ||
-				curr->first == "tvoutEncoding" ||
-				curr->first == "datetime" ||
-				curr->first == "explorerLastDir" ||
-				curr->first == "defaultDir" ||
+	ofstream f(homePath + "/gmenunx.conf");
+	if (!f.is_open()) return;
 
-				// defaults
-				(curr->first == "homePath" && curr->second == CARD_ROOT) ||
-				(curr->first == "skin" && curr->second == "Default") ||
-				(curr->first == "previewMode" && curr->second == "Miniature") ||
-				(curr->first == "skinFont" && curr->second == "Custom") ||
-				(curr->first == "usbMode" && curr->second == "Ask") ||
-				(curr->first == "tvMode" && curr->second == "Ask") ||
-				(curr->first == "lang" && curr->second.empty()) ||
-				(curr->first == "lang" && curr->second.empty()) ||
-				(curr->first == "bgscale" && curr->second.empty()) ||
-				(curr->first == "bgscale" && curr->second == "Crop") ||
+	for (ConfStrHash::iterator curr = confStr.begin(); curr != confStr.end(); curr++) {
+		if (
+			// deprecated
+			curr->first == "sectionBarPosition" ||
+			curr->first == "tvoutEncoding" ||
+			curr->first == "datetime" ||
+			curr->first == "explorerLastDir" ||
+			curr->first == "defaultDir" ||
 
-				curr->first.empty() || curr->second.empty()
-			) continue;
+			// defaults
+			(curr->first == "homePath" && curr->second == CARD_ROOT) ||
+			(curr->first == "skin" && curr->second == "Default") ||
+			(curr->first == "previewMode" && curr->second == "Miniature") ||
+			(curr->first == "skinFont" && curr->second == "Custom") ||
+			(curr->first == "usbMode" && curr->second == "Ask") ||
+			(curr->first == "tvMode" && curr->second == "Ask") ||
+			(curr->first == "lang" && curr->second.empty()) ||
+			(curr->first == "lang" && curr->second.empty()) ||
+			(curr->first == "bgscale" && curr->second.empty()) ||
+			(curr->first == "bgscale" && curr->second == "Crop") ||
 
-			cfg << curr->first << "=\"" << curr->second << "\"" << endl;
-		}
+			curr->first.empty() || curr->second.empty()
+		) continue;
 
-		for (ConfIntHash::iterator curr = confInt.begin(); curr != confInt.end(); curr++) {
-			if (
-				// deprecated
-				curr->first == "batteryLog" ||
-				curr->first == "maxClock" ||
-				curr->first == "minClock" ||
-				curr->first == "menuClock" ||
-				curr->first == "TVOut" ||
-				curr->first == "cpuLink" ||
-				curr->first == "cpuMenu" ||
-				curr->first == "cpuMax" ||
-				curr->first == "cpuMin" ||
-
-				// moved to skin conf
-				curr->first == "linkCols" ||
-				curr->first == "linkRows" ||
-				curr->first == "sectionBar" ||
-				curr->first == "sectionLabel" ||
-				curr->first == "linkLabel" ||
-
-				// defaults
-				(curr->first == "skinBackdrops" && curr->second == 0) ||
-				(curr->first == "backlightTimeout" && curr->second == 30) ||
-				(curr->first == "powerTimeout" && curr->second == 10) ||
-				(curr->first == "outputLogs" && curr->second == 0) ||
-				// (curr->first == "cpuMin" && curr->second == 342) ||
-				// (curr->first == "cpuMax" && curr->second == 740) ||
-				// (curr->first == "cpuMenu" && curr->second == 528) ||
-				(curr->first == "globalVolume" && curr->second == 60) ||
-				(curr->first == "backlight" && curr->second == 70) ||
-				(curr->first == "minBattery" && curr->second == 3550) ||
-				(curr->first == "maxBattery" && curr->second == 3720) ||
-				(curr->first == "saveSelection" && curr->second == 1) ||
-				(curr->first == "section" && curr->second == 0) ||
-				(curr->first == "link" && curr->second == 0) ||
-
-				curr->first.empty()
-			) continue;
-
-			cfg << curr->first << "=" << curr->second << endl;
-		}
-		cfg.close();
+		f << curr->first << "=\"" << curr->second << "\"" << std::endl;
 	}
 	sync();
 
 	ledOff();
+	for (ConfIntHash::iterator curr = confInt.begin(); curr != confInt.end(); curr++) {
+		if (
+			// deprecated
+			curr->first == "batteryLog" ||
+			curr->first == "maxClock" ||
+			curr->first == "minClock" ||
+			curr->first == "menuClock" ||
+			curr->first == "TVOut" ||
+			curr->first == "cpuLink" ||
+			curr->first == "cpuMenu" ||
+			curr->first == "cpuMax" ||
+			curr->first == "cpuMin" ||
+
+			// moved to skin conf
+			curr->first == "linkCols" ||
+			curr->first == "linkRows" ||
+			curr->first == "sectionBar" ||
+			curr->first == "sectionLabel" ||
+			curr->first == "linkLabel" ||
+
+			// defaults
+			(curr->first == "skinBackdrops" && curr->second == 0) ||
+			(curr->first == "backlightTimeout" && curr->second == 30) ||
+			(curr->first == "powerTimeout" && curr->second == 10) ||
+			(curr->first == "outputLogs" && curr->second == 0) ||
+			// (curr->first == "cpuMin" && curr->second == 342) ||
+			// (curr->first == "cpuMax" && curr->second == 740) ||
+			// (curr->first == "cpuMenu" && curr->second == 528) ||
+			(curr->first == "globalVolume" && curr->second == 60) ||
+			(curr->first == "backlight" && curr->second == 70) ||
+			(curr->first == "minBattery" && curr->second == 3550) ||
+			(curr->first == "maxBattery" && curr->second == 3720) ||
+			(curr->first == "saveSelection" && curr->second == 1) ||
+			(curr->first == "section" && curr->second == 0) ||
+			(curr->first == "link" && curr->second == 0) ||
+
+			curr->first.empty()
+		) continue;
+
+		f << curr->first << "=" << curr->second << std::endl;
+	}
+	f.close();
+	sync();
 }
 
 void GMenu2X::writeSkinConfig() {
 	string skinconf = exe_path() + "/skins/" + confStr["skin"] + "/skin.conf";
-	ofstream inf(skinconf.c_str());
-	if (!inf.is_open()) return;
 
 	ledOn();
+	ofstream f(skinPath + "/skin.conf");
+	if (!f.is_open()) return;
 
 	for (ConfStrHash::iterator curr = skinConfStr.begin(); curr != skinConfStr.end(); curr++) {
 		if (curr->first.empty() || curr->second.empty()) {
 			continue;
 		}
 
-		inf << curr->first << "=\"" << curr->second << "\"" << endl;
+		f << curr->first << "=\"" << curr->second << "\"" << std::endl;
 	}
 
 	for (ConfIntHash::iterator curr = skinConfInt.begin(); curr != skinConfInt.end(); curr++) {
@@ -871,14 +871,14 @@ void GMenu2X::writeSkinConfig() {
 			continue;
 		}
 
-		inf << curr->first << "=" << curr->second << endl;
+		f << curr->first << "=" << curr->second << std::endl;
 	}
 
 	for (int i = 0; i < NUM_COLORS; ++i) {
-		inf << colorToString((enum color)i) << "=" << rgbatostr(skinConfColors[i]) << endl;
+		f << colorToString((enum color)i) << "=" << rgbatostr(skinConfColors[i]) << std::endl;
 	}
 
-	inf.close();
+	f.close();
 
 	sync();
 	ledOff();
@@ -924,12 +924,13 @@ void GMenu2X::setSkin(string skin, bool clearSC) {
 	// load skin settings
 	skin = "skins/" + skin + "/skin.conf";
 
-	ifstream skinconf(skin.c_str(), ios_base::in);
-	if (skinconf.is_open()) {
+	ifstream f(skin, std::ios_base::in);
+	if (!f.is_open()) {
+		INFO("File not found: %s. Using default values.", skin.c_str());
+	} else {
 		string line;
-		while (getline(skinconf, line, '\n')) {
+		while (getline(f, line, '\n')) {
 			line = trim(line);
-			// DEBUG("skinconf: '%s'", line.c_str());
 			string::size_type pos = line.find("=");
 			string name = trim(line.substr(0, pos));
 			string value = trim(line.substr(pos + 1));
@@ -953,7 +954,7 @@ void GMenu2X::setSkin(string skin, bool clearSC) {
 				}
 			}
 		}
-		skinconf.close();
+		f.close();
 	}
 
 	// (poor) HACK: ensure some colors have a default value

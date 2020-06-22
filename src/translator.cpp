@@ -41,10 +41,9 @@ bool Translator::exists(const string &term) {
 void Translator::setLang(const string &lang) {
 	translations.clear();
 
-	string line;
-	ifstream infile (string("translations/"+lang).c_str(), ios_base::in);
-	if (infile.is_open()) {
-		while (getline(infile, line, '\n')) {
+	ifstream f(line, std::ios_base::in);
+	if (f.is_open()) {
+		while (getline(f, line, '\n')) {
 			line = trim(line);
 			if (line=="") continue;
 			if (line[0]=='#') continue;
@@ -52,7 +51,7 @@ void Translator::setLang(const string &lang) {
 			string::size_type position = line.find("=");
 			translations[trim(line.substr(0, position))] = trim(line.substr(position + 1));
 		}
-		infile.close();
+		f.close();
 		_lang = lang;
 	}
 }

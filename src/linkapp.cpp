@@ -50,8 +50,8 @@ Link(gmenu2x, MakeDelegate(this, &LinkApp::run)), file(file) {
 	scalemode = _scalemode;
 
 	string line;
-	ifstream infile(file, ios_base::in);
-	while (getline(infile, line, '\n')) {
+	ifstream f(file, std::ios_base::in);
+	while (getline(f, line, '\n')) {
 		line = trim(line);
 		if (line == "") continue;
 		if (line[0] == '#') continue;
@@ -89,7 +89,7 @@ Link(gmenu2x, MakeDelegate(this, &LinkApp::run)), file(file) {
 		else if (name == "backdrop") setBackdrop(value);
 		// else WARNING("Unrecognized option: '%s'", name.c_str());
 	}
-	infile.close();
+	f.close();
 
 	is_opk = (file_ext(exec, true) == ".opk");
 
@@ -244,13 +244,18 @@ bool LinkApp::targetExists() {
 
 bool LinkApp::save() {
 	if (!edited) return false;
+
+	ofstream f(file);
+	if (!f.is_open()) {
+		ERROR("Error while opening the file '%s' for write.", file.c_str());
+		return false;
+	}
+
 	int pos = icon.find('#'); // search for "opkfile.opk#icon.png"
 	if (pos != string::npos) {
 		icon_opk = icon.substr(pos + 1);
 	}
 
-	ofstream f(file.c_str());
-	if (f.is_open()) {
 	if (title != "")			f << "title="			<< title			<< std::endl;
 	if (description != "")		f << "description="		<< description		<< std::endl;
 	if (icon != "")				f << "icon="			<< icon				<< std::endl;
@@ -265,7 +270,7 @@ bool LinkApp::save() {
 	// if (useGinge)			f << "useginge=true"						<< std::endl;
 	// if (volume > 0)			f << "volume="			<< volume			<< std::endl;
 #if defined(HW_GAMMA)
-		if (gamma != 0)				f << "gamma="			<< gamma			<< endl;
+	if (gamma != 0)				f << "gamma="			<< gamma			<< std::endl;
 #endif
 
 	if (selectordir != "")		f << "selectordir="		<< selectordir		<< std::endl;
@@ -277,6 +282,9 @@ bool LinkApp::save() {
 	if (aliasfile != "")		f << "selectoraliases="	<< aliasfile		<< std::endl;
 	if (backdrop != "")			f << "backdrop="		<< backdrop			<< std::endl;
 	if (terminal)				f << "terminal=true"						<< std::endl;
+
+	f.close();
+	return true;
 }
 
 void LinkApp::run() {

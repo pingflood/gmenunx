@@ -77,12 +77,12 @@ const std::string Selector::getPreview(uint32_t i) {
 	return previews[fpath];
 }
 
-void Selector::parseAliases(istream &infile) {
+void Selector::parseAliases(istream &f) {
 	aliases.clear();
 	params.clear();
 	string line;
 
-	while (getline(infile, line, '\n')) {
+	while (getline(f, line, '\n')) {
 		string name, value;
 		int d1 = line.find("=");
 		int d2 = line.find(";");
@@ -101,10 +101,9 @@ void Selector::loadAliases() {
 	string linkAlias = link->getAliasFile();
 
 	if (file_exists(linkAlias)) {
-		ifstream infile;
-		infile.open(linkAlias.c_str(), ios_base::in);
-		parseAliases(infile);
-		infile.close();
+		ifstream f(linkAlias, std::ios_base::in);
+		parseAliases(f);
+		f.close();
 
 #if defined(OPK_SUPPORT)
 	} else if (file_ext(linkExec, true) == ".opk") {
@@ -120,9 +119,9 @@ void Selector::loadAliases() {
 		}
 		opk_close(opk);
 
-		istringstream infile((char *)buf);
+		istringstream f((char *)buf);
 
-		parseAliases(infile);
+		parseAliases(f);
 #endif // OPK_SUPPORT
 	}
 }
