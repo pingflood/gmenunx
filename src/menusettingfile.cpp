@@ -48,5 +48,5 @@ void MenuSettingFile::edit() {
 	bd.showFiles = true;
 	bd.setFilter(filter);
 	if (bd.exec())
-		setValue(bd.getFilePath(bd.selected));
+		setValue(bd.getPath(bd.selected));
 }

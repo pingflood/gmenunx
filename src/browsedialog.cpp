@@ -175,7 +175,7 @@ bool BrowseDialog::exec() {
 				if (allowEnterDirectory && isDirectory(selected)) {
 					browse_history.push_back(selected);
 					selected = 0;
-					directoryEnter(getFilePath(browse_history.back()));
+					directoryEnter(getPath(browse_history.back()));
 				} else {
 					return true;
 				}
@@ -223,7 +223,7 @@ const std::string BrowseDialog::getParams(uint32_t i) {
 }
 const std::string BrowseDialog::getPreview(uint32_t i) {
 	string ext = getExt(i);
-	if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp") return getFilePath(i);
+	if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp") return getPath(i);
 	return "";
 }
 
@@ -257,14 +257,14 @@ void BrowseDialog::deleteFile() {
 	mb.setButton(MANUAL, gmenu2x->tr["Yes"]);
 	mb.setButton(CANCEL,  gmenu2x->tr["No"]);
 	if (mb.exec() != MANUAL) return;
-	if (!unlink(getFilePath(selected).c_str())) {
+	if (!unlink(getPath(selected).c_str())) {
 		directoryEnter(path); // refresh
 		sync();
 	}
 }
 
 void BrowseDialog::umountDir() {
-	string umount = "sync; umount -fl " + getFilePath(selected) + " && rm -r " + getFilePath(selected);
+	string umount = "sync; umount -fl " + getPath(selected) + " && rm -r " + getPath(selected);
 	system(umount.c_str());
 	directoryEnter(path); // refresh
 }
@@ -280,8 +280,8 @@ void BrowseDialog::exploreMedia() {
 }
 
 void BrowseDialog::setWallpaper() {
-	string src = getFilePath(selected);
 	string dst = "skins/Default/wallpapers/Wallpaper" + file_ext(src, true);
+	string src = getPath(selected);
 	if (file_copy(src, dst)) {
 		gmenu2x->confStr["wallpaper"] = dst;
 		gmenu2x->writeConfig();

@@ -52,5 +52,5 @@ void MenuSettingDir::edit() {
 	bd.showFiles = false;
 	bd.allowSelectDirectory = true;
 	if (bd.exec())
-		setValue(bd.getPath());
+		setValue(bd.getDir());
 }

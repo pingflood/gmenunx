@@ -311,19 +311,19 @@ void LinkApp::selector(int startSelection, const string &selectorDir) {
 	else bd.selected = this->getSelectorElement();
 
 	if (bd.exec()) {
-		gmenu2x->writeTmp(bd.selected, bd.getPath());
+		gmenu2x->writeTmp(bd.selected, bd.getDir());
 
 		string s = "";
 		s += this->getSelectorDir().back();
 		if (s != "/") {
-			setSelectorDir(bd.getPath());
+			setSelectorDir(bd.getDir());
 			setSelectorElement(bd.selected);
 			save();
 		}
 
 		params = trim(params + " " + bd.getParams(bd.selected));
 
-		launch(bd.getFile(bd.selected), bd.getPath());
+		launch(bd.getFile(bd.selected), bd.getDir());
 	}
 }
 

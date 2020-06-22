@@ -40,7 +40,7 @@ BrowseDialog(gmenu2x, title, description, icon), link(link) {
 
 const std::string Selector::getPreview(uint32_t i) {
 	string fname = getFile(i);
-	string fpath = getFilePath(i);
+	string fpath = getPath(i);
 
 	if (previews[fpath].empty()) {
 		string screendir = link->getSelectorScreens();
@@ -172,7 +172,7 @@ void Selector::addFavourite() {
 	fav->setDescription(link->getDescription());
 	fav->setIcon(favicon);
 
-	string selFullPath = cmdclean(getFilePath(selected));
+	string selFullPath = cmdclean(getPath(selected));
 	string params = link->getParams();
 	if (params.find("\%f") != std::string::npos)
 		params = strreplace(params, "\%f", selFullPath);

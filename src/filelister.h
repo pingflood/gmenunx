@@ -45,8 +45,8 @@ public:
 	bool isFile(uint32_t);
 	bool isDirectory(uint32_t);
 	const string getExt(uint32_t i = 0);
-	const string getFilePath(uint32_t i = 0);
-	const string &getPath() { return path; }
+	const string getPath(uint32_t i = 0);
+	const string &getDir() { return path; }
 	void setPath(const string &path);
 	const string &getFilter() { return filter; }
 	void setFilter(const string &filter);

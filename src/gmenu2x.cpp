@@ -1268,25 +1268,25 @@ void GMenu2X::explorer() {
 	while (bd.exec()) {
 		string ext = bd.getExt(bd.selected);
 		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp") {
-			ImageViewerDialog im(this, tr["Image viewer"], bd.getFile(bd.selected), "icons/explorer.png", bd.getFilePath(bd.selected));
+			ImageViewerDialog im(this, tr["Image viewer"], bd.getFile(bd.selected), "icons/explorer.png", bd.getPath(bd.selected));
 			im.exec();
 		} else if (ext == ".txt" || ext == ".conf" || ext == ".me" || ext == ".md" || ext == ".xml" || ext == ".log" || ext == ".ini") {
 			TextDialog td(this, tr["Text viewer"], bd.getFile(bd.selected), "skin:icons/ebook.png");
-			td.appendFile(bd.getFilePath(bd.selected));
+			td.appendFile(bd.getPath(bd.selected));
 			td.exec();
 #if defined(IPK_SUPPORT)
 		} else if (ext == ".ipk" && file_exists("/usr/bin/opkg")) {
-			ipkInstall(bd.getFilePath(bd.selected));
+			ipkInstall(bd.getPath(bd.selected));
 #endif
 #if defined(OPK_SUPPORT)
 		} else if (ext == ".opk") {
-			opkInstall(bd.getFilePath(bd.selected));
+			opkInstall(bd.getPath(bd.selected));
 #endif
 		} else if (ext == ".sh") {
 			TerminalDialog td(this, tr["Terminal"], "sh " + cmdclean(bd.getFileName(bd.selected)), "skin:icons/terminal.png");
-			td.exec(bd.getFilePath(bd.selected));
+			td.exec(bd.getPath(bd.selected));
 		} else if (ext == ".zip" && file_exists("/usr/bin/unzip") && (bd.getFile(bd.selected).rfind("gmenu2x-skin-", 0) == 0) || (bd.getFile(bd.selected).rfind("gmenunx-skin-", 0) == 0)) {
-			string path = bd.getFilePath(bd.selected);
+			string path = bd.getPath(bd.selected);
 			string skinname = base_name(path, true).substr(13); // strip gmenu2x-skin- and .zip
 			if (skinname.size() > 1) {
 				TerminalDialog td(this, tr["Skin installer"], tr["Installing skin"] + " " + skinname, "skin:icons/skin.png");
@@ -1296,13 +1296,13 @@ void GMenu2X::explorer() {
 			}
 		} else if (ext == ".zip" && file_exists("/usr/bin/unzip")) {
 			TerminalDialog td(this, tr["Zip content"], bd.getFileName(bd.selected), "skin:icons/terminal.png");
-			td.exec("unzip -l " + cmdclean(bd.getFilePath(bd.selected)));
+			td.exec("unzip -l " + cmdclean(bd.getPath(bd.selected)));
 		} else {
 			if (confInt["saveSelection"] && (confInt["section"] != menu->getSectionIndex() || confInt["link"] != menu->getLinkIndex())) {
 				writeConfig();
 			}
 
-			string command = cmdclean(bd.getFilePath(bd.selected));
+			string command = cmdclean(bd.getPath(bd.selected));
 			string params = "";
 
 			if (confInt["outputLogs"]) {
@@ -1323,7 +1323,7 @@ void GMenu2X::explorer() {
 		}
 	}
 
-	confStr["explorerLastDir"] = bd.getPath();
+	confStr["explorerLastDir"] = bd.getDir();
 }
 
 bool GMenu2X::saveScreenshot(string path) {
@@ -1436,15 +1436,15 @@ void GMenu2X::addLink() {
 
 #if defined(IPK_SUPPORT)
 		if (ext == ".ipk" && file_exists("/usr/bin/opkg")) {
-			ipkInstall(bd.getFilePath(bd.selected));
+			ipkInstall(bd.getPath(bd.selected));
 		} else
 #endif
 #if defined(OPK_SUPPORT)
 		if (ext == ".opk") {
-			opkInstall(bd.getFilePath(bd.selected));
+			opkInstall(bd.getPath(bd.selected));
 		} else
 #endif
-		if (menu->addLink(bd.getFilePath(bd.selected))) {
+		if (menu->addLink(bd.getPath(bd.selected))) {
 			editLink();
 			return;
 		}
@@ -1457,8 +1457,8 @@ void GMenu2X::changeSelectorDir() {
 	bd.showDirectories = true;
 	bd.showFiles = false;
 	bd.allowSelectDirectory = true;
-	if (bd.exec() && bd.getPath() != "/") {
-		confStr["tmp_selector"] = bd.getPath() + "/";
+	if (bd.exec() && bd.getDir() != "/") {
+		confStr["tmp_selector"] = bd.getDir() + "/";
 	}
 }
 

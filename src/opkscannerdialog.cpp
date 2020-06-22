@@ -187,9 +187,9 @@ void OPKScannerDialog::opkScan(string opkdir) {
 	fl.browse();
 
 	for (uint32_t i = 0; i < fl.size(); i++) {
-		text.push_back(gmenu2x->tr["Installing"] + " " + fl.getFilePath(i));
+		text.push_back(gmenu2x->tr["Installing"] + " " + fl.getPath(i));
 		lineWidth = drawText(&text, firstCol, -1, rowsPerPage);
-		opkInstall(fl.getFilePath(i));
+		opkInstall(fl.getPath(i));
 	}
 }
 
@@ -225,8 +225,8 @@ void OPKScannerDialog::exec(bool _any_platform) {
 		fl.setPath(CARD_ROOT);
 		fl.browse();
 		for (uint32_t j = 0; j < fl.size(); j++) {
-			if (find(paths.begin(), paths.end(), fl.getFilePath(j)) == paths.end()) {
-				paths.push_back(fl.getFilePath(j));
+			if (find(paths.begin(), paths.end(), fl.getPath(j)) == paths.end()) {
+				paths.push_back(fl.getPath(j));
 			}
 		}
 
@@ -234,8 +234,8 @@ void OPKScannerDialog::exec(bool _any_platform) {
 			fl.setPath(gmenu2x->confStr["homePath"]);
 			fl.browse();
 			for (uint32_t j = 0; j < fl.size(); j++) {
-				if (find(paths.begin(), paths.end(), fl.getFilePath(j)) == paths.end()) {
-					paths.push_back(fl.getFilePath(j));
+				if (find(paths.begin(), paths.end(), fl.getPath(j)) == paths.end()) {
+					paths.push_back(fl.getPath(j));
 				}
 			}
 		}
@@ -248,11 +248,11 @@ void OPKScannerDialog::exec(bool _any_platform) {
 			flsub.showFiles = false;
 			flsub.allowDirUp = false;
 
-			flsub.setPath(fl.getFilePath(i));
 			flsub.browse();
+			flsub.browse(fl.getPath(i));
 			for (uint32_t j = 0; j < flsub.size(); j++) {
-				if (find(paths.begin(), paths.end(), flsub.getFilePath(j)) == paths.end()) {
-					paths.push_back(flsub.getFilePath(j));
+				if (find(paths.begin(), paths.end(), flsub.getPath(j)) == paths.end()) {
+					paths.push_back(flsub.getPath(j));
 				}
 			}
 		}
