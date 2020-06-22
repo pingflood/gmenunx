@@ -898,18 +898,18 @@ void GMenu2X::setSkin(string skin, bool clearSC) {
 	sc.setSkin(skin);
 
 	// reset colors to the default values
-	skinConfColors[COLOR_TOP_BAR_BG] = (RGBAColor){255,255,255,130};
-	skinConfColors[COLOR_LIST_BG] = (RGBAColor){255,255,255,0};
-	skinConfColors[COLOR_BOTTOM_BAR_BG] = (RGBAColor){255,255,255,130};
-	skinConfColors[COLOR_SELECTION_BG] = (RGBAColor){255,255,255,130};
-	skinConfColors[COLOR_PREVIEW_BG] = (RGBAColor){253,1,252,0};;
-	skinConfColors[COLOR_MESSAGE_BOX_BG] = (RGBAColor){255,255,255,255};
-	skinConfColors[COLOR_MESSAGE_BOX_BORDER] = (RGBAColor){80,80,80,255};
-	skinConfColors[COLOR_MESSAGE_BOX_SELECTION] = (RGBAColor){160,160,160,255};
-	skinConfColors[COLOR_FONT] = (RGBAColor){255,255,255,255};
-	skinConfColors[COLOR_FONT_OUTLINE] = (RGBAColor){0,0,0,200};
-	skinConfColors[COLOR_FONT_ALT] = (RGBAColor){253,1,252,0};
-	skinConfColors[COLOR_FONT_ALT_OUTLINE] = (RGBAColor){253,1,252,0};
+	skinConfColors[COLOR_TOP_BAR_BG] = (RGBAColor){44, 129, 213, 255};
+	skinConfColors[COLOR_LIST_BG] = (RGBAColor){0, 0, 48, 60};
+	skinConfColors[COLOR_BOTTOM_BAR_BG] = (RGBAColor){44, 129, 213, 255};
+	skinConfColors[COLOR_SELECTION_BG] = (RGBAColor){255, 255, 255, 204};
+	skinConfColors[COLOR_PREVIEW_BG] = (RGBAColor){253, 1, 252, 0};
+	skinConfColors[COLOR_MESSAGE_BOX_BG] = (RGBAColor){255, 255, 255, 255};
+	skinConfColors[COLOR_MESSAGE_BOX_BORDER] = (RGBAColor){80, 80, 80, 255};
+	skinConfColors[COLOR_MESSAGE_BOX_SELECTION] = (RGBAColor){160, 160, 160, 255};
+	skinConfColors[COLOR_FONT] = (RGBAColor){255, 255, 255, 255};
+	skinConfColors[COLOR_FONT_OUTLINE] = (RGBAColor){0, 0, 0, 192};
+	skinConfColors[COLOR_FONT_ALT] = (RGBAColor){253, 1, 252, 0};
+	skinConfColors[COLOR_FONT_ALT_OUTLINE] = (RGBAColor){253, 1, 252, 0};
 
 	// load skin settings
 	skin = "skins/" + skin + "/skin.conf";
