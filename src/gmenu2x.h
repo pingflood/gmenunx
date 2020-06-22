@@ -176,6 +176,7 @@ public:
 	void viewLog();
 	void contextMenu();
 	void changeWallpaper();
+	void changeSkin();
 	void changeSelectorDir();
 
 	bool saveScreenshot(string path);
