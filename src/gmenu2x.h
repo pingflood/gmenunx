@@ -206,8 +206,6 @@ public:
 	virtual void setScaleMode(unsigned int mode) { };
 	virtual void setTVOut(unsigned int mode) { };
 	virtual void setCPU(uint32_t mhz) { };
-	virtual void ledOn() { };
-	virtual void ledOff() { };
 	virtual int setVolume(int val, bool popup = false);
 	virtual int getVolume() { return 0; };
 	virtual int getBacklight() { return -1; };
