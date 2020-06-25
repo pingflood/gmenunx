@@ -9,7 +9,7 @@ BrowseDialog::BrowseDialog(GMenu2X *gmenu2x, const string &title, const string &
 Dialog(gmenu2x, title, description, icon) {
 }
 
-bool BrowseDialog::exec() {
+bool BrowseDialog::exec(string _path) {
 	this->bg = new Surface(gmenu2x->bg); // needed to redraw on child screen return
 
 	Surface *iconGoUp = gmenu2x->sc["skin:imgs/go-up.png"];
@@ -23,10 +23,10 @@ bool BrowseDialog::exec() {
 	uint32_t rowHeight = gmenu2x->font->height() + 1;
 	uint32_t numRows = (gmenu2x->listRect.h - 2) / rowHeight - 1;
 
-	if (path.empty() || !dir_exists(path))
-		path = gmenu2x->confStr["homePath"];
+	if (_path.empty() || !dir_exists(_path))
+		_path = gmenu2x->confStr["homePath"];
 
-	directoryEnter(path);
+	directoryEnter(_path);
 
 	string preview = getPreview(selected);
 
@@ -194,7 +194,7 @@ bool BrowseDialog::exec() {
 	}
 }
 
-void BrowseDialog::directoryEnter(const string &path) {
+void BrowseDialog::directoryEnter(string path) {
 	gmenu2x->input.dropEvents(); // prevent passing input away
 	gmenu2x->powerManager->clearTimer();
 

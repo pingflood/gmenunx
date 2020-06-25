@@ -43,10 +43,9 @@ void MenuSettingFile::edit() {
 	_value = dir_name(_value);
 
 	BrowseDialog bd(gmenu2x, dialogTitle, description, dialogIcon);
-	bd.setPath(_value);
 	bd.showDirectories = true;
 	bd.showFiles = true;
 	bd.setFilter(filter);
-	if (bd.exec())
+	if (bd.exec(_value))
 		setValue(bd.getPath(bd.selected));
 }

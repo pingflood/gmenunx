@@ -1263,9 +1263,9 @@ void GMenu2X::explorer() {
 	bd.showDirectories = true;
 	bd.showFiles = true;
 
-	if (confInt["saveSelection"]) bd.setPath(confStr["explorerLastDir"]);
+	while (bd.exec(confStr["explorerLastDir"])) {
+		confStr["explorerLastDir"] = bd.getDir();
 
-	while (bd.exec()) {
 		string ext = bd.getExt(bd.selected);
 		if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".bmp") {
 			ImageViewerDialog im(this, tr["Image viewer"], bd.getFile(bd.selected), "icons/explorer.png", bd.getPath(bd.selected));
@@ -1323,7 +1323,6 @@ void GMenu2X::explorer() {
 		}
 	}
 
-	confStr["explorerLastDir"] = bd.getDir();
 }
 
 bool GMenu2X::saveScreenshot(string path) {
@@ -1380,8 +1379,7 @@ void GMenu2X::umountSdDialog() {
 	bd.showFiles = false;
 	bd.allowDirUp = false;
 	bd.allowEnterDirectory = false;
-	bd.setPath("/media");
-	bd.exec();
+	bd.exec("/media");
 }
 
 void GMenu2X::contextMenu() {

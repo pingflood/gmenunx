@@ -305,20 +305,19 @@ void LinkApp::run() {
 	return launch();
 }
 
-void LinkApp::selector(int startSelection, const string &selectorDir) {
+void LinkApp::selector(int startSelection, string selectorDir) {
 	//Run selector interface
 	Selector bd(gmenu2x, this->getTitle(), this->getDescription(), this->getIconPath(), this);
 	bd.showDirectories = this->getSelectorBrowser();
 
-	if (selectorDir != "") bd.directoryEnter(selectorDir);
-	else bd.directoryEnter(this->getSelectorDir());
+	if (selectorDir.empty()) selectorDir = this->getSelectorDir();
 
 	bd.setFilter(this->getSelectorFilter());
 
 	if (startSelection > 0) bd.selected = startSelection;
 	else bd.selected = this->getSelectorElement();
 
-	if (bd.exec()) {
+	if (bd.exec(selectorDir)) {
 		gmenu2x->writeTmp(bd.selected, bd.getDir());
 
 		string s = "";

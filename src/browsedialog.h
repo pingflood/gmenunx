@@ -52,8 +52,8 @@ public:
 	virtual ~BrowseDialog() {};
 	bool allowSelectDirectory = false, allowEnterDirectory = true;
 	int32_t selected = 0;
-	bool exec();
-	void directoryEnter(const string &path);
+	bool exec(string _path = "");
+	void directoryEnter(string path);
 
 	virtual const std::string getFileName(uint32_t i = 0);
 	virtual const std::string getParams(uint32_t i = 0);

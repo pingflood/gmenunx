@@ -87,7 +87,7 @@ public:
 	void setCPU(int mhz = 0);
 	bool save();
 	void run();
-	void selector(int startSelection = 0, const string &selectorDir = "");
+	void selector(int startSelection = 0, string selectorDir = "");
 	void launch(const string &selectedFile = "", string selectedDir = "");
 	bool targetExists();
 	void renameFile(const string &name);

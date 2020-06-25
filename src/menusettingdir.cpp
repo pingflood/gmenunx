@@ -47,10 +47,9 @@ void MenuSettingDir::edit() {
 		_value = startPath + "/";
 
 	BrowseDialog bd(gmenu2x, dialogTitle, description, dialogIcon);
-	bd.setPath(_value);
 	bd.showDirectories = true;
 	bd.showFiles = false;
 	bd.allowSelectDirectory = true;
-	if (bd.exec())
+	if (bd.exec(_value))
 		setValue(bd.getDir());
 }
