@@ -115,6 +115,7 @@ static const char *colorNames[NUM_COLORS] = {
 	"listBg",
 	"bottomBarBg",
 	"selectionBg",
+	"previewBg",
 	"messageBoxBg",
 	"messageBoxBorder",
 	"messageBoxSelection",
@@ -1199,6 +1200,7 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 	skinConfColors[COLOR_LIST_BG] = (RGBAColor){255,255,255,0};
 	skinConfColors[COLOR_BOTTOM_BAR_BG] = (RGBAColor){255,255,255,130};
 	skinConfColors[COLOR_SELECTION_BG] = (RGBAColor){255,255,255,130};
+	skinConfColors[COLOR_PREVIEW_BG] = (RGBAColor){253,1,252,0};;
 	skinConfColors[COLOR_MESSAGE_BOX_BG] = (RGBAColor){255,255,255,255};
 	skinConfColors[COLOR_MESSAGE_BOX_BORDER] = (RGBAColor){80,80,80,255};
 	skinConfColors[COLOR_MESSAGE_BOX_SELECTION] = (RGBAColor){160,160,160,255};
@@ -1249,9 +1251,17 @@ void GMenu2X::setSkin(const string &skin, bool resetWallpaper, bool clearSC) {
 		}
 	}
 
-// (poor) HACK: ensure font alt colors have a default value
-	if (skinConfColors[COLOR_FONT_ALT].r == 253 && skinConfColors[COLOR_FONT_ALT].g == 1 && skinConfColors[COLOR_FONT_ALT].b == 252 && skinConfColors[COLOR_FONT_ALT].a == 0) skinConfColors[COLOR_FONT_ALT] = skinConfColors[COLOR_FONT];
-	if (skinConfColors[COLOR_FONT_ALT_OUTLINE].r == 253 && skinConfColors[COLOR_FONT_ALT_OUTLINE].g == 1 && skinConfColors[COLOR_FONT_ALT_OUTLINE].b == 252 && skinConfColors[COLOR_FONT_ALT_OUTLINE].a == 0) skinConfColors[COLOR_FONT_ALT_OUTLINE] = skinConfColors[COLOR_FONT_OUTLINE];
+	// (poor) HACK: ensure some colors have a default value
+	if (skinConfColors[COLOR_FONT_ALT].r == 253 && skinConfColors[COLOR_FONT_ALT].g == 1 && skinConfColors[COLOR_FONT_ALT].b == 252 && skinConfColors[COLOR_FONT_ALT].a == 0) {
+		skinConfColors[COLOR_FONT_ALT] = skinConfColors[COLOR_FONT];
+	}
+	if (skinConfColors[COLOR_FONT_ALT_OUTLINE].r == 253 && skinConfColors[COLOR_FONT_ALT_OUTLINE].g == 1 && skinConfColors[COLOR_FONT_ALT_OUTLINE].b == 252 && skinConfColors[COLOR_FONT_ALT_OUTLINE].a == 0) {
+		skinConfColors[COLOR_FONT_ALT_OUTLINE] = skinConfColors[COLOR_FONT_OUTLINE];
+	}
+	if (skinConfColors[COLOR_PREVIEW_BG].r == 253 && skinConfColors[COLOR_PREVIEW_BG].g == 1 && skinConfColors[COLOR_PREVIEW_BG].b == 252 && skinConfColors[COLOR_PREVIEW_BG].a == 0) {
+		skinConfColors[COLOR_PREVIEW_BG] = skinConfColors[COLOR_TOP_BAR_BG];
+		skinConfColors[COLOR_PREVIEW_BG].a == 170;
+	}
 
 	// prevents breaking current skin until they are updated
 	if (!skinConfInt["fontSizeTitle"] && skinConfInt["titleFontSize"] > 0) skinConfInt["fontSizeTitle"] = skinConfInt["titleFontSize"];
@@ -1413,6 +1423,7 @@ void GMenu2X::skinColors() {
 		sd.addSetting(new MenuSettingRGBA(this, tr["List Body"], tr["Color of the list body"], &skinConfColors[COLOR_LIST_BG]));
 		sd.addSetting(new MenuSettingRGBA(this, tr["Bottom Bar"], tr["Color of the bottom bar"], &skinConfColors[COLOR_BOTTOM_BAR_BG]));
 		sd.addSetting(new MenuSettingRGBA(this, tr["Selection"], tr["Color of the selection and other interface details"], &skinConfColors[COLOR_SELECTION_BG]));
+		sd.addSetting(new MenuSettingRGBA(this, tr["Box Art"], tr["Color of the box art background"], &skinConfColors[COLOR_PREVIEW_BG]));
 		sd.addSetting(new MenuSettingRGBA(this, tr["Message Box"], tr["Background color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BG]));
 		sd.addSetting(new MenuSettingRGBA(this, tr["Msg Box Border"], tr["Border color of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_BORDER]));
 		sd.addSetting(new MenuSettingRGBA(this, tr["Msg Box Selection"], tr["Color of the selection of the message box"], &skinConfColors[COLOR_MESSAGE_BOX_SELECTION]));
