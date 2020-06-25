@@ -20,38 +20,6 @@
 	LEFT       LEFT           SDLK_LEFT       276       !(mem[PDPIN] >> 00 & 0b1)
 */
 
-uint32_t default_keymap[NUM_ACTIONS] = {
-	0, // DO_NOTHING,
-	SDLK_UP, // UP,
-	SDLK_DOWN, // DOWN,
-	SDLK_LEFT, // LEFT,
-	SDLK_RIGHT, // RIGHT,
-	SDLK_LCTRL, // CONFIRM,
-	SDLK_LALT, // CANCEL,
-	SDLK_LSHIFT, // MANUAL,
-	SDLK_SPACE, // MODIFIER,
-	SDLK_TAB, // SECTION_PREV,
-	SDLK_BACKSPACE, // SECTION_NEXT,
-	SDLK_SPACE, // INC,
-	SDLK_LSHIFT, // DEC,
-	SDLK_BACKSPACE, // PAGEUP,
-	SDLK_TAB, // PAGEDOWN,
-	SDLK_RETURN, // SETTINGS,
-	SDLK_ESCAPE, // MENU,
-	0, // VOLUP,
-	0, // VOLDOWN,
-	SDLK_3, // BACKLIGHT,
-	SDLK_END, // POWER,
-	0, // UDC_CONNECT,
-	0, // UDC_REMOVE,
-	0, // MMC_INSERT,
-	0, // MMC_REMOVE,
-	0, // TV_CONNECT,
-	0, // TV_REMOVE,
-	0, // PHONES_CONNECT,
-	0, // PHONES_REMOVE,
-};
-
 volatile uint32_t *memregs;
 volatile uint8_t memdev = 0;
 int SOUND_MIXER_READ = SOUND_MIXER_READ_VOLUME;

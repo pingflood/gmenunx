@@ -228,7 +228,7 @@ void GMenu2X::main() {
 		return;
 	}
 
-	input.init(path + "input.conf", default_keymap);
+	input.init(path + "input.conf");
 	setInputSpeed();
 
 	readConfig();
@@ -889,7 +889,7 @@ void GMenu2X::resetSettings() {
 			reset_backdrop = false,
 			reset_filter = false,
 			reset_directory = false,
-			reset_preview = false,
+			reset_boxart = false,
 			reset_cpu = false;
 
 	string tmppath = "";
@@ -903,7 +903,7 @@ void GMenu2X::resetSettings() {
 	sd.addSetting(new MenuSettingBool(this, tr["Backdrops"], tr["Unset link's backdrops"], &reset_backdrop));
 	sd.addSetting(new MenuSettingBool(this, tr["Filters"], tr["Unset link's selector file filters"], &reset_filter));
 	sd.addSetting(new MenuSettingBool(this, tr["Directories"], tr["Unset link's selector directory"], &reset_directory));
-	sd.addSetting(new MenuSettingBool(this, tr["Previews"], tr["Unset link's selector previews path"], &reset_preview));
+	sd.addSetting(new MenuSettingBool(this, tr["Box art"], tr["Unset link's selector box art path"], &reset_boxart));
 	sd.addSetting(new MenuSettingBool(this, tr["CPU speed"], tr["Reset link's custom CPU speed back to default"], &reset_cpu));
 
 	if (sd.exec() && sd.edited() && sd.save) {
@@ -925,9 +925,9 @@ void GMenu2X::resetSettings() {
 				if (reset_parameter) 	menu->selLinkApp()->setParams("");
 				if (reset_filter) 		menu->selLinkApp()->setSelectorFilter("");
 				if (reset_directory) 	menu->selLinkApp()->setSelectorDir("");
-				if (reset_preview) 		menu->selLinkApp()->setSelectorScreens("");
+				if (reset_boxart) 		menu->selLinkApp()->setSelectorScreens("");
 				if (reset_backdrop) 	menu->selLinkApp()->setBackdrop("");
-				if (reset_icon || reset_manual || reset_parameter || reset_backdrop || reset_filter || reset_directory || reset_preview )
+				if (reset_icon || reset_manual || reset_parameter || reset_backdrop || reset_filter || reset_directory || reset_boxart )
 					menu->selLinkApp()->save();
 			}
 		}
@@ -1153,6 +1153,7 @@ void GMenu2X::writeSkinConfig() {
 				curr->first == "linkItemHeight" ||
 				curr->first == "topBarHeight" ||
 
+				(curr->first == "previewWidth" && curr->second == 142) ||
 				(curr->first == "linkCols" && curr->second == 4) ||
 				(curr->first == "linkRows" && curr->second == 4) ||
 				(curr->first == "sectionBar" && curr->second == SB_CLASSIC) ||
@@ -1511,12 +1512,10 @@ void GMenu2X::explorer() {
 			td.exec();
 		} else if (ext == ".ipk") {
 			TerminalDialog td(this, tr["Package installer"], "opkg install " + bd.getFileName(bd.selected), "skin:icons/configure.png");
-			// string cmd = "opkg install --force-reinstall " + bd.getFilePath(bd.selected);
-			td.exec("opkg install --force-reinstall " + bd.getFilePath(bd.selected));
+			td.exec("opkg install --force-reinstall --force-overwrite " + cmdclean(bd.getFilePath(bd.selected)));
 			initMenu();
 		} else if (ext == ".sh") {
-			TerminalDialog td(this, tr["Terminal"], "sh" + bd.getFilePath(bd.selected), "skin:icons/terminal.png");
-			// string cmd = bd.getFilePath(bd.selected);
+			TerminalDialog td(this, tr["Terminal"], "sh" + cmdclean(bd.getFileName(bd.selected)), "skin:icons/terminal.png");
 			td.exec(bd.getFilePath(bd.selected));
 		} else {
 			if (confInt["saveSelection"] && (confInt["section"] != menu->selSectionIndex() || confInt["link"] != menu->selLinkIndex()))
