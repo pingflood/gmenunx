@@ -23,8 +23,8 @@
 #include <algorithm>
 using std::find;
 
-MenuSettingMultiString::MenuSettingMultiString(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const vector<string> *choices, msms_onchange_t onChange, msms_onselect_t onSelect):
-MenuSettingStringBase(gmenu2x, title, description, value), choices(choices), onChange(onChange), onSelect(onSelect) {
+MenuSettingMultiString::MenuSettingMultiString(GMenu2X *gmenu2x, const string &title, const string &description, string *value, const vector<string> *choices, msms_onchange_t onChange, msms_onselect_t onSelect, msms_formatter_t formatter):
+MenuSettingStringBase(gmenu2x, title, description, value), choices(choices), onChange(onChange), onSelect(onSelect), formatter(formatter) {
 	setSel(find(choices->begin(), choices->end(), *value) - choices->begin());
 
 	if (choices->size() > 1) {
@@ -82,11 +82,16 @@ void MenuSettingMultiString::setSel(int sel) {
 void MenuSettingMultiString::draw(int y) {
 	MenuSetting::draw(y);
 
+	string value = this->value();
+	if (this->formatter) {
+		value = this->formatter(value);
+	}
+
 	int w = 0;
-	if (value() == "ON" || value() == "AUTO" || value() == "OFF") {
+	if (value == "ON" || value == "AUTO" || value == "OFF") {
 		w = gmenu2x->font->height() / 2.5;
 		RGBAColor color = (RGBAColor){255, 0, 0, 255};
-		if (value() == "ON" || value() == "AUTO") color = (RGBAColor) {0, 255, 0, 255};
+		if (value == "ON" || value == "AUTO") color = (RGBAColor) {0, 255, 0, 255};
 		gmenu2x->s->box(155, y + 1, w, gmenu2x->font->height() - 2, color);
 		gmenu2x->s->rectangle(155, y + 1, w, gmenu2x->font->height() - 2, 0, 0, 0, 255);
 		w += 2;
