@@ -282,7 +282,7 @@ void PKGScannerDialog::raScan(string radir) {
 			params = "",
 			description = "",
 			manual = "",
-			selectordir = "";
+			selectordir = "",
 			selectorfilter = "",
 			aliasfile = "",
 			scaling = "",
